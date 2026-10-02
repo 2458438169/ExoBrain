@@ -200,10 +200,12 @@ public class JChatMind {
     }
 
     // 刷新 pendingMessages, 将数据通过 sse 发送给前端
+    // 推送失败只记日志，不向上抛：消息已经落库了，前端刷新后能从历史里拿到，
+    // 不该因为「推不出去」就中断整个 Agent 执行（实测过前端断开会让整轮 run 崩掉）。
     private void refreshPendingMessages() {
         for (ChatMessageDTO message : pendingChatMessages) {
             ChatMessageVO vo = chatMessageConverter.toVO(message);
-            SseMessage sseMessage = SseMessage.builder()
+            trySend(SseMessage.builder()
                     .type(SseMessage.Type.AI_GENERATED_CONTENT)
                     .payload(SseMessage.Payload.builder()
                             .message(vo)
@@ -211,8 +213,7 @@ public class JChatMind {
                     .metadata(SseMessage.Metadata.builder()
                             .chatMessageId(message.getId())
                             .build())
-                    .build();
-            sseService.send(this.chatSessionId, sseMessage);
+                    .build());
         }
         pendingChatMessages.clear();
     }
@@ -243,18 +244,88 @@ public class JChatMind {
         return toolCalls.stream().anyMatch(call -> !CONTROL_TOOLS.contains(call.name()));
     }
 
-    // 推送 Agent 状态给前端（思考中 / 执行中 / 完成）。
-    // 状态属于可观测性，失败不应中断 Agent 执行，因此这里吞掉异常只记日志。
-    private void sendStatus(SseMessage.Type type, String statusText) {
+    // 上游（模型服务 / 中转站）过载时，会把「资源繁忙」这类提示当成**正常的 assistant.content**
+    // 用 HTTP 200 返回，而不是错误码。不识别的话，Agent 会把它当合法答复落库并展示给用户，
+    // 日志里一条 ERROR 都没有 —— 典型「看起来成功的失败」。
+    private static final List<String> UPSTREAM_BUSY_MARKERS = List.of(
+            "资源繁忙", "暂无可用资源", "请求量较大", "服务器繁忙", "服务繁忙",
+            "rate limit", "too many requests", "overloaded");
+
+    // 上游繁忙时的尝试次数（首次 + 2 次重试）
+    private static final int MODEL_MAX_ATTEMPTS = 3;
+
+    // 本轮 run 是否已经产出过「面向用户的答复」
+    private boolean userAnswerProduced;
+
+    // 是否已经为「没有答复」补过一轮收尾提醒（只补一次，避免和模型来回拉锯）
+    private boolean finalizeReminderSent;
+
+    // 本轮 run 的原始用户请求。
+    // 必须在 run() 开始时固定下来：收尾提醒是作为 UserMessage 注入 chatMemory 的，
+    // 若不固定，latestUserRequest() 会返回提醒文本，导致 thinkPrompt 里的
+    // 「用户的原始请求」被污染成「注意：你还没有给用户任何答复…」。
+    private String originalRequest = "";
+
+    private boolean isUpstreamBusy(String text) {
+        if (!StringUtils.hasText(text)) {
+            return false;
+        }
+        String lower = text.toLowerCase();
+        return UPSTREAM_BUSY_MARKERS.stream().anyMatch(marker -> lower.contains(marker.toLowerCase()));
+    }
+
+    // 调用模型，识别上游繁忙并重试。
+    private ChatResponse callModelWithRetry(Prompt prompt, String thinkPrompt) {
+        RuntimeException lastError = null;
+        for (int attempt = 1; attempt <= MODEL_MAX_ATTEMPTS; attempt++) {
+            ChatResponse response = this.chatClient
+                    .prompt(prompt)
+                    .system(thinkPrompt)
+                    .toolCallbacks(this.availableTools.toArray(new ToolCallback[0]))
+                    .call()
+                    .chatClientResponse()
+                    .chatResponse();
+
+            String text = response == null ? null : response.getResult().getOutput().getText();
+            if (!isUpstreamBusy(text)) {
+                return response;
+            }
+
+            String notice = text.strip();
+            lastError = new IllegalStateException("上游模型繁忙（重试 " + MODEL_MAX_ATTEMPTS + " 次仍失败）: " + notice);
+            log.warn("上游返回繁忙提示（第 {}/{} 次尝试）: {}", attempt, MODEL_MAX_ATTEMPTS, notice);
+            if (attempt < MODEL_MAX_ATTEMPTS) {
+                sleepQuietly(attempt * 1000L); // 简单退避：1s、2s
+            }
+        }
+        throw lastError;
+    }
+
+    private void sleepQuietly(long millis) {
         try {
-            sseService.send(this.chatSessionId, SseMessage.builder()
-                    .type(type)
-                    .payload(SseMessage.Payload.builder()
-                            .statusText(statusText)
-                            .build())
-                    .build());
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    // 推送 Agent 状态给前端（思考中 / 执行中 / 完成 / 失败提示）
+    private void sendStatus(SseMessage.Type type, String statusText) {
+        trySend(SseMessage.builder()
+                .type(type)
+                .payload(SseMessage.Payload.builder()
+                        .statusText(statusText)
+                        .build())
+                .build());
+    }
+
+    // SSE 是「展示 / 可观测性」通道，不是 Agent 执行的必要条件。
+    // 推不出去（前端没连、连接已断等）只记 WARN，绝不向上抛。
+    private void trySend(SseMessage message) {
+        try {
+            sseService.send(this.chatSessionId, message);
         } catch (Exception e) {
-            log.warn("状态推送失败（不影响 Agent 执行）: {}", e.getMessage());
+            log.warn("SSE 推送失败（不影响 Agent 执行）: {}", e.getMessage());
         }
     }
 
@@ -278,7 +349,7 @@ public class JChatMind {
                 【额外信息】
                 - 你目前拥有的知识库列表以及描述：%s
                 - 如果有缺失的上下文时，优先从知识库中进行搜索
-                """.formatted(latestUserRequest(), this.availableKbs);
+                """.formatted(this.originalRequest, this.availableKbs);
 
         // 将 thinkPrompt 通过 .user(thinkPrompt) 的方式构造进入 chatClient 中
         // 既能让每次 messageList 的最后一条是 本条提示词，
@@ -291,13 +362,7 @@ public class JChatMind {
         // 通知前端：进入思考阶段
         sendStatus(SseMessage.Type.AI_THINKING, "正在思考下一步动作…");
 
-        this.lastChatResponse = this.chatClient
-                .prompt(prompt)
-                .system(thinkPrompt)
-                .toolCallbacks(this.availableTools.toArray(new ToolCallback[0]))
-                .call()
-                .chatClientResponse()
-                .chatResponse();
+        this.lastChatResponse = callModelWithRetry(prompt, thinkPrompt);
 
         Assert.notNull(lastChatResponse, "Last chat client response cannot be null");
 
@@ -308,6 +373,13 @@ public class JChatMind {
         List<AssistantMessage.ToolCall> toolCalls = output.getToolCalls();
 
         boolean decisionRound = hasRealWorkToolCall(toolCalls);
+
+        // 记录本轮是否算「用户真的拿到了答复」：不是决策轮，且 content 非空。
+        // step() / execute() 靠这个标志判断「能不能算正常结束」——
+        // 只跑完流程不算成功，用户拿到东西才算。
+        if (!decisionRound && StringUtils.hasText(output.getText())) {
+            this.userAnswerProduced = true;
+        }
 
         // 落库：带 tool_calls 的 assistant 消息必须持久化，
         // 协议要求它与后面 execute() 写入的 tool 响应成对出现。
@@ -373,17 +445,43 @@ public class JChatMind {
         if (toolResponseMessage.getResponses()
                 .stream()
                 .anyMatch(resp -> resp.name().equals("terminate"))) {
-            this.agentState = AgentState.FINISHED;
-            log.info("任务结束");
+            if (userAnswerProduced) {
+                this.agentState = AgentState.FINISHED;
+                log.info("任务结束（模型调用 terminate）");
+            } else {
+                // 实测过：模型查到数据后直接调 terminate，一个字都不给用户。
+                // 这种「流程跑完了但用户什么都没收到」不能算成功结束。
+                forceFinalizeRound("模型调用 terminate 结束，但从未给出面向用户的答复");
+            }
         }
+    }
+
+    // 循环即将结束但用户还没拿到任何答复时，注入一条提醒让模型补一轮收尾。
+    // 只补一次：第二次仍然失败就置 ERROR，让失败可见，而不是静默结束。
+    private void forceFinalizeRound(String reason) {
+        if (finalizeReminderSent) {
+            log.error("Agent 始终未产出面向用户的答复，置为 ERROR。原因：{}", reason);
+            this.agentState = AgentState.ERROR;
+            return;
+        }
+        log.warn("Agent 即将结束但用户还没拿到答复，注入提醒补一轮收尾。原因：{}", reason);
+        this.finalizeReminderSent = true;
+        this.chatMemory.add(this.chatSessionId, new UserMessage(
+                "注意：你还没有给用户任何答复。请基于已经获得的信息，直接给出一段面向用户的最终答复，不要再调用任何工具。"));
     }
 
     // 单个步骤模板
     private void step() {
         if (think()) {
             execute();
-        } else { // 没有工具调用
-            agentState = AgentState.FINISHED;
+        } else {
+            // 模型不再调工具 = 想结束本轮。但必须确认用户真的拿到了答复，
+            // 否则就是「流程走完了、用户什么都没收到」—— 流程跑完不等于成功。
+            if (userAnswerProduced) {
+                agentState = AgentState.FINISHED;
+            } else {
+                forceFinalizeRound("模型既没调用工具、也没给出面向用户的答复");
+            }
         }
     }
 
@@ -393,25 +491,35 @@ public class JChatMind {
             throw new IllegalStateException("Agent is not idle");
         }
 
+        // 每轮 run 重置运行态
+        this.userAnswerProduced = false;
+        this.finalizeReminderSent = false;
+        // 固定本轮的用户请求：之后可能注入收尾提醒，不能每轮重新取「最近一条 user 消息」
+        this.originalRequest = latestUserRequest();
+
         try {
-            for (int i = 0; i < MAX_STEPS && agentState != AgentState.FINISHED; i++) {
-                // 当前步骤，用于实现 Agent Loop
-                int currentStep = i + 1;
+            for (int i = 0;
+                 i < MAX_STEPS && agentState != AgentState.FINISHED && agentState != AgentState.ERROR;
+                 i++) {
                 step();
-                if (currentStep >= MAX_STEPS) {
+                if (i + 1 >= MAX_STEPS && agentState != AgentState.ERROR) {
                     agentState = AgentState.FINISHED;
-                    log.warn("Max steps reached, stopping agent");
+                    log.warn("达到最大步骤数，停止 Agent");
                 }
             }
-            agentState = AgentState.FINISHED;
+            // 不要无条件覆盖 ERROR：失败状态要保留下来给上层和前端看
+            if (agentState != AgentState.ERROR) {
+                agentState = AgentState.FINISHED;
+            }
         } catch (Exception e) {
             agentState = AgentState.ERROR;
             log.error("Error running agent", e);
             throw new RuntimeException("Error running agent", e);
         } finally {
-            // 无论正常结束还是抛异常，都通知前端收尾，
+            // 无论正常结束还是异常，都通知前端收尾，
             // 否则「思考中/执行中」的状态提示会一直转下去不消失
-            sendStatus(SseMessage.Type.AI_DONE, "完成");
+            sendStatus(SseMessage.Type.AI_DONE,
+                    agentState == AgentState.ERROR ? "执行失败" : "完成");
         }
     }
 
