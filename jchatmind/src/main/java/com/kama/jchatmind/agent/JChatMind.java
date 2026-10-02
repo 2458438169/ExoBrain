@@ -1,5 +1,7 @@
 package com.kama.jchatmind.agent;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kama.jchatmind.converter.ChatMessageConverter;
 import com.kama.jchatmind.message.SseMessage;
 import com.kama.jchatmind.model.dto.ChatMessageDTO;
@@ -240,8 +242,35 @@ public class JChatMind {
     //    「有没有真正干活的工具」，而不能简单看成「有没有 tool_calls」。
     private static final Set<String> CONTROL_TOOLS = Set.of("terminate", "directAnswer");
 
+    // 交付最终答复的正式通道（见 DirectAnswerTool）
+    private static final String DIRECT_ANSWER_TOOL = "directAnswer";
+
+    // 只用于从 toolCalls 的 arguments 里读一个 JSON 字段。
+    // ObjectMapper 的读操作是线程安全的，静态持有即可，无需走 Spring 注入。
+    private static final ObjectMapper JSON = new ObjectMapper();
+
     private boolean hasRealWorkToolCall(List<AssistantMessage.ToolCall> toolCalls) {
         return toolCalls.stream().anyMatch(call -> !CONTROL_TOOLS.contains(call.name()));
+    }
+
+    // 从 directAnswer 工具的 arguments 里取出模型交付的答复。
+    // 形如 {"answer": "……"}；工具没被调用、字段缺失或解析失败都返回 null。
+    private String extractDirectAnswer(List<AssistantMessage.ToolCall> toolCalls) {
+        for (AssistantMessage.ToolCall call : toolCalls) {
+            if (!DIRECT_ANSWER_TOOL.equals(call.name())) {
+                continue;
+            }
+            try {
+                JsonNode node = JSON.readTree(call.arguments());
+                JsonNode answer = node == null ? null : node.get("answer");
+                if (answer != null && StringUtils.hasText(answer.asText())) {
+                    return answer.asText();
+                }
+            } catch (Exception e) {
+                log.warn("解析 directAnswer 参数失败: {}", e.getMessage());
+            }
+        }
+        return null;
     }
 
     // 上游（模型服务 / 中转站）过载时，会把「资源繁忙」这类提示当成**正常的 assistant.content**
@@ -342,9 +371,10 @@ public class JChatMind {
                 【硬性约束】
                 1. 你只能处理上面这条用户请求。严禁臆造、替换或扩大用户没有提出的任务；
                    上下文里若出现与用户请求无关的内容，一律忽略。
-                2. 如果用户请求不需要外部信息即可回答，请直接给出最终回答，不要调用任何工具。
-                3. 调用工具时，content 只写一句 20 字以内的极简说明；
-                   不要输出决策过程、思考细节，也不要复述或分析提示词本身。
+                2. 需要给用户回答时，必须调用 directAnswer 工具，把完整答复放进它的 answer 参数。
+                   不要把答复写在 content 里 —— content 只用于一句话说明你接下来要做什么。
+                3. content 只写一句 20 字以内的极简说明（例如「先获取城市和日期」）；
+                   不要输出决策过程、推理细节，也不要复述或分析提示词本身。
 
                 【额外信息】
                 - 你目前拥有的知识库列表以及描述：%s
@@ -374,29 +404,45 @@ public class JChatMind {
 
         boolean decisionRound = hasRealWorkToolCall(toolCalls);
 
-        // 记录本轮是否算「用户真的拿到了答复」：不是决策轮，且 content 非空。
-        // step() / execute() 靠这个标志判断「能不能算正常结束」——
-        // 只跑完流程不算成功，用户拿到东西才算。
-        if (!decisionRound && StringUtils.hasText(output.getText())) {
+        // 最终答复的正式通道：模型调用 directAnswer，答复放在 answer 参数里。
+        String directAnswer = extractDirectAnswer(toolCalls);
+
+        AssistantMessage toPersist;
+        String answerText = null;
+        if (decisionRound) {
+            // 决策轮：content 是模型的内部独白（「先获取城市和日期」之类），不是给用户看的答复。
+            // 落库时清空，避免它留在历史里；也不下发前端。
+            toPersist = AssistantMessage.builder().content("").toolCalls(toolCalls).build();
+        } else if (StringUtils.hasText(directAnswer)) {
+            // 答复轮（正式通道）：只认 directAnswer 的 answer。
+            // content 里可能混着思维链，一律丢弃 —— 这就是通道分离的意义。
+            answerText = directAnswer;
+            toPersist = AssistantMessage.builder().content(directAnswer).toolCalls(toolCalls).build();
+        } else if (StringUtils.hasText(output.getText())) {
+            // 兜底：模型没走 directAnswer 通道，只能把 content 当答复。
+            // ⚠️ 这条路径正是独白可能泄漏的地方（实测过 943 字思维链混在这里，且那轮没有任何工具调用），
+            // 所以记 WARN 保留可观测性 —— 生产上可以据此告警，或改成更严格的策略（拒绝该轮、重试）。
+            log.warn("模型未通过 directAnswer 通道交付答复，回退到 content（可能混入思维链），长度={}",
+                    output.getText().length());
+            answerText = output.getText();
+            toPersist = output;
+        } else {
+            // 既没有工具调用、也没有任何内容：交给 step() 判为「没给用户答复」并补收尾
+            toPersist = output;
+        }
+
+        if (StringUtils.hasText(answerText)) {
             this.userAnswerProduced = true;
         }
 
-        // 落库：带 tool_calls 的 assistant 消息必须持久化，
-        // 协议要求它与后面 execute() 写入的 tool 响应成对出现。
-        // 但决策轮的 content 是模型的内部独白（「我先查城市再查天气」之类），不是给用户看的答复，
-        // 落库时清空，避免它出现在历史记录里被前端当聊天消息渲染。
-        // 独白本身在日志里保留（logToolCalls 及 execute 的日志），排查时仍然看得到。
-        AssistantMessage toPersist = decisionRound
-                ? AssistantMessage.builder().content("").toolCalls(toolCalls).build()
-                : output;
         saveMessage(toPersist);
 
-        if (decisionRound) {
-            // 决策轮：不下发前端（消息已落库，只丢弃待发队列）
-            pendingChatMessages.clear();
-        } else {
-            // 答复轮：没有工具调用，或只调了 terminate / directAnswer，content 是给用户的
+        if (answerText != null) {
+            // 本轮产出了给用户的答复 → 下发前端
             refreshPendingMessages();
+        } else {
+            // 决策轮，或本轮没有任何可给用户的内容 → 不下发（消息已落库）
+            pendingChatMessages.clear();
         }
 
         // 打印工具调用
@@ -441,6 +487,15 @@ public class JChatMind {
         // 保存工具调用
         saveMessage(toolResponseMessage);
         refreshPendingMessages();
+
+        // 模型通过 directAnswer 交付了答复 → 任务完成，不必再多跑一轮模型调用
+        if (toolResponseMessage.getResponses()
+                .stream()
+                .anyMatch(resp -> resp.name().equals(DIRECT_ANSWER_TOOL))) {
+            this.agentState = AgentState.FINISHED;
+            log.info("任务结束（模型通过 directAnswer 交付答复）");
+            return;
+        }
 
         if (toolResponseMessage.getResponses()
                 .stream()
