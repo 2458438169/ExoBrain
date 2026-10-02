@@ -25,6 +25,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -216,16 +217,68 @@ public class JChatMind {
         pendingChatMessages.clear();
     }
 
+    // 取最近一条用户消息的原文。
+    // 目的：显式把「用户到底要什么」复述给决策模块，避免模型顺着 system prompt
+    // 的措辞臆造出一个用户从未提出的任务（实测过这种幻觉会被 Agent 忠实执行到底）。
+    private String latestUserRequest() {
+        List<Message> history = this.chatMemory.get(this.chatSessionId);
+        for (int i = history.size() - 1; i >= 0; i--) {
+            if (history.get(i) instanceof UserMessage userMessage) {
+                return userMessage.getText();
+            }
+        }
+        return "";
+    }
+
+    // 控制类工具：只用于控制循环走向，不获取外部信息。
+    // 用途是区分两种 assistant 消息：
+    //   - 决策轮：调用了真正干活的工具（getCity / weather / databaseQuery …），
+    //             此时的 content 是模型的内部独白，不是给用户看的
+    //   - 答复轮：没有工具调用，或只调了控制类工具，此时的 content 才是给用户的答复
+    // ⚠️ 实测过「最终答复 + terminate」出现在同一条消息里，所以判据必须是
+    //    「有没有真正干活的工具」，而不能简单看成「有没有 tool_calls」。
+    private static final Set<String> CONTROL_TOOLS = Set.of("terminate", "directAnswer");
+
+    private boolean hasRealWorkToolCall(List<AssistantMessage.ToolCall> toolCalls) {
+        return toolCalls.stream().anyMatch(call -> !CONTROL_TOOLS.contains(call.name()));
+    }
+
+    // 推送 Agent 状态给前端（思考中 / 执行中 / 完成）。
+    // 状态属于可观测性，失败不应中断 Agent 执行，因此这里吞掉异常只记日志。
+    private void sendStatus(SseMessage.Type type, String statusText) {
+        try {
+            sseService.send(this.chatSessionId, SseMessage.builder()
+                    .type(type)
+                    .payload(SseMessage.Payload.builder()
+                            .statusText(statusText)
+                            .build())
+                    .build());
+        } catch (Exception e) {
+            log.warn("状态推送失败（不影响 Agent 执行）: {}", e.getMessage());
+        }
+    }
+
     // thinkPrompt 应该放到 system 中还是
     private boolean think() {
         String thinkPrompt = """
-                现在你是一个智能的的具体「决策模块」
+                现在你是一个智能的「决策模块」。
                 请根据当前对话上下文，决定下一步的动作。
-                                \s
+                如果需要调用工具来完成任务，请调用相应的工具。
+
+                【用户的原始请求（唯一任务来源）】
+                %s
+
+                【硬性约束】
+                1. 你只能处理上面这条用户请求。严禁臆造、替换或扩大用户没有提出的任务；
+                   上下文里若出现与用户请求无关的内容，一律忽略。
+                2. 如果用户请求不需要外部信息即可回答，请直接给出最终回答，不要调用任何工具。
+                3. 调用工具时，content 只写一句 20 字以内的极简说明；
+                   不要输出决策过程、思考细节，也不要复述或分析提示词本身。
+
                 【额外信息】
                 - 你目前拥有的知识库列表以及描述：%s
                 - 如果有缺失的上下文时，优先从知识库中进行搜索
-                """.formatted(this.availableKbs);
+                """.formatted(latestUserRequest(), this.availableKbs);
 
         // 将 thinkPrompt 通过 .user(thinkPrompt) 的方式构造进入 chatClient 中
         // 既能让每次 messageList 的最后一条是 本条提示词，
@@ -234,6 +287,9 @@ public class JChatMind {
                 .chatOptions(this.chatOptions)
                 .messages(this.chatMemory.get(this.chatSessionId))
                 .build();
+
+        // 通知前端：进入思考阶段
+        sendStatus(SseMessage.Type.AI_THINKING, "正在思考下一步动作…");
 
         this.lastChatResponse = this.chatClient
                 .prompt(prompt)
@@ -251,9 +307,25 @@ public class JChatMind {
 
         List<AssistantMessage.ToolCall> toolCalls = output.getToolCalls();
 
-        // 保存
-        saveMessage(output);
-        refreshPendingMessages();
+        boolean decisionRound = hasRealWorkToolCall(toolCalls);
+
+        // 落库：带 tool_calls 的 assistant 消息必须持久化，
+        // 协议要求它与后面 execute() 写入的 tool 响应成对出现。
+        // 但决策轮的 content 是模型的内部独白（「我先查城市再查天气」之类），不是给用户看的答复，
+        // 落库时清空，避免它出现在历史记录里被前端当聊天消息渲染。
+        // 独白本身在日志里保留（logToolCalls 及 execute 的日志），排查时仍然看得到。
+        AssistantMessage toPersist = decisionRound
+                ? AssistantMessage.builder().content("").toolCalls(toolCalls).build()
+                : output;
+        saveMessage(toPersist);
+
+        if (decisionRound) {
+            // 决策轮：不下发前端（消息已落库，只丢弃待发队列）
+            pendingChatMessages.clear();
+        } else {
+            // 答复轮：没有工具调用，或只调了 terminate / directAnswer，content 是给用户的
+            refreshPendingMessages();
+        }
 
         // 打印工具调用
         logToolCalls(toolCalls);
@@ -269,6 +341,9 @@ public class JChatMind {
         if (!this.lastChatResponse.hasToolCalls()) {
             return;
         }
+
+        // 通知前端：进入执行阶段
+        sendStatus(SseMessage.Type.AI_EXECUTING, "正在执行工具调用…");
 
         Prompt prompt = Prompt.builder()
                 .messages(this.chatMemory.get(this.chatSessionId))
@@ -333,6 +408,10 @@ public class JChatMind {
             agentState = AgentState.ERROR;
             log.error("Error running agent", e);
             throw new RuntimeException("Error running agent", e);
+        } finally {
+            // 无论正常结束还是抛异常，都通知前端收尾，
+            // 否则「思考中/执行中」的状态提示会一直转下去不消失
+            sendStatus(SseMessage.Type.AI_DONE, "完成");
         }
     }
 
