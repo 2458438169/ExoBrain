@@ -1,7 +1,6 @@
 -- ============================================================
--- JChatMind 主业务库建表脚本
--- 来源：教程「Agent开发实践（三）：数据模型设计」的 DDL
---      + 对照 6 个 mapper XML 校正
+-- 主业务库建表脚本（PostgreSQL + pgvector）
+-- 依据数据模型设计 DDL，并对照 6 个 mapper XML 核对校正
 -- 执行：docker exec -i jchatmind-postgres psql -U postgres -d jchatmind -v ON_ERROR_STOP=1 < db/jchatmind.sql
 -- ============================================================
 
@@ -87,8 +86,8 @@ CREATE TABLE IF NOT EXISTS chunk_bge_m3 (
     kb_id      UUID NOT NULL REFERENCES knowledge_base(id) ON DELETE CASCADE,
     doc_id     UUID NOT NULL REFERENCES document(id) ON DELETE CASCADE,
     content    TEXT NOT NULL,               -- 向量只负责「找」，文本才负责「看」
-    -- ⚠ 教程写的是 JSONB，但 ChunkBgeM3Mapper.xml 的 insert 是裸 #{metadata}，
-    --   没有 CAST(... AS jsonb)，写成 JSONB 会在插入时报
+    -- ⚠ 注意：ChunkBgeM3Mapper.xml 的 insert 是裸 #{metadata}，没有 CAST(... AS jsonb)，
+    --   写成 JSONB 会在插入时报
     --   "column metadata is of type jsonb but expression is of type character varying"
     --   故此处按 TEXT 建（其余 5 张表的 metadata 都是 JSONB 且 mapper 中有 CAST）
     metadata   TEXT,
