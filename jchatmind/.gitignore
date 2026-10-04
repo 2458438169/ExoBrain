@@ -33,3 +33,5 @@ build/
 .vscode/
 
 src/main/resources/application-dev.yaml
+### 运行时数据：用户上传的文档等（document.storage.base-path 指向此处），绝不提交
+/data/
