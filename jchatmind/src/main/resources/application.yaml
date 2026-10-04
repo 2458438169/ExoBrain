@@ -40,3 +40,13 @@ mybatis:
 document:
   storage:
     base-path: ./data/documents
+
+# embedding 服务
+# 默认指向本机 Ollama（零外部依赖）；也可以指向任意 OpenAI 兼容端点（自建 / 第三方）
+# 具体地址与 Key 放 application-dev.yaml（已被 .gitignore 排除）
+app:
+  embedding:
+    protocol: ollama                     # ollama | openai
+    base-url: http://localhost:11434
+    model: bge-m3                        # ⚠️ 维度必须与 chunk_bge_m3.embedding vector(1024) 一致
+    api-key:                             # 留空则不发送 Authorization 头
