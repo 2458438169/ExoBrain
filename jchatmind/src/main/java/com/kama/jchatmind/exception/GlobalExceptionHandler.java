@@ -10,6 +10,12 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
+    @ExceptionHandler(DocumentContentException.class)
+    public ResponseEntity<ApiResponse<Void>> handleDocumentContent(DocumentContentException error) {
+        return ResponseEntity.status(error.getStatus())
+                .body(ApiResponse.error(error.getStatus(), error.getMessage()));
+    }
+
     /**
      * 捕获业务异常，错误信息返回给前端
      */

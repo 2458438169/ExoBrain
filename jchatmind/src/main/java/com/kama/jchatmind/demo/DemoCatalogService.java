@@ -7,12 +7,14 @@ import com.kama.jchatmind.mapper.DocumentMapper;
 import com.kama.jchatmind.mapper.KnowledgeBaseMapper;
 import com.kama.jchatmind.model.dto.ChatMessageDTO;
 import com.kama.jchatmind.model.response.GetDocumentsResponse;
+import com.kama.jchatmind.model.response.GetDocumentContentResponse;
 import com.kama.jchatmind.model.response.GetKnowledgeBasesResponse;
 import com.kama.jchatmind.model.vo.ChatMessageVO;
 import com.kama.jchatmind.model.vo.ChatSessionVO;
 import com.kama.jchatmind.model.vo.DocumentVO;
 import com.kama.jchatmind.model.vo.KnowledgeBaseVO;
 import com.kama.jchatmind.service.ChatMessageFacadeService;
+import com.kama.jchatmind.service.DocumentFacadeService;
 import lombok.AllArgsConstructor;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.stereotype.Service;
@@ -33,6 +35,7 @@ public class DemoCatalogService {
     private final DocumentMapper documents;
     private final ChatMessageFacadeService messages;
     private final ObjectMapper json;
+    private final DocumentFacadeService documentContent;
 
     public record PublicTool(String name, String description, ToolType type) { }
     public record Showcases(List<ChatSessionVO> showcases) { }
@@ -63,6 +66,10 @@ public class DemoCatalogService {
                 new PublicTool("getDate", "读取服务器当前日期，适合测试真实工具调用。", ToolType.FIXED),
                 new PublicTool("directAnswer", "将最终答复交付到对话中。", ToolType.FIXED),
                 new PublicTool("terminate", "在任务完成后结束本轮执行。", ToolType.FIXED));
+    }
+
+    public GetDocumentContentResponse documentContent(String documentId) {
+        return documentContent.getDocumentContent(documentId, access::isPublicKb);
     }
 
     public Showcases showcases() {

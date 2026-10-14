@@ -4,8 +4,10 @@ import com.kama.jchatmind.model.common.ApiResponse;
 import com.kama.jchatmind.model.request.CreateDocumentRequest;
 import com.kama.jchatmind.model.request.UpdateDocumentRequest;
 import com.kama.jchatmind.model.response.CreateDocumentResponse;
+import com.kama.jchatmind.model.response.GetDocumentContentResponse;
 import com.kama.jchatmind.model.response.GetDocumentsResponse;
 import com.kama.jchatmind.service.DocumentFacadeService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,6 +29,13 @@ public class DocumentController {
     @GetMapping("/documents/kb/{kbId}")
     public ApiResponse<GetDocumentsResponse> getDocumentsByKbId(@PathVariable String kbId) {
         return ApiResponse.success(documentFacadeService.getDocumentsByKbId(kbId));
+    }
+
+    @GetMapping("/documents/{documentId}/content")
+    public ApiResponse<GetDocumentContentResponse> getDocumentContent(@PathVariable String documentId,
+            HttpServletResponse response) {
+        response.setHeader("Cache-Control", "no-store");
+        return ApiResponse.success(documentFacadeService.getDocumentContent(documentId));
     }
 
     // 创建文档（仅创建记录，不上传文件）

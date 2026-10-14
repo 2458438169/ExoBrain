@@ -6,7 +6,7 @@
 
 ## 在线入口：游客免登录与账号密码登录
 
-本轮前端发布版本为 `20261014-natural-demo`（2026-10-14），两种访问模式同时保留：
+本轮前后端发布版本为 `20261014-md-preview`（2026-10-14），应用镜像为 `exobrain:20261014-md-preview`，两种访问模式同时保留：
 
 | 模式 | 入口 | 访问范围 |
 | --- | --- | --- |
@@ -31,6 +31,10 @@
 - [Java 后端技术问答](docs/public-demo/03_java_backend_faq.md)
 
 只有这三份文件用于索引。[检索测试清单](docs/public-demo/99_test_questions.md) 与 [演示助手提示词参考](docs/public-demo/agent-system-prompt.md) 供维护和复核，**不上传知识库**。公开示例仅使用上述项目资料，不包含私人聊天或运行凭据。
+
+在知识库的文档列表点击 Markdown 文件名或“预览”入口，可以打开只读内容并切换“预览 / 源码”。支持 UTF-8 编码的 `.md`、`.markdown` 文件，扩展名不区分大小写，原文件最大 **2 MiB（2,097,152 字节）**。源码视图显示文件原文；这项阅读功能不改变现有的标题向量索引方式。
+
+游客只能预览已列入公开名单的知识库文档。管理模式的预览沿用 HTTP Basic 认证，可通过原管理 API 或 `/admin/api/` 访问；文档原文接口不返回服务器存储路径。接口与部署要求见 [Markdown 预览说明](deploy/README.md#markdown-preview)。
 
 ---
 
@@ -243,12 +247,24 @@ rg -o '"type":"[A-Z_]*"' sse.log | sort | uniq -c
 | `GET` | `/api/chat-messages/session/{id}` | 完整消息历史（含 toolCalls / toolResponse） |
 | `GET` | `/sse/connect/{chatSessionId}` | SSE 长连接，收状态与生成内容 |
 | `GET` | `/api/agents` `/api/tools` | Agent 列表 / 可用工具列表 |
+| `GET` | `/api/documents/{documentId}/content` | 管理模式读取 Markdown 原文；线上亦可通过 `/admin/api/documents/{documentId}/content` 访问 |
+| `GET` | `/api/demo/documents/{documentId}/content` | 游客读取已公开知识库中的 Markdown 原文 |
+
+两种原文接口均返回 `ApiResponse`，其 `data` 为 `{documentId, filename, content}`；`content` 是按 UTF-8 解码并移除可选 BOM 的文件文本。预览是只读操作，文件格式与大小限制对游客和管理模式均适用。
 
 ## 已上线版本的验证记录
 
-2026-10-14 的发布验收记录包含：后端指定回归选择 34 项通过，前端 lint 与公开版 / 管理版构建通过，游客 Cookie 隔离、知识检索、SSE、精选只读和管理认证完成验证。`20261014-agent-labels-r2` 的追加验证覆盖不同 Agent 历史、空关联提示与禁发，以及手机布局。
+2026-10-14 的 `20261014-md-preview` 发布已完成以下验证：
 
-这些是既有发布验收结果，不表示每次文档修改都重新执行了整套检查；后续代码或部署变更应重新执行对应验证。构建命令及边界检查见 [部署说明](deploy/README.md#verification-record)。
+- 后端指定回归共 59 项：56 项通过，0 失败、0 错误，3 项因当前 Windows 环境不支持创建符号链接而跳过。实际发布 JAR 的存储实现另在隔离的 Linux Java 21 容器中通过 12 项检查，无跳过，覆盖符号链接等文件读取边界。
+- 前端 lint、TypeScript 检查及公开版 / 管理版构建通过；本地浏览器用例覆盖 375px 布局、完整 2 MiB 源码、渲染安全、关闭与迟到响应、错误重试和管理操作入口。
+- 候选网关与已发布网关的本机回环检查各通过 33 项；3 份公开文档经游客及认证管理 API 读取的文本均与磁盘原文一致，已有消息和私有运行配置保持不变。
+- 公网 HTTPS 的 33 项预览检查及重新执行的 35 项公开演示回归均通过，覆盖原文一致性、禁止缓存、认证与公开名单、示例只读、游客隔离及私人历史拒绝。
+- 真实 Chrome 中的游客与管理预览通过：原文渲染、源码与 API 文本逐字符一致、Escape 关闭和管理上传 / 删除入口均正常；390 × 844 游客手机视图无横向溢出，两种模式的控制台均无错误或警告。
+
+本轮线上没有未公开文档实例，因此未现场验证实际私有文档的拒绝访问；该权限边界由后端测试覆盖。
+
+同日较早发布的历史基线包含后端 34 项回归、游客 Cookie 隔离、知识检索、SSE、精选只读和管理认证；`20261014-agent-labels-r2` 另验证了不同 Agent 历史、空关联提示与禁发，以及手机布局。构建命令、当前发布验证与历史记录见 [部署说明](deploy/README.md#verification-record)。
 
 ---
 

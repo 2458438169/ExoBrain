@@ -3,12 +3,14 @@ package com.kama.jchatmind.service.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.kama.jchatmind.converter.DocumentConverter;
 import com.kama.jchatmind.exception.BizException;
+import com.kama.jchatmind.exception.DocumentContentException;
 import com.kama.jchatmind.mapper.DocumentMapper;
 import com.kama.jchatmind.model.dto.DocumentDTO;
 import com.kama.jchatmind.model.entity.Document;
 import com.kama.jchatmind.model.request.CreateDocumentRequest;
 import com.kama.jchatmind.model.request.UpdateDocumentRequest;
 import com.kama.jchatmind.model.response.CreateDocumentResponse;
+import com.kama.jchatmind.model.response.GetDocumentContentResponse;
 import com.kama.jchatmind.model.response.GetDocumentsResponse;
 import com.kama.jchatmind.model.vo.DocumentVO;
 import com.kama.jchatmind.mapper.ChunkBgeM3Mapper;
@@ -32,6 +34,9 @@ import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.function.Predicate;
 
 @Service
 @AllArgsConstructor
@@ -44,6 +49,48 @@ public class DocumentFacadeServiceImpl implements DocumentFacadeService {
     private final MarkdownParserService markdownParserService;
     private final RagService ragService;
     private final ChunkBgeM3Mapper chunkBgeM3Mapper;
+
+    @Override
+    public GetDocumentContentResponse getDocumentContent(String documentId) {
+        return getDocumentContent(documentId, kbId -> true);
+    }
+
+    @Override
+    public GetDocumentContentResponse getDocumentContent(String documentId, Predicate<String> mayReadKb) {
+        Objects.requireNonNull(mayReadKb, "A document access policy is required");
+        String id;
+        try {
+            id = UUID.fromString(documentId).toString();
+            if (!id.equalsIgnoreCase(documentId)) throw DocumentContentException.notFound();
+        } catch (IllegalArgumentException | NullPointerException invalidId) {
+            throw DocumentContentException.notFound();
+        }
+        Document document = documentMapper.selectById(id);
+        // Authorize the very same record used for the read, before metadata parsing or file access.
+        if (document == null || !id.equalsIgnoreCase(document.getId()) || !mayReadKb.test(document.getKbId())) {
+            throw DocumentContentException.notFound();
+        }
+        String filename = document.getFilename();
+        if (filename != null) {
+            filename = filename.replace('\\', '/');
+            filename = filename.substring(filename.lastIndexOf('/') + 1);
+        }
+        String filetype = getFileType(filename);
+        if (!"md".equalsIgnoreCase(filetype) && !"markdown".equalsIgnoreCase(filetype)) {
+            throw DocumentContentException.unsupportedType();
+        }
+        DocumentDTO dto;
+        try {
+            dto = documentConverter.toDTO(document);
+        } catch (JsonProcessingException invalidMetadata) {
+            throw DocumentContentException.unavailable();
+        }
+        if (dto.getMetadata() == null || dto.getMetadata().getFilePath() == null) {
+            throw DocumentContentException.unavailable();
+        }
+        String content = documentStorageService.readMarkdown(document.getKbId(), id, dto.getMetadata().getFilePath());
+        return new GetDocumentContentResponse(id, filename, content);
+    }
 
     @Override
     public GetDocumentsResponse getDocuments() {

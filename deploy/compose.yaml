@@ -25,7 +25,7 @@ services:
         max-size: 10m
         max-file: "3"
   app:
-    image: exobrain:20261014-demo
+    image: exobrain:20261014-md-preview
     restart: unless-stopped
     depends_on:
       postgres:

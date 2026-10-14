@@ -6,7 +6,7 @@ Both access modes remain available:
 - [Account and password / 账号密码登录（管理模式）](https://exobrain.sharmoon.cc.cd/admin/)
 
 The 2026-10-14 release uses application image
-`exobrain:20261014-demo`, frontend release `20261014-natural-demo`, Java 21,
+`exobrain:20261014-md-preview`, frontend release `20261014-md-preview`, Java 21,
 and timezone `Asia/Shanghai`. The backend uses Spring Boot 3.5.8, Spring AI 1.1.0,
 MyBatis and PostgreSQL 17 with pgvector; the UI uses React 19, TypeScript and
 Ant Design. This guide contains reusable configuration, not production credentials.
@@ -32,6 +32,7 @@ authenticated administrator's management access.
 | --- | --- | --- |
 | `/` | Public | Project demo, public knowledge-base overview, personal chats and example conversations |
 | Explicit routes under `/api/demo/` | Public, subject to backend ownership and resource checks | Demo agent, public documents, visitor chats and curated read-only history |
+| `GET /api/demo/documents/<document-uuid>/content` | Public knowledge bases only | Read-only Markdown source from an allowlisted knowledge base |
 | `/sse/demo/connect/<session-uuid>` | Owning visitor only | Live updates for that visitor's editable chat |
 | `/admin/` | HTTP Basic authentication | Administration UI; `/admin` redirects here |
 | `/admin/api/`, `/admin/sse/` | HTTP Basic authentication | Administration UI's API and SSE routes |
@@ -58,7 +59,7 @@ Run from the repository root in PowerShell:
 
 ```powershell
 Set-Location jchatmind
-.\mvnw.cmd clean package '-Dtest=JchatmindApplicationTests,JChatMindFactoryTest,SseServiceImplTest,DocumentFacadeServiceImplTest,RagServiceImplTest,ProductionToolsTest,Demo*Test'
+.\mvnw.cmd clean package '-Dtest=JchatmindApplicationTests,JChatMindFactoryTest,SseServiceImplTest,Document*Test,RagServiceImplTest,ProductionToolsTest,Demo*Test'
 
 Set-Location ../ui
 npm ci
@@ -79,12 +80,16 @@ These `VITE_*` values are compiled into the assets. Changing a container
 environment variable after building cannot switch a public build into an
 administration build. The `/admin/` asset base also sets the router basename.
 
-Build `exobrain:20261014-demo` using `deploy/Dockerfile` and a clean staging
+The `Document*Test` selection includes the document facade and preview tests;
+`Demo*Test` includes the public route and resource-access checks. The results for
+this release are recorded in the [verification record](#verification-record).
+
+Build `exobrain:20261014-md-preview` using `deploy/Dockerfile` and a clean staging
 context containing the resulting JAR as `app.jar`. The image runs Temurin 21 as
 UID 10001. Install the contents of the two frontend output directories as follows:
 
 ```text
-/opt/exobrain/releases/20261014-natural-demo/
+/opt/exobrain/releases/20261014-md-preview/
   ui/       <- ui/dist-public/ contents
   admin/    <- ui/dist-admin/ contents
 ```
@@ -92,6 +97,11 @@ UID 10001. Install the contents of the two frontend output directories as follow
 The `current` symlink selects this release directory. Nginx serves the public UI
 from `current/ui` and the administration UI from `current/admin`. Switch both
 builds together to avoid mismatched assets and API routes.
+
+Set `services.app.image` in the installation's Compose configuration to
+`exobrain:20261014-md-preview`. Deploy the application image, updated Nginx path
+allowlist and both frontend builds together so Markdown preview requests reach
+the matching backend endpoints.
 
 The session list, conversation header and curated examples display the Agent
 associated with each saved `agentId`, using the current authorized Agent catalog,
@@ -147,10 +157,46 @@ perform whole-document embedding or automatic PDF/Word parsing.
 
 Do not copy private knowledge bases or production configuration into the public
 knowledge base. Listing or uploading a file elsewhere does not publish it:
-the knowledge base must be explicitly allowlisted. Public document responses
-contain only identifiers, filenames, types and sizes; storage paths and document
-metadata are omitted. Retrieval checks the public knowledge-base ID again when
-the tool executes.
+the knowledge base must be explicitly allowlisted. Public document **list**
+responses contain identifiers, filenames, types and sizes; storage paths and
+document metadata are omitted. The separate content endpoint below returns
+Markdown source only for documents in an allowlisted public knowledge base.
+Knowledge retrieval checks the public knowledge-base ID again when the tool
+executes.
+
+## Markdown preview
+
+Click a Markdown filename or the preview action in a knowledge base's document
+list to open the read-only viewer. Users can switch between rendered Markdown
+and its source. Both access modes support original UTF-8 `.md` and `.markdown`
+files, with case-insensitive extensions and a maximum file size of **2 MiB
+(2,097,152 bytes)**. Preview does not edit the file or change its vector index.
+
+- `GET /api/demo/documents/<document-uuid>/content` reads documents whose actual
+  knowledge-base ID belongs to `app.demo.public-kb-ids`. The backend checks that
+  membership before reading the stored file.
+- `GET /api/documents/<document-uuid>/content` and its gateway alias
+  `/admin/api/documents/<document-uuid>/content` use the existing HTTP Basic
+  management access; they do not require publication in the guest knowledge base.
+
+Successful responses use `ApiResponse` with
+`data: {documentId, filename, content}`. `content` is the original Markdown text
+after removal of an optional UTF-8 BOM, and `filename` is a display filename
+without a storage path. Internal file paths
+and document storage metadata are not exposed by these responses. Reading a
+document by UUID does not grant guests access to private knowledge bases.
+
+The HTTP status and JSON `code` agree on preview errors. Missing documents or
+unavailable or unsafe source paths return 404; the public route also returns 404
+for documents outside its publication list. Files larger than 2 MiB return 413,
+unsupported formats return 415, and invalid UTF-8 returns 422.
+
+The Nginx public allowlist includes only the exact
+`/api/demo/documents/<document-uuid>/content` path for this feature, with a canonical
+UUID in `8-4-4-4-12` hexadecimal form. Do not expose an upload route, a general
+documents prefix or the document storage directory to enable preview.
+
+## Visitor history and example conversations
 
 Personal chat history is stored in PostgreSQL and scoped to the browser's
 `exobrain_demo` cookie. The cookie is HttpOnly, uses Secure on HTTPS, uses
@@ -205,11 +251,50 @@ as the backend route.** Keep `/api/demo/chat-messages` under its dedicated rate
 limit. Do not replace the allowlist with an unrestricted anonymous prefix proxy.
 Verify ordinary demo requests, unknown paths, encoded traversal attempts and
 unauthenticated administration requests before publishing a gateway change.
+For preview, also check public and private document UUIDs, malformed and missing
+IDs, unsupported formats, invalid UTF-8, the 2 MiB boundary, and denied write
+methods. Confirm that both management content routes still require authentication
+and that errors do not disclose storage paths.
 
 ## Verification record
 
-The 2026-10-14 deployment record and the subsequent `20261014-agent-labels-r2`
-frontend update recorded the following results:
+The `20261014-md-preview` release on 2026-10-14 completed the following checks:
+
+- The selected backend regression suite reported 59 tests: 56 passed, no failures
+  or errors, and 3 skipped because this Windows environment could not create
+  symbolic links.
+- A separate storage probe loaded the implementation from the actual release JAR
+  in an isolated Linux Java 21 container. All 12 checks passed without skips,
+  confirming `SecureDirectoryStream` support and covering UTF-8/BOM decoding,
+  the exact 2 MiB limit and overflow, invalid UTF-8, traversal, absolute and
+  cross-document paths, file and directory symbolic links, unsupported formats,
+  and missing files.
+- Frontend lint, TypeScript checks and both public / administration builds passed.
+  Local browser fixtures checked the 375px layout, complete 2 MiB source display,
+  rendered/source switching, safe HTML and link handling, canceled and late
+  responses, error retry, and retained administration controls.
+- The candidate gateway and the published gateway each passed 33 preview and
+  access checks through loopback. All three public Markdown documents matched
+  their original disk text through both the guest and authenticated management
+  APIs. Existing messages and private runtime settings were verified unchanged.
+- Public HTTPS verification passed all 33 preview checks, including exact source
+  equality for all three public documents through guest and management APIs,
+  `Cache-Control: no-store`, authentication and publication-list enforcement.
+  The existing public-demo HTTPS regression suite was also rerun: all 35 checks
+  passed, covering read-only examples, visitor isolation, private-history denial
+  and administration authentication.
+- Real Chrome checks passed for both guest and administration preview: rendered
+  original Markdown, character-for-character equality between the source view
+  and API content, Escape to close, and retained upload / delete controls in
+  administration. The guest view had no horizontal overflow at 390 × 844. Both
+  browser sessions recorded zero console errors and zero warnings.
+
+No unpublished document instance existed in this deployment during verification,
+so denial for an actual private document was not exercised live. Backend tests
+cover that permission boundary.
+
+The earlier 2026-10-14 deployment baseline and the subsequent
+`20261014-agent-labels-r2` frontend update recorded these historical results:
 
 - The selected backend regression suite passed 34 tests without failures or errors.
 - Frontend lint, type checking and both public / administration builds passed.
@@ -220,9 +305,8 @@ frontend update recorded the following results:
 - The Agent-label update additionally checked different saved Agent associations,
   missing-association labels and disabled sending, without a database migration.
 
-These are previously completed release checks; this documentation update did not
-rerun them. Revalidate the affected behavior for subsequent code or deployment
-changes using the commands and route checks in this guide.
+Revalidate affected behavior after subsequent code or deployment changes using
+the commands and route checks in this guide.
 
 ## Runtime and updates
 
@@ -261,4 +345,6 @@ systemctl is-active cloudflared
 
 After an update, verify the public home and demo catalog without credentials,
 administration authentication, a real public knowledge search and date-tool
-call, separate-cookie isolation, SSE, and the curated read-only history.
+call, separate-cookie isolation, SSE, and the curated read-only history. Check
+Markdown preview and source switching in both the public and management builds,
+including rejection of private documents through the public content endpoint.

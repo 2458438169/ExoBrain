@@ -99,6 +99,13 @@ public class DemoController {
         return ApiResponse.success(catalog.documents(id));
     }
 
+    @GetMapping("/api/demo/documents/{documentId}/content")
+    public ApiResponse<GetDocumentContentResponse> documentContent(@PathVariable String documentId,
+            HttpServletRequest request, HttpServletResponse response) {
+        visitors.owner(request, response);
+        return ApiResponse.success(catalog.documentContent(documentId));
+    }
+
     @GetMapping("/api/demo/tools")
     public ApiResponse<List<DemoCatalogService.PublicTool>> tools(HttpServletRequest request, HttpServletResponse response) {
         visitors.owner(request, response);

@@ -305,6 +305,12 @@ export interface GetDocumentsResponse {
   documents: DocumentVO[];
 }
 
+export interface DocumentContentResponse {
+  documentId: string;
+  filename: string;
+  content: string;
+}
+
 export interface CreateDocumentResponse {
   documentId: string;
 }
@@ -316,6 +322,17 @@ export async function getDocumentsByKbId(
   kbId: string,
 ): Promise<GetDocumentsResponse> {
   return get<GetDocumentsResponse>(`/documents/kb/${kbId}`);
+}
+
+export async function getDocumentContent(
+  documentId: string,
+  signal?: AbortSignal,
+): Promise<DocumentContentResponse> {
+  return get<DocumentContentResponse>(
+    `/documents/${encodeURIComponent(documentId)}/content`,
+    undefined,
+    { signal },
+  );
 }
 
 /**

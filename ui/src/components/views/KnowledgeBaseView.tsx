@@ -18,24 +18,27 @@ import {
   UploadOutlined,
   DeleteOutlined,
   FileOutlined,
+  EyeOutlined,
   MessageOutlined,
 } from "@ant-design/icons";
-import type { UploadProps } from "antd";
+import type { TableColumnsType, UploadProps } from "antd";
 import { useKnowledgeBases } from "../../hooks/useKnowledgeBases.ts";
 import { useDocuments } from "../../hooks/useDocuments.ts";
 import { uploadDocument, type DocumentVO } from "../../api/api.ts";
 import { IS_PUBLIC_DEMO } from "../../config.ts";
+import DocumentPreviewDrawer from "../modals/DocumentPreviewDrawer.tsx";
 
 const { Title, Text, Paragraph } = Typography;
+const isMarkdown = (filename: string) => /\.(?:md|markdown)$/i.test(filename);
 
-const KnowledgeBaseView: React.FC = () => {
-  const { knowledgeBaseId } = useParams<{ knowledgeBaseId?: string }>();
+const KnowledgeBaseContent: React.FC<{ knowledgeBaseId?: string }> = ({ knowledgeBaseId }) => {
   const navigate = useNavigate();
   const { knowledgeBases, loading: loadingKnowledgeBases } = useKnowledgeBases();
   const { documents, loading, refreshDocuments, deleteDocument } =
     useDocuments(knowledgeBaseId);
 
   const [uploading, setUploading] = useState(false);
+  const [previewDocument, setPreviewDocument] = useState<DocumentVO | null>(null);
 
   // 查找当前知识库的详细信息
   const currentKnowledgeBase = useMemo(() => {
@@ -80,47 +83,69 @@ const KnowledgeBaseView: React.FC = () => {
   };
 
   // 表格列定义
-  const columns = [
+  const columns: TableColumnsType<DocumentVO> = [
     {
       title: "文件名",
       dataIndex: "filename",
       key: "filename",
-      render: (text: string) => (
-        <Space>
-          <FileOutlined />
-          <span>{text}</span>
-        </Space>
+      render: (text: string, record: DocumentVO) => (
+        <div className="flex min-w-0 items-start gap-2">
+          <FileOutlined className="mt-1 shrink-0 text-slate-400" />
+          {isMarkdown(text) ? (
+            <button
+              type="button"
+              className="min-w-0 cursor-pointer break-all text-left text-indigo-600 hover:underline"
+              aria-label={`预览 ${text}`}
+              onClick={() => setPreviewDocument(record)}
+            >
+              {text}
+            </button>
+          ) : <span className="min-w-0 break-all">{text}</span>}
+        </div>
       ),
     },
     {
       title: "类型",
       dataIndex: "filetype",
       key: "filetype",
-      width: 120,
+      width: 100,
+      responsive: ["sm"],
     },
     {
       title: "大小",
       dataIndex: "size",
       key: "size",
-      width: 120,
+      width: 100,
+      responsive: ["sm"],
       render: (size: number) => formatFileSize(size),
     },
     {
       title: "操作",
       key: "action",
-      width: 100,
+      width: IS_PUBLIC_DEMO ? 88 : 160,
       render: (_: unknown, record: DocumentVO) => (
-        <Popconfirm
-          title="确定要删除这个文档吗？"
-          description="删除后将无法恢复"
-          onConfirm={() => deleteDocument(record.id)}
-          okText="确定"
-          cancelText="取消"
-        >
-          <Button type="text" danger icon={<DeleteOutlined />} size="small">
-            删除
+        <Space size={0} wrap>
+          <Button
+            type="link"
+            icon={<EyeOutlined />}
+            size="small"
+            disabled={!isMarkdown(record.filename)}
+            onClick={() => setPreviewDocument(record)}
+          >
+            预览
           </Button>
-        </Popconfirm>
+          {!IS_PUBLIC_DEMO && <Popconfirm
+            title="确定要删除这个文档吗？"
+            description="删除后将无法恢复"
+            onConfirm={() => deleteDocument(record.id)}
+            okText="确定"
+            cancelText="取消"
+          >
+            <Button type="text" danger icon={<DeleteOutlined />} size="small">
+              删除
+            </Button>
+          </Popconfirm>}
+        </Space>
       ),
     },
   ];
@@ -200,15 +225,15 @@ const KnowledgeBaseView: React.FC = () => {
 
   // 显示知识库详情和文档列表
   return (
-    <div className="flex flex-col h-full p-5 sm:p-8 overflow-y-auto">
-      <div className="max-w-6xl w-full mx-auto">
+    <div className="flex min-w-0 flex-col h-full p-5 sm:p-8 overflow-y-auto">
+      <div className="min-w-0 max-w-6xl w-full mx-auto">
         <div className="mb-3">
           <Card>
             <div className="flex items-start gap-4">
               <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-blue-200 to-purple-200 flex items-center justify-center text-3xl shrink-0">
                 <BookOutlined />
               </div>
-              <div className="flex-1">
+              <div className="min-w-0 flex-1">
                 <Title level={3} className="mb-2">
                   {currentKnowledgeBase.name}
                 </Title>
@@ -217,7 +242,7 @@ const KnowledgeBaseView: React.FC = () => {
                     {currentKnowledgeBase.description}
                   </Paragraph>
                 )}
-                {IS_PUBLIC_DEMO ? <Tag color="geekblue">公开资料 · 可在聊天中检索</Tag> : <Text type="secondary" className="text-sm">
+                {IS_PUBLIC_DEMO ? <Tag color="geekblue">公开资料 · 可阅读与检索</Tag> : <Text type="secondary" className="text-sm">
                   知识库 ID: {currentKnowledgeBase.knowledgeBaseId}
                 </Text>}
               </div>
@@ -228,7 +253,7 @@ const KnowledgeBaseView: React.FC = () => {
 
         {IS_PUBLIC_DEMO && (
           <div className="mb-4 flex flex-wrap items-center gap-3 rounded-xl border border-indigo-100 bg-indigo-50/50 p-4">
-            <span className="flex-1 text-sm leading-6 text-slate-600">在对话中提问，展开「工具结果」查看检索到的资料与来源。</span>
+            <span className="flex-1 text-sm leading-6 text-slate-600">点击文件名阅读原文，也可以在对话中检索资料与来源。</span>
             <Button type="primary" icon={<MessageOutlined />} onClick={() => navigate("/chat", {
               state: { suggestedPrompt: `请检索公开知识库「${currentKnowledgeBase.name}」，介绍 ExoBrain 的技术架构与检索流程，并注明文档来源。` },
             })}>用这个知识库提问</Button>
@@ -241,7 +266,7 @@ const KnowledgeBaseView: React.FC = () => {
             <Upload
               customRequest={handleUpload}
               showUploadList={false}
-              accept=".md"
+              accept=".md,.markdown"
               disabled={uploading}
             >
               <Button
@@ -272,10 +297,10 @@ const KnowledgeBaseView: React.FC = () => {
               />
             ) : (
               <Table
-                columns={IS_PUBLIC_DEMO ? columns.filter((column) => column.key !== "action") : columns}
+                columns={columns}
                 dataSource={documents}
                 rowKey="id"
-                scroll={{ x: 460 }}
+                tableLayout="fixed"
                 pagination={{
                   pageSize: 10,
                   // showSizeChanger: true,
@@ -286,8 +311,21 @@ const KnowledgeBaseView: React.FC = () => {
           </Card>
         </div>
       </div>
+      {previewDocument && (
+        <DocumentPreviewDrawer
+          key={previewDocument.id}
+          document={previewDocument}
+          onClose={() => setPreviewDocument(null)}
+        />
+      )}
     </div>
   );
+};
+
+const KnowledgeBaseView: React.FC = () => {
+  const { knowledgeBaseId } = useParams<{ knowledgeBaseId?: string }>();
+  // Remount knowledge-base state so pending lists and previews cannot cross routes.
+  return <KnowledgeBaseContent key={knowledgeBaseId ?? "index"} knowledgeBaseId={knowledgeBaseId} />;
 };
 
 export default KnowledgeBaseView;

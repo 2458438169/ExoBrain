@@ -16,6 +16,7 @@ import com.kama.jchatmind.model.response.GetChatMessagesResponse;
 import com.kama.jchatmind.model.vo.ChatMessageVO;
 import com.kama.jchatmind.model.vo.ChatSessionVO;
 import com.kama.jchatmind.service.ChatMessageFacadeService;
+import com.kama.jchatmind.service.DocumentFacadeService;
 import com.kama.jchatmind.service.SseService;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.BeforeEach;
@@ -84,7 +85,8 @@ class DemoControllerTest {
         DemoAccessPolicy access = new DemoAccessPolicy(properties);
         DemoChatService demo = new DemoChatService(access, sessions, agents, converter, messages,
                 sse, execution, new DemoRateLimiter());
-        DemoCatalogService catalog = new DemoCatalogService(access, sessions, knowledgeBases, documents, messages, new ObjectMapper());
+        DemoCatalogService catalog = new DemoCatalogService(access, sessions, knowledgeBases, documents, messages,
+                new ObjectMapper(), mock(DocumentFacadeService.class));
         mvc = MockMvcBuilders.standaloneSetup(new DemoController(demo, new DemoVisitor(), catalog)).build();
     }
 

@@ -9,6 +9,11 @@ import java.nio.file.Path;
  * 文档存储服务接口
  */
 public interface DocumentStorageService {
+    int MAX_PREVIEW_BYTES = 2 * 1024 * 1024;
+
+    /** Read bounded UTF-8 Markdown only from this document's own storage directory. */
+    String readMarkdown(String kbId, String documentId, String filePath);
+
     /**
      * 保存上传的文件
      *
