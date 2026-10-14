@@ -1,5 +1,21 @@
 @import "tailwindcss";
 
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  color: #0f172a;
+  background: #fff;
+  font-family: Inter, "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+}
+
+button:focus-visible, summary:focus-visible {
+  outline: 2px solid #6366f1;
+  outline-offset: 3px;
+}
+
 /* 修复 Ant Design Tabs 在 flex 布局中的滚动问题 */
 .ant-tabs {
   display: flex;

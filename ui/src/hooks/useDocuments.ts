@@ -4,6 +4,7 @@ import {
   getDocumentsByKbId,
   deleteDocument,
 } from "../api/api.ts";
+import { showRequestError } from "../api/http.ts";
 
 export function useDocuments(kbId: string | undefined) {
   const [documents, setDocuments] = useState<DocumentVO[]>([]);
@@ -25,7 +26,7 @@ export function useDocuments(kbId: string | undefined) {
   }, [kbId]);
 
   useEffect(() => {
-    fetchDocuments();
+    void fetchDocuments().catch((error) => showRequestError(error, "文档加载失败，请稍后刷新"));
   }, [fetchDocuments]);
 
   const deleteDocumentHandle = async (documentId: string) => {

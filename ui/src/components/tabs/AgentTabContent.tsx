@@ -12,7 +12,7 @@ import { formatDateTime, getAgentEmoji } from "../../utils";
 
 interface AgentTabContentProps {
   agents: AgentVO[];
-  onCreateAgentClick: () => void;
+  onCreateAgentClick?: () => void;
   onSelectAgent: (agentId: string) => void;
   onEditAgent?: (agent: AgentVO) => void;
   onDeleteAgent?: (agentId: string) => void;
@@ -76,7 +76,7 @@ const AgentTabContent: React.FC<AgentTabContentProps> = ({
 
   return (
     <div className="flex flex-col h-full">
-      <Button
+      {onCreateAgentClick && <><Button
         color="geekblue"
         variant="filled"
         icon={<PlusOutlined />}
@@ -85,12 +85,12 @@ const AgentTabContent: React.FC<AgentTabContentProps> = ({
       >
         智能体助手
       </Button>
-      <Divider />
+      <Divider /></>}
       <div className="flex-1 overflow-y-auto bg-gray-50 rounded-lg p-1.5">
         {agents.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-gray-400">
             <p className="text-sm">暂无智能体</p>
-            <p className="text-xs mt-1">点击上方按钮添加</p>
+            {onCreateAgentClick && <p className="text-xs mt-1">点击上方按钮添加</p>}
           </div>
         ) : (
           <div className="space-y-1.5">

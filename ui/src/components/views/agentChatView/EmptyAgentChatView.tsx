@@ -1,189 +1,141 @@
-import React, { useState, useMemo } from "react";
-import { Card, Space, Typography, Select } from "antd";
-import {
-  BulbOutlined,
-  MessageOutlined,
-  RobotOutlined,
-  DownOutlined,
-} from "@ant-design/icons";
+import { useMemo, useState } from "react";
+import { Button, Select, Tag, Typography } from "antd";
+import { ArrowUpOutlined, BookOutlined, DownOutlined, HistoryOutlined } from "@ant-design/icons";
 import { Sender } from "@ant-design/x";
-import { useNavigate } from "react-router-dom";
-import {
-  type AgentVO,
-  createChatMessage,
-  createChatSession,
-} from "../../../api/api.ts";
+import { useLocation, useNavigate } from "react-router-dom";
+import { type AgentVO, createChatSession } from "../../../api/api.ts";
 import { getAgentEmoji } from "../../../utils";
 import { useChatSessions } from "../../../hooks/useChatSessions.ts";
+import { DEMO_PROMPTS, IS_PUBLIC_DEMO } from "../../../config.ts";
+import { showRequestError } from "../../../api/http.ts";
+import ExoBrainLogo from "../../ExoBrainLogo.tsx";
 
 const { Title, Text } = Typography;
 
-interface DefaultAgentChatViewProps {
-  handleSendMessage: (message: string) => void;
-  loading: boolean;
+interface EmptyAgentChatViewProps {
   agents: AgentVO[];
+  loadingAgents?: boolean;
 }
 
-const EmptyAgentChatView: React.FC<DefaultAgentChatViewProps> = ({
-  loading,
-  agents,
-}) => {
-  const [message, setMessage] = useState("");
+export default function EmptyAgentChatView({ agents, loadingAgents }: EmptyAgentChatViewProps) {
+  const { state } = useLocation();
+  const [message, setMessage] = useState(() =>
+    typeof state?.suggestedPrompt === "string" ? state.suggestedPrompt : "",
+  );
+  const [loading, setLoading] = useState(false);
   const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
-
   const navigate = useNavigate();
   const { refreshChatSessions } = useChatSessions();
 
-  // 为每个 agent 生成 emoji
-  const agentsWithEmoji = useMemo(() => {
-    return agents.map((agent) => ({
-      ...agent,
-      emoji: getAgentEmoji(agent.id),
-    }));
-  }, [agents]);
-
-  // 计算实际选中的 agent ID（如果用户没有选择，则使用默认的第一个）
   const effectiveAgentId = useMemo(() => {
-    if (selectedAgentId) {
-      return selectedAgentId;
-    }
-    return agents.length > 0 ? agents[0].id : null;
+    return agents.find((agent) => agent.id === selectedAgentId)?.id ?? agents[0]?.id ?? null;
   }, [selectedAgentId, agents]);
 
+  const startChat = async () => {
+    const content = message.trim();
+    if (!effectiveAgentId || !content || loading) return;
+    setLoading(true);
+    try {
+      const response = await createChatSession({
+        agentId: effectiveAgentId,
+        title: content.slice(0, 40),
+      });
+      // 进入会话、建立 SSE 后再发送首条消息，避免丢失 AI 回复。
+      navigate(`/chat/${response.chatSessionId}`, {
+        state: { initialMessage: { content, agentId: effectiveAgentId } },
+      });
+      void refreshChatSessions().catch((error) => showRequestError(error, "聊天记录刷新失败"));
+    } catch (error) {
+      showRequestError(error, "创建聊天会话失败，请重试");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="flex flex-col h-full">
-      {/* Agent 选择器 - 顶部 */}
-      {agents.length > 0 && (
-        <div className="border-b border-gray-200 bg-white px-4 py-3">
-          <div className="flex items-center justify-start">
-            <Select
-              value={effectiveAgentId}
-              onChange={(value) => setSelectedAgentId(value)}
-              style={{ width: 200 }}
-              className="agent-selector"
-              suffixIcon={<DownOutlined className="text-gray-400" />}
-              placeholder="选择智能体助手"
-              optionRender={(option) => (
-                <div className="flex items-center gap-2">
-                  <span className="text-lg">
-                    {agentsWithEmoji.find((a) => a.id === option.value)?.emoji}
-                  </span>
-                  <span className="text-sm">{option.label}</span>
-                </div>
-              )}
-              options={agentsWithEmoji.map((agent) => ({
-                value: agent.id,
-                label: agent.name,
-              }))}
-            />
-          </div>
-        </div>
-      )}
-      <div className="flex-1 flex items-center justify-center p-6">
-        <div className="max-w-2xl w-full space-y-6">
-          <div className="text-center mb-8">
-            <Title level={2} className="mb-2">
-              开始新的对话
+    <div className="flex h-full min-h-0 flex-col bg-white">
+      <div className="flex min-h-16 shrink-0 flex-wrap items-center gap-3 border-b border-slate-100 px-5 py-3">
+        <Select
+          aria-label="选择智能体助手"
+          value={effectiveAgentId}
+          onChange={setSelectedAgentId}
+          loading={loadingAgents}
+          disabled={!agents.length}
+          style={{ minWidth: 190, maxWidth: "100%" }}
+          suffixIcon={<DownOutlined className="text-slate-400" />}
+          placeholder={loadingAgents ? "正在连接助手…" : "暂无可用助手"}
+          options={agents.map((agent) => ({ value: agent.id, label: `${getAgentEmoji(agent.id)} ${agent.name}` }))}
+        />
+        {IS_PUBLIC_DEMO && <Tag color="geekblue">免登录体验</Tag>}
+      </div>
+
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-5 py-8 sm:px-8">
+        <div className="mx-auto my-auto w-full max-w-3xl">
+          <div className="mb-8 text-center">
+            <ExoBrainLogo className="mx-auto mb-5 h-16 w-16 shadow-lg shadow-indigo-100" />
+            <div className="mb-2 text-xs font-semibold tracking-[0.22em] text-indigo-600">EXOBRAIN</div>
+            <Title level={2} className="mb-3! text-slate-900!">
+              {IS_PUBLIC_DEMO ? "让知识成为你的第二大脑" : "开始新的对话"}
             </Title>
-            <Text type="secondary" className="text-base">
-              选择一个智能体助手开始聊天，或直接发送消息创建新会话
+            <Text type="secondary" className="mx-auto block max-w-xl text-base leading-7">
+              {IS_PUBLIC_DEMO
+                ? "从公开项目资料出发，体验知识检索、智能问答和真实的工具调用。选择一个问题，或直接在下方提问。"
+                : "选择智能体助手，连接知识与工具，开始与 ExoBrain 对话。"}
             </Text>
           </div>
-          <Space orientation="vertical" size="large" className="w-full">
-            <Card
-              hoverable
-              className="cursor-pointer transition-all hover:shadow-lg"
-            >
-              <Space size="middle">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center">
-                  <RobotOutlined className="text-white text-xl" />
-                </div>
-                <div>
-                  <Title level={5} className="mb-1">
-                    智能对话
-                  </Title>
-                  <Text type="secondary">
-                    与 AI 助手进行智能对话，获取帮助和建议
-                  </Text>
-                </div>
-              </Space>
-            </Card>
 
-            <Card
-              hoverable
-              className="cursor-pointer transition-all hover:shadow-lg"
-            >
-              <Space size="middle">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-teal-400 flex items-center justify-center">
-                  <BulbOutlined className="text-white text-xl" />
-                </div>
-                <div>
-                  <Title level={5} className="mb-1">
-                    知识问答
-                  </Title>
-                  <Text type="secondary">
-                    基于知识库进行问答，获取准确的信息
-                  </Text>
-                </div>
-              </Space>
-            </Card>
-
-            <Card
-              hoverable
-              className="cursor-pointer transition-all hover:shadow-lg"
-            >
-              <Space size="middle">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-400 to-red-400 flex items-center justify-center">
-                  <MessageOutlined className="text-white text-xl" />
-                </div>
-                <div>
-                  <Title level={5} className="mb-1">
-                    快速开始
-                  </Title>
-                  <Text type="secondary">
-                    在下方输入框输入消息，立即开始对话
-                  </Text>
-                </div>
-              </Space>
-            </Card>
-          </Space>
+          {IS_PUBLIC_DEMO ? (
+            <>
+              <div className="grid gap-3 lg:grid-cols-3">
+                {DEMO_PROMPTS.map((example, index) => (
+                  <button
+                    key={example.title}
+                    type="button"
+                    onClick={() => setMessage(example.prompt)}
+                    className="group flex cursor-pointer flex-col rounded-2xl border border-slate-200 bg-slate-50/70 p-5 text-left transition hover:border-indigo-300 hover:bg-indigo-50/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+                  >
+                    <span className="mb-4 text-xs font-medium text-indigo-500">0{index + 1}</span>
+                    <span className="mb-2 font-semibold text-slate-900">{example.title}</span>
+                    <span className="flex-1 text-sm leading-6 text-slate-500">{example.description}</span>
+                    <span className="mt-4 flex items-center gap-1 text-xs text-indigo-600">填入问题 <ArrowUpOutlined /></span>
+                  </button>
+                ))}
+              </div>
+              <div className="mt-6 flex flex-wrap justify-center gap-2">
+                <Button icon={<BookOutlined />} onClick={() => navigate("/knowledge-base")}>
+                  浏览公开知识库
+                </Button>
+                <Button icon={<HistoryOutlined />} onClick={() => navigate("/showcase")}>
+                  查看公开测试记录
+                </Button>
+              </div>
+              <p className="mx-auto mt-6 max-w-xl text-center text-xs leading-6 text-slate-500">
+                公开资料不含简历或真实人员信息。你的对话与公开测试记录分开保存，使用同一浏览器可继续查看自己的历史。
+              </p>
+            </>
+          ) : (
+            <div className="rounded-2xl border border-slate-100 bg-slate-50 p-6 text-center text-sm leading-7 text-slate-500">
+              在左侧管理智能体和知识库，在对话中查看工具调用与检索结果。
+            </div>
+          )}
         </div>
       </div>
-      <div className="border-t border-gray-200 bg-white">
-        {/* 输入框 */}
-        <div className="px-4 pb-4 pt-4">
+
+      <div className="shrink-0 border-t border-slate-100 bg-white px-5 py-4 sm:px-8">
+        <div className="mx-auto max-w-3xl">
           <Sender
-            onSubmit={async () => {
-              if (!effectiveAgentId) return;
-              console.log("发送消息", message);
-              const response = await createChatSession({
-                agentId: effectiveAgentId,
-                title: message.slice(0, 20),
-              });
-              await createChatMessage({
-                sessionId: response.chatSessionId ?? "",
-                content: message,
-                role: "user",
-                agentId: effectiveAgentId,
-              });
-              // 刷新聊天会话列表
-              await refreshChatSessions();
-              setMessage("");
-              navigate(
-                `/chat/${response.chatSessionId}`,
-              );
-            }}
+            onSubmit={startChat}
             value={message}
             loading={loading}
-            placeholder="输入消息开始对话..."
-            onChange={(value) => {
-              setMessage(value);
-            }}
+            disabled={!effectiveAgentId || loading}
+            placeholder={loadingAgents ? "正在连接助手…" : "输入问题，开始与 ExoBrain 对话…"}
+            onChange={setMessage}
           />
+          {IS_PUBLIC_DEMO && (
+            <p className="mt-2 text-center text-xs text-slate-400">知识库回答可展开查看工具调用与文档来源。</p>
+          )}
         </div>
       </div>
     </div>
   );
-};
-
-export default EmptyAgentChatView;
+}

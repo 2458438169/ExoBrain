@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button, Divider, Popconfirm } from "antd";
 import {
   PlusOutlined,
@@ -8,11 +8,16 @@ import {
 } from "@ant-design/icons";
 import { useChatSessions } from "../../hooks/useChatSessions.ts";
 import { useAgents } from "../../hooks/useAgents.ts";
+import { IS_PUBLIC_DEMO } from "../../config.ts";
+import { showRequestError } from "../../api/http.ts";
+import SessionAgentLabel from "../SessionAgentLabel.tsx";
 
-const ChatTabContent: React.FC = () => {
+const ChatTabContent: React.FC<{ onNavigate?: () => void }> = ({ onNavigate }) => {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { chatSessions, loading, deleteChatSession } = useChatSessions();
-  const { agents } = useAgents();
+  const agentCatalog = useAgents();
+  const { agents } = agentCatalog;
 
   // 创建 agentId 到 agent 的映射
   const agentMap = useMemo(() => {
@@ -25,22 +30,29 @@ const ChatTabContent: React.FC = () => {
 
   const handleCreateNewChat = () => {
     navigate("/chat");
+    onNavigate?.();
   };
 
   const handleSelectChatSession = (chatSessionId: string) => {
     navigate(`/chat/${chatSessionId}`);
+    onNavigate?.();
   };
 
   const handleDeleteChatSession = async (chatSessionId: string) => {
-    await deleteChatSession(chatSessionId);
+    try {
+      await deleteChatSession(chatSessionId);
+      if (pathname === `/chat/${chatSessionId}`) navigate("/chat");
+    } catch (error) {
+      showRequestError(error, "删除会话失败，请重试");
+    }
   };
 
   // 格式化标题显示
-  const getDisplayTitle = (session: { title?: string; agentId: string }) => {
+  const getDisplayTitle = (session: { title?: string; agentId: string | null }) => {
     if (session.title) {
       return session.title;
     }
-    const agentName = agentMap.get(session.agentId);
+    const agentName = session.agentId ? agentMap.get(session.agentId) : undefined;
     return agentName ? `与 ${agentName} 的对话` : "新对话";
   };
 
@@ -55,6 +67,7 @@ const ChatTabContent: React.FC = () => {
       >
         新聊天
       </Button>
+      {IS_PUBLIC_DEMO && <p className="mt-3 text-xs leading-5 text-slate-500">仅显示当前浏览器的个人体验记录。清除站点数据后将无法找回。</p>}
       <Divider />
       <div className="flex-1 min-h-0 overflow-y-auto bg-gray-50 rounded-lg">
         {loading ? (
@@ -83,6 +96,7 @@ const ChatTabContent: React.FC = () => {
                     <div className="font-medium text-gray-900 truncate">
                       {getDisplayTitle(session)}
                     </div>
+                    <SessionAgentLabel agentId={session.agentId} catalog={agentCatalog} compact className="mt-1 text-xs" />
                   </div>
                   <div onClick={(e) => e.stopPropagation()}>
                     <Popconfirm
@@ -96,7 +110,8 @@ const ChatTabContent: React.FC = () => {
                         type="text"
                         size="small"
                         icon={<DeleteOutlined />}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                        aria-label="删除聊天记录"
+                        className="opacity-60 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity shrink-0"
                         onClick={(e) => e.stopPropagation()}
                         danger
                       />

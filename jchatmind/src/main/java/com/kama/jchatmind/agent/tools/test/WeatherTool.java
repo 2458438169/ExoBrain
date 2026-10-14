@@ -2,9 +2,11 @@ package com.kama.jchatmind.agent.tools.test;
 
 import com.kama.jchatmind.agent.tools.Tool;
 import com.kama.jchatmind.agent.tools.ToolType;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Component
+@Profile("!prod")
 public class WeatherTool implements Tool {
 
     @Override

@@ -19,6 +19,8 @@ import java.util.Map;
 @Service
 public class RagServiceImpl implements RagService {
 
+    private static final int EMBEDDING_DIMENSIONS = 1024;
+
     private final WebClient webClient;
     private final ChunkBgeM3Mapper chunkBgeM3Mapper;
     private final EmbeddingProperties props;
@@ -52,8 +54,9 @@ public class RagServiceImpl implements RagService {
         Assert.notNull(resp, "Embedding 响应为空，请检查 embedding 服务是否可用: " + props.getBaseUrl());
 
         float[] embedding = extractEmbedding(resp);
-        if (embedding.length == 0) {
-            throw new IllegalStateException("Embedding 响应里没有向量, body = " + resp);
+        if (embedding.length != EMBEDDING_DIMENSIONS) {
+            throw new IllegalStateException("Embedding 维度不匹配：期望 " + EMBEDDING_DIMENSIONS
+                    + "，实际 " + embedding.length + "。请使用与数据库匹配的 embedding 模型");
         }
         return embedding;
     }

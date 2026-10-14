@@ -1,0 +1,2 @@
+# Deployment entrypoint scripts must stay executable by Linux shells after a Windows checkout.
+/deploy/*.sh text eol=lf

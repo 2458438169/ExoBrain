@@ -3,6 +3,7 @@ import { Button, Divider } from "antd";
 import { PlusOutlined, BookOutlined } from "@ant-design/icons";
 import type { KnowledgeBase } from "../../types";
 import { getKnowledgeBaseEmoji } from "../../utils";
+import { IS_PUBLIC_DEMO } from "../../config.ts";
 
 interface KnowledgeBaseTabContentProps {
   knowledgeBases: KnowledgeBase[];
@@ -25,7 +26,7 @@ const KnowledgeBaseTabContent: React.FC<KnowledgeBaseTabContentProps> = ({
 
   return (
     <div className="flex flex-col h-full">
-      <Button
+      {onCreateKnowledgeBaseClick && <><Button
         color="geekblue"
         variant="filled"
         icon={<PlusOutlined />}
@@ -34,13 +35,15 @@ const KnowledgeBaseTabContent: React.FC<KnowledgeBaseTabContentProps> = ({
       >
         新建知识库
       </Button>
-      <Divider />
+      <Divider /></>}
       <div className="flex-1 overflow-y-scroll rounded-lg">
         {knowledgeBases.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-gray-400">
             <BookOutlined className="text-4xl mb-2" />
             <p className="text-sm">暂无知识库</p>
-            <p className="text-xs mt-1">点击上方按钮创建</p>
+            <p className="text-xs mt-1">
+              {IS_PUBLIC_DEMO ? "公开演示暂未提供知识库" : "点击上方按钮创建"}
+            </p>
           </div>
         ) : (
           <div className="space-y-1.5 p-1.5">

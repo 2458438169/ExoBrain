@@ -27,6 +27,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -43,9 +44,6 @@ public class JChatMindFactory {
     private final ToolFacadeService toolFacadeService;
     private final ChatMessageFacadeService chatMessageFacadeService;
     private final ChatMessageConverter chatMessageConverter;
-
-    // 运行时 Agent 配置
-    private AgentDTO agentConfig;
 
     public JChatMindFactory(
             ChatClientRegistry chatClientRegistry,
@@ -76,7 +74,7 @@ public class JChatMindFactory {
     /**
      * 将数据库中存储的记忆恢复成 List<Message> 结构
      */
-    private List<Message> loadMemory(String chatSessionId) {
+    private List<Message> loadMemory(String chatSessionId, AgentDTO agentConfig) {
         int messageLength = agentConfig.getChatOptions().getMessageLength();
         List<ChatMessageDTO> chatMessages = chatMessageFacadeService.getChatMessagesBySessionIdRecently(chatSessionId, messageLength);
         List<Message> memory = new ArrayList<>();
@@ -117,8 +115,7 @@ public class JChatMindFactory {
 
     private AgentDTO toAgentConfig(Agent agent) {
         try {
-            agentConfig = agentConverter.toDTO(agent);
-            return agentConfig;
+            return agentConverter.toDTO(agent);
         } catch (JsonProcessingException e) {
             throw new IllegalStateException("解析 Agent 配置失败", e);
         }
@@ -195,6 +192,7 @@ public class JChatMindFactory {
 
     private JChatMind buildAgentRuntime(
             Agent agent,
+            AgentDTO agentConfig,
             List<Message> memory,
             List<KnowledgeBaseDTO> knowledgeBases,
             List<ToolCallback> toolCallbacks,
@@ -225,9 +223,16 @@ public class JChatMindFactory {
      * 创建一个 JChatMind 实例
      */
     public JChatMind create(String agentId, String chatSessionId) {
+        return create(agentId, chatSessionId, config -> { });
+    }
+
+    /** Validate the exact runtime configuration before resolving any data or tools. */
+    public JChatMind create(String agentId, String chatSessionId, Consumer<AgentDTO> validateConfig) {
         Agent agent = loadAgent(agentId);
+        if (agent == null) throw new IllegalStateException("Agent is not configured");
         AgentDTO agentConfig = toAgentConfig(agent);
-        List<Message> memory = loadMemory(chatSessionId);
+        validateConfig.accept(agentConfig);
+        List<Message> memory = loadMemory(chatSessionId, agentConfig);
 
         // 解析 agent 的支持的知识库
         List<KnowledgeBaseDTO> knowledgeBases = resolveRuntimeKnowledgeBases(agentConfig);
@@ -238,6 +243,7 @@ public class JChatMindFactory {
 
         return buildAgentRuntime(
                 agent,
+                agentConfig,
                 memory,
                 knowledgeBases,
                 toolCallbacks,

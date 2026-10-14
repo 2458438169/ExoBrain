@@ -20,6 +20,9 @@ import com.kama.jchatmind.service.RagService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -106,7 +109,10 @@ public class DocumentFacadeServiceImpl implements DocumentFacadeService {
     }
 
     @Override
+    @Transactional
     public CreateDocumentResponse uploadDocument(String kbId, MultipartFile file) {
+        String filePath = null;
+        boolean cleanupRegistered = false;
         try {
             if (file.isEmpty()) {
                 throw new BizException("上传的文件为空");
@@ -139,7 +145,20 @@ public class DocumentFacadeServiceImpl implements DocumentFacadeService {
             String documentId = document.getId();
 
             // 保存文件
-            String filePath = documentStorageService.saveFile(kbId, documentId, file);
+            filePath = documentStorageService.saveFile(kbId, documentId, file);
+            // 文件不参与数据库事务，回滚时补偿删除，避免留下无法检索的上传文件。
+            if (TransactionSynchronizationManager.isSynchronizationActive()) {
+                String uploadedPath = filePath;
+                TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                    @Override
+                    public void afterCompletion(int status) {
+                        if (status != STATUS_COMMITTED) {
+                            cleanupFailedUpload(uploadedPath);
+                        }
+                    }
+                });
+                cleanupRegistered = true;
+            }
 
             // 更新文档记录，保存文件路径到 metadata
             DocumentDTO.MetaData metadata = new DocumentDTO.MetaData();
@@ -154,9 +173,9 @@ public class DocumentFacadeServiceImpl implements DocumentFacadeService {
             updatedDocument.setCreatedAt(now);
             updatedDocument.setUpdatedAt(now);
 
-            documentMapper.updateById(updatedDocument);
-
-            log.info("文档上传成功: kbId={}, documentId={}, filename={}", kbId, documentId, originalFilename);
+            if (documentMapper.updateById(updatedDocument) <= 0) {
+                throw new BizException("保存文档路径失败");
+            }
 
             // 如果是 Markdown 文件，进行解析并生成 chunks
             if ("md".equalsIgnoreCase(filetype) || "markdown".equalsIgnoreCase(filetype)) {
@@ -166,12 +185,27 @@ public class DocumentFacadeServiceImpl implements DocumentFacadeService {
                 log.warn("待新增处理的文件类型: {}", filetype);
             }
 
+            log.info("文档上传完成: kbId={}, documentId={}, filename={}", kbId, documentId, originalFilename);
             return CreateDocumentResponse.builder()
                     .documentId(documentId)
                     .build();
-        } catch (IOException e) {
-            log.error("文件保存失败", e);
-            throw new BizException("文件保存失败: " + e.getMessage());
+        } catch (IOException | RuntimeException e) {
+            if (filePath != null && !cleanupRegistered) {
+                cleanupFailedUpload(filePath);
+            }
+            log.error("文档上传失败", e);
+            if (e instanceof BizException bizException) {
+                throw bizException;
+            }
+            throw new BizException("文档上传或索引失败，请检查文件和向量服务后重试");
+        }
+    }
+
+    private void cleanupFailedUpload(String filePath) {
+        try {
+            documentStorageService.deleteFile(filePath);
+        } catch (Exception cleanupError) {
+            log.warn("清理上传失败的文件时发生错误: path={}", filePath, cleanupError);
         }
     }
 
@@ -214,11 +248,8 @@ public class DocumentFacadeServiceImpl implements DocumentFacadeService {
                 // 解析 Markdown 文件
                 List<MarkdownParserService.MarkdownSection> sections = markdownParserService.parseMarkdown(inputStream);
 
-                System.out.println(sections);
-
                 if (sections.isEmpty()) {
-                    log.warn("Markdown 文档解析后没有找到任何章节: documentId={}", documentId);
-                    return;
+                    throw new BizException("Markdown 文档没有可索引的章节");
                 }
 
                 LocalDateTime now = LocalDateTime.now();
@@ -254,14 +285,20 @@ public class DocumentFacadeServiceImpl implements DocumentFacadeService {
                         chunkCount++;
                         log.debug("创建 chunk 成功: title={}, chunkId={}", title, chunk.getId());
                     } else {
-                        log.warn("创建 chunk 失败: title={}", title);
+                        throw new BizException("保存文档索引失败");
                     }
+                }
+                if (chunkCount == 0) {
+                    throw new BizException("Markdown 文档没有可索引的章节");
                 }
                 log.info("Markdown 文档处理完成: documentId={}, 共生成 {} 个 chunks", documentId, chunkCount);
             }
         } catch (Exception e) {
             log.error("处理 Markdown 文档失败: documentId={}", documentId, e);
-            // 不抛出异常，避免影响文档上传流程
+            if (e instanceof BizException bizException) {
+                throw bizException;
+            }
+            throw new BizException("Markdown 文档索引失败，请检查向量服务后重试");
         }
     }
 

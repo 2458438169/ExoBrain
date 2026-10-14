@@ -8,22 +8,41 @@ import {
   updateAgent,
   type UpdateAgentRequest,
 } from "../api/api.ts";
+import { showRequestError } from "../api/http.ts";
 
 export function useAgents() {
   const [agents, setAgents] = useState<AgentVO[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadFailed, setLoadFailed] = useState(false);
 
   useEffect(() => {
-    async function fetchData() {
-      const resp = await getAgents();
-      setAgents(resp.agents);
-    }
-
-    fetchData().then();
+    let active = true;
+    void getAgents().then((response) => {
+      if (active) {
+        setAgents(response.agents);
+        setLoadFailed(false);
+      }
+    }).catch((error) => {
+      if (active) {
+        setLoadFailed(true);
+        showRequestError(error, "助手加载失败，请稍后刷新");
+      }
+    }).finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
   }, []);
 
   async function refreshAgents() {
-    const resp = await getAgents();
-    setAgents(resp.agents);
+    setLoading(true);
+    setLoadFailed(false);
+    try {
+      const resp = await getAgents();
+      setAgents(resp.agents);
+    } catch (error) {
+      setLoadFailed(true);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function createAgentHandle(agent: CreateAgentRequest) {
@@ -46,6 +65,8 @@ export function useAgents() {
 
   return {
     agents,
+    loading,
+    loadFailed,
     createAgentHandle,
     deleteAgentHandle,
     updateAgentHandle,

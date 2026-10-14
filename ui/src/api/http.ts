@@ -1,4 +1,5 @@
 import { message } from "antd";
+import { IS_PUBLIC_DEMO } from "../config.ts";
 
 // API 响应类型定义，匹配后端 ApiResponse 结构
 export interface ApiResponse<T = unknown> {
@@ -12,8 +13,21 @@ export interface RequestOptions extends RequestInit {
   params?: Record<string, string | number | boolean | null | undefined>;
 }
 
-// API 基础路径（可以根据环境变量配置）
-export const BASE_URL = "http://localhost:8080/api";
+class ReportedApiError extends Error {}
+
+export function showRequestError(error: unknown, fallback: string): void {
+  if (!(error instanceof ReportedApiError)) {
+    message.error(error instanceof Error ? error.message : fallback);
+  }
+}
+
+// 默认使用同源路由，生产环境由反向代理转发到后端。
+export const BASE_URL = (
+  import.meta.env.VITE_API_BASE_URL || (IS_PUBLIC_DEMO ? "/api/demo" : "/api")
+).replace(/\/+$/, "");
+export const SSE_BASE_URL = (
+  import.meta.env.VITE_SSE_BASE_URL || (IS_PUBLIC_DEMO ? "/sse/demo" : "/sse")
+).replace(/\/+$/, "");
 
 /**
  * 构建完整的 URL（包含查询参数）
@@ -40,17 +54,21 @@ function buildUrl(url: string, params?: Record<string, string | number | boolean
  * 处理响应
  */
 async function handleResponse<T>(response: Response): Promise<ApiResponse<T>> {
+  const data: ApiResponse<T> | null = await response.json().catch(() => null);
   if (!response.ok) {
-    // HTTP 状态码错误
-    throw new Error(`HTTP error! status: ${response.status}`);
+    const errorMessage = data?.message || `请求失败（HTTP ${response.status}）`;
+    message.error(errorMessage);
+    throw new ReportedApiError(errorMessage);
   }
 
-  const data: ApiResponse<T> = await response.json();
+  if (!data) {
+    throw new Error("服务器返回了无效响应，请重试");
+  }
 
   // 检查业务状态码
   if (data.code !== 200) {
     message.error(data.message || "请求失败");
-    throw new Error(data.message || "请求失败");
+    throw new ReportedApiError(data.message || "请求失败");
   }
 
   return data;

@@ -1,22 +1,25 @@
-import React, { useState } from "react";
+import React from "react";
 import { Sender } from "@ant-design/x";
 
 interface AgentChatInputProps {
-  onSend: (message: string) => void;
+  value: string;
+  onChange: (message: string) => void;
+  onSend: (message: string) => Promise<boolean>;
+  disabled?: boolean;
+  loading?: boolean;
 }
 
-const AgentChatInput: React.FC<AgentChatInputProps> = ({ onSend }) => {
-  const [message, setMessage] = useState("");
-
+const AgentChatInput: React.FC<AgentChatInputProps> = ({ value, onChange, onSend, disabled, loading }) => {
   return (
     <Sender
-      onSubmit={() => {
-        onSend(message.trim());
-        setMessage("");
+      onSubmit={async () => {
+        if (await onSend(value.trim())) onChange("");
       }}
-      placeholder="输入消息..."
-      value={message}
-      onChange={setMessage}
+      placeholder={loading ? "正在生成回答，请稍候…" : "输入消息…"}
+      value={value}
+      onChange={onChange}
+      disabled={disabled}
+      loading={loading}
     />
   );
 };

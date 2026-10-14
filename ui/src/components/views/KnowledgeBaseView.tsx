@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   Card,
   Typography,
@@ -10,23 +10,28 @@ import {
   Space,
   message,
   Empty,
+  Spin,
+  Tag,
 } from "antd";
 import {
   BookOutlined,
   UploadOutlined,
   DeleteOutlined,
   FileOutlined,
+  MessageOutlined,
 } from "@ant-design/icons";
 import type { UploadProps } from "antd";
 import { useKnowledgeBases } from "../../hooks/useKnowledgeBases.ts";
 import { useDocuments } from "../../hooks/useDocuments.ts";
 import { uploadDocument, type DocumentVO } from "../../api/api.ts";
+import { IS_PUBLIC_DEMO } from "../../config.ts";
 
 const { Title, Text, Paragraph } = Typography;
 
 const KnowledgeBaseView: React.FC = () => {
   const { knowledgeBaseId } = useParams<{ knowledgeBaseId?: string }>();
-  const { knowledgeBases } = useKnowledgeBases();
+  const navigate = useNavigate();
+  const { knowledgeBases, loading: loadingKnowledgeBases } = useKnowledgeBases();
   const { documents, loading, refreshDocuments, deleteDocument } =
     useDocuments(knowledgeBaseId);
 
@@ -121,6 +126,38 @@ const KnowledgeBaseView: React.FC = () => {
   ];
 
   // 未选择知识库时的提示
+  if (loadingKnowledgeBases) {
+    return <div className="flex h-full items-center justify-center"><Spin /></div>;
+  }
+
+  if (IS_PUBLIC_DEMO && !knowledgeBaseId) {
+    return (
+      <div className="h-full overflow-y-auto bg-white p-5 sm:p-8">
+        <div className="mx-auto max-w-4xl">
+          <Tag color="geekblue">公开资料</Tag>
+          <Title level={2} className="mt-3!">公开知识库</Title>
+          <Paragraph type="secondary">浏览公开项目与技术资料，在聊天中检索并查看文档来源。</Paragraph>
+          {knowledgeBases.length === 0 ? <Empty description="公开知识库准备中" /> : (
+            <div className="mt-6 grid gap-4">
+              {knowledgeBases.map((knowledgeBase) => (
+                <Card key={knowledgeBase.knowledgeBaseId}>
+                  <div className="flex items-start gap-4">
+                    <BookOutlined className="mt-1 text-2xl text-indigo-500" />
+                    <div className="min-w-0 flex-1">
+                      <Title level={4}>{knowledgeBase.name}</Title>
+                      <Paragraph type="secondary">{knowledgeBase.description}</Paragraph>
+                      <Button onClick={() => navigate(`/knowledge-base/${knowledgeBase.knowledgeBaseId}`)}>查看文档列表</Button>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   if (!knowledgeBaseId) {
     return (
       <div className="flex flex-col h-full items-center justify-center p-6">
@@ -163,7 +200,7 @@ const KnowledgeBaseView: React.FC = () => {
 
   // 显示知识库详情和文档列表
   return (
-    <div className="flex flex-col h-full p-6 overflow-y-auto">
+    <div className="flex flex-col h-full p-5 sm:p-8 overflow-y-auto">
       <div className="max-w-6xl w-full mx-auto">
         <div className="mb-3">
           <Card>
@@ -180,16 +217,25 @@ const KnowledgeBaseView: React.FC = () => {
                     {currentKnowledgeBase.description}
                   </Paragraph>
                 )}
-                <Text type="secondary" className="text-sm">
+                {IS_PUBLIC_DEMO ? <Tag color="geekblue">公开资料 · 可在聊天中检索</Tag> : <Text type="secondary" className="text-sm">
                   知识库 ID: {currentKnowledgeBase.knowledgeBaseId}
-                </Text>
+                </Text>}
               </div>
             </div>
           </Card>
         </div>
         {/* 知识库信息卡片 */}
 
-        <div className="mb-3">
+        {IS_PUBLIC_DEMO && (
+          <div className="mb-4 flex flex-wrap items-center gap-3 rounded-xl border border-indigo-100 bg-indigo-50/50 p-4">
+            <span className="flex-1 text-sm leading-6 text-slate-600">在对话中提问，展开「工具结果」查看检索到的资料与来源。</span>
+            <Button type="primary" icon={<MessageOutlined />} onClick={() => navigate("/chat", {
+              state: { suggestedPrompt: `请检索公开知识库「${currentKnowledgeBase.name}」，介绍 ExoBrain 的技术架构与检索流程，并注明文档来源。` },
+            })}>用这个知识库提问</Button>
+          </div>
+        )}
+
+        {!IS_PUBLIC_DEMO && <div className="mb-3">
           {/* 上传文档区域 */}
           <Card title="上传文档">
             <Upload
@@ -211,7 +257,7 @@ const KnowledgeBaseView: React.FC = () => {
               支持格式: Markdown
             </Text>
           </Card>
-        </div>
+        </div>}
 
         <div className="mb-3">
           {/* 文档列表 */}
@@ -222,13 +268,14 @@ const KnowledgeBaseView: React.FC = () => {
               </div>
             ) : documents.length === 0 ? (
               <Empty
-                description={<Text type="secondary">暂无文档，请上传文档</Text>}
+                description={<Text type="secondary">{IS_PUBLIC_DEMO ? "暂无演示文档" : "暂无文档，请上传文档"}</Text>}
               />
             ) : (
               <Table
-                columns={columns}
+                columns={IS_PUBLIC_DEMO ? columns.filter((column) => column.key !== "action") : columns}
                 dataSource={documents}
                 rowKey="id"
+                scroll={{ x: 460 }}
                 pagination={{
                   pageSize: 10,
                   // showSizeChanger: true,

@@ -3,106 +3,65 @@ import { Bubble } from "@ant-design/x";
 import XMarkdown from "@ant-design/x-markdown";
 import {
   ToolOutlined,
-  CheckCircleOutlined,
+  FileSearchOutlined,
   RobotOutlined,
-  DownOutlined,
-  RightOutlined,
 } from "@ant-design/icons";
 import type { ChatMessageVO, SseMessageType, ToolCall, ToolResponse } from "../../../types";
 
 interface AgentChatHistoryProps {
   messages: ChatMessageVO[];
+  autoScroll?: boolean;
   displayAgentStatus?: boolean;
   agentStatusText?: string;
   agentStatusType?: SseMessageType;
 }
 
-// 工具调用展示组件（简化版，用于 assistant 消息内）
-const ToolCallDisplay: React.FC<{ toolCall: ToolCall }> = ({ toolCall }) => {
-  let parsedArgs: Record<string, unknown> = {};
-  try {
-    parsedArgs = JSON.parse(toolCall.arguments) as Record<string, unknown>;
-  } catch {
-    // 如果解析失败，使用原始字符串
-  }
-
-  const argCount = Object.keys(parsedArgs).length;
-  const argPreview = argCount > 0 
-    ? Object.keys(parsedArgs).slice(0, 2).join(", ") + (argCount > 2 ? "..." : "")
-    : toolCall.arguments.slice(0, 50) + (toolCall.arguments.length > 50 ? "..." : "");
-
-  return (
-    <div className="text-xs text-gray-500 flex items-center gap-1.5">
-      <ToolOutlined className="text-blue-500" />
-      <span className="font-mono text-blue-600">{toolCall.name}</span>
-      {argPreview && (
-        <>
-          <span className="text-gray-400">·</span>
-          <span className="text-gray-500 truncate max-w-[200px]">{argPreview}</span>
-        </>
-      )}
-    </div>
-  );
+const TOOL_LABELS: Record<string, string> = {
+  KnowledgeTool: "知识库检索",
+  getDate: "日期查询",
+  directAnswer: "生成回答",
+  terminate: "结束任务",
 };
 
-// 工具响应展示组件（可折叠）
-const ToolResponseDisplay: React.FC<{ toolResponse: ToolResponse }> = ({
-  toolResponse,
-}) => {
-  const [expanded, setExpanded] = useState(false);
-  
-  let parsedData: unknown = null;
-  let isJson = false;
-  let dataPreview = "";
-  
+function formatToolData(value: string | null | undefined): string {
+  if (!value) return "无内容";
   try {
-    parsedData = JSON.parse(toolResponse.responseData);
-    isJson = true;
-    const jsonStr = JSON.stringify(parsedData);
-    dataPreview = jsonStr.length > 100 ? jsonStr.slice(0, 100) + "..." : jsonStr;
+    return JSON.stringify(JSON.parse(value), null, 2);
   } catch {
-    dataPreview = toolResponse.responseData.length > 100 
-      ? toolResponse.responseData.slice(0, 100) + "..." 
-      : toolResponse.responseData;
+    return value;
   }
+}
 
-  return (
-    <div className="my-1.5 text-xs">
-      <div 
-        className="flex items-center gap-2 text-gray-500 cursor-pointer hover:text-gray-700 transition-colors"
-        onClick={() => setExpanded(!expanded)}
-      >
-        {expanded ? (
-          <DownOutlined className="text-gray-400" />
-        ) : (
-          <RightOutlined className="text-gray-400" />
-        )}
-        <CheckCircleOutlined className="text-green-500" />
-        <span className="font-mono text-green-600">{toolResponse.name}</span>
-        <span className="text-gray-400">·</span>
-        <span className="text-gray-500 truncate flex-1">{dataPreview}</span>
-      </div>
-      {expanded && (
-        <div className="ml-5 mt-1.5 p-2 bg-gray-50 rounded border border-gray-200">
-          <div className="text-xs text-gray-600 font-mono">
-            {isJson ? (
-              <pre className="whitespace-pre-wrap break-words overflow-x-auto max-h-60 overflow-y-auto">
-                {JSON.stringify(parsedData, null, 2)}
-              </pre>
-            ) : (
-              <div className="whitespace-pre-wrap break-words">
-                {toolResponse.responseData}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+const ToolCallDisplay: React.FC<{ toolCall: ToolCall }> = ({ toolCall }) => (
+  <details className="w-full rounded-lg border border-indigo-100 bg-indigo-50/50 text-xs">
+    <summary className="cursor-pointer px-3 py-2 leading-6 text-indigo-700">
+      <ToolOutlined className="mx-1.5" />
+      <span className="font-medium">工具调用 · {TOOL_LABELS[toolCall.name] || toolCall.name}</span>
+      {TOOL_LABELS[toolCall.name] && <span className="ml-2 font-mono text-indigo-500">{toolCall.name}</span>}
+    </summary>
+    <div className="border-t border-indigo-100 px-3 py-2">
+      <p className="mb-1 text-indigo-500">调用参数</p>
+      <pre className="max-h-64 overflow-auto whitespace-pre-wrap break-words leading-6 text-slate-600">{formatToolData(toolCall.arguments)}</pre>
     </div>
-  );
-};
+  </details>
+);
+
+const ToolResponseDisplay: React.FC<{ toolResponse: ToolResponse }> = ({ toolResponse }) => (
+  <details className="my-1.5 w-full rounded-lg border border-slate-200 bg-slate-50 text-xs">
+    <summary className="cursor-pointer px-3 py-2 leading-6 text-slate-600">
+      <FileSearchOutlined className="mx-1.5 text-teal-600" />
+      <span className="font-medium">工具结果 · {TOOL_LABELS[toolResponse.name] || toolResponse.name}</span>
+      {TOOL_LABELS[toolResponse.name] && <span className="ml-2 font-mono text-slate-400">{toolResponse.name}</span>}
+    </summary>
+    <div className="border-t border-slate-200 px-3 py-2">
+      <pre className="max-h-80 overflow-auto whitespace-pre-wrap break-words leading-6 text-slate-600">{formatToolData(toolResponse.responseData)}</pre>
+    </div>
+  </details>
+);
 
 const AgentChatHistory: React.FC<AgentChatHistoryProps> = ({
   messages,
+  autoScroll = true,
   displayAgentStatus = false,
   agentStatusText = "",
   agentStatusType,
@@ -169,17 +128,17 @@ const AgentChatHistory: React.FC<AgentChatHistoryProps> = ({
     prevMessagesLengthRef.current = messages.length;
 
     // 如果有新消息且用户接近底部，则自动滚动
-    if (hasNewMessage && isNearBottom) {
+    if (autoScroll && hasNewMessage && isNearBottom) {
       scrollToBottom();
     }
-  }, [messages, isNearBottom, scrollToBottom]);
+  }, [messages, isNearBottom, scrollToBottom, autoScroll]);
 
   // 当 displayAgentStatus 变化时，如果用户接近底部，也自动滚动
   useEffect(() => {
-    if (displayAgentStatus && isNearBottom) {
+    if (autoScroll && displayAgentStatus && isNearBottom) {
       scrollToBottom();
     }
-  }, [displayAgentStatus, isNearBottom, scrollToBottom]);
+  }, [displayAgentStatus, isNearBottom, scrollToBottom, autoScroll]);
 
   // 获取状态标签
   const getStatusLabel = () => {
@@ -198,7 +157,7 @@ const AgentChatHistory: React.FC<AgentChatHistoryProps> = ({
   return (
     <div 
       ref={scrollContainerRef}
-      className="flex-1 px-16 pt-4 overflow-y-scroll"
+      className="min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-8 lg:px-12"
     >
       {messages.map((message) => {
         return (
@@ -221,7 +180,7 @@ const AgentChatHistory: React.FC<AgentChatHistoryProps> = ({
                     {message.content && (
                       <div>
                         <XMarkdown
-                          streaming={{ enableAnimation: false, hasNextChunk: true }}
+                          streaming={{ enableAnimation: false, hasNextChunk: false }}
                         >
                           {message.content}
                         </XMarkdown>
@@ -236,7 +195,7 @@ const AgentChatHistory: React.FC<AgentChatHistoryProps> = ({
             {/* Tool 消息 - 简洁展示，不使用气泡 */}
             {message.role === "tool" && message.metadata?.toolResponse && (
               <div className="flex justify-start">
-                <div className="max-w-[85%]">
+                <div className="w-full max-w-3xl">
                   <ToolResponseDisplay toolResponse={message.metadata.toolResponse} />
                 </div>
               </div>

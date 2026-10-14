@@ -1,20 +1,11 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   type ChatSessionVO,
   getChatSessions,
   deleteChatSession,
 } from "../api/api.ts";
-
-interface ChatSessionsContextType {
-  chatSessions: ChatSessionVO[];
-  loading: boolean;
-  refreshChatSessions: () => Promise<void>;
-  deleteChatSession: (chatSessionId: string) => Promise<void>;
-}
-
-const ChatSessionsContext = createContext<ChatSessionsContextType | undefined>(
-  undefined
-);
+import { ChatSessionsContext } from "./chatSessionsState.ts";
+import { showRequestError } from "../api/http.ts";
 
 export function ChatSessionsProvider({ children }: { children: React.ReactNode }) {
   const [chatSessions, setChatSessions] = useState<ChatSessionVO[]>([]);
@@ -31,7 +22,7 @@ export function ChatSessionsProvider({ children }: { children: React.ReactNode }
   }, []);
 
   useEffect(() => {
-    fetchChatSessions();
+    void fetchChatSessions().catch((error) => showRequestError(error, "聊天记录加载失败，请稍后刷新"));
   }, [fetchChatSessions]);
 
   const deleteChatSessionHandle = useCallback(async (chatSessionId: string) => {
@@ -52,14 +43,3 @@ export function ChatSessionsProvider({ children }: { children: React.ReactNode }
     </ChatSessionsContext.Provider>
   );
 }
-
-export function useChatSessionsContext() {
-  const context = useContext(ChatSessionsContext);
-  if (context === undefined) {
-    throw new Error(
-      "useChatSessionsContext must be used within a ChatSessionsProvider"
-    );
-  }
-  return context;
-}
-

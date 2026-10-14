@@ -1,0 +1,4 @@
+secrets/
+*.tar
+*.tar.gz
+app.jar

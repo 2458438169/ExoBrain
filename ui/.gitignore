@@ -9,8 +9,14 @@ lerna-debug.log*
 
 node_modules
 dist
+dist-public/
+dist-admin/
 dist-ssr
 *.local
+
+# Local browser verification artifacts
+.playwright-cli/
+output/playwright/
 
 # Editor directories and files
 .vscode/*
