@@ -69,7 +69,7 @@ class DemoControllerTest {
         Agent entity = Agent.builder().id(AGENT).build();
         when(agents.selectById(AGENT)).thenReturn(entity);
         agentConfig = AgentDTO.builder().id(AGENT).name("Public demo")
-                .systemPrompt("private system prompt").model(AgentDTO.ModelType.DEEPSEEK_CHAT)
+                .systemPrompt("private system prompt").model(AgentDTO.ModelType.DEEPSEEK_CHAT.getModelName())
                 .allowedTools(List.of()).allowedKbs(List.of()).chatOptions(AgentDTO.ChatOptions.defaultOptions()).build();
         when(converter.toDTO(entity)).thenReturn(agentConfig);
         sessions.insert(OWN_SESSION, AGENT, "My chat", DemoVisitor.hash(first.getValue()));

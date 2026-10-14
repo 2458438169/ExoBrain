@@ -3,6 +3,7 @@ package com.kama.jchatmind.demo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kama.jchatmind.agent.JChatMind;
 import com.kama.jchatmind.agent.JChatMindFactory;
+import com.kama.jchatmind.auth.AuthException;
 import com.kama.jchatmind.agent.tools.DirectAnswerTool;
 import com.kama.jchatmind.agent.tools.DataBaseTools;
 import com.kama.jchatmind.agent.tools.TerminateTool;
@@ -108,9 +109,11 @@ class DemoExecutionServiceTest {
         assertNotNull(callbacks);
         assertEquals(DemoAccessPolicy.PUBLIC_TOOL_NAMES,
                 callbacks.stream().map(callback -> callback.getToolDefinition().name()).collect(java.util.stream.Collectors.toSet()));
-        String blocked = callbacks.stream().filter(callback -> callback.getToolDefinition().name().equals("KnowledgeTool"))
-                .findFirst().orElseThrow().call("{\"kbsId\":\"" + PRIVATE_KB + "\",\"query\":\"private\"}");
-        assertTrue(blocked.contains("只能检索公开演示知识库"));
+        ToolCallback knowledge = callbacks.stream().filter(callback -> callback.getToolDefinition().name().equals("KnowledgeTool"))
+                .findFirst().orElseThrow();
+        AuthException blocked = assertThrows(AuthException.class,
+                () -> knowledge.call("{\"kbsId\":\"" + PRIVATE_KB + "\",\"query\":\"private\"}"));
+        assertEquals(403, blocked.getStatus());
         verifyNoInteractions(knowledgeBases, rag);
     }
 

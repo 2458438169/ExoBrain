@@ -23,7 +23,7 @@ export default function EmptyAgentChatView({ agents, loadingAgents }: EmptyAgent
     typeof state?.suggestedPrompt === "string" ? state.suggestedPrompt : "",
   );
   const [loading, setLoading] = useState(false);
-  const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
+  const [selectedAgentId, setSelectedAgentId] = useState<string | null>(() => typeof state?.selectedAgentId === "string" ? state.selectedAgentId : null);
   const navigate = useNavigate();
   const { refreshChatSessions } = useChatSessions();
 

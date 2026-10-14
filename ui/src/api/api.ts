@@ -1,4 +1,4 @@
-import { get, post, patch, del, BASE_URL } from "./http.ts";
+import { get, post, patch, del, request } from "./http.ts";
 import type { ChatMessageVO, MessageType } from "../types";
 
 // 类型定义
@@ -8,7 +8,7 @@ export interface ChatOptions {
   messageLength?: number;
 }
 
-export type ModelType = "deepseek-chat" | "glm-4.6";
+export type ModelType = string;
 
 export interface CreateAgentRequest {
   name: string;
@@ -45,6 +45,7 @@ export interface AgentVO {
   chatOptions?: ChatOptions;
   createdAt?: string;
   updatedAt?: string;
+  readOnly?: boolean;
 }
 
 export interface GetAgentsResponse {
@@ -235,6 +236,7 @@ export interface KnowledgeBaseVO {
   id: string;
   name: string;
   description?: string;
+  readOnly?: boolean;
 }
 
 export interface CreateKnowledgeBaseRequest {
@@ -299,6 +301,7 @@ export interface DocumentVO {
   filename: string;
   filetype: string;
   size: number;
+  readOnly?: boolean;
 }
 
 export interface GetDocumentsResponse {
@@ -346,21 +349,10 @@ export async function uploadDocument(
   formData.append("kbId", kbId);
   formData.append("file", file);
 
-  const response = await fetch(`${BASE_URL}/documents/upload`, {
+  return request<CreateDocumentResponse>("/documents/upload", {
     method: "POST",
     body: formData,
   });
-
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
-  }
-
-  const apiResponse = await response.json();
-  if (apiResponse.code !== 200) {
-    throw new Error(apiResponse.message || "上传失败");
-  }
-
-  return apiResponse.data;
 }
 
 /**

@@ -61,6 +61,7 @@ const KnowledgeBaseTabContent: React.FC<KnowledgeBaseTabContentProps> = ({
                     <div className="font-medium text-gray-900 truncate">
                       {kb.name}
                     </div>
+                    {kb.readOnly && !IS_PUBLIC_DEMO && <div className="mt-1 text-xs text-indigo-500">公开资料 · 只读</div>}
                     {kb.description && (
                       <div className="text-xs text-gray-500 mt-1 line-clamp-2">
                         {kb.description}

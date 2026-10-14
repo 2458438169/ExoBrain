@@ -30,7 +30,7 @@ public class AgentConverter {
                 .name(agentDTO.getName())
                 .description(agentDTO.getDescription())
                 .systemPrompt(agentDTO.getSystemPrompt())
-                .model(agentDTO.getModel().getModelName())
+                .model(agentDTO.getModel())
                 .allowedTools(objectMapper.writeValueAsString(agentDTO.getAllowedTools()))
                 .allowedKbs(objectMapper.writeValueAsString(agentDTO.getAllowedKbs()))
                 .chatOptions(objectMapper.writeValueAsString(agentDTO.getChatOptions()))
@@ -51,7 +51,7 @@ public class AgentConverter {
                 .name(agent.getName())
                 .description(agent.getDescription())
                 .systemPrompt(agent.getSystemPrompt())
-                .model(AgentDTO.ModelType.fromModelName(agent.getModel()))
+                .model(agent.getModel())
                 .allowedTools(objectMapper.readValue(agent.getAllowedTools(), new TypeReference<>(){}))
                 .allowedKbs(objectMapper.readValue(agent.getAllowedKbs(), new TypeReference<>(){}))
                 .chatOptions(objectMapper.readValue(agent.getChatOptions(), AgentDTO.ChatOptions.class))
@@ -88,7 +88,7 @@ public class AgentConverter {
                 .name(request.getName())
                 .description(request.getDescription())
                 .systemPrompt(request.getSystemPrompt())
-                .model(AgentDTO.ModelType.fromModelName(request.getModel()))
+                .model(request.getModel())
                 .allowedTools(request.getAllowedTools())
                 .allowedKbs(request.getAllowedKbs())
                 .chatOptions(request.getChatOptions())
@@ -109,7 +109,7 @@ public class AgentConverter {
             dto.setSystemPrompt(request.getSystemPrompt());
         }
         if (request.getModel() != null) {
-            dto.setModel(AgentDTO.ModelType.fromModelName(request.getModel()));
+            dto.setModel(request.getModel());
         }
         if (request.getAllowedTools() != null) {
             dto.setAllowedTools(request.getAllowedTools());

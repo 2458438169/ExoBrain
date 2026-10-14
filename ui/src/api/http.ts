@@ -1,5 +1,6 @@
-import { message } from "antd";
+import { notify } from "./feedback.ts";
 import { IS_PUBLIC_DEMO } from "../config.ts";
+import { authSnapshot, expireAuthSession } from "./authSession.ts";
 
 // API 响应类型定义，匹配后端 ApiResponse 结构
 export interface ApiResponse<T = unknown> {
@@ -11,13 +12,16 @@ export interface ApiResponse<T = unknown> {
 // 请求配置选项
 export interface RequestOptions extends RequestInit {
   params?: Record<string, string | number | boolean | null | undefined>;
+  silent?: boolean;
 }
 
 class ReportedApiError extends Error {}
+export class AuthenticationError extends Error {}
 
 export function showRequestError(error: unknown, fallback: string): void {
-  if (!(error instanceof ReportedApiError)) {
-    message.error(error instanceof Error ? error.message : fallback);
+  if (!(error instanceof ReportedApiError) && !(error instanceof AuthenticationError)
+    && !(error instanceof DOMException && error.name === "AbortError")) {
+    notify.error(error instanceof Error ? error.message : fallback);
   }
 }
 
@@ -53,12 +57,19 @@ function buildUrl(url: string, params?: Record<string, string | number | boolean
 /**
  * 处理响应
  */
-async function handleResponse<T>(response: Response): Promise<ApiResponse<T>> {
+async function handleResponse<T>(response: Response, silent: boolean, requestRevision: number): Promise<ApiResponse<T>> {
   const data: ApiResponse<T> | null = await response.json().catch(() => null);
+  if (!IS_PUBLIC_DEMO && requestRevision !== authSnapshot().revision) {
+    throw new DOMException("账号已切换", "AbortError");
+  }
+  if (!IS_PUBLIC_DEMO && (response.status === 401 || data?.code === 401)) {
+    expireAuthSession(requestRevision);
+    throw new AuthenticationError(data?.message || "请登录后继续");
+  }
   if (!response.ok) {
     const errorMessage = data?.message || `请求失败（HTTP ${response.status}）`;
-    message.error(errorMessage);
-    throw new ReportedApiError(errorMessage);
+    if (!silent) notify.error(errorMessage);
+    throw silent ? new Error(errorMessage) : new ReportedApiError(errorMessage);
   }
 
   if (!data) {
@@ -67,8 +78,8 @@ async function handleResponse<T>(response: Response): Promise<ApiResponse<T>> {
 
   // 检查业务状态码
   if (data.code !== 200) {
-    message.error(data.message || "请求失败");
-    throw new ReportedApiError(data.message || "请求失败");
+    if (!silent) notify.error(data.message || "请求失败");
+    throw silent ? new Error(data.message || "请求失败") : new ReportedApiError(data.message || "请求失败");
   }
 
   return data;
@@ -77,28 +88,33 @@ async function handleResponse<T>(response: Response): Promise<ApiResponse<T>> {
 /**
  * 封装的 fetch 请求函数
  */
-async function request<T = unknown>(
+export async function request<T = unknown>(
   url: string,
   options: RequestOptions = {}
 ): Promise<T> {
-  const { params, headers, ...restOptions } = options;
+  const { params, headers, silent = false, ...restOptions } = options;
+  const session = authSnapshot();
 
   // 构建完整 URL
   const fullUrl = buildUrl(url, params);
 
   // 设置默认请求头
-  const defaultHeaders: HeadersInit = {
-    "Content-Type": "application/json",
-    ...headers,
-  };
+  const defaultHeaders = new Headers(headers);
+  if (!(restOptions.body instanceof FormData)) defaultHeaders.set("Content-Type", "application/json");
+  const isWrite = !["GET", "HEAD", "OPTIONS"].includes((restOptions.method || "GET").toUpperCase());
+  if (!IS_PUBLIC_DEMO && isWrite && session.csrfToken) {
+    defaultHeaders.set("X-CSRF-Token", session.csrfToken);
+  }
 
   try {
     const response = await fetch(fullUrl, {
+      credentials: "same-origin",
+      cache: "no-store",
       ...restOptions,
       headers: defaultHeaders,
     });
 
-    const apiResponse = await handleResponse<T>(response);
+    const apiResponse = await handleResponse<T>(response, silent, session.revision);
     return apiResponse.data;
   } catch (error) {
     // 统一错误处理

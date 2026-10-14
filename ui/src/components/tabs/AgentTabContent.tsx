@@ -25,6 +25,7 @@ const AgentTabContent: React.FC<AgentTabContentProps> = ({
   onEditAgent,
   onDeleteAgent,
 }) => {
+  const [modal, modalHolder] = Modal.useModal();
   // 为每个 agent 生成 emoji
   const agentsWithEmoji = useMemo(() => {
     return agents.map((agent) => ({
@@ -36,6 +37,7 @@ const AgentTabContent: React.FC<AgentTabContentProps> = ({
   // 创建右键菜单
   const getContextMenuItems = (agent: AgentVO): MenuProps["items"] => {
     const items: MenuProps["items"] = [];
+    if (agent.readOnly) return items;
 
     if (onEditAgent) {
       items.push({
@@ -57,7 +59,7 @@ const AgentTabContent: React.FC<AgentTabContentProps> = ({
         danger: true,
         onClick: (e) => {
           e.domEvent.stopPropagation();
-          Modal.confirm({
+          modal.confirm({
             title: "确定要删除这个智能体吗？",
             content: "删除后将无法恢复",
             okText: "确定",
@@ -76,6 +78,7 @@ const AgentTabContent: React.FC<AgentTabContentProps> = ({
 
   return (
     <div className="flex flex-col h-full">
+      {modalHolder}
       {onCreateAgentClick && <><Button
         color="geekblue"
         variant="filled"
@@ -111,6 +114,7 @@ const AgentTabContent: React.FC<AgentTabContentProps> = ({
                       <div className="font-medium text-gray-900 truncate">
                         {agent.name}
                       </div>
+                      {agent.readOnly && <div className="mt-1 text-xs text-indigo-500">公开助手</div>}
                       {agent.description && (
                         <div className="text-xs text-gray-500 mt-1 line-clamp-1">
                           {agent.description}
@@ -126,7 +130,7 @@ const AgentTabContent: React.FC<AgentTabContentProps> = ({
                       <div
                         onClick={(e) => e.stopPropagation()}
                         onContextMenu={(e) => e.stopPropagation()}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                        className="shrink-0 opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100 md:focus-within:opacity-100"
                       >
                         <Dropdown
                           menu={{ items: menuItems }}
@@ -137,6 +141,7 @@ const AgentTabContent: React.FC<AgentTabContentProps> = ({
                             type="text"
                             size="small"
                             icon={<MoreOutlined />}
+                            aria-label={`管理助手 ${agent.name}`}
                             onClick={(e) => e.stopPropagation()}
                             className="text-gray-400 hover:text-gray-600"
                           />

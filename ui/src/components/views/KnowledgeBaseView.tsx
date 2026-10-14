@@ -8,7 +8,6 @@ import {
   Table,
   Popconfirm,
   Space,
-  message,
   Empty,
   Spin,
   Tag,
@@ -27,6 +26,8 @@ import { useDocuments } from "../../hooks/useDocuments.ts";
 import { uploadDocument, type DocumentVO } from "../../api/api.ts";
 import { IS_PUBLIC_DEMO } from "../../config.ts";
 import DocumentPreviewDrawer from "../modals/DocumentPreviewDrawer.tsx";
+import { showRequestError } from "../../api/http.ts";
+import { notify } from "../../api/feedback.ts";
 
 const { Title, Text, Paragraph } = Typography;
 const isMarkdown = (filename: string) => /\.(?:md|markdown)$/i.test(filename);
@@ -48,13 +49,14 @@ const KnowledgeBaseContent: React.FC<{ knowledgeBaseId?: string }> = ({ knowledg
       null
     );
   }, [knowledgeBaseId, knowledgeBases]);
+  const readOnly = IS_PUBLIC_DEMO || currentKnowledgeBase?.readOnly === true;
 
   // 处理文件上传
   const handleUpload: UploadProps["customRequest"] = async (options) => {
     const { file, onSuccess, onError } = options;
 
-    if (!knowledgeBaseId) {
-      message.error("请先选择知识库");
+    if (!knowledgeBaseId || readOnly) {
+      notify.error("请先选择知识库");
       return;
     }
 
@@ -62,11 +64,11 @@ const KnowledgeBaseContent: React.FC<{ knowledgeBaseId?: string }> = ({ knowledg
 
     try {
       await uploadDocument(knowledgeBaseId, file as File);
-      message.success("文档上传成功");
+      notify.success("文档上传成功");
       await refreshDocuments();
       onSuccess?.(file);
     } catch (error) {
-      message.error(error instanceof Error ? error.message : "上传失败");
+      showRequestError(error, "上传失败");
       onError?.(error as Error);
     } finally {
       setUploading(false);
@@ -122,7 +124,7 @@ const KnowledgeBaseContent: React.FC<{ knowledgeBaseId?: string }> = ({ knowledg
     {
       title: "操作",
       key: "action",
-      width: IS_PUBLIC_DEMO ? 88 : 160,
+      width: readOnly ? 88 : 160,
       render: (_: unknown, record: DocumentVO) => (
         <Space size={0} wrap>
           <Button
@@ -134,7 +136,7 @@ const KnowledgeBaseContent: React.FC<{ knowledgeBaseId?: string }> = ({ knowledg
           >
             预览
           </Button>
-          {!IS_PUBLIC_DEMO && <Popconfirm
+          {!readOnly && !record.readOnly && <Popconfirm
             title="确定要删除这个文档吗？"
             description="删除后将无法恢复"
             onConfirm={() => deleteDocument(record.id)}
@@ -242,7 +244,7 @@ const KnowledgeBaseContent: React.FC<{ knowledgeBaseId?: string }> = ({ knowledg
                     {currentKnowledgeBase.description}
                   </Paragraph>
                 )}
-                {IS_PUBLIC_DEMO ? <Tag color="geekblue">公开资料 · 可阅读与检索</Tag> : <Text type="secondary" className="text-sm">
+                {readOnly ? <Tag color="geekblue">公开资料 · 可阅读与检索</Tag> : <Text type="secondary" className="text-sm">
                   知识库 ID: {currentKnowledgeBase.knowledgeBaseId}
                 </Text>}
               </div>
@@ -251,7 +253,7 @@ const KnowledgeBaseContent: React.FC<{ knowledgeBaseId?: string }> = ({ knowledg
         </div>
         {/* 知识库信息卡片 */}
 
-        {IS_PUBLIC_DEMO && (
+        {readOnly && (
           <div className="mb-4 flex flex-wrap items-center gap-3 rounded-xl border border-indigo-100 bg-indigo-50/50 p-4">
             <span className="flex-1 text-sm leading-6 text-slate-600">点击文件名阅读原文，也可以在对话中检索资料与来源。</span>
             <Button type="primary" icon={<MessageOutlined />} onClick={() => navigate("/chat", {
@@ -260,7 +262,7 @@ const KnowledgeBaseContent: React.FC<{ knowledgeBaseId?: string }> = ({ knowledg
           </div>
         )}
 
-        {!IS_PUBLIC_DEMO && <div className="mb-3">
+        {!readOnly && <div className="mb-3">
           {/* 上传文档区域 */}
           <Card title="上传文档">
             <Upload
@@ -293,7 +295,7 @@ const KnowledgeBaseContent: React.FC<{ knowledgeBaseId?: string }> = ({ knowledg
               </div>
             ) : documents.length === 0 ? (
               <Empty
-                description={<Text type="secondary">{IS_PUBLIC_DEMO ? "暂无演示文档" : "暂无文档，请上传文档"}</Text>}
+                description={<Text type="secondary">{readOnly ? "暂无公开文档" : "暂无文档，请上传文档"}</Text>}
               />
             ) : (
               <Table

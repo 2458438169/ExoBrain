@@ -47,7 +47,7 @@ public class DemoCatalogService {
         return GetKnowledgeBasesResponse.builder().knowledgeBases(knowledgeBases.selectByIdBatch(ids).stream()
                 .filter(kb -> ids.contains(kb.getId()))
                 .map(kb -> KnowledgeBaseVO.builder().id(kb.getId()).name(kb.getName())
-                        .description(kb.getDescription()).build()).toArray(KnowledgeBaseVO[]::new)).build();
+                        .description(kb.getDescription()).readOnly(true).build()).toArray(KnowledgeBaseVO[]::new)).build();
     }
 
     public GetDocumentsResponse documents(String kbId) {
@@ -57,7 +57,7 @@ public class DemoCatalogService {
                 .filter(document -> publicId.equals(document.getKbId()))
                 .map(document -> DocumentVO.builder().id(document.getId()).kbId(publicId)
                         .filename(publicFilename(document.getFilename())).filetype(document.getFiletype())
-                        .size(document.getSize()).build()).toArray(DocumentVO[]::new)).build();
+                        .size(document.getSize()).readOnly(true).build()).toArray(DocumentVO[]::new)).build();
     }
 
     public List<PublicTool> tools() {

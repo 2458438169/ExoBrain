@@ -207,8 +207,9 @@ function SessionChatView({ sessionId, agentCatalog }: { sessionId: string; agent
 
 export default function AgentChatView() {
   const { chatSessionId } = useParams<{ chatSessionId: string }>();
+  const location = useLocation();
   const agentCatalog = useAgents();
   return chatSessionId
     ? <SessionChatView key={chatSessionId} sessionId={chatSessionId} agentCatalog={agentCatalog} />
-    : <EmptyAgentChatView agents={agentCatalog.agents} loadingAgents={agentCatalog.loading} />;
+    : <EmptyAgentChatView key={location.key} agents={agentCatalog.agents} loadingAgents={agentCatalog.loading} />;
 }

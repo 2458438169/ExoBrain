@@ -1,7 +1,11 @@
 package com.kama.jchatmind.agent;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kama.jchatmind.agent.tools.Tool;
+import com.kama.jchatmind.auth.ScopedToolCallback;
+import com.kama.jchatmind.auth.AuthException;
 import com.kama.jchatmind.config.ChatClientRegistry;
 import com.kama.jchatmind.converter.AgentConverter;
 import com.kama.jchatmind.converter.ChatMessageConverter;
@@ -77,6 +81,10 @@ public class JChatMindFactory {
     private List<Message> loadMemory(String chatSessionId, AgentDTO agentConfig) {
         int messageLength = agentConfig.getChatOptions().getMessageLength();
         List<ChatMessageDTO> chatMessages = chatMessageFacadeService.getChatMessagesBySessionIdRecently(chatSessionId, messageLength);
+        return restoreMemory(chatMessages);
+    }
+
+    private List<Message> restoreMemory(List<ChatMessageDTO> chatMessages) {
         List<Message> memory = new ArrayList<>();
         for (ChatMessageDTO chatMessageDTO : chatMessages) {
             switch (chatMessageDTO.getRole()) {
@@ -196,7 +204,9 @@ public class JChatMindFactory {
             List<Message> memory,
             List<KnowledgeBaseDTO> knowledgeBases,
             List<ToolCallback> toolCallbacks,
-            String chatSessionId
+            String chatSessionId,
+            Runnable runtimeGuard,
+            String submittedUserInput
     ) {
         ChatClient chatClient = chatClientRegistry.get(agent.getModel());
         if (Objects.isNull(chatClient)) {
@@ -215,7 +225,9 @@ public class JChatMindFactory {
                 chatSessionId,
                 sseService,
                 chatMessageFacadeService,
-                chatMessageConverter
+                chatMessageConverter,
+                runtimeGuard,
+                submittedUserInput
         );
     }
 
@@ -228,18 +240,48 @@ public class JChatMindFactory {
 
     /** Validate the exact runtime configuration before resolving any data or tools. */
     public JChatMind create(String agentId, String chatSessionId, Consumer<AgentDTO> validateConfig) {
+        return createRuntime(agentId, chatSessionId, validateConfig, null, null);
+    }
+
+    /** Account submissions carry an immutable history snapshot and the exact triggering question. */
+    public JChatMind createForSubmission(String agentId, String chatSessionId, String triggeringMessageId,
+            String userInput, String historySnapshot, Consumer<AgentDTO> validateConfig) {
+        List<ChatMessageDTO> snapshot;
+        try {
+            snapshot = new ObjectMapper().findAndRegisterModules().readValue(historySnapshot, new TypeReference<>() { });
+        } catch (JsonProcessingException | IllegalArgumentException error) {
+            throw new AuthException(400, "本次会话的历史快照无效");
+        }
+        if (snapshot == null || snapshot.isEmpty() || snapshot.size() > 101
+                || snapshot.stream().anyMatch(message -> message == null || !chatSessionId.equals(message.getSessionId())))
+            throw new AuthException(400, "本次会话的历史快照无效");
+        var trigger = snapshot.getLast();
+        if (trigger.getRole() != ChatMessageDTO.RoleType.USER || !Objects.equals(triggeringMessageId, trigger.getId())
+                || !Objects.equals(userInput, trigger.getContent())) throw new AuthException(400, "触发消息与本次请求不一致");
+        return createRuntime(agentId, chatSessionId, validateConfig, snapshot, userInput);
+    }
+
+    private JChatMind createRuntime(String agentId, String chatSessionId, Consumer<AgentDTO> validateConfig,
+            List<ChatMessageDTO> capturedHistory, String submittedUserInput) {
         Agent agent = loadAgent(agentId);
         if (agent == null) throw new IllegalStateException("Agent is not configured");
         AgentDTO agentConfig = toAgentConfig(agent);
         validateConfig.accept(agentConfig);
-        List<Message> memory = loadMemory(chatSessionId, agentConfig);
+        List<Message> memory = capturedHistory == null ? loadMemory(chatSessionId, agentConfig)
+                : restoreMemory(capturedHistory.subList(Math.max(0, capturedHistory.size()
+                        - agentConfig.getChatOptions().getMessageLength()), capturedHistory.size()));
+        Runnable runtimeGuard = () -> validateConfig.accept(agentConfig);
 
         // 解析 agent 的支持的知识库
         List<KnowledgeBaseDTO> knowledgeBases = resolveRuntimeKnowledgeBases(agentConfig);
         // 解析 agent 支持的工具调用
         List<Tool> runtimeTools = resolveRuntimeTools(agentConfig);
         // 将工具调用转换成 ToolCallback 的形式
-        List<ToolCallback> toolCallbacks = buildToolCallbacks(runtimeTools);
+        Set<String> allowedKbIds = agentConfig.getAllowedKbs() == null ? Set.of()
+                : new HashSet<>(agentConfig.getAllowedKbs());
+        List<ToolCallback> toolCallbacks = buildToolCallbacks(runtimeTools).stream()
+                .map(callback -> (ToolCallback) new ScopedToolCallback(callback, allowedKbIds,
+                        runtimeGuard)).toList();
 
         return buildAgentRuntime(
                 agent,
@@ -247,7 +289,9 @@ public class JChatMindFactory {
                 memory,
                 knowledgeBases,
                 toolCallbacks,
-                chatSessionId
+                chatSessionId,
+                runtimeGuard,
+                submittedUserInput
         );
     }
 }

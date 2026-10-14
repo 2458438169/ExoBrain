@@ -3,6 +3,7 @@ package com.kama.jchatmind.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kama.jchatmind.converter.DocumentConverter;
 import com.kama.jchatmind.demo.*;
+import com.kama.jchatmind.auth.*;
 import com.kama.jchatmind.exception.GlobalExceptionHandler;
 import com.kama.jchatmind.mapper.ChunkBgeM3Mapper;
 import com.kama.jchatmind.mapper.DocumentMapper;
@@ -29,6 +30,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.time.Instant;
+import jakarta.servlet.http.Cookie;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
@@ -63,8 +66,17 @@ class DocumentContentControllerTest {
         properties.setPublicKbIds(List.of(PUBLIC_KB));
         var catalog = new DemoCatalogService(new DemoAccessPolicy(properties), mock(DemoSessionRepository.class),
                 mock(KnowledgeBaseMapper.class), documents, mock(ChatMessageFacadeService.class), json, facade);
-        mvc = MockMvcBuilders.standaloneSetup(new DocumentController(facade),
+        var access = mock(ResourceAccess.class);
+        when(access.canRead(eq(ResourceAccess.KB), anyString())).thenReturn(true);
+        var auth = mock(AuthService.class);
+        var authProperties = new AuthProperties();
+        when(auth.authenticate("test-session")).thenReturn(new AuthRepository.LoginSession(
+                new AuthUser("11111111-1111-4111-8111-111111111111", "admin", "Admin", "ADMIN", true, Instant.now()),
+                "test-hash", "test-csrf", Instant.now().plusSeconds(3600), 1));
+        mvc = MockMvcBuilders.standaloneSetup(new DocumentController(facade, access),
                         new DemoController(mock(DemoChatService.class), new DemoVisitor(), catalog))
+                .defaultRequest(get("/").cookie(new Cookie(authProperties.cookieName(), "test-session")))
+                .addFilters(new AuthFilter(auth, authProperties, json))
                 .setControllerAdvice(new GlobalExceptionHandler()).build();
     }
 

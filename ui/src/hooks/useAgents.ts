@@ -9,11 +9,13 @@ import {
   type UpdateAgentRequest,
 } from "../api/api.ts";
 import { showRequestError } from "../api/http.ts";
+import { agentCatalogEvents } from "./catalogEvents.ts";
 
 export function useAgents() {
   const [agents, setAgents] = useState<AgentVO[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadFailed, setLoadFailed] = useState(false);
+  useEffect(() => agentCatalogEvents.subscribe(setAgents), []);
 
   useEffect(() => {
     let active = true;
@@ -36,7 +38,7 @@ export function useAgents() {
     setLoadFailed(false);
     try {
       const resp = await getAgents();
-      setAgents(resp.agents);
+      agentCatalogEvents.publish(resp.agents);
     } catch (error) {
       setLoadFailed(true);
       throw error;

@@ -28,6 +28,7 @@ import org.springframework.util.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -81,6 +82,9 @@ public class JChatMind {
 
     private ChatMessageFacadeService chatMessageFacadeService;
 
+    private Runnable runtimeGuard = () -> { throw new IllegalStateException("Runtime authorization is required"); };
+    private String submittedUserInput;
+
     // 最后一次的 ChatResponse
     private ChatResponse lastChatResponse;
 
@@ -102,7 +106,9 @@ public class JChatMind {
                      String chatSessionId,
                      SseService sseService,
                      ChatMessageFacadeService chatMessageFacadeService,
-                     ChatMessageConverter chatMessageConverter
+                     ChatMessageConverter chatMessageConverter,
+                     Runnable runtimeGuard,
+                     String submittedUserInput
     ) {
         this.agentId = agentId;
         this.name = name;
@@ -119,6 +125,8 @@ public class JChatMind {
 
         this.chatMessageFacadeService = chatMessageFacadeService;
         this.chatMessageConverter = chatMessageConverter;
+        this.runtimeGuard = Objects.requireNonNull(runtimeGuard, "Runtime authorization is required");
+        this.submittedUserInput = submittedUserInput;
 
         this.agentState = AgentState.IDLE;
 
@@ -170,6 +178,7 @@ public class JChatMind {
     // SystemMessage 不需要持久化
     // UserMessage 在每次用户发送问题之间就已经持久化过了
     private void saveMessage(Message message) {
+        runtimeGuard.run();
         ChatMessageDTO.ChatMessageDTOBuilder builder = ChatMessageDTO.builder();
         if (message instanceof AssistantMessage assistantMessage) {
             ChatMessageDTO chatMessageDTO = builder.role(ChatMessageDTO.RoleType.ASSISTANT)
@@ -185,6 +194,7 @@ public class JChatMind {
         } else if (message instanceof ToolResponseMessage toolResponseMessage) {
             // 持久化 ToolResponseMessage
             for (ToolResponseMessage.ToolResponse toolResponse : toolResponseMessage.getResponses()) {
+                runtimeGuard.run();
                 ChatMessageDTO chatMessageDTO = builder.role(ChatMessageDTO.RoleType.TOOL)
                         .content(toolResponse.responseData())
                         .sessionId(this.chatSessionId)
@@ -307,6 +317,7 @@ public class JChatMind {
     private ChatResponse callModelWithRetry(Prompt prompt, String thinkPrompt) {
         RuntimeException lastError = null;
         for (int attempt = 1; attempt <= MODEL_MAX_ATTEMPTS; attempt++) {
+            runtimeGuard.run();
             ChatResponse response = this.chatClient
                     .prompt(prompt)
                     .system(thinkPrompt)
@@ -314,6 +325,9 @@ public class JChatMind {
                     .call()
                     .chatClientResponse()
                     .chatResponse();
+
+            // A response may arrive long after logout, expiry, or a role/resource change.
+            runtimeGuard.run();
 
             String text = response == null ? null : response.getResult().getOutput().getText();
             if (!isUpstreamBusy(text)) {
@@ -351,6 +365,8 @@ public class JChatMind {
     // SSE 是「展示 / 可观测性」通道，不是 Agent 执行的必要条件。
     // 推不出去（前端没连、连接已断等）只记 WARN，绝不向上抛。
     private void trySend(SseMessage message) {
+        // Authorization errors must escape the best-effort SSE transport handler.
+        runtimeGuard.run();
         try {
             sseService.send(this.chatSessionId, message);
         } catch (Exception e) {
@@ -454,6 +470,7 @@ public class JChatMind {
 
     // 执行
     private void execute() {
+        runtimeGuard.run();
         Assert.notNull(this.lastChatResponse, "Last chat client response cannot be null");
 
         if (!this.lastChatResponse.hasToolCalls()) {
@@ -469,6 +486,7 @@ public class JChatMind {
                 .build();
 
         ToolExecutionResult toolExecutionResult = toolCallingManager.executeToolCalls(prompt, this.lastChatResponse);
+        runtimeGuard.run();
 
         this.chatMemory.clear(this.chatSessionId);
         this.chatMemory.add(this.chatSessionId, toolExecutionResult.conversationHistory());
@@ -542,6 +560,7 @@ public class JChatMind {
 
     // 运行
     public void run() {
+        runtimeGuard.run();
         if (agentState != AgentState.IDLE) {
             throw new IllegalStateException("Agent is not idle");
         }
@@ -550,7 +569,7 @@ public class JChatMind {
         this.userAnswerProduced = false;
         this.finalizeReminderSent = false;
         // 固定本轮的用户请求：之后可能注入收尾提醒，不能每轮重新取「最近一条 user 消息」
-        this.originalRequest = latestUserRequest();
+        this.originalRequest = submittedUserInput == null ? latestUserRequest() : submittedUserInput;
 
         try {
             for (int i = 0;
@@ -573,8 +592,12 @@ public class JChatMind {
         } finally {
             // 无论正常结束还是异常，都通知前端收尾，
             // 否则「思考中/执行中」的状态提示会一直转下去不消失
-            sendStatus(SseMessage.Type.AI_DONE,
-                    agentState == AgentState.ERROR ? "执行失败" : "完成");
+            try {
+                sendStatus(SseMessage.Type.AI_DONE,
+                        agentState == AgentState.ERROR ? "执行失败" : "完成");
+            } catch (RuntimeException authorizationRevoked) {
+                // A revoked session must not receive even a late completion event.
+            }
         }
     }
 

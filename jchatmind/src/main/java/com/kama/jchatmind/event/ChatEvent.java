@@ -1,12 +1,17 @@
 package com.kama.jchatmind.event;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 
-@Data
+@Getter
 @AllArgsConstructor
 public class ChatEvent {
-    private String agentId;
-    private String sessionId;
-    private String userInput;
+    private final String agentId;
+    private final String sessionId;
+    private final String userInput;
+    private final String actorId;
+    private final int actorAuthVersion;
+    private final String actorSessionHash;
+    private final String triggeringMessageId;
+    private final String historySnapshot;
 }

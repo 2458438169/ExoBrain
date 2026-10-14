@@ -6,10 +6,12 @@ import {
 } from "../api/api.ts";
 import type { KnowledgeBase } from "../types";
 import { showRequestError } from "../api/http.ts";
+import { knowledgeCatalogEvents } from "./catalogEvents.ts";
 
 export function useKnowledgeBases() {
   const [knowledgeBases, setKnowledgeBases] = useState<KnowledgeBase[]>([]);
   const [loading, setLoading] = useState(true);
+  useEffect(() => knowledgeCatalogEvents.subscribe(setKnowledgeBases), []);
 
   useEffect(() => {
     let active = true;
@@ -19,6 +21,7 @@ export function useKnowledgeBases() {
         knowledgeBaseId: kb.id,
         name: kb.name,
         description: kb.description || "",
+        readOnly: kb.readOnly,
       }));
       if (active) setKnowledgeBases(converted);
     }).catch((error) => {
@@ -37,8 +40,9 @@ export function useKnowledgeBases() {
       knowledgeBaseId: kb.id,
       name: kb.name,
       description: kb.description || "",
+      readOnly: kb.readOnly,
     }));
-    setKnowledgeBases(converted);
+    knowledgeCatalogEvents.publish(converted);
   }
 
   return {

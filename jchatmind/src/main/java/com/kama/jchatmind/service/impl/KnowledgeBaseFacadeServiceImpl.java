@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.kama.jchatmind.converter.KnowledgeBaseConverter;
 import com.kama.jchatmind.exception.BizException;
 import com.kama.jchatmind.mapper.KnowledgeBaseMapper;
+import com.kama.jchatmind.models.ModelCatalogService;
 import com.kama.jchatmind.model.dto.KnowledgeBaseDTO;
 import com.kama.jchatmind.model.entity.KnowledgeBase;
 import com.kama.jchatmind.model.request.CreateKnowledgeBaseRequest;
@@ -14,6 +15,7 @@ import com.kama.jchatmind.model.vo.KnowledgeBaseVO;
 import com.kama.jchatmind.service.KnowledgeBaseFacadeService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -25,6 +27,7 @@ public class KnowledgeBaseFacadeServiceImpl implements KnowledgeBaseFacadeServic
 
     private final KnowledgeBaseMapper knowledgeBaseMapper;
     private final KnowledgeBaseConverter knowledgeBaseConverter;
+    private final ModelCatalogService modelCatalog;
 
     @Override
     public GetKnowledgeBasesResponse getKnowledgeBases() {
@@ -44,6 +47,7 @@ public class KnowledgeBaseFacadeServiceImpl implements KnowledgeBaseFacadeServic
     }
 
     @Override
+    @Transactional
     public CreateKnowledgeBaseResponse createKnowledgeBase(CreateKnowledgeBaseRequest request) {
         try {
             // 将 CreateKnowledgeBaseRequest 转换为 KnowledgeBaseDTO
@@ -62,6 +66,7 @@ public class KnowledgeBaseFacadeServiceImpl implements KnowledgeBaseFacadeServic
             if (result <= 0) {
                 throw new BizException("创建知识库失败");
             }
+            modelCatalog.bindNewKnowledgeBase(knowledgeBase.getId());
             
             // 返回生成的 knowledgeBaseId
             return CreateKnowledgeBaseResponse.builder()

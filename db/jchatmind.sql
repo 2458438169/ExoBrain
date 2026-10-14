@@ -14,8 +14,8 @@ CREATE TABLE IF NOT EXISTS agent (
     name          TEXT NOT NULL,
     description   TEXT,
     system_prompt TEXT,
-    model         TEXT,                     -- 取值必须是 "deepseek-chat" / "glm-4.6"
-                                            -- 与 MultiChatClientConfig 的 @Bean 名、AgentDTO.ModelType 一致
+    model         TEXT,                     -- 系统模型目录的稳定标识，如 deepseek-chat
+                                            -- 模型目录和外键由 deploy/migrations/20261014-models.sql 安装
     allowed_tools JSONB,                    -- 可选工具列表，如 ["fileSystemTool"]
     allowed_kbs   JSONB,                    -- 允许访问的知识库 id 列表
     chat_options  JSONB,                    -- {"temperature":0.7,"topP":1.0,"messageLength":10}

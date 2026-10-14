@@ -5,7 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 /**
- * embedding 服务配置。
+ * 首次初始化模型目录时使用的原有 embedding 服务配置。
  *
  * <p>支持两类端点，用 {@link #protocol} 区分：
  * <ul>
@@ -30,8 +30,8 @@ public class EmbeddingProperties {
 
     /**
      * 模型名。
-     * ⚠️ 必须与建表 DDL 的 {@code chunk_bge_m3.embedding vector(1024)} 维度一致 ——
-     * 维度不匹配不会在 Java 层报错，而是在 PG 插入时抛类型错。
+     * 必须与建表 DDL 的 {@code chunk_bge_m3.embedding vector(1024)} 维度一致。
+     * 运行时使用知识库绑定的模型目录配置，并在写入前检查响应维度与数值。
      */
     private String model = "bge-m3";
 

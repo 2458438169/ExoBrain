@@ -1,8 +1,10 @@
 package com.kama.jchatmind.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kama.jchatmind.converter.ChatMessageConverter;
 import com.kama.jchatmind.event.ChatEvent;
+import com.kama.jchatmind.auth.AuthContext;
 import com.kama.jchatmind.exception.BizException;
 import com.kama.jchatmind.mapper.ChatMessageMapper;
 import com.kama.jchatmind.model.dto.ChatMessageDTO;
@@ -28,6 +30,7 @@ public class ChatMessageFacadeServiceImpl implements ChatMessageFacadeService {
     private final ChatMessageMapper chatMessageMapper;
     private final ChatMessageConverter chatMessageConverter;
     private final ApplicationEventPublisher publisher;
+    private final ObjectMapper json;
 
     @Override
     public GetChatMessagesResponse getChatMessagesBySessionId(String sessionId) {
@@ -65,12 +68,26 @@ public class ChatMessageFacadeServiceImpl implements ChatMessageFacadeService {
 
     @Override
     public CreateChatMessageResponse createChatMessage(CreateChatMessageRequest request) {
+        var identity = AuthContext.requireSession();
+        List<ChatMessageDTO> snapshot = new ArrayList<>(getChatMessagesBySessionIdRecently(request.getSessionId(), 100));
         ChatMessage chatMessage = doCreateChatMessage(request);
+        String historySnapshot;
+        try {
+            snapshot.add(chatMessageConverter.toDTO(chatMessage));
+            historySnapshot = json.writeValueAsString(snapshot);
+        } catch (JsonProcessingException error) {
+            throw new BizException("无法创建本次会话的历史快照");
+        }
         // 发布聊天通知事件
         publisher.publishEvent(new ChatEvent(
                         request.getAgentId(),
                         chatMessage.getSessionId(),
-                        chatMessage.getContent()
+                        chatMessage.getContent(),
+                        identity.user().id(),
+                        identity.authVersion(),
+                        identity.tokenHash(),
+                        chatMessage.getId(),
+                        historySnapshot
                 )
         );
         // 返回生成的 chatMessageId

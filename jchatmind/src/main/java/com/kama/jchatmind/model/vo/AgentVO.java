@@ -17,7 +17,9 @@ public class AgentVO {
 
     private String systemPrompt;
 
-    private AgentDTO.ModelType model;
+    private String model;
+
+    private boolean readOnly;
 
     private List<String> allowedTools;
 

@@ -3,6 +3,7 @@ import { Button, Input, Modal } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import { SaveOutlined } from "@ant-design/icons";
 import { type CreateKnowledgeBaseRequest } from "../../api/api.ts";
+import { showRequestError } from "../../api/http.ts";
 
 interface AddKnowledgeBaseModalProps {
   open: boolean;
@@ -38,6 +39,8 @@ const AddKnowledgeBaseModal: React.FC<AddKnowledgeBaseModalProps> = ({
         description: "",
       });
       onClose();
+    } catch (error) {
+      showRequestError(error, "创建知识库失败，请重试");
     } finally {
       setCreateLoading(false);
     }

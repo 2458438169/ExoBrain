@@ -66,7 +66,7 @@ class DocumentFacadeServiceImplTest {
         when(storage.getFilePath("kb/document/upload.md")).thenReturn(savedFile);
         when(parser.parseMarkdown(any())).thenReturn(List.of(
                 new MarkdownParserService.MarkdownSection("Title", "Document content")));
-        when(rag.embed("Title")).thenReturn(new float[1024]);
+        when(rag.embed("kb", "Title")).thenReturn(new float[1024]);
         when(chunks.insert(any())).thenReturn(1);
 
         DocumentFacadeServiceImpl target = new DocumentFacadeServiceImpl(documents,
@@ -78,7 +78,7 @@ class DocumentFacadeServiceImplTest {
 
     @Test
     void failedEmbeddingRollsBackUploadAndRemovesSavedFile() throws Exception {
-        when(rag.embed("Title")).thenThrow(new IllegalStateException("embedding service unavailable"));
+        when(rag.embed("kb", "Title")).thenThrow(new IllegalStateException("embedding service unavailable"));
 
         assertThrows(BizException.class, () -> service.uploadDocument("kb", upload));
 

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { HistoryOutlined } from "@ant-design/icons";
+import { HistoryOutlined, LoginOutlined, TeamOutlined, SlidersOutlined } from "@ant-design/icons";
 import { Button, Tabs, type TabsProps } from "antd";
 import { useLocation, useNavigate } from "react-router-dom";
 import AgentTabContent from "./tabs/AgentTabContent.tsx";
@@ -11,6 +11,8 @@ import { useAgents } from "../hooks/useAgents.ts";
 import { useKnowledgeBases } from "../hooks/useKnowledgeBases.ts";
 import { IS_PUBLIC_DEMO } from "../config.ts";
 import ExoBrainLogo from "./ExoBrainLogo.tsx";
+import { useAccount } from "../contexts/accountState.ts";
+import AccountMenu from "./AccountMenu.tsx";
 
 interface SideMenuProps {
   children?: React.ReactNode;
@@ -20,6 +22,7 @@ interface SideMenuProps {
 const SideMenu: React.FC<SideMenuProps> = ({ onNavigate }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const account = useAccount();
 
   const [isAddAgentModalOpen, setIsAddAgentModalOpen] = useState(false);
   const toggleAddAgentModal = () => {
@@ -51,8 +54,8 @@ const SideMenu: React.FC<SideMenuProps> = ({ onNavigate }) => {
   })();
   const activeKey = selectedTab?.path === location.pathname ? selectedTab.key : routeTab;
 
-  const goTo = (path: string) => {
-    navigate(path);
+  const goTo = (path: string, state?: Record<string, string>) => {
+    navigate(path, { state });
     onNavigate?.();
   };
 
@@ -70,7 +73,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ onNavigate }) => {
       children: (
         <AgentTabContent
           agents={agents}
-          onSelectAgent={() => goTo("/chat")}
+          onSelectAgent={(agentId) => goTo("/chat", { selectedAgentId: agentId })}
           onCreateAgentClick={IS_PUBLIC_DEMO ? undefined : toggleAddAgentModal}
           onEditAgent={IS_PUBLIC_DEMO ? undefined : (agent) => {
             setEditingAgent(agent);
@@ -120,6 +123,12 @@ const SideMenu: React.FC<SideMenuProps> = ({ onNavigate }) => {
           示例对话
         </Button>
       )}
+      {!IS_PUBLIC_DEMO && account?.user?.role === "ADMIN" && (
+        <div className="mt-4 grid shrink-0 grid-cols-2 gap-2">
+          <Button type={location.pathname === "/users" ? "primary" : "default"} icon={<TeamOutlined />} onClick={() => goTo("/users")}>用户管理</Button>
+          <Button type={location.pathname === "/models" ? "primary" : "default"} icon={<SlidersOutlined />} onClick={() => goTo("/models")}>系统模型</Button>
+        </div>
+      )}
       <div className="flex-1 min-h-0 flex flex-col">
         <Tabs
           activeKey={activeKey}
@@ -127,6 +136,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ onNavigate }) => {
           items={items}
         />
       </div>
+      {IS_PUBLIC_DEMO ? <div className="shrink-0 border-t border-slate-200 py-3"><Button block href="/admin/" icon={<LoginOutlined />}>账号登录</Button></div> : <AccountMenu />}
       {!IS_PUBLIC_DEMO && <AddAgentModal
         open={isAddAgentModalOpen}
         onClose={toggleAddAgentModal}

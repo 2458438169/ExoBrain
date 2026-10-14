@@ -37,7 +37,7 @@ public class DemoChatService {
         AgentDTO agent = demoAgent();
         AgentVO publicAgent = AgentVO.builder().id(agent.getId()).name(agent.getName())
                 .description(agent.getDescription()).model(agent.getModel())
-                .allowedTools(List.of()).allowedKbs(agent.getAllowedKbs()).build();
+                .allowedTools(List.of()).allowedKbs(agent.getAllowedKbs()).readOnly(true).build();
         return GetAgentsResponse.builder().agents(new AgentVO[]{publicAgent}).build();
     }
 

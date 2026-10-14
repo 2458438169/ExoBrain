@@ -20,7 +20,7 @@ public class AgentDTO {
 
     private String systemPrompt;
 
-    private ModelType model;
+    private String model;
 
     private List<String> allowedTools;
 

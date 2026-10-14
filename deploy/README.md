@@ -3,10 +3,10 @@
 Both access modes remain available:
 
 - [Guest access / 游客免登录](https://exobrain.sharmoon.cc.cd/)
-- [Account and password / 账号密码登录（管理模式）](https://exobrain.sharmoon.cc.cd/admin/)
+- [Account and password / 账号登录](https://exobrain.sharmoon.cc.cd/admin/)
 
-The 2026-10-14 release uses application image
-`exobrain:20261014-md-preview`, frontend release `20261014-md-preview`, Java 21,
+The account release uses application image
+`exobrain:20261014-accounts`, frontend release `20261014-accounts`, Java 21,
 and timezone `Asia/Shanghai`. The backend uses Spring Boot 3.5.8, Spring AI 1.1.0,
 MyBatis and PostgreSQL 17 with pgvector; the UI uses React 19, TypeScript and
 Ant Design. This guide contains reusable configuration, not production credentials.
@@ -21,12 +21,18 @@ Tunnel; keep the internal application and database behind that gateway.
 
 The same UI source is built twice, with separate asset directories and API bases.
 
-The password-protected mode uses **Nginx HTTP Basic**, normally shown as a browser
-username/password prompt. It grants access to the shared management workspace;
-it is not an application account system with registration, personal account
-profiles or per-login data isolation. Different Basic usernames do not create
-separate application data scopes. Visitor-cookie isolation does not limit an
-authenticated administrator's management access.
+The account workspace uses an explicit application login page and server-side
+sessions. `ADMIN` can manage accounts and system LLM / Embedding models; `USER`
+can use enabled models and manage their own Agents, knowledge bases and chats.
+Published Agents and knowledge bases are read-only for ordinary users. Accounts
+are created by administrators; self-registration is not provided. Administrators
+retain management access to legacy resources. Guest history continues to use its
+separate visitor cookie and is not merged into a signed-in account.
+
+Nginx no longer uses HTTP Basic. Cached browser Basic credentials do not establish
+an application session. The login HTML and assets are public; the backend checks
+session, role and resource access on private API and SSE requests, independently
+of which navigation items the UI displays.
 
 | Route | Access | Purpose |
 | --- | --- | --- |
@@ -34,16 +40,85 @@ authenticated administrator's management access.
 | Explicit routes under `/api/demo/` | Public, subject to backend ownership and resource checks | Demo agent, public documents, visitor chats and curated read-only history |
 | `GET /api/demo/documents/<document-uuid>/content` | Public knowledge bases only | Read-only Markdown source from an allowlisted knowledge base |
 | `/sse/demo/connect/<session-uuid>` | Owning visitor only | Live updates for that visitor's editable chat |
-| `/admin/` | HTTP Basic authentication | Administration UI; `/admin` redirects here |
-| `/admin/api/`, `/admin/sse/` | HTTP Basic authentication | Administration UI's API and SSE routes |
-| `/api/`, `/sse/` outside the published demo routes | HTTP Basic authentication | Existing administration API and SSE routes |
+| `/admin/` | Public login page; workspace requires login | Account UI; `/admin` redirects here |
+| `POST /api/auth/login` or `/admin/api/auth/login` | Same-origin, rate limited | Account/password login |
+| `/api/admin/users`, `/api/admin/models` and gateway aliases | `ADMIN` session | Account and model management |
+| `/admin/api/`, `/admin/sse/` | Account session and resource permission | Account UI's API and SSE routes |
+| Other `/api/`, `/sse/` outside the published demo routes | Account session and resource permission | Authenticated application routes |
 
 SSE proxy buffering is disabled. The application sends comment heartbeats every
 15 seconds so slow model responses do not leave the Cloudflare connection idle.
 Credentials are provisioned outside Git in the installation's `secrets/`
 directory; do not include them in frontend builds or container images.
-`application-dev.yaml` is excluded from packaged JARs. Enabling guest access
-must not remove authentication from `/admin/` or the management API / SSE routes.
+`application-dev.yaml` is excluded from packaged JARs. Keep backend authentication
+on every private API / SSE route even though the login page is public.
+
+Production uses an HttpOnly, Secure, SameSite=Lax cookie named
+`__Host-exobrain_session`, with Path `/` and a default lifetime of 12 hours.
+Cookie tokens are hashed in the database; passwords use PBKDF2. Login returns
+`data: {user, csrfToken}`. Send `X-CSRF-Token` on authenticated writes. Logout
+revokes that session; changing a password, role or enabled status revokes the
+account's sessions. The last enabled administrator cannot be disabled or demoted.
+Authenticated streams recheck sessions every 15 seconds. Set
+`APP_AUTH_PUBLIC_ORIGIN` to the actual HTTPS origin; keep secure cookies enabled
+in production.
+
+For API scripts, save cookies from `POST /api/auth/login` (JSON fields `username`
+and `password`), read the response's CSRF value, then send both cookie and
+`X-CSRF-Token` on writes. `GET /api/auth/me` returns the current identity;
+`POST /api/auth/logout` ends the session. Keep request files and cookies outside
+the repository and do not place experience-account credentials in public docs.
+
+## Account and model upgrade
+
+Back up the database, documents, Compose and gateway configuration, private
+runtime settings and persistent model encryption key before upgrading. Apply
+only the additive migrations to an existing database; do not run the seed SQL:
+
+```bash
+cd /opt/exobrain
+docker compose exec -T postgres psql -U exobrain -d exobrain -v ON_ERROR_STOP=1 < deploy/migrations/20261014-accounts.sql
+docker compose exec -T postgres psql -U exobrain -d exobrain -v ON_ERROR_STOP=1 < deploy/migrations/20261014-models.sql
+docker compose exec -T postgres psql -U exobrain -d exobrain -v ON_ERROR_STOP=1 -c \
+  'GRANT SELECT, INSERT, UPDATE, DELETE ON exobrain_user, exobrain_login_session, exobrain_resource_acl, exobrain_model, exobrain_model_state, exobrain_kb_embedding TO exobrain_app;'
+```
+
+The migration files may be placed in a release staging directory instead; adjust
+the input paths accordingly. The tables add accounts, sessions, ownership, model
+definitions and knowledge-base bindings without recreating business tables.
+Existing data without an owner remains accessible to administrators and is not
+assigned to an ordinary user. On a fresh installation, initialize the base
+schema, apply these migrations and grant the application role access before the
+first application start.
+
+Provision `secrets/bootstrap-admin-password` with the chosen initial password
+(6–128 characters) and `secrets/models-encryption-key` containing 32
+random bytes encoded as Base64. Both files must be owned by `10001:10001`, mode
+`400`. Keep them outside Git and mount them read-only as shown in `compose.yaml`.
+The account bootstrap creates `admin` only when the user table is empty; later
+starts do not reset passwords. Preserve the existing admin password when
+migrating from the earlier gateway login if continuity is desired.
+
+Generate the model encryption key once, back it up securely and retain it on
+every subsequent deployment. Replacing it makes existing encrypted API keys
+unreadable. The first model bootstrap imports the old DeepSeek and Embedding
+settings and a disabled Zhipu entry, and binds old knowledge bases to
+`legacy-embedding`. Later startups preserve settings changed in the UI.
+
+Administrators can add, edit, test, enable and disable models in “模型管理”. LLM
+protocols are `deepseek`, `openai` and `zhipuai`; Embedding protocols are `openai`
+and `ollama`. OpenAI-compatible base URLs include the API root, typically `/v1`;
+Zhipu uses `/api/paas/v4`. Keys are write-only in the API and encrypted with
+AES-GCM. Ordinary users receive only enabled model choices without keys or
+endpoint URLs. Disabled or unknown models do not fall back to static clients.
+
+Each knowledge base binds its Embedding model at creation. Changing the default
+affects new knowledge bases only. The vector schema requires 1024 dimensions;
+a bound model's protocol, model name and dimensions cannot be changed. Updating
+its endpoint is for a compatible service exposing the same model and vector
+space, such as an endpoint migration. To change the provider/model or vector
+space, create a new model and knowledge base and import the documents again.
+Deleting default or referenced models is blocked.
 
 ## Build
 
@@ -59,7 +134,7 @@ Run from the repository root in PowerShell:
 
 ```powershell
 Set-Location jchatmind
-.\mvnw.cmd clean package '-Dtest=JchatmindApplicationTests,JChatMindFactoryTest,SseServiceImplTest,Document*Test,RagServiceImplTest,ProductionToolsTest,Demo*Test'
+.\mvnw.cmd clean package '-Dtest=JchatmindApplicationTests,JChatMindFactoryTest,SseServiceImplTest,Document*Test,RagServiceImplTest,ProductionToolsTest,Demo*Test,Auth*Test,AccountResourceControllerTest,PasswordHasherTest,LoginRateLimiterTest,ResourceAccessTest,ScopedToolCallbackTest,ChatSubmissionSnapshotTest,Model*Test'
 
 Set-Location ../ui
 npm ci
@@ -84,12 +159,12 @@ The `Document*Test` selection includes the document facade and preview tests;
 `Demo*Test` includes the public route and resource-access checks. The results for
 this release are recorded in the [verification record](#verification-record).
 
-Build `exobrain:20261014-md-preview` using `deploy/Dockerfile` and a clean staging
+Build `exobrain:20261014-accounts` using `deploy/Dockerfile` and a clean staging
 context containing the resulting JAR as `app.jar`. The image runs Temurin 21 as
 UID 10001. Install the contents of the two frontend output directories as follows:
 
 ```text
-/opt/exobrain/releases/20261014-md-preview/
+/opt/exobrain/releases/20261014-accounts/
   ui/       <- ui/dist-public/ contents
   admin/    <- ui/dist-admin/ contents
 ```
@@ -99,9 +174,10 @@ from `current/ui` and the administration UI from `current/admin`. Switch both
 builds together to avoid mismatched assets and API routes.
 
 Set `services.app.image` in the installation's Compose configuration to
-`exobrain:20261014-md-preview`. Deploy the application image, updated Nginx path
-allowlist and both frontend builds together so Markdown preview requests reach
-the matching backend endpoints.
+`exobrain:20261014-accounts`. Deploy the application image, updated Nginx
+configuration and both frontend builds together. Apply migrations and provision
+the persistent private files before starting the new application; verify private
+APIs reject anonymous requests before publishing the public login page.
 
 The session list, conversation header and curated examples display the Agent
 associated with each saved `agentId`, using the current authorized Agent catalog,
@@ -176,8 +252,9 @@ files, with case-insensitive extensions and a maximum file size of **2 MiB
   knowledge-base ID belongs to `app.demo.public-kb-ids`. The backend checks that
   membership before reading the stored file.
 - `GET /api/documents/<document-uuid>/content` and its gateway alias
-  `/admin/api/documents/<document-uuid>/content` use the existing HTTP Basic
-  management access; they do not require publication in the guest knowledge base.
+  `/admin/api/documents/<document-uuid>/content` require an application session
+  and access to the document's knowledge base. An ordinary user can preview their
+  own or published documents, and administrators can manage all documents.
 
 Successful responses use `ApiResponse` with
 `data: {documentId, filename, content}`. `content` is the original Markdown text
@@ -258,6 +335,44 @@ and that errors do not disclose storage paths.
 
 ## Verification record
 
+The `20261014-accounts` release completed verification on 2026-10-15
+(Asia/Shanghai):
+
+- Java 21 packaging and the selected Maven regression suite reported 142 tests:
+  139 passed, no failures or errors, and 3 skipped because this Windows environment
+  could not create symbolic links.
+- Frontend lint, TypeScript checks, both guest / account builds and browser
+  fixtures passed.
+- The final release JAR passed 303 integration checks against isolated real
+  PostgreSQL and a synthetic model provider. The candidate gateway passed 60
+  checks, and public HTTPS verification passed 100 checks, including actual date
+  tool execution, a private Markdown upload and preview, denial of that private
+  document through the public route, role separation, guest isolation, and
+  rejection of a replayed session cookie after logout.
+- Real browser checks confirmed account/password login, a `USER` workspace
+  without administrator navigation, and denial when opening user management
+  directly. A real greeting completed through SSE with its Agent label visible.
+  Shared knowledge bases remained read-only; the Markdown source matched the
+  API text exactly at 390 × 844 without page-wide horizontal overflow. Logout
+  returned to an empty login form.
+- Real browser administrator checks confirmed the user-management controls and
+  distinct `ADMIN` / `USER` roles, the LLM and Embedding catalogs, and an Embedding
+  editor with a blank API-key field and 1024 dimensions. Administrator logout
+  also returned to an empty login form. The browser console contained one expected
+  initial unauthenticated `auth/me` HTTP 401, no unexpected errors and no warnings.
+- At 01:13 Beijing time, the application and PostgreSQL were healthy, and Nginx
+  and cloudflared were active. Application logs contained no ERROR entries;
+  eight expected WARN entries came from API tests without SSE subscribers.
+- All 86 pre-existing rows retained their hashes: 2 Agents, 1 knowledge base,
+  3 documents, 18 indexed chunks and 62 messages. The public knowledge base
+  retained its three documents, 1024-dimensional vectors and `legacy-embedding`
+  binding. Verification-created API resources and the browser test chat were
+  removed after checking them. The dedicated browser session and local integration
+  fixture processes were stopped, and temporary private login scripts were deleted.
+
+The following records describe earlier releases and their access model at the
+time; they are retained as historical results.
+
 The `20261014-md-preview` release on 2026-10-14 completed the following checks:
 
 - The selected backend regression suite reported 59 tests: 56 passed, no failures
@@ -322,29 +437,52 @@ Provision these files before the first start:
 - `secrets/db-password`: PostgreSQL bootstrap password; root:999, mode 440.
 - `secrets/app-db-password`: application DB password; root:999, mode 440.
 - `secrets/application-prod.yaml`: private application, model and embedding configuration; 10001:10001, mode 400.
-- `secrets/htpasswd`: administration gateway password hash; root:www-data, mode 640.
+- `secrets/bootstrap-admin-password`: initial application admin password; 10001:10001, mode 400.
+- `secrets/models-encryption-key`: persistent 32-byte Base64 model encryption key; 10001:10001, mode 400.
 - `init.sql`: application schema from `db/jchatmind.sql`, with optional tools disabled in the seed agent.
 
 Schema and role setup run only when the PostgreSQL data volume is first created.
 Never re-run the seed SQL on an existing database or use `down -v` for updates.
 The configured embedding model must produce the schema's 1024 dimensions.
 
-Before updates, back up both PostgreSQL and the documents volume. Retain the
-previous image, frontend release and gateway configuration for rollback;
-rollback must preserve the existing database and document volumes.
+Before updates, briefly pause application writes and back up PostgreSQL, the
+documents volume, runtime settings and the persistent model encryption key in
+the same quiet window. Retain the previous image, frontend release
+and gateway configuration for rollback. Rollback must preserve existing database
+and document volumes; never remove the additive account/model tables just to
+restore an earlier binary. Restore a matching gateway and UI together with it.
+When restoring a pre-account binary that relies on HTTP Basic at the gateway,
+first restore the protected gateway configuration, validate it with `nginx -t`,
+and **restart Nginx with `systemctl restart nginx` before starting the old
+backend**. A graceful reload is insufficient for this rollback: old workers may
+retain connections using the account release's public gateway routes, while the
+old backend has no application-session enforcement. Retain the database,
+documents and persistent `secrets/models-encryption-key` throughout rollback;
+never regenerate the key.
+
+If rolling back an initial account/model migration that failed before model
+bootstrap, remove only the newly added `exobrain_agent_model_fk` constraint when
+it was absent before the upgrade; an empty catalog must not block the old
+application's Agent writes. Preserve the model tables and reapply the migration
+before retrying the new release.
 
 ```bash
 cd /opt/exobrain
 docker compose up -d
 docker compose ps
 nginx -t
-# Reload only after nginx -t succeeds.
+# Routine updates only; the pre-account rollback above requires a restart.
 systemctl reload nginx
 systemctl is-active cloudflared
 ```
 
 After an update, verify the public home and demo catalog without credentials,
-administration authentication, a real public knowledge search and date-tool
+explicit login/logout, role separation, a real public knowledge search and date-tool
 call, separate-cookie isolation, SSE, and the curated read-only history. Check
 Markdown preview and source switching in both the public and management builds,
 including rejection of private documents through the public content endpoint.
+Also verify that a `USER` cannot call account/model management endpoints or read
+another user's chats, documents or SSE. Confirm that shared resources are
+read-only, account disable/password reset revokes active sessions, administrator
+model changes affect actual requests and existing knowledge-base bindings remain
+unchanged when a new default Embedding model is selected.

@@ -9,5 +9,6 @@ public class KnowledgeBaseVO {
     private String id;
     private String name;
     private String description;
+    private boolean readOnly;
 }
 

@@ -312,7 +312,7 @@ public class DocumentFacadeServiceImpl implements DocumentFacadeService {
                     }
 
                     // 对标题进行 embedding
-                    float[] embedding = ragService.embed(title);
+                    float[] embedding = ragService.embed(kbId, title);
 
                     // 创建 ChunkBgeM3 实体
                     ChunkBgeM3 chunk = ChunkBgeM3.builder()
