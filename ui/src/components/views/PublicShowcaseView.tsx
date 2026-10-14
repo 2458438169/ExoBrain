@@ -24,7 +24,7 @@ function ShowcaseList({ agentCatalog }: { agentCatalog: SessionAgentCatalog }) {
     }).catch((error) => {
       if (active) {
         setFailed(true);
-        showRequestError(error, "公开测试记录加载失败");
+        showRequestError(error, "示例对话加载失败");
       }
     }).finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
@@ -34,15 +34,15 @@ function ShowcaseList({ agentCatalog }: { agentCatalog: SessionAgentCatalog }) {
     <div className="h-full overflow-y-auto bg-white p-5 sm:p-8">
       <div className="mx-auto max-w-4xl">
         <Tag color="geekblue">公开示例</Tag>
-        <Title level={2} className="mt-3!">公开测试记录</Title>
+        <Title level={2} className="mt-3!">示例对话</Title>
         <Paragraph type="secondary" className="max-w-2xl leading-7">
           查看基于公开资料完成的演示问答，展开工具调用与返回结果，了解 ExoBrain 如何检索资料并形成回答。
         </Paragraph>
         <p className="mb-6 text-sm text-slate-500">这里仅展示已公开的示例。你自己的对话保存在「我的记录」中。</p>
         {loading ? (
-          <div className="py-16 text-center"><Spin tip="正在加载公开记录…"><div className="h-12" /></Spin></div>
+          <div className="py-16 text-center"><Spin tip="正在加载示例对话…"><div className="h-12" /></Spin></div>
         ) : showcases.length === 0 ? (
-          <Empty description={failed ? "公开记录暂时无法加载" : "公开测试记录准备中"}>
+          <Empty description={failed ? "示例对话暂时无法加载" : "暂无示例对话"}>
             <Button type="primary" onClick={() => navigate("/chat")}>开始自己的体验</Button>
           </Empty>
         ) : (
@@ -56,8 +56,8 @@ function ShowcaseList({ agentCatalog }: { agentCatalog: SessionAgentCatalog }) {
               >
                 <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-indigo-100 text-lg text-indigo-600"><HistoryOutlined /></span>
                 <span className="min-w-0 flex-1">
-                  <span className="mb-1 block text-xs text-slate-400">公开记录 {String(index + 1).padStart(2, "0")}</span>
-                  <span className="block font-medium text-slate-900">{showcase.title || "公开演示对话"}</span>
+                  <span className="mb-1 block text-xs text-slate-400">示例对话 {String(index + 1).padStart(2, "0")}</span>
+                  <span className="block font-medium text-slate-900">{showcase.title || "示例对话"}</span>
                   <SessionAgentLabel agentId={showcase.agentId} catalog={agentCatalog} compact className="mt-1 text-xs" />
                   <span className="mt-1 block text-xs text-slate-500">查看问答、工具调用与结果</span>
                 </span>
@@ -81,7 +81,7 @@ function ShowcaseDetail({ id, agentCatalog }: { id: string; agentCatalog: Sessio
     void getDemoShowcase(id).then((response) => {
       if (active) setShowcase(response);
     }).catch((error) => {
-      if (active) showRequestError(error, "公开测试记录加载失败");
+      if (active) showRequestError(error, "示例对话加载失败");
     }).finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [id]);
@@ -91,10 +91,10 @@ function ShowcaseDetail({ id, agentCatalog }: { id: string; agentCatalog: Sessio
   return (
     <div className="flex h-full min-h-0 flex-col bg-white">
       <div className="shrink-0 border-b border-slate-100 px-5 py-4 sm:px-8">
-        <Button type="text" size="small" icon={<ArrowLeftOutlined />} onClick={() => navigate("/showcase")}>全部公开记录</Button>
+        <Button type="text" size="small" icon={<ArrowLeftOutlined />} onClick={() => navigate("/showcase")}>全部示例对话</Button>
         <div className="mt-3 flex flex-wrap items-center gap-2">
-          <Tag color="geekblue">公开测试记录 · 只读</Tag>
-          <span className="text-sm font-medium text-slate-900">{showcase?.title || "演示对话"}</span>
+          <Tag color="geekblue">示例对话 · 只读</Tag>
+          <span className="text-sm font-medium text-slate-900">{showcase?.title || "示例对话"}</span>
         </div>
         {showcase && <SessionAgentLabel agentId={showcase.agentId} catalog={agentCatalog} className="mt-2 text-sm" />}
         <p className="mt-2 text-xs text-slate-500">点击「工具调用」和「工具结果」可查看检索参数、资料来源与实际返回内容。</p>
@@ -104,10 +104,10 @@ function ShowcaseDetail({ id, agentCatalog }: { id: string; agentCatalog: Sessio
       ) : showcase ? (
         <AgentChatHistory messages={showcase.chatMessages} autoScroll={false} />
       ) : (
-        <div className="flex flex-1 items-center justify-center"><Empty description="记录不存在或尚未公开" /></div>
+        <div className="flex flex-1 items-center justify-center"><Empty description="示例对话不存在或尚未公开" /></div>
       )}
       <div className="flex shrink-0 flex-wrap items-center justify-center gap-3 border-t border-slate-100 p-4">
-        <span className="text-xs text-slate-500">可以用同一问题创建自己的体验记录。</span>
+        <span className="text-xs text-slate-500">也可以用同一个问题开始自己的对话。</span>
         <Button type="primary" icon={<MessageOutlined />} onClick={() => navigate("/chat", { state: { suggestedPrompt: firstQuestion } })}>
           亲自试一试
         </Button>

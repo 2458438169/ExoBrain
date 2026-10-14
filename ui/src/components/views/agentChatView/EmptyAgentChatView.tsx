@@ -106,11 +106,11 @@ export default function EmptyAgentChatView({ agents, loadingAgents }: EmptyAgent
                   浏览公开知识库
                 </Button>
                 <Button icon={<HistoryOutlined />} onClick={() => navigate("/showcase")}>
-                  查看公开测试记录
+                  查看示例对话
                 </Button>
               </div>
               <p className="mx-auto mt-6 max-w-xl text-center text-xs leading-6 text-slate-500">
-                公开资料不含简历或真实人员信息。你的对话与公开测试记录分开保存，使用同一浏览器可继续查看自己的历史。
+                示例对话仅展示公开问答。使用同一浏览器可继续查看自己的聊天历史。
               </p>
             </>
           ) : (

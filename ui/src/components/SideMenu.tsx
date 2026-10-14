@@ -117,7 +117,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ onNavigate }) => {
       </div>
       {IS_PUBLIC_DEMO && (
         <Button className="mt-4! shrink-0" icon={<HistoryOutlined />} onClick={() => goTo("/showcase")}>
-          公开测试记录
+          示例对话
         </Button>
       )}
       <div className="flex-1 min-h-0 flex flex-col">

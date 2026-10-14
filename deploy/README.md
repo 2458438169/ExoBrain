@@ -5,8 +5,8 @@ Both access modes remain available:
 - [Guest access / 游客免登录](https://exobrain.sharmoon.cc.cd/)
 - [Account and password / 账号密码登录（管理模式）](https://exobrain.sharmoon.cc.cd/admin/)
 
-The deployed baseline dated 2026-10-14 uses application image
-`exobrain:20261014-demo`, frontend release `20261014-agent-labels-r2`, Java 21,
+The 2026-10-14 release uses application image
+`exobrain:20261014-demo`, frontend release `20261014-natural-demo`, Java 21,
 and timezone `Asia/Shanghai`. The backend uses Spring Boot 3.5.8, Spring AI 1.1.0,
 MyBatis and PostgreSQL 17 with pgvector; the UI uses React 19, TypeScript and
 Ant Design. This guide contains reusable configuration, not production credentials.
@@ -30,7 +30,7 @@ authenticated administrator's management access.
 
 | Route | Access | Purpose |
 | --- | --- | --- |
-| `/` | Public | HR experience, public knowledge-base overview, personal chats and curated examples |
+| `/` | Public | Project demo, public knowledge-base overview, personal chats and example conversations |
 | Explicit routes under `/api/demo/` | Public, subject to backend ownership and resource checks | Demo agent, public documents, visitor chats and curated read-only history |
 | `/sse/demo/connect/<session-uuid>` | Owning visitor only | Live updates for that visitor's editable chat |
 | `/admin/` | HTTP Basic authentication | Administration UI; `/admin` redirects here |
@@ -84,7 +84,7 @@ context containing the resulting JAR as `app.jar`. The image runs Temurin 21 as
 UID 10001. Install the contents of the two frontend output directories as follows:
 
 ```text
-/opt/exobrain/releases/20261014-agent-labels-r2/
+/opt/exobrain/releases/20261014-natural-demo/
   ui/       <- ui/dist-public/ contents
   admin/    <- ui/dist-admin/ contents
 ```
@@ -168,9 +168,12 @@ rate limits of at least 3 seconds between sends and at most 60 per hour. Keep bo
 the application limits and the gateway message-rate limit when updating the
 deployment.
 
-For shared HR examples, create sessions through `/api/demo/chat-sessions`, run
-real tool tests, review the questions, answers and tool results, then add only
-those session UUIDs to `showcase-session-ids`. The session must belong to the
+To publish example conversations, create sessions through `/api/demo/chat-sessions`
+and ask questions about the public project documents. Review the actual questions,
+answers and tool results, then add only those session UUIDs to
+`showcase-session-ids`. The public gallery labels these records “示例对话”
+(example conversations); they demonstrate actual runs against the public project
+documents. The session must belong to the
 configured demo agent and have visitor ownership; administration-created history
 cannot be published through this route.
 

@@ -6,18 +6,18 @@
 
 ## 在线入口：游客免登录与账号密码登录
 
-截至 2026-10-14，线上前端版本为 `20261014-agent-labels-r2`，两种访问模式同时保留：
+本轮前端发布版本为 `20261014-natural-demo`（2026-10-14），两种访问模式同时保留：
 
 | 模式 | 入口 | 访问范围 |
 | --- | --- | --- |
-| 游客免登录 | [公开体验](https://exobrain.sharmoon.cc.cd/) | 指定演示 Agent、公开知识库、当前浏览器的个人体验历史及精选只读记录 |
+| 游客免登录 | [公开体验](https://exobrain.sharmoon.cc.cd/) | 指定演示 Agent、公开知识库、当前浏览器的个人体验历史及只读示例对话 |
 | 账号密码登录（管理模式） | [登录 / 管理入口](https://exobrain.sharmoon.cc.cd/admin/) | 经浏览器 HTTP Basic 认证后管理 Agent、知识库、文档和历史会话，并配置可选工具 |
 
 登录模式目前由 **Nginx HTTP Basic** 提供账号密码认证。成功认证后进入同一管理工作区，可访问管理范围内的历史会话；它不包含自助注册、应用内账户中心或按登录账号隔离的数据空间。游客 Cookie 的历史隔离不限制管理员的管理权限。
 
 - **个人体验历史**：消息保存在数据库，访客身份由 HttpOnly Cookie 识别。HTTPS 下 Cookie 使用 Secure、SameSite=Lax，有效期 30 天。同一 Cookie 可在刷新后继续读取历史；清除 Cookie、过期后获得新 Cookie 或更换浏览器，不能凭新身份找回原访客会话。历史不会自动变成公开内容。
-- **精选记录**：[公开测试记录](https://exobrain.sharmoon.cc.cd/showcase) 展示审核后明确发布的问答、工具调用和结果。精选为只读，原访客也不能继续发送、改名、删除或订阅其 SSE；体验同一问题需新建个人会话。
-- **Agent 关联标识**：历史列表、对话顶部及精选页按会话保存的 `agentId` 匹配当前可见 Agent 名称，桌面与移动端均可查看。缺失关联、加载失败和不可见状态有独立提示，不回退为默认 Agent。名称不是历史配置快照；空关联的会话仍可读，但不能继续发送空 Agent ID 的消息。
+- **示例对话**：[查看示例](https://exobrain.sharmoon.cc.cd/showcase) 展示使用公开资料实际执行、经审核后发布的问答、工具调用和结果，用于说明项目能力。示例为只读，原访客也不能继续发送、改名、删除或订阅其 SSE；体验同一问题需新建个人会话。
+- **Agent 关联标识**：历史列表、对话顶部及示例页按会话保存的 `agentId` 匹配当前可见 Agent 名称，桌面与移动端均可查看。缺失关联、加载失败和不可见状态有独立提示，不回退为默认 Agent。名称不是历史配置快照；空关联的会话仍可读，但不能继续发送空 Agent ID 的消息。
 - **工具范围**：游客执行器只注册 `KnowledgeTool`、`getDate`、`directAnswer`、`terminate`。登录管理模式可按 Agent 配置启用数据库查询、邮件等已注册可选工具，具体操作还依赖相应服务配置。管理端勾选不会把这些工具开放给游客，也不会因游客访问而被清空。
 
 前端由同一源码构建公开版和管理版，分别使用公开受限 API 与经过认证的管理 API。构建、资源白名单、网关和更新步骤见 [部署说明](deploy/README.md#build)。
@@ -30,7 +30,7 @@
 - [RAG 检索原理](docs/public-demo/02_rag_principles.md)
 - [Java 后端技术问答](docs/public-demo/03_java_backend_faq.md)
 
-只有这三份文件用于索引。[检索测试清单](docs/public-demo/99_test_questions.md) 与 [演示助手提示词参考](docs/public-demo/agent-system-prompt.md) 供维护和复核，**不上传知识库**。公开示例不包含真实候选人资料、私人聊天或运行凭据。
+只有这三份文件用于索引。[检索测试清单](docs/public-demo/99_test_questions.md) 与 [演示助手提示词参考](docs/public-demo/agent-system-prompt.md) 供维护和复核，**不上传知识库**。公开示例仅使用上述项目资料，不包含私人聊天或运行凭据。
 
 ---
 
