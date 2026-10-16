@@ -308,7 +308,14 @@ ui/                             # React 19 + antd 前端
 db/jchatmind.sql                # 建表脚本
 deploy/                         # 双构建、容器与 Nginx 部署模板
 docs/public-demo/               # 公开示例、检索测试与演示提示词
+docs/development/               # 优化开发指南、共享契约与可分发任务书
 ```
+
+---
+
+## 开发指南
+
+[优化开发指南](docs/development/README.md) 按当前实现拆分了并发修复、检索评测、正文索引、可核验引用、执行追踪和持久化任务，提供共享接口契约、任务依赖、代码入口与验收标准。文档中的优化项是待实施方案，已上线能力以本 README 和部署说明为准。
 
 ---
 
