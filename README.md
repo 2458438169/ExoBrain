@@ -317,6 +317,8 @@ docs/development/               # 优化开发指南、共享契约与可分发�
 
 [优化开发指南](docs/development/README.md) 按当前实现拆分了并发修复、检索评测、正文索引、可核验引用、执行追踪和持久化任务，提供共享接口契约、任务依赖、代码入口与验收标准。文档中的优化项是待实施方案，已上线能力以本 README 和部署说明为准。
 
+[主 Agent 开发交接单](docs/development/orchestrator.md) 提供统一启动提示词，由主 Agent 自行调用子 Agent，按依赖组织实现、审查、集成和交付。
+
 ---
 
 ## 来源与许可
