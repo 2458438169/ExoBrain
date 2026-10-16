@@ -77,6 +77,20 @@
         ORDER BY created_at DESC
     </select>
 
+    <update id="removeKnowledgeBaseReference">
+        UPDATE agent
+        SET allowed_kbs = (
+            SELECT COALESCE(jsonb_agg(item), '[]'::jsonb)
+            FROM jsonb_array_elements(allowed_kbs) item
+            WHERE lower(item #&gt;&gt; '{}') &lt;&gt; lower(#{kbId})
+        ), updated_at = NOW()
+        WHERE jsonb_typeof(allowed_kbs) = 'array'
+          AND EXISTS (
+            SELECT 1 FROM jsonb_array_elements(allowed_kbs) item
+            WHERE lower(item #&gt;&gt; '{}') = lower(#{kbId})
+          )
+    </update>
+
     <delete id="deleteById">
         DELETE
         FROM agent

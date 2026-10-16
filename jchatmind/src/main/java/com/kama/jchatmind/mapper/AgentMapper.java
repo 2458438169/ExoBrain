@@ -21,5 +21,7 @@ public interface AgentMapper {
 
     int deleteById(String id);
 
+    int removeKnowledgeBaseReference(String kbId);
+
     int updateById(Agent agent);
 }

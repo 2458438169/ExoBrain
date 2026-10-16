@@ -65,13 +65,37 @@ class ResourceAccessTest {
         assertEquals(403, assertThrows(AuthException.class, () -> access.requireKb(PUBLIC, true)).getStatus());
         verify(kbs, never()).selectById(OTHER);
     }
-    @Test void administratorCanAccessUnownedHistoricalResources() {
+    @Test void administratorCanManageLegacyAssistantsButNotUnownedPrivateKnowledgeBases() {
         AuthContext.set(new AuthRepository.LoginSession(new AuthUser(USER, "admin", "Admin", "ADMIN", true, Instant.now()),
                 "hash", "csrf", Instant.now().plusSeconds(600), 1));
-        assertTrue(access.canRead(ResourceAccess.KB, OTHER));
+        assertFalse(access.canRead(ResourceAccess.KB, OTHER));
+        assertTrue(access.canRead(ResourceAccess.KB, OWN));
+        assertTrue(access.canWrite(ResourceAccess.KB, PUBLIC));
         assertTrue(access.canWrite(ResourceAccess.AGENT, OTHER));
         assertTrue(access.canRead(ResourceAccess.SESSION, PUBLIC));
-        verifyNoInteractions(acl);
+    }
+    @Test void administratorRoleCannotReadAnotherAccountsPrivateKnowledgeDocumentsOrAssistant() {
+        AuthContext.set(new AuthRepository.LoginSession(new AuthUser(USER, "admin", "Admin", "ADMIN", true, Instant.now()),
+                HASH, "csrf", Instant.now().plusSeconds(600), 1));
+        when(acl.owner(ResourceAccess.AGENT, OTHER)).thenReturn(OTHER);
+        when(docs.selectById(OTHER)).thenReturn(Document.builder().id(OTHER).kbId(OTHER).build());
+        assertFalse(access.canRead(ResourceAccess.KB, OTHER));
+        assertFalse(access.canWrite(ResourceAccess.KB, OTHER));
+        assertFalse(access.canRead(ResourceAccess.AGENT, OTHER));
+        assertEquals(404, assertThrows(AuthException.class, () -> access.requireDocument(OTHER, false)).getStatus());
+        assertEquals(404, assertThrows(AuthException.class, () -> access.requireDocument(OTHER, true)).getStatus());
+        AgentDTO config = config(); config.setAllowedKbs(List.of(OTHER));
+        assertEquals(404, assertThrows(AuthException.class, () -> access.validateAgentConfiguration(config)).getStatus());
+        verifyNoInteractions(models);
+    }
+    @Test void administratorCannotUseUnscopedToolsToBypassKnowledgePrivacy() {
+        AuthContext.set(new AuthRepository.LoginSession(new AuthUser(USER, "admin", "Admin", "ADMIN", true, Instant.now()),
+                HASH, "csrf", Instant.now().plusSeconds(600), 1));
+        for (String tool : List.of("dataBaseTool", "fileSystemTool")) {
+            AgentDTO config = config(); config.setAllowedTools(List.of(tool));
+            assertEquals(403, assertThrows(AuthException.class, () -> access.validateAgentConfiguration(config)).getStatus());
+        }
+        verifyNoInteractions(models);
     }
     @Test void documentReadAndWriteFollowTheActualKnowledgeBase() {
         when(docs.selectById(OTHER)).thenReturn(Document.builder().id(OTHER).kbId(OTHER).build());
@@ -138,19 +162,20 @@ class ResourceAccessTest {
         publication.setPublicKbIds(List.of());
         assertEquals(404, assertThrows(AuthException.class, () -> access.validateRuntime(USER, 1, HASH, SESSION, config)).getStatus());
     }
-    @Test void adminCanManageButCannotExecuteAnotherUsersOrVisitorsConversation() {
+    @Test void adminCannotReadOrExecuteAnotherUsersOrVisitorsConversation() {
         AuthUser admin = new AuthUser(USER, "admin", "Admin", "ADMIN", true, Instant.now());
         AuthContext.set(new AuthRepository.LoginSession(admin, HASH, "csrf", Instant.now().plusSeconds(300), 1));
         when(auth.currentActor(USER, 1, HASH)).thenReturn(admin);
         when(acl.owner(ResourceAccess.SESSION, SESSION)).thenReturn(OTHER);
-        assertNotNull(access.requireSession(SESSION));
-        assertEquals(403, assertThrows(AuthException.class, () -> access.validateRuntime(USER, 1, HASH, SESSION, config())).getStatus());
+        when(acl.owns(USER, ResourceAccess.SESSION, SESSION)).thenReturn(false);
+        assertEquals(404, assertThrows(AuthException.class, () -> access.requireSession(SESSION)).getStatus());
+        assertEquals(404, assertThrows(AuthException.class, () -> access.validateRuntime(USER, 1, HASH, SESSION, config())).getStatus());
         var request = CreateChatMessageRequest.builder().agentId(OWN).sessionId(SESSION).role(ChatMessageDTO.RoleType.USER).content("query").build();
-        assertEquals(403, assertThrows(AuthException.class, () -> access.validateChatMessage(request)).getStatus());
+        assertEquals(404, assertThrows(AuthException.class, () -> access.validateChatMessage(request)).getStatus());
         when(acl.owner(ResourceAccess.SESSION, SESSION)).thenReturn(null);
         when(sessions.selectById(SESSION)).thenReturn(ChatSession.builder().id(SESSION).agentId(OWN)
                 .metadata("{\"demoOwner\":\"visitor\"}").build());
-        assertEquals(403, assertThrows(AuthException.class, () -> access.validateRuntime(USER, 1, HASH, SESSION, config())).getStatus());
+        assertEquals(404, assertThrows(AuthException.class, () -> access.validateRuntime(USER, 1, HASH, SESSION, config())).getStatus());
         verifyNoInteractions(models);
     }
     private AgentDTO config() {

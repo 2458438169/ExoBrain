@@ -70,7 +70,8 @@ class DocumentFacadeServiceImplTest {
         when(chunks.insert(any())).thenReturn(1);
 
         DocumentFacadeServiceImpl target = new DocumentFacadeServiceImpl(documents,
-                new DocumentConverter(new ObjectMapper()), storage, parser, rag, chunks);
+                new DocumentConverter(new ObjectMapper()), storage, parser, rag, chunks,
+                mock(com.kama.jchatmind.service.StorageCleanupService.class));
         ProxyFactory factory = new ProxyFactory(target);
         factory.addAdvice(new TransactionInterceptor(transactions, new AnnotationTransactionAttributeSource()));
         service = (DocumentFacadeService) factory.getProxy();

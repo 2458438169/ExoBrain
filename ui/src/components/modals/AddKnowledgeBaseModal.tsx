@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Input, Modal } from "antd";
+import { Alert, Button, Input, Modal } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import { SaveOutlined } from "@ant-design/icons";
 import { type CreateKnowledgeBaseRequest } from "../../api/api.ts";
@@ -65,6 +65,7 @@ const AddKnowledgeBaseModal: React.FC<AddKnowledgeBaseModalProps> = ({
       centered
     >
       <div className="py-4">
+        <Alert className="mb-4!" type="info" showIcon title="新建知识库仅当前账号可见，不会自动公开。" />
         <div className="mb-4">
           <label className="block text-gray-700 font-medium mb-2">
             名称 <span className="text-red-500">*</span>

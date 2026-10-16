@@ -11,6 +11,8 @@ import {
   Empty,
   Spin,
   Tag,
+  Modal,
+  Alert,
 } from "antd";
 import {
   BookOutlined,
@@ -19,6 +21,8 @@ import {
   FileOutlined,
   EyeOutlined,
   MessageOutlined,
+  LockOutlined,
+  GlobalOutlined,
 } from "@ant-design/icons";
 import type { TableColumnsType, UploadProps } from "antd";
 import { useKnowledgeBases } from "../../hooks/useKnowledgeBases.ts";
@@ -34,12 +38,14 @@ const isMarkdown = (filename: string) => /\.(?:md|markdown)$/i.test(filename);
 
 const KnowledgeBaseContent: React.FC<{ knowledgeBaseId?: string }> = ({ knowledgeBaseId }) => {
   const navigate = useNavigate();
-  const { knowledgeBases, loading: loadingKnowledgeBases } = useKnowledgeBases();
+  const { knowledgeBases, loading: loadingKnowledgeBases, deleteKnowledgeBaseHandle } = useKnowledgeBases();
   const { documents, loading, refreshDocuments, deleteDocument } =
     useDocuments(knowledgeBaseId);
 
   const [uploading, setUploading] = useState(false);
   const [previewDocument, setPreviewDocument] = useState<DocumentVO | null>(null);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   // 查找当前知识库的详细信息
   const currentKnowledgeBase = useMemo(() => {
@@ -49,7 +55,23 @@ const KnowledgeBaseContent: React.FC<{ knowledgeBaseId?: string }> = ({ knowledg
       null
     );
   }, [knowledgeBaseId, knowledgeBases]);
-  const readOnly = IS_PUBLIC_DEMO || currentKnowledgeBase?.readOnly === true;
+  const readOnly = IS_PUBLIC_DEMO || !currentKnowledgeBase || currentKnowledgeBase.readOnly === true;
+  const isPublic = IS_PUBLIC_DEMO || currentKnowledgeBase?.publicResource === true;
+
+  const handleDeleteKnowledgeBase = async () => {
+    if (!knowledgeBaseId || readOnly || deleting) return;
+    setDeleting(true);
+    try {
+      await deleteKnowledgeBaseHandle(knowledgeBaseId);
+      setPreviewDocument(null);
+      notify.success("知识库已删除");
+      navigate("/knowledge-base", { replace: true });
+    } catch (error) {
+      showRequestError(error, "删除知识库失败，请重试");
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   // 处理文件上传
   const handleUpload: UploadProps["customRequest"] = async (options) => {
@@ -216,7 +238,7 @@ const KnowledgeBaseContent: React.FC<{ knowledgeBaseId?: string }> = ({ knowledg
                 知识库不存在
               </Title>
               <Text type="secondary" className="text-sm">
-                请检查知识库 ID 是否正确
+                该知识库已删除，或不属于当前账号。
               </Text>
             </div>
           }
@@ -231,23 +253,25 @@ const KnowledgeBaseContent: React.FC<{ knowledgeBaseId?: string }> = ({ knowledg
       <div className="min-w-0 max-w-6xl w-full mx-auto">
         <div className="mb-3">
           <Card>
-            <div className="flex items-start gap-4">
-              <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-blue-200 to-purple-200 flex items-center justify-center text-3xl shrink-0">
+            <div className="grid grid-cols-[3rem_minmax(0,1fr)] items-start gap-4 sm:flex sm:flex-wrap">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg bg-gradient-to-br from-blue-200 to-purple-200 flex items-center justify-center text-3xl shrink-0">
                 <BookOutlined />
               </div>
               <div className="min-w-0 flex-1">
-                <Title level={3} className="mb-2">
+                <Title level={3} className="mb-2 break-words">
                   {currentKnowledgeBase.name}
                 </Title>
                 {currentKnowledgeBase.description && (
-                  <Paragraph className="text-gray-600 mb-0">
+                  <Paragraph className="text-gray-600 mb-0 break-words">
                     {currentKnowledgeBase.description}
                   </Paragraph>
                 )}
-                {readOnly ? <Tag color="geekblue">公开资料 · 可阅读与检索</Tag> : <Text type="secondary" className="text-sm">
-                  知识库 ID: {currentKnowledgeBase.knowledgeBaseId}
-                </Text>}
+                <Tag className="max-w-full whitespace-normal!" color={isPublic ? "geekblue" : "green"} icon={isPublic ? <GlobalOutlined /> : <LockOutlined />}>
+                  {isPublic ? "公开演示库" : "私有 · 仅当前账号可见"}
+                </Tag>
               </div>
+              {!readOnly && <Button className="col-span-2 justify-self-start sm:shrink-0" danger icon={<DeleteOutlined />} disabled={uploading || deleting}
+                onClick={() => setDeleteOpen(true)}>删除知识库</Button>}
             </div>
           </Card>
         </div>
@@ -265,11 +289,12 @@ const KnowledgeBaseContent: React.FC<{ knowledgeBaseId?: string }> = ({ knowledg
         {!readOnly && <div className="mb-3">
           {/* 上传文档区域 */}
           <Card title="上传文档">
+            {isPublic && <Alert className="mb-4!" type="warning" showIcon title="此库用于公开演示，上传的文档对所有访客可见。" />}
             <Upload
               customRequest={handleUpload}
               showUploadList={false}
               accept=".md,.markdown"
-              disabled={uploading}
+              disabled={uploading || deleting}
             >
               <Button
                 type="primary"
@@ -320,6 +345,15 @@ const KnowledgeBaseContent: React.FC<{ knowledgeBaseId?: string }> = ({ knowledg
           onClose={() => setPreviewDocument(null)}
         />
       )}
+      <Modal title="删除知识库" open={deleteOpen} okText="确认删除" cancelText="取消"
+        okButtonProps={{ danger: true }} confirmLoading={deleting}
+        closable={!deleting} maskClosable={!deleting}
+        onCancel={() => { if (!deleting) setDeleteOpen(false); }}
+        onOk={() => { void handleDeleteKnowledgeBase(); }}>
+        <Paragraph>确定删除「{currentKnowledgeBase.name}」及其中的全部文档和检索索引？</Paragraph>
+        <Paragraph type="secondary">助手将解除对此知识库的关联。已保存的聊天记录会保留，此操作无法在页面中撤销。</Paragraph>
+        {isPublic && <Alert type="warning" showIcon title="删除后，所有访客都将无法访问此公开演示库。" />}
+      </Modal>
     </div>
   );
 };

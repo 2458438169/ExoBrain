@@ -237,6 +237,7 @@ export interface KnowledgeBaseVO {
   name: string;
   description?: string;
   readOnly?: boolean;
+  publicResource?: boolean;
 }
 
 export interface CreateKnowledgeBaseRequest {

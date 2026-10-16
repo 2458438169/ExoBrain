@@ -3,6 +3,7 @@ package com.kama.jchatmind.agent.tools;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Profile;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
+@Profile("tool-examples & !prod")
 @Slf4j
 public class DataBaseTools implements Tool {
 

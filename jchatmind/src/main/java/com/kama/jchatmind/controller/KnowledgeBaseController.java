@@ -27,7 +27,10 @@ public class KnowledgeBaseController {
         var response = knowledgeBaseFacadeService.getKnowledgeBases();
         response.setKnowledgeBases(Arrays.stream(response.getKnowledgeBases())
                 .filter(kb -> access.canRead(ResourceAccess.KB, kb.getId()))
-                .peek(kb -> kb.setReadOnly(!access.canWrite(ResourceAccess.KB, kb.getId())))
+                .peek(kb -> {
+                    kb.setReadOnly(!access.canWrite(ResourceAccess.KB, kb.getId()));
+                    kb.setPublicResource(access.isPublicKnowledgeBase(kb.getId()));
+                })
                 .toArray(KnowledgeBaseVO[]::new));
         return ApiResponse.success(response);
     }

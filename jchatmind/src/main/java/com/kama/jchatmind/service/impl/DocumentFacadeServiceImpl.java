@@ -19,6 +19,7 @@ import com.kama.jchatmind.service.DocumentFacadeService;
 import com.kama.jchatmind.service.DocumentStorageService;
 import com.kama.jchatmind.service.MarkdownParserService;
 import com.kama.jchatmind.service.RagService;
+import com.kama.jchatmind.service.StorageCleanupService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -49,6 +50,7 @@ public class DocumentFacadeServiceImpl implements DocumentFacadeService {
     private final MarkdownParserService markdownParserService;
     private final RagService ragService;
     private final ChunkBgeM3Mapper chunkBgeM3Mapper;
+    private final StorageCleanupService storageCleanup;
 
     @Override
     public GetDocumentContentResponse getDocumentContent(String documentId) {
@@ -257,29 +259,19 @@ public class DocumentFacadeServiceImpl implements DocumentFacadeService {
     }
 
     @Override
+    @Transactional
     public void deleteDocument(String documentId) {
         Document document = documentMapper.selectById(documentId);
         if (document == null) {
             throw new BizException("文档不存在: " + documentId);
         }
 
-        // 删除文件
-        try {
-            DocumentDTO documentDTO = documentConverter.toDTO(document);
-            if (documentDTO.getMetadata() != null && documentDTO.getMetadata().getFilePath() != null) {
-                String filePath = documentDTO.getMetadata().getFilePath();
-                documentStorageService.deleteFile(filePath);
-            }
-        } catch (Exception e) {
-            log.warn("删除文件失败，继续删除文档记录: documentId={}, error={}", documentId, e.getMessage());
-            // 即使文件删除失败，也继续删除数据库记录
-        }
-
-        // 删除数据库记录
+        // Delete relational data atomically; storage cleanup starts only after commit.
         int result = documentMapper.deleteById(documentId);
         if (result <= 0) {
             throw new BizException("删除文档失败");
         }
+        storageCleanup.enqueueDocument(document.getKbId(), document.getId());
     }
 
     /**

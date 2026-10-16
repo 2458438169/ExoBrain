@@ -10,5 +10,6 @@ public class KnowledgeBaseVO {
     private String name;
     private String description;
     private boolean readOnly;
+    private boolean publicResource;
 }
 

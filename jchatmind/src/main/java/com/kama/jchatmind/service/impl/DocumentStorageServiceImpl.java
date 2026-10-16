@@ -26,7 +26,10 @@ import java.nio.file.Paths;
 import java.nio.file.SecureDirectoryStream;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+import java.nio.file.FileVisitResult;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributeView;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
@@ -186,6 +189,90 @@ public class DocumentStorageServiceImpl implements DocumentStorageService {
     @Override
     public Path getFilePath(String filePath) {
         return Paths.get(baseStoragePath, filePath);
+    }
+
+    @Override
+    public void deleteKnowledgeBaseFiles(String kbId) throws IOException {
+        deleteResourceDirectory(storageId(kbId), null);
+    }
+
+    @Override
+    public void deleteDocumentFiles(String kbId, String documentId) throws IOException {
+        deleteResourceDirectory(storageId(kbId), storageId(documentId));
+    }
+
+    private static String storageId(String value) {
+        String canonical = UUID.fromString(value).toString();
+        if (!canonical.equalsIgnoreCase(value)) throw new IllegalArgumentException("Invalid storage resource identifier");
+        return canonical;
+    }
+
+    private void deleteResourceDirectory(String kbId, String documentId) throws IOException {
+        Path configuredRoot = Paths.get(baseStoragePath).toAbsolutePath().normalize();
+        if (!Files.exists(configuredRoot, LinkOption.NOFOLLOW_LINKS)) return;
+        Path root = configuredRoot.toRealPath();
+        Path kb = Path.of(kbId);
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(root)) {
+            if (stream instanceof SecureDirectoryStream<Path> secureRoot) {
+                if (documentId == null) {
+                    deleteChild(secureRoot, kb);
+                } else {
+                    try (SecureDirectoryStream<Path> directory = secureRoot.newDirectoryStream(kb, LinkOption.NOFOLLOW_LINKS)) {
+                        deleteChild(directory, Path.of(documentId));
+                    } catch (NoSuchFileException absent) {
+                        // Already removed by knowledge-base cleanup.
+                    }
+                }
+                return;
+            }
+        }
+        Path target = root.resolve(kb);
+        if (documentId != null) {
+            if (!Files.exists(target, LinkOption.NOFOLLOW_LINKS)) return;
+            if (!Files.isDirectory(target, LinkOption.NOFOLLOW_LINKS) || !target.toRealPath().equals(target))
+                throw new IOException("Storage parent is not a local directory");
+            target = target.resolve(documentId);
+        }
+        // Windows fallback never follows symbolic links or junctions outside the validated root.
+        Files.walkFileTree(target, new SimpleFileVisitor<>() {
+            @Override public FileVisitResult preVisitDirectory(Path directory, BasicFileAttributes attributes) throws IOException {
+                if (!directory.normalize().startsWith(root) || !directory.toRealPath().equals(directory))
+                    throw new IOException("Storage directory is outside its resource root");
+                return FileVisitResult.CONTINUE;
+            }
+            @Override public FileVisitResult visitFile(Path file, BasicFileAttributes attributes) throws IOException {
+                if (!file.getParent().toRealPath().equals(file.getParent()))
+                    throw new IOException("Storage parent changed during cleanup");
+                Files.deleteIfExists(file);
+                return FileVisitResult.CONTINUE;
+            }
+            @Override public FileVisitResult visitFileFailed(Path file, IOException failure) throws IOException {
+                if (failure instanceof NoSuchFileException) return FileVisitResult.CONTINUE;
+                throw failure;
+            }
+            @Override public FileVisitResult postVisitDirectory(Path directory, IOException failure) throws IOException {
+                if (failure != null) throw failure;
+                Files.deleteIfExists(directory);
+                return FileVisitResult.CONTINUE;
+            }
+        });
+    }
+
+    private static void deleteChild(SecureDirectoryStream<Path> parent, Path name) throws IOException {
+        try {
+            BasicFileAttributes attributes = parent.getFileAttributeView(name, BasicFileAttributeView.class,
+                    LinkOption.NOFOLLOW_LINKS).readAttributes();
+            if (attributes.isDirectory() && !attributes.isSymbolicLink()) {
+                try (SecureDirectoryStream<Path> child = parent.newDirectoryStream(name, LinkOption.NOFOLLOW_LINKS)) {
+                    for (Path entry : child) deleteChild(child, entry.getFileName());
+                }
+                parent.deleteDirectory(name);
+            } else {
+                parent.deleteFile(name);
+            }
+        } catch (NoSuchFileException absent) {
+            // Cleanup is idempotent when a document and its containing knowledge base are both queued.
+        }
     }
 
     @Override

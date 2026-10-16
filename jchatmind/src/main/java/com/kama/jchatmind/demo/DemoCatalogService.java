@@ -47,7 +47,7 @@ public class DemoCatalogService {
         return GetKnowledgeBasesResponse.builder().knowledgeBases(knowledgeBases.selectByIdBatch(ids).stream()
                 .filter(kb -> ids.contains(kb.getId()))
                 .map(kb -> KnowledgeBaseVO.builder().id(kb.getId()).name(kb.getName())
-                        .description(kb.getDescription()).readOnly(true).build()).toArray(KnowledgeBaseVO[]::new)).build();
+                        .description(kb.getDescription()).readOnly(true).publicResource(true).build()).toArray(KnowledgeBaseVO[]::new)).build();
     }
 
     public GetDocumentsResponse documents(String kbId) {

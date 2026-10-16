@@ -2,6 +2,7 @@ package com.kama.jchatmind.agent.tools.test;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import com.kama.jchatmind.agent.tools.DataBaseTools;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -12,11 +13,12 @@ class ProductionToolsTest {
     void productionProfileKeepsDateButDoesNotRegisterMockCityOrWeather() {
         try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
             context.getEnvironment().setActiveProfiles("prod");
-            context.register(CityTool.class, WeatherTool.class, DateTool.class);
+            context.register(CityTool.class, WeatherTool.class, DateTool.class, DataBaseTools.class);
             context.refresh();
 
             assertTrue(context.getBeansOfType(CityTool.class).isEmpty());
             assertTrue(context.getBeansOfType(WeatherTool.class).isEmpty());
+            assertTrue(context.getBeansOfType(DataBaseTools.class).isEmpty());
             assertEquals(1, context.getBeansOfType(DateTool.class).size());
         }
     }

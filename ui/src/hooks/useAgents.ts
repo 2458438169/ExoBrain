@@ -19,8 +19,9 @@ export function useAgents() {
 
   useEffect(() => {
     let active = true;
+    const revision = agentCatalogEvents.revision;
     void getAgents().then((response) => {
-      if (active) {
+      if (active && revision === agentCatalogEvents.revision) {
         setAgents(response.agents);
         setLoadFailed(false);
       }

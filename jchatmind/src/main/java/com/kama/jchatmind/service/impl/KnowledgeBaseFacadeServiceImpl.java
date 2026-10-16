@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.kama.jchatmind.converter.KnowledgeBaseConverter;
 import com.kama.jchatmind.exception.BizException;
 import com.kama.jchatmind.mapper.KnowledgeBaseMapper;
+import com.kama.jchatmind.mapper.AgentMapper;
 import com.kama.jchatmind.models.ModelCatalogService;
 import com.kama.jchatmind.model.dto.KnowledgeBaseDTO;
 import com.kama.jchatmind.model.entity.KnowledgeBase;
@@ -13,6 +14,7 @@ import com.kama.jchatmind.model.response.CreateKnowledgeBaseResponse;
 import com.kama.jchatmind.model.response.GetKnowledgeBasesResponse;
 import com.kama.jchatmind.model.vo.KnowledgeBaseVO;
 import com.kama.jchatmind.service.KnowledgeBaseFacadeService;
+import com.kama.jchatmind.service.StorageCleanupService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +30,8 @@ public class KnowledgeBaseFacadeServiceImpl implements KnowledgeBaseFacadeServic
     private final KnowledgeBaseMapper knowledgeBaseMapper;
     private final KnowledgeBaseConverter knowledgeBaseConverter;
     private final ModelCatalogService modelCatalog;
+    private final AgentMapper agentMapper;
+    private final StorageCleanupService storageCleanup;
 
     @Override
     public GetKnowledgeBasesResponse getKnowledgeBases() {
@@ -78,6 +82,7 @@ public class KnowledgeBaseFacadeServiceImpl implements KnowledgeBaseFacadeServic
     }
 
     @Override
+    @Transactional
     public void deleteKnowledgeBase(String knowledgeBaseId) {
         KnowledgeBase knowledgeBase = knowledgeBaseMapper.selectById(knowledgeBaseId);
         if (knowledgeBase == null) {
@@ -88,6 +93,8 @@ public class KnowledgeBaseFacadeServiceImpl implements KnowledgeBaseFacadeServic
         if (result <= 0) {
             throw new BizException("删除知识库失败");
         }
+        agentMapper.removeKnowledgeBaseReference(knowledgeBaseId);
+        storageCleanup.enqueueKnowledgeBase(knowledgeBaseId);
     }
 
     @Override

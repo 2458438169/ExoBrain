@@ -47,8 +47,20 @@ public class ResourceAccess {
     }
     boolean canWrite(AuthUser user, String type, String id) {
         if (!isValidId(id)) return false;
-        return user.isAdmin() || acl.owns(user.id(), type, UUID.fromString(id).toString());
+        String resourceId = UUID.fromString(id).toString();
+        if (acl.owns(user.id(), type, resourceId)) return true;
+        if (!user.isAdmin()) return false;
+        // Account/model administration does not grant access to another account's private data.
+        if (KB.equals(type)) return publication.isPublicKb(resourceId);
+        if (acl.owner(type, resourceId) != null) return false;
+        if (SESSION.equals(type)) {
+            ChatSession session = sessions.selectById(resourceId);
+            if (session != null && session.getMetadata() != null && session.getMetadata().contains("demoOwner"))
+                return false;
+        }
+        return true; // Legacy, unowned system assistants and non-visitor history.
     }
+    public boolean isPublicKnowledgeBase(String id) { return publication.isPublicKb(id); }
     public void claim(String type, String id) { acl.claim(AuthContext.requireUser().id(), type, validId(id)); }
     public void remove(String type, String id) { acl.remove(type, validId(id)); }
     public void requireRead(String type, String id) { requireRead(AuthContext.requireUser(), type, id); }
@@ -126,6 +138,8 @@ public class ResourceAccess {
             if (publicRuntime) config.setAllowedTools(List.of());
             else if (!config.getAllowedTools().isEmpty()) throw new AuthException(403, "普通用户不能使用管理工具");
         }
+        if (config.getAllowedTools().stream().anyMatch(name -> "dataBaseTool".equals(name) || "fileSystemTool".equals(name)))
+            throw new AuthException(403, "数据库和文件系统工具未提供账号隔离，不能在账号工作区启用");
         var options = config.getChatOptions();
         if (options == null || options.getMessageLength() == null || options.getMessageLength() < 1
                 || options.getMessageLength() > 100 || options.getTemperature() == null

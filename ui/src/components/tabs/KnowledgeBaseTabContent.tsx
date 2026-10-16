@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { Button, Divider } from "antd";
-import { PlusOutlined, BookOutlined } from "@ant-design/icons";
+import { PlusOutlined, BookOutlined, LockOutlined, GlobalOutlined } from "@ant-design/icons";
 import type { KnowledgeBase } from "../../types";
 import { getKnowledgeBaseEmoji } from "../../utils";
 import { IS_PUBLIC_DEMO } from "../../config.ts";
@@ -23,6 +23,12 @@ const KnowledgeBaseTabContent: React.FC<KnowledgeBaseTabContentProps> = ({
       emoji: getKnowledgeBaseEmoji(kb.knowledgeBaseId),
     }));
   }, [knowledgeBases]);
+  const groups = IS_PUBLIC_DEMO
+    ? [{ title: "公开演示库", publicResource: true, items: knowledgeBasesWithEmoji }]
+    : [
+      { title: "我的知识库", publicResource: false, items: knowledgeBasesWithEmoji.filter((kb) => !kb.publicResource) },
+      { title: "公开演示库", publicResource: true, items: knowledgeBasesWithEmoji.filter((kb) => kb.publicResource) },
+    ];
 
   return (
     <div className="flex flex-col h-full">
@@ -47,11 +53,19 @@ const KnowledgeBaseTabContent: React.FC<KnowledgeBaseTabContentProps> = ({
           </div>
         ) : (
           <div className="space-y-1.5 p-1.5">
-            {knowledgeBasesWithEmoji.map((kb) => (
-              <div
+            {groups.map((group) => <section key={group.title} aria-label={group.title} className="mb-4">
+              <div className="mb-2 flex items-center gap-1.5 px-1 text-xs font-medium text-slate-500">
+                {group.publicResource ? <GlobalOutlined /> : <LockOutlined />}
+                <span>{group.title}</span><span>({group.items.length})</span>
+              </div>
+              {group.items.length === 0 && <p className="rounded-lg bg-slate-50 px-3 py-4 text-xs leading-6 text-slate-400">
+                {group.publicResource ? "暂无公开演示资料" : "还没有私有知识库。新建后仅当前账号可见。"}
+              </p>}
+              {group.items.map((kb) => (
+              <button type="button" aria-label={`打开知识库 ${kb.name}`}
                 key={kb.knowledgeBaseId}
                 onClick={() => onSelectKnowledgeBase?.(kb.knowledgeBaseId)}
-                className="w-full px-3 py-2.5 rounded-lg bg-white cursor-pointer transition-all hover:bg-gray-100 hover:shadow-sm"
+                className="w-full text-left px-3 py-2.5 rounded-lg bg-white cursor-pointer transition-all hover:bg-gray-100 hover:shadow-sm"
               >
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-200 to-purple-200 flex items-center justify-center shrink-0 text-lg mt-0.5">
@@ -61,7 +75,9 @@ const KnowledgeBaseTabContent: React.FC<KnowledgeBaseTabContentProps> = ({
                     <div className="font-medium text-gray-900 truncate">
                       {kb.name}
                     </div>
-                    {kb.readOnly && !IS_PUBLIC_DEMO && <div className="mt-1 text-xs text-indigo-500">公开资料 · 只读</div>}
+                    <div className="mt-1 text-xs text-indigo-500">
+                      {group.publicResource ? (kb.readOnly ? "公开资料 · 只读" : "公开资料 · 可管理") : "私有 · 仅当前账号"}
+                    </div>
                     {kb.description && (
                       <div className="text-xs text-gray-500 mt-1 line-clamp-2">
                         {kb.description}
@@ -69,8 +85,9 @@ const KnowledgeBaseTabContent: React.FC<KnowledgeBaseTabContentProps> = ({
                     )}
                   </div>
                 </div>
-              </div>
+              </button>
             ))}
+            </section>)}
           </div>
         )}
       </div>

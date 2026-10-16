@@ -62,7 +62,8 @@ class DocumentContentControllerTest {
     void setUp() {
         storage = spy(new DocumentStorageServiceImpl());
         ReflectionTestUtils.setField(storage, "baseStoragePath", root.toString());
-        var facade = new DocumentFacadeServiceImpl(documents, new DocumentConverter(json), storage, parser, rag, chunks);
+        var facade = new DocumentFacadeServiceImpl(documents, new DocumentConverter(json), storage, parser, rag, chunks,
+                mock(com.kama.jchatmind.service.StorageCleanupService.class));
         properties.setPublicKbIds(List.of(PUBLIC_KB));
         var catalog = new DemoCatalogService(new DemoAccessPolicy(properties), mock(DemoSessionRepository.class),
                 mock(KnowledgeBaseMapper.class), documents, mock(ChatMessageFacadeService.class), json, facade);

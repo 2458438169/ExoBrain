@@ -96,7 +96,7 @@ function AgentEditor({ onClose, createAgentHandle, updateAgentHandle, editingAge
           </div>
           <div hidden={selectedKey !== "knowledge"}>
             <p className="mb-4 text-sm leading-6 text-slate-500">选择助手可检索的知识库，支持自己的资料和公开资料。</p>
-            {loadingKnowledgeBases ? <Spin /> : knowledgeBases.length === 0 ? <p className="py-10 text-center text-slate-400">暂无知识库，可先创建一个知识库。</p> : <Form.Item name="allowedKbs"><Checkbox.Group className="w-full!" options={knowledgeBases.map((kb) => ({ value: kb.knowledgeBaseId, label: <span className="block py-2"><span className="font-medium">{kb.name}</span>{kb.readOnly && <span className="ml-2 text-xs text-indigo-500">公开资料</span>}{kb.description && <span className="mt-1 block text-xs text-slate-500">{kb.description}</span>}</span>, style: { display: "flex", width: "100%", marginBottom: 10 } }))} /></Form.Item>}
+            {loadingKnowledgeBases ? <Spin /> : knowledgeBases.length === 0 ? <p className="py-10 text-center text-slate-400">暂无知识库，可先创建一个知识库。</p> : <Form.Item name="allowedKbs"><Checkbox.Group className="w-full!" options={knowledgeBases.map((kb) => ({ value: kb.knowledgeBaseId, label: <span className="block py-2"><span className="font-medium">{kb.name}</span><span className="ml-2 text-xs text-indigo-500">{kb.publicResource ? "公开演示库" : "我的私有库"}</span>{kb.description && <span className="mt-1 block text-xs text-slate-500">{kb.description}</span>}</span>, style: { display: "flex", width: "100%", marginBottom: 10 } }))} /></Form.Item>}
           </div>
           <div hidden={selectedKey !== "tools"}>
             <p className="mb-4 text-sm leading-6 text-slate-500">知识检索、日期查询等基础能力已提供。可在下方添加当前账号可用的工具。</p>

@@ -36,17 +36,20 @@ class AccountResourceControllerTest {
     private final ChatSessionFacadeService sessions = mock(ChatSessionFacadeService.class);
     private final ChatMessageFacadeService messages = mock(ChatMessageFacadeService.class);
     private final SseService sse = mock(SseService.class);
+    private final AuthService auth = mock(AuthService.class);
     private MockMvc mvc;
 
     @BeforeEach void setup() {
         ObjectMapper json = new ObjectMapper();
         var demo = new DemoProperties(); demo.setAgentId(PUBLIC); demo.setPublicKbIds(List.of(PUBLIC));
-        var auth = mock(AuthService.class);
         var docMapper = mock(DocumentMapper.class);
         var sessionMapper = mock(ChatSessionMapper.class);
         when(acl.owns(USER, ResourceAccess.AGENT, OWN)).thenReturn(true);
         when(acl.owns(USER, ResourceAccess.KB, OWN)).thenReturn(true);
         when(acl.owns(USER, ResourceAccess.SESSION, OWN)).thenReturn(true);
+        when(acl.owner(ResourceAccess.AGENT, OTHER)).thenReturn(OTHER);
+        when(acl.owner(ResourceAccess.SESSION, OTHER)).thenReturn(OTHER);
+        when(docMapper.selectById(OTHER)).thenReturn(Document.builder().id(OTHER).kbId(OTHER).build());
         when(docMapper.selectById(PUBLIC)).thenReturn(Document.builder().id(PUBLIC).kbId(PUBLIC).build());
         when(sessionMapper.selectById(OWN)).thenReturn(ChatSession.builder().id(OWN).agentId(OWN).build());
         var converter = new AgentConverter(json);
@@ -96,6 +99,31 @@ class AccountResourceControllerTest {
                         .content("{\"kbId\":\"" + OWN + "\",\"filename\":\"notes.md\",\"metadata\":{\"filePath\":\"secret\"}}"))
                 .andExpect(status().isForbidden());
         verifyNoInteractions(agents, kbs, documents);
+    }
+    @Test void administratorEndpointsRejectAnotherAccountsKnowledgeBaseAndDocuments() throws Exception {
+        when(auth.authenticate("session")).thenReturn(new AuthRepository.LoginSession(
+                new AuthUser(USER, "admin", "管理员", "ADMIN", true, Instant.now()), "hash", "csrf", Instant.now().plusSeconds(100), 1));
+        when(kbs.getKnowledgeBases()).thenReturn(GetKnowledgeBasesResponse.builder().knowledgeBases(new KnowledgeBaseVO[]{
+                KnowledgeBaseVO.builder().id(OWN).build(), KnowledgeBaseVO.builder().id(OTHER).build(),
+                KnowledgeBaseVO.builder().id(PUBLIC).build()}).build());
+        mvc.perform(get("/api/knowledge-bases")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.knowledgeBases.length()").value(2))
+                .andExpect(jsonPath("$.data.knowledgeBases[0].id").value(OWN))
+                .andExpect(jsonPath("$.data.knowledgeBases[0].publicResource").value(false))
+                .andExpect(jsonPath("$.data.knowledgeBases[1].id").value(PUBLIC))
+                .andExpect(jsonPath("$.data.knowledgeBases[1].publicResource").value(true));
+        mvc.perform(get("/api/documents/kb/" + OTHER)).andExpect(status().isNotFound());
+        for (String resource : new String[]{"knowledge-bases", "documents", "agents"}) {
+            mvc.perform(delete("/api/" + resource + "/" + OTHER)).andExpect(status().isNotFound());
+            mvc.perform(patch("/api/" + resource + "/" + OTHER).contentType("application/json").content("{\"name\":\"changed\"}"))
+                    .andExpect(status().isNotFound());
+        }
+        mvc.perform(multipart("/api/documents/upload").file(new MockMultipartFile("file", "notes.md", "text/markdown", "# hello".getBytes()))
+                        .param("kbId", OTHER)).andExpect(status().isNotFound());
+        mvc.perform(get("/api/chat-messages/session/" + OTHER)).andExpect(status().isNotFound());
+        mvc.perform(get("/sse/connect/" + OTHER)).andExpect(status().isNotFound());
+        verifyNoInteractions(documents, agents, messages, sse);
+        verify(kbs, never()).deleteKnowledgeBase(anyString());
     }
     @Test void actualHistorySseAndMessageEndpointsRejectCrossUserIdsAndForgedRoles() throws Exception {
         mvc.perform(get("/api/chat-sessions/" + OTHER)).andExpect(status().isNotFound());

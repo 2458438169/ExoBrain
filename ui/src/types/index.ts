@@ -5,6 +5,7 @@ export interface KnowledgeBase {
   name: string;
   description: string;
   readOnly?: boolean;
+  publicResource?: boolean;
 }
 
 export interface ToolCall {

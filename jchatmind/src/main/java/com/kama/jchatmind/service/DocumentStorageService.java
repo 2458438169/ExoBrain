@@ -33,6 +33,10 @@ public interface DocumentStorageService {
      */
     void deleteFile(String filePath) throws IOException;
 
+    void deleteKnowledgeBaseFiles(String kbId) throws IOException;
+
+    void deleteDocumentFiles(String kbId, String documentId) throws IOException;
+
     /**
      * 获取文件的完整路径
      *

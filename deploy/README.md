@@ -5,8 +5,8 @@ Both access modes remain available:
 - [Guest access / 游客免登录](https://exobrain.sharmoon.cc.cd/)
 - [Account and password / 账号登录](https://exobrain.sharmoon.cc.cd/admin/)
 
-The account release uses application image
-`exobrain:20261014-accounts`, frontend release `20261014-accounts`, Java 21,
+The knowledge-base privacy release uses application image
+`exobrain:20261016-kb-privacy`, frontend release `20261016-kb-privacy`, Java 21,
 and timezone `Asia/Shanghai`. The backend uses Spring Boot 3.5.8, Spring AI 1.1.0,
 MyBatis and PostgreSQL 17 with pgvector; the UI uses React 19, TypeScript and
 Ant Design. This guide contains reusable configuration, not production credentials.
@@ -26,7 +26,11 @@ sessions. `ADMIN` can manage accounts and system LLM / Embedding models; `USER`
 can use enabled models and manage their own Agents, knowledge bases and chats.
 Published Agents and knowledge bases are read-only for ordinary users. Accounts
 are created by administrators; self-registration is not provided. Administrators
-retain management access to legacy resources. Guest history continues to use its
+retain access to legacy unowned system assistants and non-visitor history.
+Administrator roles do not grant access to another account's private knowledge
+bases, documents, assistants or conversations. Unowned private knowledge bases
+are denied until an operator establishes their actual owner; published demo
+knowledge bases remain manageable by administrators. Guest history continues to use its
 separate visitor cookie and is not merged into a signed-in account.
 
 Nginx no longer uses HTTP Basic. Cached browser Basic credentials do not establish
@@ -79,15 +83,17 @@ only the additive migrations to an existing database; do not run the seed SQL:
 cd /opt/exobrain
 docker compose exec -T postgres psql -U exobrain -d exobrain -v ON_ERROR_STOP=1 < deploy/migrations/20261014-accounts.sql
 docker compose exec -T postgres psql -U exobrain -d exobrain -v ON_ERROR_STOP=1 < deploy/migrations/20261014-models.sql
+docker compose exec -T postgres psql -U exobrain -d exobrain -v ON_ERROR_STOP=1 < deploy/migrations/20261016-storage-cleanup.sql
 docker compose exec -T postgres psql -U exobrain -d exobrain -v ON_ERROR_STOP=1 -c \
-  'GRANT SELECT, INSERT, UPDATE, DELETE ON exobrain_user, exobrain_login_session, exobrain_resource_acl, exobrain_model, exobrain_model_state, exobrain_kb_embedding TO exobrain_app;'
+  'GRANT SELECT, INSERT, UPDATE, DELETE ON exobrain_user, exobrain_login_session, exobrain_resource_acl, exobrain_model, exobrain_model_state, exobrain_kb_embedding, exobrain_storage_cleanup TO exobrain_app;'
 ```
 
 The migration files may be placed in a release staging directory instead; adjust
 the input paths accordingly. The tables add accounts, sessions, ownership, model
 definitions and knowledge-base bindings without recreating business tables.
-Existing data without an owner remains accessible to administrators and is not
-assigned to an ordinary user. On a fresh installation, initialize the base
+Private knowledge bases require recorded ownership even for administrators;
+the explicit public catalog remains shared. Data is not reassigned between users
+during this upgrade. On a fresh installation, initialize the base
 schema, apply these migrations and grant the application role access before the
 first application start.
 
@@ -105,7 +111,7 @@ unreadable. The first model bootstrap imports the old DeepSeek and Embedding
 settings and a disabled Zhipu entry, and binds old knowledge bases to
 `legacy-embedding`. Later startups preserve settings changed in the UI.
 
-Administrators can add, edit, test, enable and disable models in “模型管理”. LLM
+Administrators can add, edit, test, enable and disable models in “系统模型”. LLM
 protocols are `deepseek`, `openai` and `zhipuai`; Embedding protocols are `openai`
 and `ollama`. OpenAI-compatible base URLs include the API root, typically `/v1`;
 Zhipu uses `/api/paas/v4`. Keys are write-only in the API and encrypted with
@@ -119,6 +125,36 @@ its endpoint is for a compatible service exposing the same model and vector
 space, such as an endpoint migration. To change the provider/model or vector
 space, create a new model and knowledge base and import the documents again.
 Deleting default or referenced models is blocked.
+
+## Knowledge-base privacy and deletion
+
+New knowledge bases belong to the creating account and are private by default.
+The UI separates “我的知识库” from “公开演示库”; the API's `publicResource` flag
+comes from the configured publication allowlist, independently of write access.
+No upload automatically publishes a private knowledge base. Using the same
+login account shares the same workspace; use different accounts for isolation.
+
+Authorization covers lists, document upload/preview/deletion, assistant bindings,
+conversations, SSE and each knowledge-tool execution. Administrators cannot use
+another account's private assistant or conversation to retrieve knowledge.
+Generic database/file-system tools are rejected in account runtime configurations;
+the SQL example bean is absent in production so it cannot bypass ownership checks.
+
+The details page's “删除知识库” action requires confirmation. Deletion atomically
+removes relational documents, vector chunks, the Embedding binding and resource
+ownership, and removes the deleted ID from assistant bindings. Existing chat
+records remain available to their owners. File cleanup is queued in the same
+transaction using `exobrain_storage_cleanup`, and starts after commit. A rollback
+keeps both database records and original files. Cleanup uses canonical knowledge
+base/document IDs, not client-controlled metadata paths, and does not follow
+symbolic links into another resource.
+
+Apply `20261016-storage-cleanup.sql` and its application-role grant before starting
+this release. A failed physical cleanup remains queued and retries every minute,
+including after restart; inspect application warnings and the queue if storage
+permissions or disk errors prevent removal. Uploaded originals are not served
+directly, and deleted documents are immediately unavailable through all APIs.
+Previously created backups and saved chat text are not purged by this action.
 
 ## Build
 
@@ -134,7 +170,7 @@ Run from the repository root in PowerShell:
 
 ```powershell
 Set-Location jchatmind
-.\mvnw.cmd clean package '-Dtest=JchatmindApplicationTests,JChatMindFactoryTest,SseServiceImplTest,Document*Test,RagServiceImplTest,ProductionToolsTest,Demo*Test,Auth*Test,AccountResourceControllerTest,PasswordHasherTest,LoginRateLimiterTest,ResourceAccessTest,ScopedToolCallbackTest,ChatSubmissionSnapshotTest,Model*Test'
+.\mvnw.cmd clean package '-Dtest=JChatMindFactoryTest,SseServiceImplTest,Document*Test,RagServiceImplTest,ProductionToolsTest,Demo*Test,Auth*Test,AccountResourceControllerTest,PasswordHasherTest,LoginRateLimiterTest,ResourceAccessTest,ScopedToolCallbackTest,ChatSubmissionSnapshotTest,Model*Test,StorageCleanupServiceTest'
 
 Set-Location ../ui
 npm ci
@@ -159,12 +195,12 @@ The `Document*Test` selection includes the document facade and preview tests;
 `Demo*Test` includes the public route and resource-access checks. The results for
 this release are recorded in the [verification record](#verification-record).
 
-Build `exobrain:20261014-accounts` using `deploy/Dockerfile` and a clean staging
+Build `exobrain:20261016-kb-privacy` using `deploy/Dockerfile` and a clean staging
 context containing the resulting JAR as `app.jar`. The image runs Temurin 21 as
 UID 10001. Install the contents of the two frontend output directories as follows:
 
 ```text
-/opt/exobrain/releases/20261014-accounts/
+/opt/exobrain/releases/20261016-kb-privacy/
   ui/       <- ui/dist-public/ contents
   admin/    <- ui/dist-admin/ contents
 ```
@@ -174,7 +210,7 @@ from `current/ui` and the administration UI from `current/admin`. Switch both
 builds together to avoid mismatched assets and API routes.
 
 Set `services.app.image` in the installation's Compose configuration to
-`exobrain:20261014-accounts`. Deploy the application image, updated Nginx
+`exobrain:20261016-kb-privacy`. Deploy the application image, matching Nginx
 configuration and both frontend builds together. Apply migrations and provision
 the persistent private files before starting the new application; verify private
 APIs reject anonymous requests before publishing the public login page.
@@ -207,11 +243,12 @@ app:
 Start with `showcase-session-ids: []` until the selected sessions have completed
 and been reviewed. The demo agent's `allowed_kbs` must be a subset of
 `public-kb-ids`. Management selections in `allowed_tools` are preserved in the
-database and continue to apply to administration runs. Public requests clear
+database, subject to the account runtime's tool restrictions. Public requests clear
 only their freshly loaded runtime DTO's optional-tool list; the executor repeats
 this restriction after loading its own configuration. Selecting database, email
-or other tools in administration therefore does not disable the public agent or
-enable those tools for visitors. The isolated demo executor registers only
+or other tools in stored Agent settings therefore does not disable the public agent
+or enable those tools for visitors; unsafe database and file-system tools are also
+rejected in account runs. The isolated demo executor registers only
 `KnowledgeTool`, `getDate`, `directAnswer` and `terminate`; it does not register
 file, database, email, city or weather tools.
 The application and JVM timezone are `Asia/Shanghai`, including the date tool.
@@ -254,7 +291,8 @@ files, with case-insensitive extensions and a maximum file size of **2 MiB
 - `GET /api/documents/<document-uuid>/content` and its gateway alias
   `/admin/api/documents/<document-uuid>/content` require an application session
   and access to the document's knowledge base. An ordinary user can preview their
-  own or published documents, and administrators can manage all documents.
+  own or published documents. Administrators may manage their own private and
+  explicitly published documents, but cannot access another account's private files.
 
 Successful responses use `ApiResponse` with
 `data: {documentId, filename, content}`. `content` is the original Markdown text
@@ -335,6 +373,53 @@ and that errors do not disclose storage paths.
 
 ## Verification record
 
+The `20261016-kb-privacy` release completed deployment and API verification on
+2026-10-16 (Asia/Shanghai):
+
+- Java 21 packaging and the selected Maven suite reported 153 tests: 149 passed,
+  no failures or errors, and 4 skipped because the Windows host could not create
+  symbolic links. Frontend lint, TypeScript and both guest / account builds passed.
+- The actual release JAR passed 32 storage checks in an isolated Linux Java 21
+  container, without skips: 12 preview checks and 20 deletion checks, including
+  secure directory handles and file, document-directory and knowledge-directory
+  symbolic links that must not redirect access or deletion.
+- The same JAR passed 272 checks against isolated real PostgreSQL. These covered
+  administrator and user isolation across knowledge, documents, assistants,
+  conversations and SSE; forged file metadata; database/file cleanup; detached
+  assistant bindings; retained chat history; and deletion-transaction rollback.
+- Local Chrome checked the final frontend's Markdown preview and exact source,
+  canceling deletion, a simulated failed DELETE followed by successful retry,
+  immediate sidebar removal, persistent deletion after reload, and public
+  resources remaining read-only. All content containers fit a 390 × 844 viewport.
+  The new-knowledge form explicitly identifies the new resource as private.
+- The candidate gateway and public HTTPS gateway each passed 263 privacy/deletion
+  checks and 60 existing public/login checks. Uploaded private originals were
+  inaccessible to other accounts, including administrators; deleting the owning
+  knowledge base removed its files, indexes, model binding, ownership and Agent
+  references. Public Markdown and the three curated examples remained available.
+- Online Chrome confirmed the administrator cannot list or open the existing
+  experience account's private knowledge, while user management and the LLM /
+  Embedding catalogs still work. The ordinary account retained its original
+  private knowledge and completed create, cancel and confirm-delete for a new
+  temporary knowledge base. The original catalog was unchanged after reload.
+  Logout returned to an empty login form. Guest Markdown preview and exact-source
+  switching passed at 390 × 844 without page-wide horizontal overflow.
+- All 106 pre-existing rows retained their hashes, including both knowledge bases,
+  3 documents, 18 chunks, 10 conversations, 62 messages, 2 accounts and the existing
+  model/ownership settings. All three original files and private runtime settings
+  retained their hashes. Verification-created API accounts and resources were
+  removed. The consistent pre-release snapshot, including the persistent model
+  encryption key, is retained at
+  `/opt/exobrain/backups/pre-kb-privacy-20261016-140313`.
+- The final service check at 14:36 Beijing time found healthy application and
+  database services, active Nginx and cloudflared, no application ERROR or WARN
+  entries since startup, and an empty file-cleanup queue. Browser-created test
+  knowledge was also removed, and the 106 original rows and three files retained
+  their hashes after the browser checks.
+
+The following records describe earlier releases and their access model at the
+time; they are retained as historical results.
+
 The `20261014-accounts` release completed verification on 2026-10-15
 (Asia/Shanghai):
 
@@ -369,9 +454,6 @@ The `20261014-accounts` release completed verification on 2026-10-15
   binding. Verification-created API resources and the browser test chat were
   removed after checking them. The dedicated browser session and local integration
   fixture processes were stopped, and temporary private login scripts were deleted.
-
-The following records describe earlier releases and their access model at the
-time; they are retained as historical results.
 
 The `20261014-md-preview` release on 2026-10-14 completed the following checks:
 
@@ -429,8 +511,10 @@ the commands and route checks in this guide.
 persistent volumes hold SQL data and documents. The application uses a
 non-superuser database role and a non-root container user. The `prod` profile
 disables demonstration city/weather tools, which return a fixed city and simulated
-weather rather than live location or weather data. Optional database and email tools
-remain administration capabilities, isolated from the public runtime.
+weather rather than live location or weather data. Optional email tools remain
+administration capabilities, isolated from the public runtime. The generic SQL
+example is disabled in production and account runtimes reject both database and
+file-system examples because they do not enforce per-account resource ownership.
 
 Provision these files before the first start:
 
