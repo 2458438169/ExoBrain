@@ -137,6 +137,20 @@ interface NewMessageMetadataFields {
 
 拟给 `CreateDocumentResponse` 增量加入可选 `jobId/indexStatus`，文档列表也返回状态；状态/重试路径由 06 在实现前定稿。既有 `documentId` 保留。切换为异步上传时，前后端同批发布并明确旧客户端兼容策略。
 
+**06 已定稿的导入状态/重试路径（实现于任务 06）：**
+
+| 路径 | 授权 | 说明 |
+| --- | --- | --- |
+| `POST /api/documents/upload` | KB 写权限 + CSRF | 返回 `documentId` + `jobId` + `indexStatus=QUEUED`；文件已保存、任务已排队，索引尚未发布 |
+| `GET /api/documents/{documentId}/ingestion` | KB 读权限 | 该文档最新任务的状态；游客可读公开文档状态。响应只含 `jobId/status/attempts/chunksDone/chunksTotal/errorCode/errorMessage/retryable/nextAttemptAt/indexRevisionId`，不含路径、actor、租约或服务商异常 |
+| `POST /api/documents/{documentId}/ingestion/retry` | KB 写权限 + CSRF | 幂等：同一文档最多一个未完成任务时直接返回它；普通用户不能重试公开只读文档 |
+
+`GET /api/documents/kb/{kbId}` 的每个文档增量返回 `jobId/indexStatus/indexErrorCode/indexErrorMessage/chunksDone/chunksTotal`
+（未带任务的历史文档这些字段为空）。`status` 取值固定为
+`QUEUED/RUNNING/RETRY_WAIT/SUCCEEDED/FAILED/CANCELLED`；`chunksTotal` 未知时为 `null`，此时界面只显示阶段，
+不生成百分比。公开演示视图（`/api/demo/documents/kb/{id}`）同样返回这些只读字段，不提供上传或重试。
+
+
 07 使用第 5 节运行状态，承诺先做到：
 
 - 消息与任务同一事务持久化，返回成功后排队任务在重启后可继续领取。

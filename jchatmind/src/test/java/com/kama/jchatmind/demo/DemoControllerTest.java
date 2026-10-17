@@ -86,7 +86,8 @@ class DemoControllerTest {
         DemoChatService demo = new DemoChatService(access, sessions, agents, converter, messages,
                 sse, execution, new DemoRateLimiter());
         DemoCatalogService catalog = new DemoCatalogService(access, sessions, knowledgeBases, documents, messages,
-                new ObjectMapper(), mock(DocumentFacadeService.class));
+                new ObjectMapper(), mock(DocumentFacadeService.class),
+                mock(com.kama.jchatmind.ingestion.IngestionService.class));
         mvc = MockMvcBuilders.standaloneSetup(new DemoController(demo, new DemoVisitor(), catalog)).build();
     }
 

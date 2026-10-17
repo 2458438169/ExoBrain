@@ -23,6 +23,9 @@ public interface DocumentFacadeService {
 
     CreateDocumentResponse uploadDocument(String kbId, MultipartFile file);
 
+    /** 上传并登记导入任务；{@code actorUserId} 必须来自服务端认证上下文，用于后台复核账号状态。 */
+    CreateDocumentResponse uploadDocument(String kbId, MultipartFile file, String actorUserId);
+
     void deleteDocument(String documentId);
 
     void updateDocument(String documentId, UpdateDocumentRequest request);

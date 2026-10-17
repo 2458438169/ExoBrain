@@ -13,6 +13,10 @@ import com.kama.jchatmind.model.request.UpdateDocumentRequest;
 import com.kama.jchatmind.model.response.CreateDocumentResponse;
 import com.kama.jchatmind.model.response.GetDocumentContentResponse;
 import com.kama.jchatmind.model.response.GetDocumentsResponse;
+import com.kama.jchatmind.ingestion.IngestionJobView;
+import com.kama.jchatmind.ingestion.IngestionService;
+import com.kama.jchatmind.ingestion.IngestionSettings;
+import com.kama.jchatmind.ingestion.IngestionStatus;
 import com.kama.jchatmind.model.vo.DocumentVO;
 import com.kama.jchatmind.retrieval.IndexCandidate;
 import com.kama.jchatmind.retrieval.IndexScope;
@@ -40,8 +44,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.List;
 import java.util.Objects;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.Predicate;
 
@@ -55,26 +61,43 @@ public class DocumentFacadeServiceImpl implements DocumentFacadeService {
     private final RetrievalIndexService retrievalIndexService;
     private final LegacyTitleIndexer legacyTitleIndexer;
     private final StorageCleanupService storageCleanup;
+    /** 生产装配才有：文档记录 + 导入任务同事务提交、索引由 worker 异步发布。 */
+    private final IngestionService ingestionService;
+    private final IngestionSettings ingestionSettings;
 
-    /** 生产装配：走“候选 → 校验 → 原子发布”，并遵循该 KB 当前的索引策略。 */
+    /** 生产装配：上传只落库 + 登记导入任务，索引由 {@code IngestionWorker} 异步发布。 */
     @Autowired
     public DocumentFacadeServiceImpl(DocumentMapper documentMapper, DocumentConverter documentConverter,
                                      DocumentStorageService documentStorageService,
                                      RetrievalIndexService retrievalIndexService,
                                      LegacyTitleIndexer legacyTitleIndexer,
-                                     StorageCleanupService storageCleanup) {
+                                     StorageCleanupService storageCleanup,
+                                     IngestionService ingestionService,
+                                     IngestionSettings ingestionSettings) {
         this.documentMapper = documentMapper;
         this.documentConverter = documentConverter;
         this.documentStorageService = documentStorageService;
         this.retrievalIndexService = retrievalIndexService;
         this.legacyTitleIndexer = legacyTitleIndexer;
         this.storageCleanup = storageCleanup;
+        this.ingestionService = ingestionService;
+        this.ingestionSettings = ingestionSettings == null ? new IngestionSettings() : ingestionSettings;
     }
 
     /**
-     * 兼容构造器：不接索引版本服务，按基线 legacy-title-v1 语义写入（每个章节标题一个向量）。
-     * 只用于既有基线风格测试；生产装配使用上面的构造器。
+     * 兼容构造器：不接导入任务服务，上传仍按任务 03 的同步语义（候选 → 校验 → 原子发布）执行。
+     * 只用于既有基线风格测试与不支持 worker 的嵌入式用法。
      */
+    public DocumentFacadeServiceImpl(DocumentMapper documentMapper, DocumentConverter documentConverter,
+                                     DocumentStorageService documentStorageService,
+                                     RetrievalIndexService retrievalIndexService,
+                                     LegacyTitleIndexer legacyTitleIndexer,
+                                     StorageCleanupService storageCleanup) {
+        this(documentMapper, documentConverter, documentStorageService, retrievalIndexService, legacyTitleIndexer,
+                storageCleanup, null, new IngestionSettings());
+    }
+
+    /** 基线构造器：不接索引版本服务，按 legacy-title-v1 语义写入（每个章节标题一个向量）。 */
     public DocumentFacadeServiceImpl(DocumentMapper documentMapper, DocumentConverter documentConverter,
                                      DocumentStorageService documentStorageService,
                                      MarkdownParserService markdownParserService, RagService ragService,
@@ -127,28 +150,32 @@ public class DocumentFacadeServiceImpl implements DocumentFacadeService {
 
     @Override
     public GetDocumentsResponse getDocuments() {
-        List<Document> documents = documentMapper.selectAll();
-        List<DocumentVO> result = new ArrayList<>();
-        for (Document document : documents) {
-            try {
-                DocumentVO vo = documentConverter.toVO(document);
-                result.add(vo);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return GetDocumentsResponse.builder()
-                .documents(result.toArray(new DocumentVO[0]))
-                .build();
+        return toResponse(documentMapper.selectAll(), Map.of());
     }
 
     @Override
     public GetDocumentsResponse getDocumentsByKbId(String kbId) {
-        List<Document> documents = documentMapper.selectByKbId(kbId);
+        Map<String, IngestionJobView> statuses = ingestionService == null
+                ? Map.of() : ingestionService.statusesByKnowledgeBase(kbId);
+        return toResponse(documentMapper.selectByKbId(kbId), statuses);
+    }
+
+    /** 文档列表增量带上导入状态；没有任务（迁移前上传的旧文档）时字段留空，而不是编造状态。 */
+    private GetDocumentsResponse toResponse(List<Document> documents, Map<String, IngestionJobView> statuses) {
         List<DocumentVO> result = new ArrayList<>();
         for (Document document : documents) {
             try {
                 DocumentVO vo = documentConverter.toVO(document);
+                String key = document.getId() == null ? "" : document.getId().toLowerCase(Locale.ROOT);
+                IngestionJobView job = statuses.get(key);
+                if (job != null) {
+                    vo.setJobId(job.jobId());
+                    vo.setIndexStatus(job.status());
+                    vo.setIndexErrorCode(job.errorCode());
+                    vo.setIndexErrorMessage(job.errorMessage());
+                    vo.setChunksDone(job.chunksDone());
+                    vo.setChunksTotal(job.chunksTotal());
+                }
                 result.add(vo);
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
@@ -191,19 +218,37 @@ public class DocumentFacadeServiceImpl implements DocumentFacadeService {
     @Override
     @Transactional
     public CreateDocumentResponse uploadDocument(String kbId, MultipartFile file) {
+        return uploadDocument(kbId, file, null);
+    }
+
+    /**
+     * 上传 = 保存受控文件 + 文档记录 + 导入任务，<b>同一事务</b>提交；事务内不调用解析或向量服务。
+     * 未落库成功就不会返回“已受理”；文件不参与数据库事务，回滚时补偿删除，进程崩溃留下的孤儿文件
+     * 由 {@code IngestionOrphanFileSweeper} 按宽限期清理。
+     *
+     * @param actorUserId 服务端认证得到的账号 id（不来自请求体），用于 worker 开始/发布前复核账号状态
+     */
+    @Override
+    @Transactional
+    public CreateDocumentResponse uploadDocument(String kbId, MultipartFile file, String actorUserId) {
         String filePath = null;
         boolean cleanupRegistered = false;
         try {
-            if (file.isEmpty()) {
+            if (file == null || file.isEmpty()) {
                 throw new BizException("上传的文件为空");
             }
 
-            // 提取文件信息
             String originalFilename = file.getOriginalFilename();
             String filetype = getFileType(originalFilename);
+            if (!"md".equalsIgnoreCase(filetype) && !"markdown".equalsIgnoreCase(filetype)) {
+                throw new BizException("暂不支持这种文件类型，请上传 Markdown 文档");
+            }
+            if (file.getSize() > ingestionSettings.maxFileBytes()) {
+                throw new BizException("文件超过允许的大小");
+            }
             long fileSize = file.getSize();
 
-            // 创建文档记录（先创建记录，获取 documentId）
+            // 创建文档记录（先创建记录，获取数据库生成的 documentId）
             DocumentDTO documentDTO = DocumentDTO.builder()
                     .kbId(kbId)
                     .filename(originalFilename)
@@ -216,17 +261,15 @@ public class DocumentFacadeServiceImpl implements DocumentFacadeService {
             document.setCreatedAt(now);
             document.setUpdatedAt(now);
 
-            // 插入数据库，获取生成的 documentId
-            int result = documentMapper.insert(document);
-            if (result <= 0) {
+            if (documentMapper.insert(document) <= 0) {
                 throw new BizException("创建文档记录失败");
             }
 
             String documentId = document.getId();
 
-            // 保存文件
+            // 保存文件（本地写入，受控路径 kbId/documentId/随机名）。
             filePath = documentStorageService.saveFile(kbId, documentId, file);
-            // 文件不参与数据库事务，回滚时补偿删除，避免留下无法检索的上传文件。
+            // 文件不参与数据库事务：回滚时补偿删除；进程崩溃的窗口由孤儿清理兜底。
             if (TransactionSynchronizationManager.isSynchronizationActive()) {
                 String uploadedPath = filePath;
                 TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
@@ -240,7 +283,6 @@ public class DocumentFacadeServiceImpl implements DocumentFacadeService {
                 cleanupRegistered = true;
             }
 
-            // 更新文档记录，保存文件路径到 metadata
             DocumentDTO.MetaData metadata = new DocumentDTO.MetaData();
             metadata.setFilePath(filePath);
             documentDTO.setMetadata(metadata);
@@ -252,22 +294,27 @@ public class DocumentFacadeServiceImpl implements DocumentFacadeService {
             updatedDocument.setId(documentId);
             updatedDocument.setCreatedAt(now);
             updatedDocument.setUpdatedAt(now);
-
             if (documentMapper.updateById(updatedDocument) <= 0) {
                 throw new BizException("保存文档路径失败");
             }
 
-            // 如果是 Markdown 文件，构建候选索引并原子发布
-            if ("md".equalsIgnoreCase(filetype) || "markdown".equalsIgnoreCase(filetype)) {
+            if (ingestionService == null) {
+                // 兼容构造器：没有 worker 时保持任务 03 的同步语义。
                 indexMarkdownDocument(kbId, documentId, filePath, originalFilename);
-            } else {
-                // TODO: 未来可以增加其他文件类型的处理逻辑
-                log.warn("待新增处理的文件类型: {}", filetype);
+                log.info("文档上传完成(同步索引): kbId={}, documentId={}", kbId, documentId);
+                return CreateDocumentResponse.builder()
+                        .documentId(documentId)
+                        .indexStatus(IngestionStatus.SUCCEEDED.name())
+                        .build();
             }
 
-            log.info("文档上传完成: kbId={}, documentId={}, filename={}", kbId, documentId, originalFilename);
+            String sourceHash = hashSavedFile(filePath);
+            String jobId = ingestionService.submit(kbId, documentId, filePath, sourceHash, actorUserId);
+            log.info("文档已受理，等待异步索引: kbId={}, documentId={}, jobId={}", kbId, documentId, jobId);
             return CreateDocumentResponse.builder()
                     .documentId(documentId)
+                    .jobId(jobId)
+                    .indexStatus(IngestionStatus.QUEUED.name())
                     .build();
         } catch (IOException | RuntimeException e) {
             if (filePath != null && !cleanupRegistered) {
@@ -277,8 +324,14 @@ public class DocumentFacadeServiceImpl implements DocumentFacadeService {
             if (e instanceof BizException bizException) {
                 throw bizException;
             }
-            throw new BizException("文档上传或索引失败，请检查文件和向量服务后重试");
+            throw new BizException("文档上传失败，请检查文件后重试");
         }
+    }
+
+    /** 源文件 hash（契约 §3 的标准化文本 SHA-256），用于 worker 与发布前比对文件是否被改动。 */
+    private String hashSavedFile(String filePath) throws IOException {
+        Path path = documentStorageService.getFilePath(filePath);
+        return SourceText.normalize(Files.readAllBytes(path)).sha256();
     }
 
     private void cleanupFailedUpload(String filePath) {

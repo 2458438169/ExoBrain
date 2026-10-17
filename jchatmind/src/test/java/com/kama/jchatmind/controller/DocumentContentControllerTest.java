@@ -66,7 +66,8 @@ class DocumentContentControllerTest {
                 mock(com.kama.jchatmind.service.StorageCleanupService.class));
         properties.setPublicKbIds(List.of(PUBLIC_KB));
         var catalog = new DemoCatalogService(new DemoAccessPolicy(properties), mock(DemoSessionRepository.class),
-                mock(KnowledgeBaseMapper.class), documents, mock(ChatMessageFacadeService.class), json, facade);
+                mock(KnowledgeBaseMapper.class), documents, mock(ChatMessageFacadeService.class), json, facade,
+                mock(com.kama.jchatmind.ingestion.IngestionService.class));
         var access = mock(ResourceAccess.class);
         when(access.canRead(eq(ResourceAccess.KB), anyString())).thenReturn(true);
         var auth = mock(AuthService.class);
@@ -74,7 +75,8 @@ class DocumentContentControllerTest {
         when(auth.authenticate("test-session")).thenReturn(new AuthRepository.LoginSession(
                 new AuthUser("11111111-1111-4111-8111-111111111111", "admin", "Admin", "ADMIN", true, Instant.now()),
                 "test-hash", "test-csrf", Instant.now().plusSeconds(3600), 1));
-        mvc = MockMvcBuilders.standaloneSetup(new DocumentController(facade, access),
+        mvc = MockMvcBuilders.standaloneSetup(new DocumentController(facade,
+                        mock(com.kama.jchatmind.ingestion.IngestionService.class), access),
                         new DemoController(mock(DemoChatService.class), new DemoVisitor(), catalog))
                 .defaultRequest(get("/").cookie(new Cookie(authProperties.cookieName(), "test-session")))
                 .addFilters(new AuthFilter(auth, authProperties, json))

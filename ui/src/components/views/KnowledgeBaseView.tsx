@@ -13,6 +13,7 @@ import {
   Tag,
   Modal,
   Alert,
+  Tooltip,
 } from "antd";
 import {
   BookOutlined,
@@ -23,11 +24,18 @@ import {
   MessageOutlined,
   LockOutlined,
   GlobalOutlined,
+  LoadingOutlined,
+  SyncOutlined,
 } from "@ant-design/icons";
 import type { TableColumnsType, UploadProps } from "antd";
 import { useKnowledgeBases } from "../../hooks/useKnowledgeBases.ts";
 import { useDocuments } from "../../hooks/useDocuments.ts";
-import { uploadDocument, type DocumentVO } from "../../api/api.ts";
+import { uploadDocument } from "../../api/api.ts";
+import {
+  describeIngestionStatus,
+  ingestionProgressText,
+  type DocumentWithIngestion,
+} from "../../types/ingestion.ts";
 import { IS_PUBLIC_DEMO } from "../../config.ts";
 import DocumentPreviewDrawer from "../modals/DocumentPreviewDrawer.tsx";
 import { showRequestError } from "../../api/http.ts";
@@ -39,11 +47,12 @@ const isMarkdown = (filename: string) => /\.(?:md|markdown)$/i.test(filename);
 const KnowledgeBaseContent: React.FC<{ knowledgeBaseId?: string }> = ({ knowledgeBaseId }) => {
   const navigate = useNavigate();
   const { knowledgeBases, loading: loadingKnowledgeBases, deleteKnowledgeBaseHandle } = useKnowledgeBases();
-  const { documents, loading, refreshDocuments, deleteDocument } =
+  const { documents, loading, refreshDocuments, deleteDocument, retryIngestion } =
     useDocuments(knowledgeBaseId);
 
   const [uploading, setUploading] = useState(false);
-  const [previewDocument, setPreviewDocument] = useState<DocumentVO | null>(null);
+  const [retrying, setRetrying] = useState<string | null>(null);
+  const [previewDocument, setPreviewDocument] = useState<DocumentWithIngestion | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
@@ -86,7 +95,8 @@ const KnowledgeBaseContent: React.FC<{ knowledgeBaseId?: string }> = ({ knowledg
 
     try {
       await uploadDocument(knowledgeBaseId, file as File);
-      notify.success("文档上传成功");
+      // 上传返回的是“已受理”：文件已保存、任务已排队，索引在后台完成前仍不可检索。
+      notify.success("文档已受理，正在后台索引");
       await refreshDocuments();
       onSuccess?.(file);
     } catch (error) {
@@ -94,6 +104,20 @@ const KnowledgeBaseContent: React.FC<{ knowledgeBaseId?: string }> = ({ knowledg
       onError?.(error as Error);
     } finally {
       setUploading(false);
+    }
+  };
+
+  /** 重试失败的导入：服务端再校验 KB 写权限，并保证重复点击不会生成并行任务。 */
+  const handleRetry = async (documentId: string) => {
+    if (retrying) return;
+    setRetrying(documentId);
+    try {
+      await retryIngestion(documentId);
+      notify.success("已重新加入导入队列");
+    } catch (error) {
+      showRequestError(error, "重试失败，请稍后重试");
+    } finally {
+      setRetrying(null);
     }
   };
 
@@ -107,12 +131,12 @@ const KnowledgeBaseContent: React.FC<{ knowledgeBaseId?: string }> = ({ knowledg
   };
 
   // 表格列定义
-  const columns: TableColumnsType<DocumentVO> = [
+  const columns: TableColumnsType<DocumentWithIngestion> = [
     {
       title: "文件名",
       dataIndex: "filename",
       key: "filename",
-      render: (text: string, record: DocumentVO) => (
+      render: (text: string, record: DocumentWithIngestion) => (
         <div className="flex min-w-0 items-start gap-2">
           <FileOutlined className="mt-1 shrink-0 text-slate-400" />
           {isMarkdown(text) ? (
@@ -147,7 +171,7 @@ const KnowledgeBaseContent: React.FC<{ knowledgeBaseId?: string }> = ({ knowledg
       title: "操作",
       key: "action",
       width: readOnly ? 88 : 160,
-      render: (_: unknown, record: DocumentVO) => (
+      render: (_: unknown, record: DocumentWithIngestion) => (
         <Space size={0} wrap>
           <Button
             type="link"
@@ -171,6 +195,47 @@ const KnowledgeBaseContent: React.FC<{ knowledgeBaseId?: string }> = ({ knowledg
           </Popconfirm>}
         </Space>
       ),
+    },
+    {
+      title: "索引状态",
+      key: "ingestion",
+      width: 210,
+      render: (_: unknown, record: DocumentWithIngestion) => {
+        const stage = describeIngestionStatus(record.indexStatus);
+        if (!stage) {
+          return <Text type="secondary" className="text-xs">—</Text>;
+        }
+        const retryable =
+          !readOnly && !record.readOnly && stage.retryable && Boolean(record.jobId);
+        return (
+          <div className="flex min-w-0 flex-col gap-1">
+            <div className="flex flex-wrap items-center gap-1">
+              <Tag color={stage.color} icon={stage.active ? <LoadingOutlined /> : undefined}>
+                {stage.label}
+              </Tag>
+              {retryable && (
+                <Button
+                  type="link"
+                  size="small"
+                  icon={<SyncOutlined />}
+                  loading={retrying === record.id}
+                  onClick={() => void handleRetry(record.id)}
+                >
+                  重试
+                </Button>
+              )}
+            </div>
+            <Tooltip title={ingestionProgressText(record)}>
+              <Text
+                type={stage.label === "处理失败" ? "danger" : "secondary"}
+                className="max-w-full truncate text-xs"
+              >
+                {ingestionProgressText(record)}
+              </Text>
+            </Tooltip>
+          </div>
+        );
+      },
     },
   ];
 
