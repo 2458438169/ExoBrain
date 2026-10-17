@@ -28,6 +28,13 @@ public class SseMessage {
     @Builder
     public static class Metadata {
         private String chatMessageId;
+        /**
+         * 05 新增的可选关联字段：本次执行的服务端 runId。断线重连后前端以数据库记录为准，
+         * 不依赖这些字段做“事件重放”；旧消费者可以忽略它们。
+         */
+        private String runId;
+        private String eventId;
+        private Integer sequence;
     }
 
     // 自定义消息类型

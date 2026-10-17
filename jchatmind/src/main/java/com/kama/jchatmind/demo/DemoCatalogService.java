@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kama.jchatmind.agent.tools.ToolType;
 import com.kama.jchatmind.citation.AnswerCitation;
+import com.kama.jchatmind.ingestion.IngestionJobView;
+import com.kama.jchatmind.ingestion.IngestionService;
 import com.kama.jchatmind.mapper.DocumentMapper;
 import com.kama.jchatmind.mapper.KnowledgeBaseMapper;
 import com.kama.jchatmind.model.dto.ChatMessageDTO;
@@ -24,6 +26,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -39,6 +43,8 @@ public class DemoCatalogService {
     private final ChatMessageFacadeService messages;
     private final ObjectMapper json;
     private final DocumentFacadeService documentContent;
+    /** 公开文档的导入状态（只读展示，不提供重试）。 */
+    private final IngestionService ingestions;
 
     public record PublicTool(String name, String description, ToolType type) { }
     public record Showcases(List<ChatSessionVO> showcases) { }
@@ -56,11 +62,25 @@ public class DemoCatalogService {
     public GetDocumentsResponse documents(String kbId) {
         access.requirePublicKb(kbId);
         String publicId = UUID.fromString(kbId).toString();
+        // 游客只读公开文档的导入状态：真实状态 + 真实 chunk 计数，不提供上传或重试。
+        Map<String, IngestionJobView> statuses = ingestions.statusesByKnowledgeBase(publicId);
         return GetDocumentsResponse.builder().documents(documents.selectByKbId(publicId).stream()
                 .filter(document -> publicId.equals(document.getKbId()))
-                .map(document -> DocumentVO.builder().id(document.getId()).kbId(publicId)
-                        .filename(publicFilename(document.getFilename())).filetype(document.getFiletype())
-                        .size(document.getSize()).readOnly(true).build()).toArray(DocumentVO[]::new)).build();
+                .map(document -> {
+                    DocumentVO vo = DocumentVO.builder().id(document.getId()).kbId(publicId)
+                            .filename(publicFilename(document.getFilename())).filetype(document.getFiletype())
+                            .size(document.getSize()).readOnly(true).build();
+                    IngestionJobView job = statuses.get(document.getId().toLowerCase(Locale.ROOT));
+                    if (job != null) {
+                        vo.setJobId(job.jobId());
+                        vo.setIndexStatus(job.status());
+                        vo.setIndexErrorCode(job.errorCode());
+                        vo.setIndexErrorMessage(job.errorMessage());
+                        vo.setChunksDone(job.chunksDone());
+                        vo.setChunksTotal(job.chunksTotal());
+                    }
+                    return vo;
+                }).toArray(DocumentVO[]::new)).build();
     }
 
     public List<PublicTool> tools() {

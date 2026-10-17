@@ -21,6 +21,8 @@ import com.kama.jchatmind.service.ChatMessageFacadeService;
 import com.kama.jchatmind.retrieval.RetrievalService;
 import com.kama.jchatmind.service.SseService;
 import com.kama.jchatmind.service.impl.ToolFacadeServiceImpl;
+import com.kama.jchatmind.execution.RunLifecycleService;
+import com.kama.jchatmind.execution.RunRecorder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.ai.chat.client.ChatClient;
@@ -31,6 +33,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
+import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -49,6 +52,7 @@ class DemoExecutionServiceTest {
     private final ChatMessageConverter messageConverter = mock(ChatMessageConverter.class);
     private final RetrievalService rag = mock(RetrievalService.class);
     private final List<Runnable> queued = new ArrayList<>();
+    private final RunLifecycleService runs = mock(RunLifecycleService.class);
     private DemoAccessPolicy access;
     private DemoExecutionService execution;
     private AgentDTO config;
@@ -64,8 +68,11 @@ class DemoExecutionServiceTest {
                 .chatOptions(AgentDTO.ChatOptions.defaultOptions()).build();
         when(agents.selectById(AGENT)).thenReturn(entity);
         when(agentConverter.toDTO(entity)).thenReturn(config);
+        when(runs.startDemoRun(anyString(), anyString(), anyString())).thenAnswer(invocation ->
+                new RunLifecycleService.RunStart("run-" + invocation.getArgument(1), RunRecorder.noop("run"),
+                        Instant.now(), Instant.now(), System.nanoTime()));
         execution = new DemoExecutionService(clients, sse, agents, agentConverter, knowledgeBases, knowledgeConverter,
-                messages, messageConverter, new DateTool(), new TerminateTool(), new DirectAnswerTool(), rag, access, queued::add);
+                messages, messageConverter, new DateTool(), new TerminateTool(), new DirectAnswerTool(), rag, access, queued::add, runs);
     }
 
     @Test
@@ -131,7 +138,7 @@ class DemoExecutionServiceTest {
 
         DemoExecutionService isolated = new DemoExecutionService(clients, sse, agents, realConverter,
                 knowledgeBases, knowledgeConverter, messages, messageConverter, new DateTool(),
-                new TerminateTool(), new DirectAnswerTool(), rag, access, queued::add);
+                new TerminateTool(), new DirectAnswerTool(), rag, access, queued::add, runs);
         JChatMindFactory publicFactory = (JChatMindFactory) ReflectionTestUtils.getField(isolated, "factory");
         assertNotNull(publicFactory);
         JChatMind publicRuntime = publicFactory.create(AGENT, "session", access::validateAgent);

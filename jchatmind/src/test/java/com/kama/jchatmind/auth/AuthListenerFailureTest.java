@@ -20,6 +20,8 @@ import com.kama.jchatmind.models.ModelCatalogService;
 import com.kama.jchatmind.service.ChatMessageFacadeService;
 import com.kama.jchatmind.service.SseService;
 import com.kama.jchatmind.service.ToolFacadeService;
+import com.kama.jchatmind.execution.RunLifecycleService;
+import com.kama.jchatmind.execution.RunRecorder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -88,7 +90,11 @@ class AuthListenerFailureTest {
         when(tools.getFixedTools()).thenReturn(List.of());
         JChatMindFactory factory = new JChatMindFactory(clients, sse, agents, converter, knowledge,
                 new KnowledgeBaseConverter(json), tools, messages, new ChatMessageConverter(json));
-        ChatEventListener listener = new ChatEventListener(factory, access, sse);
+        RunLifecycleService runs = mock(RunLifecycleService.class);
+        when(runs.startAccountRun(anyString(), anyString(), anyString())).thenAnswer(call ->
+                new RunLifecycleService.RunStart("run-" + call.getArgument(1), RunRecorder.noop("run"),
+                        Instant.now(), Instant.now(), System.nanoTime()));
+        ChatEventListener listener = new ChatEventListener(factory, access, sse, runs);
         String snapshot = json.writeValueAsString(List.of(ChatMessageDTO.builder().id("trigger").sessionId(SESSION)
                 .role(ChatMessageDTO.RoleType.USER).content("question").build()));
         ChatEvent event = new ChatEvent(AGENT, SESSION, "question", USER, 1, HASH, "trigger", snapshot);

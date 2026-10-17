@@ -2,6 +2,7 @@ package com.kama.jchatmind.demo;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kama.jchatmind.citation.AnswerCitation;
+import com.kama.jchatmind.ingestion.IngestionService;
 import com.kama.jchatmind.mapper.DocumentMapper;
 import com.kama.jchatmind.mapper.KnowledgeBaseMapper;
 import com.kama.jchatmind.model.dto.ChatMessageDTO;
@@ -53,7 +54,7 @@ class DemoCatalogServiceCitationTest {
         properties.setPublicKbIds(List.of(PUBLIC_KB));
         properties.setShowcaseSessionIds(List.of(SHOWCASE));
         catalog = new DemoCatalogService(new DemoAccessPolicy(properties), sessions, knowledgeBases, documents,
-                messages, json, mock(DocumentFacadeService.class));
+                messages, json, mock(DocumentFacadeService.class), mock(IngestionService.class));
         when(sessions.findShowcase(SHOWCASE, AGENT))
                 .thenReturn(ChatSessionVO.builder().id(SHOWCASE).agentId(AGENT).title("示例对话").build());
         when(documents.selectById(DOC)).thenReturn(Document.builder().id(DOC).kbId(PUBLIC_KB).filename("公开资料.md").build());

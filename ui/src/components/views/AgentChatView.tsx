@@ -185,6 +185,7 @@ function SessionChatView({ sessionId, agentCatalog }: { sessionId: string; agent
       </div>
       <AgentChatHistory
         messages={messages}
+        sessionId={sessionId}
         displayAgentStatus={waiting}
         agentStatusText={status?.text || "正在生成回答…"}
         agentStatusType={status?.type}

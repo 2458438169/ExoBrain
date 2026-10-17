@@ -42,6 +42,11 @@ public class ChatMessageDTO {
          * 05 的运行标识 {@code runId} 加在本字段之后（04 不读取它）。
          */
         private List<AnswerCitation> citations;
+        /**
+         * 05 新增：本次执行的服务端 runId。仅在确实产生该消息的执行里写入；旧记录为 null，
+         * 客户端 metadata 不能决定它（服务端写入，不从请求继承）。
+         */
+        private String runId;
     }
 
     @Getter

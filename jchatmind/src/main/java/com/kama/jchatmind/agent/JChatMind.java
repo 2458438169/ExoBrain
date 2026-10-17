@@ -5,6 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kama.jchatmind.citation.AnswerCitation;
 import com.kama.jchatmind.citation.CitationRegistry;
 import com.kama.jchatmind.converter.ChatMessageConverter;
+import com.kama.jchatmind.execution.RunEventStatus;
+import com.kama.jchatmind.execution.RunEventType;
+import com.kama.jchatmind.execution.RunRecorder;
+import com.kama.jchatmind.execution.TimedToolCallback;
+import com.kama.jchatmind.execution.TokenUsage;
+import com.kama.jchatmind.execution.ToolTimingCollector;
 import com.kama.jchatmind.message.SseMessage;
 import com.kama.jchatmind.model.dto.ChatMessageDTO;
 import com.kama.jchatmind.model.dto.KnowledgeBaseDTO;
@@ -18,6 +24,8 @@ import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.messages.*;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.chat.metadata.ChatResponseMetadata;
+import org.springframework.ai.chat.metadata.Usage;
 import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.model.tool.DefaultToolCallingChatOptions;
@@ -28,6 +36,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
+import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -99,6 +108,16 @@ public class JChatMind {
     // 每次 run() 都是新的 JChatMind 实例，因此登记天然按运行隔离，不会跨会话/跨用户复用。
     private final CitationRegistry citationRegistry = new CitationRegistry();
 
+    // 05 执行追踪：运行记录器（未启用追踪时为 null，行为与基线一致）。
+    private volatile RunRecorder runRecorder;
+    // 每次工具真实调用的计时样本；由 execute() 与本次模型的 toolCall 列表对齐后落库。
+    private final ToolTimingCollector toolTimings = new ToolTimingCollector();
+    // execute() 使用的选项：显式带上本次运行真正提供给模型的工具回调，保证 ToolCallingManager
+    // 解析到的就是这些回调（计时包装因此覆盖真实执行路径）。
+    private ChatOptions executionOptions;
+    // 最近一次落库的 assistant 消息 id，用于把最终答复关联到运行记录。
+    private String lastAssistantMessageId;
+
     public JChatMind() {
     }
 
@@ -125,7 +144,10 @@ public class JChatMind {
 
         this.chatClient = chatClient;
 
-        this.availableTools = availableTools;
+        this.availableTools = availableTools == null ? List.of()
+                : availableTools.stream()
+                        .map(tool -> (ToolCallback) new TimedToolCallback(tool, toolTimings))
+                        .toList();
         this.availableKbs = availableKbs;
 
         this.chatSessionId = chatSessionId;
@@ -152,6 +174,10 @@ public class JChatMind {
         // 关闭 SpringAI 自带的内部的工具调用自动执行功能
         this.chatOptions = DefaultToolCallingChatOptions.builder()
                 .internalToolExecutionEnabled(false)
+                .build();
+        this.executionOptions = DefaultToolCallingChatOptions.builder()
+                .internalToolExecutionEnabled(false)
+                .toolCallbacks(this.availableTools.toArray(new ToolCallback[0]))
                 .build();
 
         // 工具调用管理器
@@ -201,10 +227,12 @@ public class JChatMind {
                     .metadata(ChatMessageDTO.MetaData.builder()
                             .toolCalls(assistantMessage.getToolCalls())
                             .citations(citations == null || citations.isEmpty() ? null : List.copyOf(citations))
+                            .runId(this.runRecorder == null ? null : this.runRecorder.runId())
                             .build())
                     .build();
-            CreateChatMessageResponse chatMessage = chatMessageFacadeService.createChatMessage(chatMessageDTO);
-            chatMessageDTO.setId(chatMessage.getChatMessageId());
+            String messageId = persist(chatMessageDTO);
+            chatMessageDTO.setId(messageId);
+            this.lastAssistantMessageId = messageId;
             pendingChatMessages.add(chatMessageDTO);
         } else if (message instanceof ToolResponseMessage toolResponseMessage) {
             // 持久化 ToolResponseMessage
@@ -215,14 +243,34 @@ public class JChatMind {
                         .sessionId(this.chatSessionId)
                         .metadata(ChatMessageDTO.MetaData.builder()
                                 .toolResponse(toolResponse)
+                                .runId(this.runRecorder == null ? null : this.runRecorder.runId())
                                 .build())
                         .build();
-                CreateChatMessageResponse chatMessage = chatMessageFacadeService.createChatMessage(chatMessageDTO);
-                chatMessageDTO.setId(chatMessage.getChatMessageId());
+                chatMessageDTO.setId(persist(chatMessageDTO));
                 pendingChatMessages.add(chatMessageDTO);
             }
         } else {
             throw new IllegalArgumentException("不支持的 Message 类型: " + message.getClass().getName());
+        }
+    }
+
+    // 真实的消息落库边界：计时并记录 PERSIST_MESSAGE 事件。持久化失败保留已有事件、标记不完整，不伪造成功。
+    private String persist(ChatMessageDTO chatMessageDTO) {
+        RunRecorder recorder = this.runRecorder;
+        long started = System.nanoTime();
+        Instant startedAt = Instant.now();
+        try {
+            CreateChatMessageResponse chatMessage = chatMessageFacadeService.createChatMessage(chatMessageDTO);
+            if (recorder != null) {
+                recorder.persistedMessage(startedAt, recorder.elapsedMillis(started), RunEventStatus.SUCCEEDED, null);
+            }
+            return chatMessage.getChatMessageId();
+        } catch (RuntimeException failure) {
+            if (recorder != null) {
+                recorder.persistedMessage(startedAt, recorder.elapsedMillis(started), RunEventStatus.FAILED,
+                        "MESSAGE_PERSISTENCE_FAILED");
+            }
+            throw failure;
         }
     }
 
@@ -382,13 +430,39 @@ public class JChatMind {
         RuntimeException lastError = null;
         for (int attempt = 1; attempt <= MODEL_MAX_ATTEMPTS; attempt++) {
             runtimeGuard.run();
-            ChatResponse response = requestModel(prompt, thinkPrompt);
+            RunRecorder recorder = this.runRecorder;
+            long started = System.nanoTime();
+            Instant startedAt = Instant.now();
+
+            ChatResponse response;
+            try {
+                response = requestModel(prompt, thinkPrompt);
+            } catch (RuntimeException failure) {
+                if (recorder != null) {
+                    recorder.modelCall(attempt, startedAt, recorder.elapsedMillis(started),
+                            RunEventStatus.FAILED, "MODEL_CALL_FAILED");
+                }
+                throw failure;
+            }
+            long modelDurationMs = recorder == null ? 0L : recorder.elapsedMillis(started);
+
+            String text = response == null ? null : response.getResult().getOutput().getText();
+            boolean busy = isUpstreamBusy(text);
+            if (recorder != null) {
+                // 真实调用的结果分类：繁忙是“失败尝试”，正常返回是“成功调用”。
+                recorder.modelCall(attempt, startedAt, modelDurationMs,
+                        busy ? RunEventStatus.FAILED : RunEventStatus.SUCCEEDED,
+                        busy ? "UPSTREAM_BUSY" : null);
+                if (!busy) {
+                    // 只有服务商真的返回用量时才累加；缺失保持 null。
+                    recorder.addUsage(usageOf(response));
+                }
+            }
 
             // A response may arrive long after logout, expiry, or a role/resource change.
             runtimeGuard.run();
 
-            String text = response == null ? null : response.getResult().getOutput().getText();
-            if (!isUpstreamBusy(text)) {
+            if (!busy) {
                 return response;
             }
 
@@ -400,6 +474,23 @@ public class JChatMind {
             }
         }
         throw lastError;
+    }
+
+    // 读取服务商提供的用量；没有提供时返回 UNKNOWN（绝不按字符数推算，也不把缺失当 0）。
+    private static TokenUsage usageOf(ChatResponse response) {
+        if (response == null) {
+            return TokenUsage.UNKNOWN;
+        }
+        ChatResponseMetadata metadata = response.getMetadata();
+        Usage usage = metadata == null ? null : metadata.getUsage();
+        if (usage == null) {
+            return TokenUsage.UNKNOWN;
+        }
+        try {
+            return TokenUsage.of(usage.getPromptTokens(), usage.getCompletionTokens(), usage.getTotalTokens());
+        } catch (RuntimeException unavailable) {
+            return TokenUsage.UNKNOWN;
+        }
     }
 
     // 单次模型调用的实际入口。生产行为不变；同包测试用它回放脚本化的模型响应，
@@ -437,11 +528,24 @@ public class JChatMind {
     private void trySend(SseMessage message) {
         // Authorization errors must escape the best-effort SSE transport handler.
         runtimeGuard.run();
+        attachRunId(message);
         try {
             sseService.send(this.chatSessionId, message);
         } catch (Exception e) {
             log.warn("SSE 推送失败（不影响 Agent 执行）: {}", e.getMessage());
         }
+    }
+
+    /** 05：把本次运行的 runId 附在 SSE metadata 上（可选字段，旧消费者忽略）。 */
+    private void attachRunId(SseMessage message) {
+        RunRecorder recorder = this.runRecorder;
+        if (recorder == null) {
+            return;
+        }
+        if (message.getMetadata() == null) {
+            message.setMetadata(SseMessage.Metadata.builder().build());
+        }
+        message.getMetadata().setRunId(recorder.runId());
     }
 
     // thinkPrompt 应该放到 system 中还是
@@ -525,6 +629,10 @@ public class JChatMind {
         }
 
         saveMessage(toPersist, citations);
+        // 最终答复与运行关联：只有本轮确实产出了面向用户的答复才写入 answerMessageId。
+        if (StringUtils.hasText(answerText) && this.runRecorder != null && this.lastAssistantMessageId != null) {
+            this.runRecorder.answerMessageId(this.lastAssistantMessageId);
+        }
 
         if (answerText != null) {
             // 本轮产出了给用户的答复 → 下发前端
@@ -555,7 +663,7 @@ public class JChatMind {
 
         Prompt prompt = Prompt.builder()
                 .messages(this.chatMemory.get(this.chatSessionId))
-                .chatOptions(this.chatOptions)
+                .chatOptions(this.toolCallOptions())
                 .build();
 
         ToolExecutionResult toolExecutionResult = toolCallingManager.executeToolCalls(prompt, this.lastChatResponse);
@@ -569,6 +677,9 @@ public class JChatMind {
                 .get(toolExecutionResult.conversationHistory().size() - 1);
 
         registerCompletedRetrievals(toolResponseMessage);
+        // 逐工具事件：样本来自每个 ToolCallback 的真实调用，和本次模型请求的 toolCallId 一一对齐；
+        // 模型“计划”但没真正执行的调用不会产生 TOOL_CALL 事件。
+        recordToolEvents(toolResponseMessage.getResponses());
 
         String collect = toolResponseMessage.getResponses()
                 .stream()
@@ -622,6 +733,81 @@ public class JChatMind {
         }
     }
 
+    /**
+     * 把本次 ToolCallingManager 的真实工具执行转成事件。
+     *
+     * <p>计时样本按实际调用顺序产生，模型请求的 toolCall 也按同一顺序执行；只有当“序号对应 + 名称一致”
+     * 时才把 {@code toolCallId} 写上，否则保留 null（不虚构关联）。知识库工具返回的信封再额外产生一条
+     * RETRIEVAL 事件，按其 {@code retrievalId} 关联。</p>
+     */
+    private void recordToolEvents(List<ToolResponseMessage.ToolResponse> responses) {
+        List<ToolTimingCollector.Sample> samples = toolTimings.drain();
+        RunRecorder recorder = this.runRecorder;
+        List<AssistantMessage.ToolCall> requested = this.lastChatResponse == null
+                ? List.of() : this.lastChatResponse.getResult().getOutput().getToolCalls();
+        int index = 0;
+        for (ToolTimingCollector.Sample sample : samples) {
+            AssistantMessage.ToolCall call = index < requested.size() ? requested.get(index) : null;
+            String toolCallId = call != null && Objects.equals(call.name(), sample.toolName()) ? call.id() : null;
+            if (recorder != null) {
+                Instant startedAt = Instant.now().minusMillis(sample.durationMs());
+                recorder.toolCall(toolCallId, sample.toolName(), startedAt, sample.durationMs(),
+                        sample.status(), sample.errorCode());
+            }
+            index++;
+        }
+        if (recorder == null) {
+            return;
+        }
+        // 检索事件只来自本次真实完成、且能解析成契约信封的 KnowledgeTool 响应。
+        for (ToolResponseMessage.ToolResponse response : responses) {
+            if (!CitationRegistry.KNOWLEDGE_TOOL_NAME.equals(response.name())) {
+                continue;
+            }
+            RetrievalOutcome outcome = readRetrievalOutcome(response.responseData());
+            if (outcome == null) {
+                continue;
+            }
+            RunEventStatus status = "UNAVAILABLE".equals(outcome.status())
+                    ? RunEventStatus.FAILED : RunEventStatus.SUCCEEDED;
+            recorder.retrieval(response.id(), outcome.retrievalId(), outcome.status(), Instant.now(),
+                    0L, status, status == RunEventStatus.FAILED ? "RETRIEVAL_UNAVAILABLE" : null);
+        }
+    }
+
+    private record RetrievalOutcome(String retrievalId, String status) {
+    }
+
+    // 只读两个字段：retrievalId 与 status。解析失败一律返回 null（不登记、不猜测）。
+    private static RetrievalOutcome readRetrievalOutcome(String responseData) {
+        if (!StringUtils.hasText(responseData)) {
+            return null;
+        }
+        try {
+            JsonNode node = JSON.readTree(responseData);
+            if (node == null || !node.hasNonNull("retrievalId") || !node.hasNonNull("status")) {
+                return null;
+            }
+            return new RetrievalOutcome(node.get("retrievalId").asText(), node.get("status").asText());
+        } catch (Exception invalid) {
+            return null;
+        }
+    }
+
+    // execute() 的选项：显式带上本次真实提供给模型的工具回调；测试若替换了 chatOptions 也保持兼容。
+    private ChatOptions toolCallOptions() {
+        return this.executionOptions == null ? this.chatOptions : this.executionOptions;
+    }
+
+    /** 05：绑定本次运行的记录器。未调用时行为与基线完全一致（不产生任何运行记录）。 */
+    public void attachRun(RunRecorder recorder) {
+        this.runRecorder = recorder;
+    }
+
+    /** 本次运行的最终状态（上层据此写入运行终态；ERROR 表示没有产出面向用户的答复）。 */
+    public AgentState state() {
+        return this.agentState;
+    }
     // 循环即将结束但用户还没拿到任何答复时，注入一条提醒让模型补一轮收尾。
     // 只补一次：第二次仍然失败就置 ERROR，让失败可见，而不是静默结束。
     private void forceFinalizeRound(String reason) {
@@ -672,6 +858,10 @@ public class JChatMind {
                 if (i + 1 >= MAX_STEPS && agentState != AgentState.ERROR) {
                     agentState = AgentState.FINISHED;
                     log.warn("达到最大步骤数，停止 Agent");
+                    if (this.runRecorder != null) {
+                        this.runRecorder.note(RunEventType.STEP_LIMIT, RunEventStatus.SUCCEEDED, null,
+                                "MAX_STEPS_" + MAX_STEPS);
+                    }
                 }
             }
             // 不要无条件覆盖 ERROR：失败状态要保留下来给上层和前端看
