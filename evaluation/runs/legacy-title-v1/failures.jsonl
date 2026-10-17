@@ -1,0 +1,16 @@
+{"type": "answerable-miss", "id": "q013", "category": "body-fact", "split": "dev", "question": "向量距离近就说明内容正确吗？应该怎样理解向量？", "goldUnits": [{"docKey": "rag-principles", "startLine": 5, "endLine": 9}], "top1": {"docKey": "rag-principles", "startLine": 17, "endLine": 21, "headingPath": ["ExoBrain KnowledgeTool 如何用 1024 维向量检索三个片段"], "distance": 0.9970632285708043}}
+{"type": "answerable-miss", "id": "q014", "category": "body-fact", "split": "dev", "question": "KnowledgeTool 返回的内容里有文件名、页码和相关度分数吗？", "goldUnits": [{"docKey": "rag-principles", "startLine": 25, "endLine": 25}], "top1": {"docKey": "java-backend-faq", "startLine": 17, "endLine": 21, "headingPath": ["Spring 依赖注入是什么，KnowledgeTool 为什么可以调用检索服务"], "distance": 0.8628935482723372}}
+{"type": "answerable-miss", "id": "q016", "category": "distractor", "split": "dev", "question": "有资料说上传 PDF 后系统会自动把 PDF 转成 Markdown 再索引，这个说法对吗？", "goldUnits": [{"docKey": "rag-principles", "startLine": 31, "endLine": 31}], "top1": {"docKey": "eval-synthetic-java-notes", "startLine": 13, "endLine": 15, "headingPath": ["处理 Markdown 文档时的常见误解"], "distance": 0.7924633200547532}}
+{"type": "answerable-miss", "id": "q020", "category": "body-fact", "split": "dev", "question": "建表脚本里的向量索引是怎么配的？查询一定会用到这个索引吗？", "goldUnits": [{"docKey": "rag-principles", "startLine": 19, "endLine": 21}], "top1": {"docKey": "java-backend-faq", "startLine": 17, "endLine": 21, "headingPath": ["Spring 依赖注入是什么，KnowledgeTool 为什么可以调用检索服务"], "distance": 0.9187012691938727}}
+{"type": "answerable-miss", "id": "q033", "category": "body-fact", "split": "test", "question": "模型调用失败时会自动切换备用模型吗？和现有的重试机制有什么区别？", "goldUnits": [{"docKey": "exobrain-overview", "startLine": 23, "endLine": 27}], "top1": {"docKey": "java-backend-faq", "startLine": 31, "endLine": 35, "headingPath": ["文档索引失败时为什么需要事务与文件清理"], "distance": 0.9604723665272665}}
+{"type": "answerable-miss", "id": "q046", "category": "cross-document", "split": "test", "question": "「ExoBrain 用 Java 21」这件事在技术栈说明和部署要求里分别怎么写？", "goldUnits": [{"docKey": "exobrain-overview", "startLine": 7, "endLine": 7}, {"docKey": "java-backend-faq", "startLine": 7, "endLine": 7}], "top1": {"docKey": "java-backend-faq", "startLine": 1, "endLine": 3, "headingPath": ["Java 后端技术问答：ExoBrain 工程入门"], "distance": 0.7574954992103947}}
+{"type": "unanswerable-returned-hits", "id": "q024", "hitCount": 3}
+{"type": "unanswerable-returned-hits", "id": "q025", "hitCount": 3}
+{"type": "unanswerable-returned-hits", "id": "q026", "hitCount": 3}
+{"type": "unanswerable-returned-hits", "id": "q027", "hitCount": 3}
+{"type": "unanswerable-returned-hits", "id": "q028", "hitCount": 3}
+{"type": "unanswerable-returned-hits", "id": "q029", "hitCount": 3}
+{"type": "unanswerable-returned-hits", "id": "q030", "hitCount": 3}
+{"type": "unanswerable-returned-hits", "id": "q048", "hitCount": 3}
+{"type": "unanswerable-returned-hits", "id": "q049", "hitCount": 3}
+{"type": "unanswerable-returned-hits", "id": "q050", "hitCount": 3}

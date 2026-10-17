@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "note": "冻结记录：数据集与保留测试集在调参前固定；改动后必须重新生成并重跑基线。",
+  "datasetPath": "evaluation/datasets/questions-v1.jsonl",
+  "datasetSha256": "c795c7f69d33fa56c8cafe8535300490057f3ec69bbdeb587958c535ae5df08f",
+  "testSplitSha256": "d60b933e5e3233b02ade04a344a9c73c71a6b1eca8bb9fb98699218662f67c78",
+  "devSplitSha256": "58ee8c28fe4d7561b0ca4203a685222bed4835116c624aef11df34872b3713bc",
+  "corpusManifestSha256": "7999340d125f8d2c133a24cffb4965086b63608ad74c68c6663176a3b7bca821",
+  "corpusDocumentSha256": {
+    "exobrain-overview": "b4440be10c02c079cca0ec7c69cc68a1a3127c4b22e6db804c2218adefc1bc9f",
+    "rag-principles": "2bdbca889b75399cc84a2944aadebe51707aad5e0cbfe66bd1fc2155ad248b8b",
+    "java-backend-faq": "bd0126d25579fa098705da6599f658dbb636fca0f821cf476391c3417006dbce",
+    "eval-synthetic-java-notes": "ec365ecd81f9f57ea14b6325975c20c84ab7104f96ebfa3707466742f0bea5f0"
+  },
+  "questionCount": 50,
+  "answerable": 40,
+  "unanswerable": 10
+}

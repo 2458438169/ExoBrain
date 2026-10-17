@@ -1,0 +1,163 @@
+[
+  {
+    "docKey": "exobrain-overview",
+    "sourceHash": "b4440be10c02c079cca0ec7c69cc68a1a3127c4b22e6db804c2218adefc1bc9f",
+    "startLine": 1,
+    "endLine": 3,
+    "headingText": "ExoBrain 项目导览：公开演示资料"
+  },
+  {
+    "docKey": "exobrain-overview",
+    "sourceHash": "b4440be10c02c079cca0ec7c69cc68a1a3127c4b22e6db804c2218adefc1bc9f",
+    "startLine": 5,
+    "endLine": 9,
+    "headingText": "ExoBrain 技术栈：Java、Spring Boot、Spring AI、React 与数据库"
+  },
+  {
+    "docKey": "exobrain-overview",
+    "sourceHash": "b4440be10c02c079cca0ec7c69cc68a1a3127c4b22e6db804c2218adefc1bc9f",
+    "startLine": 11,
+    "endLine": 15,
+    "headingText": "ExoBrain Agent 如何决策、调用工具并结束任务"
+  },
+  {
+    "docKey": "exobrain-overview",
+    "sourceHash": "b4440be10c02c079cca0ec7c69cc68a1a3127c4b22e6db804c2218adefc1bc9f",
+    "startLine": 17,
+    "endLine": 21,
+    "headingText": "ExoBrain Agent 配置、知识库与会话历史分别保存什么"
+  },
+  {
+    "docKey": "exobrain-overview",
+    "sourceHash": "b4440be10c02c079cca0ec7c69cc68a1a3127c4b22e6db804c2218adefc1bc9f",
+    "startLine": 23,
+    "endLine": 27,
+    "headingText": "ExoBrain 已实现的功能与尚待改进的方向"
+  },
+  {
+    "docKey": "exobrain-overview",
+    "sourceHash": "b4440be10c02c079cca0ec7c69cc68a1a3127c4b22e6db804c2218adefc1bc9f",
+    "startLine": 29,
+    "endLine": 33,
+    "headingText": "如何开始体验 ExoBrain：示例问题与回答核对"
+  },
+  {
+    "docKey": "rag-principles",
+    "sourceHash": "2bdbca889b75399cc84a2944aadebe51707aad5e0cbfe66bd1fc2155ad248b8b",
+    "startLine": 1,
+    "endLine": 3,
+    "headingText": "RAG 检索原理：从公开资料到有依据的回答"
+  },
+  {
+    "docKey": "rag-principles",
+    "sourceHash": "2bdbca889b75399cc84a2944aadebe51707aad5e0cbfe66bd1fc2155ad248b8b",
+    "startLine": 5,
+    "endLine": 9,
+    "headingText": "RAG 是什么：先检索资料，再生成回答"
+  },
+  {
+    "docKey": "rag-principles",
+    "sourceHash": "2bdbca889b75399cc84a2944aadebe51707aad5e0cbfe66bd1fc2155ad248b8b",
+    "startLine": 11,
+    "endLine": 15,
+    "headingText": "ExoBrain 如何处理 Markdown 文档、标题和章节正文"
+  },
+  {
+    "docKey": "rag-principles",
+    "sourceHash": "2bdbca889b75399cc84a2944aadebe51707aad5e0cbfe66bd1fc2155ad248b8b",
+    "startLine": 17,
+    "endLine": 21,
+    "headingText": "ExoBrain KnowledgeTool 如何用 1024 维向量检索三个片段"
+  },
+  {
+    "docKey": "rag-principles",
+    "sourceHash": "2bdbca889b75399cc84a2944aadebe51707aad5e0cbfe66bd1fc2155ad248b8b",
+    "startLine": 23,
+    "endLine": 27,
+    "headingText": "RAG 回答如何核对来源，以及资料不足时怎么办"
+  },
+  {
+    "docKey": "rag-principles",
+    "sourceHash": "2bdbca889b75399cc84a2944aadebe51707aad5e0cbfe66bd1fc2155ad248b8b",
+    "startLine": 29,
+    "endLine": 31,
+    "headingText": "ExoBrain 文档格式与检索改进方向：哪些尚未实现"
+  },
+  {
+    "docKey": "java-backend-faq",
+    "sourceHash": "bd0126d25579fa098705da6599f658dbb636fca0f821cf476391c3417006dbce",
+    "startLine": 1,
+    "endLine": 3,
+    "headingText": "Java 后端技术问答：ExoBrain 工程入门"
+  },
+  {
+    "docKey": "java-backend-faq",
+    "sourceHash": "bd0126d25579fa098705da6599f658dbb636fca0f821cf476391c3417006dbce",
+    "startLine": 5,
+    "endLine": 9,
+    "headingText": "Java、JDK 与 Spring Boot 分别负责什么"
+  },
+  {
+    "docKey": "java-backend-faq",
+    "sourceHash": "bd0126d25579fa098705da6599f658dbb636fca0f821cf476391c3417006dbce",
+    "startLine": 11,
+    "endLine": 15,
+    "headingText": "ExoBrain 后端的 Controller、Service 和 Mapper 怎样分工"
+  },
+  {
+    "docKey": "java-backend-faq",
+    "sourceHash": "bd0126d25579fa098705da6599f658dbb636fca0f821cf476391c3417006dbce",
+    "startLine": 17,
+    "endLine": 21,
+    "headingText": "Spring 依赖注入是什么，KnowledgeTool 为什么可以调用检索服务"
+  },
+  {
+    "docKey": "java-backend-faq",
+    "sourceHash": "bd0126d25579fa098705da6599f658dbb636fca0f821cf476391c3417006dbce",
+    "startLine": 23,
+    "endLine": 29,
+    "headingText": "ExoBrain SSE 实时状态和数据库会话历史有什么区别"
+  },
+  {
+    "docKey": "java-backend-faq",
+    "sourceHash": "bd0126d25579fa098705da6599f658dbb636fca0f821cf476391c3417006dbce",
+    "startLine": 31,
+    "endLine": 35,
+    "headingText": "文档索引失败时为什么需要事务与文件清理"
+  },
+  {
+    "docKey": "eval-synthetic-java-notes",
+    "sourceHash": "ec365ecd81f9f57ea14b6325975c20c84ab7104f96ebfa3707466742f0bea5f0",
+    "startLine": 1,
+    "endLine": 3,
+    "headingText": "评测专用合成文档：Java 与后端问答笔记（请勿上传产品知识库）"
+  },
+  {
+    "docKey": "eval-synthetic-java-notes",
+    "sourceHash": "ec365ecd81f9f57ea14b6325975c20c84ab7104f96ebfa3707466742f0bea5f0",
+    "startLine": 5,
+    "endLine": 7,
+    "headingText": "Java、JDK 与 Spring Boot 分别负责什么"
+  },
+  {
+    "docKey": "eval-synthetic-java-notes",
+    "sourceHash": "ec365ecd81f9f57ea14b6325975c20c84ab7104f96ebfa3707466742f0bea5f0",
+    "startLine": 9,
+    "endLine": 11,
+    "headingText": "ExoBrain 技术栈：Java、Spring Boot、Spring AI、React 与数据库"
+  },
+  {
+    "docKey": "eval-synthetic-java-notes",
+    "sourceHash": "ec365ecd81f9f57ea14b6325975c20c84ab7104f96ebfa3707466742f0bea5f0",
+    "startLine": 13,
+    "endLine": 15,
+    "headingText": "处理 Markdown 文档时的常见误解"
+  },
+  {
+    "docKey": "eval-synthetic-java-notes",
+    "sourceHash": "ec365ecd81f9f57ea14b6325975c20c84ab7104f96ebfa3707466742f0bea5f0",
+    "startLine": 17,
+    "endLine": 19,
+    "headingText": "本文件在评测中的使用边界"
+  }
+]

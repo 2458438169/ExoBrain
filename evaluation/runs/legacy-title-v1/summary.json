@@ -1,0 +1,529 @@
+{
+  "schemaVersion": 1,
+  "kValues": [
+    1,
+    3
+  ],
+  "questionCount": 50,
+  "answerableQuestions": 40,
+  "unanswerableQuestions": 10,
+  "metricsAll": {
+    "k=1": {
+      "questions": 40,
+      "hitAt": 0.65,
+      "recallAt": 0.6375,
+      "mrrAt": 0.65,
+      "goldUnits": 44,
+      "goldUnitsCovered": 26,
+      "microRecall": 0.590909,
+      "crossDocumentCoverageAt": 0.6375,
+      "allRequiredDocumentsCoveredRateAt": 0.625,
+      "crossDocumentQuestions": 40,
+      "distractorTopkRate": 0.285714,
+      "distractorQuestions": 7
+    },
+    "k=3": {
+      "questions": 40,
+      "hitAt": 0.85,
+      "recallAt": 0.8125,
+      "mrrAt": 0.7375,
+      "goldUnits": 44,
+      "goldUnitsCovered": 34,
+      "microRecall": 0.772727,
+      "crossDocumentCoverageAt": 0.8125,
+      "allRequiredDocumentsCoveredRateAt": 0.775,
+      "crossDocumentQuestions": 40,
+      "distractorTopkRate": 0.857143,
+      "distractorQuestions": 7
+    }
+  },
+  "metricsDev": {
+    "k=1": {
+      "questions": 23,
+      "hitAt": 0.565217,
+      "recallAt": 0.565217,
+      "mrrAt": 0.565217,
+      "goldUnits": 25,
+      "goldUnitsCovered": 13,
+      "microRecall": 0.52,
+      "crossDocumentCoverageAt": 0.565217,
+      "allRequiredDocumentsCoveredRateAt": 0.565217,
+      "crossDocumentQuestions": 23,
+      "distractorTopkRate": 0.333333,
+      "distractorQuestions": 6
+    },
+    "k=3": {
+      "questions": 23,
+      "hitAt": 0.826087,
+      "recallAt": 0.782609,
+      "mrrAt": 0.673913,
+      "goldUnits": 25,
+      "goldUnitsCovered": 19,
+      "microRecall": 0.76,
+      "crossDocumentCoverageAt": 0.782609,
+      "allRequiredDocumentsCoveredRateAt": 0.73913,
+      "crossDocumentQuestions": 23,
+      "distractorTopkRate": 0.833333,
+      "distractorQuestions": 6
+    }
+  },
+  "metricsTest": {
+    "k=1": {
+      "questions": 17,
+      "hitAt": 0.764706,
+      "recallAt": 0.735294,
+      "mrrAt": 0.764706,
+      "goldUnits": 19,
+      "goldUnitsCovered": 13,
+      "microRecall": 0.684211,
+      "crossDocumentCoverageAt": 0.735294,
+      "allRequiredDocumentsCoveredRateAt": 0.705882,
+      "crossDocumentQuestions": 17,
+      "distractorTopkRate": 0.0,
+      "distractorQuestions": 1
+    },
+    "k=3": {
+      "questions": 17,
+      "hitAt": 0.882353,
+      "recallAt": 0.852941,
+      "mrrAt": 0.823529,
+      "goldUnits": 19,
+      "goldUnitsCovered": 15,
+      "microRecall": 0.789474,
+      "crossDocumentCoverageAt": 0.852941,
+      "allRequiredDocumentsCoveredRateAt": 0.823529,
+      "crossDocumentQuestions": 17,
+      "distractorTopkRate": 1.0,
+      "distractorQuestions": 1
+    }
+  },
+  "byCategory": {
+    "title-fact": {
+      "questions": 10,
+      "hitAt": 1.0,
+      "recallAt": 1.0,
+      "mrrAt": 0.9,
+      "goldUnits": 10,
+      "goldUnitsCovered": 10,
+      "microRecall": 1.0,
+      "crossDocumentCoverageAt": null,
+      "allRequiredDocumentsCoveredRateAt": null,
+      "crossDocumentQuestions": 0,
+      "distractorTopkRate": null,
+      "distractorQuestions": 0
+    },
+    "paraphrase-zh": {
+      "questions": 5,
+      "hitAt": 1.0,
+      "recallAt": 1.0,
+      "mrrAt": 0.766667,
+      "goldUnits": 5,
+      "goldUnitsCovered": 5,
+      "microRecall": 1.0,
+      "crossDocumentCoverageAt": null,
+      "allRequiredDocumentsCoveredRateAt": null,
+      "crossDocumentQuestions": 0,
+      "distractorTopkRate": null,
+      "distractorQuestions": 0
+    },
+    "body-fact": {
+      "questions": 18,
+      "hitAt": 0.777778,
+      "recallAt": 0.777778,
+      "mrrAt": 0.722222,
+      "goldUnits": 18,
+      "goldUnitsCovered": 14,
+      "microRecall": 0.777778,
+      "crossDocumentCoverageAt": null,
+      "allRequiredDocumentsCoveredRateAt": null,
+      "crossDocumentQuestions": 0,
+      "distractorTopkRate": null,
+      "distractorQuestions": 0
+    },
+    "same-title-different-content": {
+      "questions": 2,
+      "hitAt": 1.0,
+      "recallAt": 1.0,
+      "mrrAt": 1.0,
+      "goldUnits": 2,
+      "goldUnitsCovered": 2,
+      "microRecall": 1.0,
+      "crossDocumentCoverageAt": null,
+      "allRequiredDocumentsCoveredRateAt": null,
+      "crossDocumentQuestions": 0,
+      "distractorTopkRate": null,
+      "distractorQuestions": 0
+    },
+    "distractor": {
+      "questions": 1,
+      "hitAt": 0.0,
+      "recallAt": 0.0,
+      "mrrAt": 0.0,
+      "goldUnits": 1,
+      "goldUnitsCovered": 0,
+      "microRecall": 0.0,
+      "crossDocumentCoverageAt": null,
+      "allRequiredDocumentsCoveredRateAt": null,
+      "crossDocumentQuestions": 0,
+      "distractorTopkRate": null,
+      "distractorQuestions": 0
+    },
+    "cross-document": {
+      "questions": 4,
+      "hitAt": 0.75,
+      "recallAt": 0.375,
+      "mrrAt": 0.416667,
+      "goldUnits": 8,
+      "goldUnitsCovered": 3,
+      "microRecall": 0.375,
+      "crossDocumentCoverageAt": null,
+      "allRequiredDocumentsCoveredRateAt": null,
+      "crossDocumentQuestions": 0,
+      "distractorTopkRate": null,
+      "distractorQuestions": 0
+    }
+  },
+  "noAnswer": {
+    "total": 10,
+    "retrievalRejected": 0,
+    "retrievalRejectionRate": 0.0,
+    "retrievalRejectionRateExcludingFailures": 0.0,
+    "serviceFailures": 0,
+    "okButEmpty": 0,
+    "okWithHits": 10,
+    "answerLevelRejection": null,
+    "answerLevelNote": "本次运行只调用 Embedding 与向量检索，未调用生成模型：回答级拒绝率未测。"
+  },
+  "noAnswerTest": {
+    "total": 3,
+    "retrievalRejected": 0,
+    "retrievalRejectionRate": 0.0,
+    "retrievalRejectionRateExcludingFailures": 0.0,
+    "serviceFailures": 0,
+    "okButEmpty": 0,
+    "okWithHits": 3,
+    "answerLevelRejection": null,
+    "answerLevelNote": "本次运行只调用 Embedding 与向量检索，未调用生成模型：回答级拒绝率未测。"
+  },
+  "latency": {
+    "retrieval": {
+      "n": 50,
+      "min": 5335.747,
+      "p50": 5467.4275,
+      "p95": 5891.35195,
+      "max": 6055.238,
+      "mean": 5514.78232
+    },
+    "embeddingPerQuery": {
+      "n": 50,
+      "min": 5155.807,
+      "p50": 5284.545,
+      "p95": 5717.6815,
+      "max": 5877.425,
+      "mean": 5334.62558
+    }
+  },
+  "distanceSeparation": {
+    "answerable": {
+      "n": 40,
+      "min": 0.425535,
+      "p50": 0.806051,
+      "p95": 0.945042,
+      "max": 0.997063,
+      "mean": 0.806067
+    },
+    "unanswerable": {
+      "n": 10,
+      "min": 0.736008,
+      "p50": 0.944573,
+      "p95": 1.02615,
+      "max": 1.033374,
+      "mean": 0.935322
+    }
+  },
+  "ties": {
+    "questionsWithIdenticalDistances": 10,
+    "tolerance": 0.0
+  },
+  "failures": {
+    "serviceFailures": [],
+    "answerableMisses": [
+      {
+        "id": "q013",
+        "category": "body-fact",
+        "split": "dev",
+        "question": "向量距离近就说明内容正确吗？应该怎样理解向量？",
+        "goldUnits": [
+          {
+            "docKey": "rag-principles",
+            "startLine": 5,
+            "endLine": 9
+          }
+        ],
+        "top1": {
+          "docKey": "rag-principles",
+          "startLine": 17,
+          "endLine": 21,
+          "headingPath": [
+            "ExoBrain KnowledgeTool 如何用 1024 维向量检索三个片段"
+          ],
+          "distance": 0.997063
+        }
+      },
+      {
+        "id": "q014",
+        "category": "body-fact",
+        "split": "dev",
+        "question": "KnowledgeTool 返回的内容里有文件名、页码和相关度分数吗？",
+        "goldUnits": [
+          {
+            "docKey": "rag-principles",
+            "startLine": 25,
+            "endLine": 25
+          }
+        ],
+        "top1": {
+          "docKey": "java-backend-faq",
+          "startLine": 17,
+          "endLine": 21,
+          "headingPath": [
+            "Spring 依赖注入是什么，KnowledgeTool 为什么可以调用检索服务"
+          ],
+          "distance": 0.862894
+        }
+      },
+      {
+        "id": "q016",
+        "category": "distractor",
+        "split": "dev",
+        "question": "有资料说上传 PDF 后系统会自动把 PDF 转成 Markdown 再索引，这个说法对吗？",
+        "goldUnits": [
+          {
+            "docKey": "rag-principles",
+            "startLine": 31,
+            "endLine": 31
+          }
+        ],
+        "top1": {
+          "docKey": "eval-synthetic-java-notes",
+          "startLine": 13,
+          "endLine": 15,
+          "headingPath": [
+            "处理 Markdown 文档时的常见误解"
+          ],
+          "distance": 0.792463
+        }
+      },
+      {
+        "id": "q020",
+        "category": "body-fact",
+        "split": "dev",
+        "question": "建表脚本里的向量索引是怎么配的？查询一定会用到这个索引吗？",
+        "goldUnits": [
+          {
+            "docKey": "rag-principles",
+            "startLine": 19,
+            "endLine": 21
+          }
+        ],
+        "top1": {
+          "docKey": "java-backend-faq",
+          "startLine": 17,
+          "endLine": 21,
+          "headingPath": [
+            "Spring 依赖注入是什么，KnowledgeTool 为什么可以调用检索服务"
+          ],
+          "distance": 0.918701
+        }
+      },
+      {
+        "id": "q033",
+        "category": "body-fact",
+        "split": "test",
+        "question": "模型调用失败时会自动切换备用模型吗？和现有的重试机制有什么区别？",
+        "goldUnits": [
+          {
+            "docKey": "exobrain-overview",
+            "startLine": 23,
+            "endLine": 27
+          }
+        ],
+        "top1": {
+          "docKey": "java-backend-faq",
+          "startLine": 31,
+          "endLine": 35,
+          "headingPath": [
+            "文档索引失败时为什么需要事务与文件清理"
+          ],
+          "distance": 0.960472
+        }
+      },
+      {
+        "id": "q046",
+        "category": "cross-document",
+        "split": "test",
+        "question": "「ExoBrain 用 Java 21」这件事在技术栈说明和部署要求里分别怎么写？",
+        "goldUnits": [
+          {
+            "docKey": "exobrain-overview",
+            "startLine": 7,
+            "endLine": 7
+          },
+          {
+            "docKey": "java-backend-faq",
+            "startLine": 7,
+            "endLine": 7
+          }
+        ],
+        "top1": {
+          "docKey": "java-backend-faq",
+          "startLine": 1,
+          "endLine": 3,
+          "headingPath": [
+            "Java 后端技术问答：ExoBrain 工程入门"
+          ],
+          "distance": 0.757495
+        }
+      }
+    ],
+    "unanswerableWithHits": [
+      {
+        "id": "q024",
+        "hitCount": 3
+      },
+      {
+        "id": "q025",
+        "hitCount": 3
+      },
+      {
+        "id": "q026",
+        "hitCount": 3
+      },
+      {
+        "id": "q027",
+        "hitCount": 3
+      },
+      {
+        "id": "q028",
+        "hitCount": 3
+      },
+      {
+        "id": "q029",
+        "hitCount": 3
+      },
+      {
+        "id": "q030",
+        "hitCount": 3
+      },
+      {
+        "id": "q048",
+        "hitCount": 3
+      },
+      {
+        "id": "q049",
+        "hitCount": 3
+      },
+      {
+        "id": "q050",
+        "hitCount": 3
+      }
+    ]
+  },
+  "counts": {
+    "total": 50,
+    "answerable": 40,
+    "unanswerable": 10,
+    "bySplit": {
+      "dev": 30,
+      "test": 20
+    },
+    "byCategory": {
+      "title-fact": 10,
+      "paraphrase-zh": 5,
+      "body-fact": 18,
+      "same-title-different-content": 2,
+      "distractor": 1,
+      "cross-document": 4,
+      "insufficient-info": 10
+    },
+    "bySplitAnswerable": {
+      "dev.answerable": 23,
+      "dev.unanswerable": 7,
+      "test.answerable": 17,
+      "test.unanswerable": 3
+    },
+    "requiredEvidenceUnits": 44,
+    "documents": {
+      "exobrain-overview": 15,
+      "rag-principles": 17,
+      "java-backend-faq": 12
+    }
+  },
+  "variant": "legacy-title-v1",
+  "strategy": {
+    "variant": "legacy-title-v1",
+    "indexVersion": "legacy-title-v1",
+    "indexRevision": "legacy-title-v1/v1-2026-10-14/62408bc8895f",
+    "kbId": "b2026ba5-c6c0-5190-96df-028437751e73",
+    "topK": 3,
+    "embeddingInput": "章节标题文本（title）",
+    "payload": "chunk_bge_m3.content（章节正文，与 RagServiceImpl.similaritySearch 返回的字段一致）",
+    "kbFilter": "WHERE kb_id = CAST(<eval kb uuid> AS uuid)（与 mapper 的 CAST(#{kbId} AS uuid) 一致）",
+    "ordering": "ORDER BY embedding <-> :query LIMIT k（L2，越小越近）",
+    "productionMapper": "jchatmind/src/main/resources/mapper/ChunkBgeM3Mapper.xml similaritySearch",
+    "knownDifferenceFromProduction": "SELECT 列表额外返回 distance 与 to_json(metadata)，用于离线评分；WHERE / ORDER BY / LIMIT 与生产 SQL 相同，未加入阈值、重排或正文向量。",
+    "sqlTemplate": "SELECT id,\n       kb_id,\n       doc_id,\n       content,\n       metadata,\n       embedding,\n       created_at,\n       updated_at\nFROM chunk_bge_m3\nWHERE kb_id = CAST('%s' AS uuid)\nORDER BY embedding <-> '%s'::vector\nLIMIT %d\n"
+  },
+  "index": {
+    "rowCount": 23,
+    "buildStats": {
+      "variant": "legacy-title-v1",
+      "indexVersion": "legacy-title-v1",
+      "indexRevision": "legacy-title-v1/v1-2026-10-14/62408bc8895f",
+      "kbId": "b2026ba5-c6c0-5190-96df-028437751e73",
+      "sections": 23,
+      "indexedRows": 23,
+      "emptyTitlesSkipped": 0,
+      "embeddingInputs": 23,
+      "embeddingInputText": "章节标题（不含正文、不含文档名）",
+      "embeddingLatencyMs": {
+        "n": 23,
+        "min": 5162.168503,
+        "max": 5685.356379,
+        "total": 122641.563416
+      },
+      "sectionsPerDocument": [
+        {
+          "docKey": "exobrain-overview",
+          "role": "public-demo",
+          "sections": 6,
+          "lines": 34
+        },
+        {
+          "docKey": "rag-principles",
+          "role": "public-demo",
+          "sections": 6,
+          "lines": 32
+        },
+        {
+          "docKey": "java-backend-faq",
+          "role": "public-demo",
+          "sections": 6,
+          "lines": 36
+        },
+        {
+          "docKey": "eval-synthetic-java-notes",
+          "role": "synthetic-eval-only",
+          "sections": 5,
+          "lines": 20
+        }
+      ]
+    },
+    "planDiagnosticMismatch": 0
+  },
+  "dataset": {
+    "path": "evaluation/datasets/questions-v1.jsonl",
+    "sha256": "c795c7f69d33fa56c8cafe8535300490057f3ec69bbdeb587958c535ae5df08f",
+    "testSplitSha256": "d60b933e5e3233b02ade04a344a9c73c71a6b1eca8bb9fb98699218662f67c78"
+  }
+}

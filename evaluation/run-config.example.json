@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "note": "ExoBrain 检索评测（任务 02）配置模板：复制到仓库之外再改（例如 <仓库外路径>\\eval-config.json）。绝不能把密钥写进本文件或任何被跟踪的文件；密钥只通过环境变量 apiKeyEnv 传入。",
+  "embedding": {
+    "baseUrl": "https://emrank.tech/v1",
+    "model": "BAAI/bge-m3",
+    "apiKeyEnv": "EXOBRAIN_EVAL_EMBEDDING_API_KEY",
+    "expectedDimension": 1024,
+    "timeoutSeconds": 60,
+    "maxRetries": 3,
+    "backoffSeconds": 1.5
+  },
+  "pgvector": {
+    "container": "exobrain-dev-pg",
+    "user": "exobrain",
+    "database": "exobrain_eval",
+    "docker": "docker",
+    "timeoutSeconds": 180
+  },
+  "corpus": {
+    "manifest": "evaluation/corpus/v1-2026-10-14/manifest.json"
+  },
+  "dataset": {
+    "path": "evaluation/datasets/questions-v1.jsonl"
+  },
+  "run": {
+    "topK": 3,
+    "kValues": [1, 3],
+    "concurrency": 1,
+    "warmupQueries": 1
+  },
+  "variants": {
+    "legacy-title-v1": {
+      "topK": 3
+    },
+    "body-v1": {
+      "topK": 3,
+      "metadataLike": "%\"indexVersion\": \"body-v1\"%"
+    }
+  }
+}

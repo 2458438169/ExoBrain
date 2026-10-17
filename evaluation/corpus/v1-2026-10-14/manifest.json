@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "corpusVersion": "v1-2026-10-14",
+  "createdFromCommit": "68f71d3",
+  "createdAt": "2026-10-17",
+  "description": "ExoBrain 检索评测（开发任务 02）冻结语料快照。只有 documents 列出的原始文档会进入评测索引；题集、答案、评测说明与开发文档一律不入库。",
+  "normalization": "读取字节后按 UTF-8 解码，移除首个可选 BOM，把 CRLF/CR 统一为 LF；行号基于该标准化文本，从 1 开始且两端包含（docs/development/contracts.md 第 3 节）。",
+  "hashDefinition": "sha256 = 原始文件字节的 SHA-256；normalizedSha256 = 上面的标准化文本按 UTF-8 编码后的 SHA-256。本快照两份相等，说明文件本身已是 LF 且无 BOM。",
+  "licenseSummary": "三份公开演示资料为本仓库自写的项目说明（仓库根 LICENSE：MIT）；合成文档为本任务自写的评测专用文本，不对外发布。语料不包含任何私人数据、账号信息或线上配置。",
+  "documents": [
+    {
+      "docKey": "exobrain-overview",
+      "path": "docs/01_exobrain_overview.md",
+      "sha256": "b4440be10c02c079cca0ec7c69cc68a1a3127c4b22e6db804c2218adefc1bc9f",
+      "normalizedSha256": "b4440be10c02c079cca0ec7c69cc68a1a3127c4b22e6db804c2218adefc1bc9f",
+      "sourcePath": "docs/public-demo/01_exobrain_overview.md",
+      "license": "MIT（本仓库自写文档，见根 LICENSE）",
+      "role": "public-demo",
+      "title": "ExoBrain 项目导览：公开演示资料",
+      "lines": 33,
+      "bytes": 4244,
+      "notes": "与仓库内 docs/public-demo/01_exobrain_overview.md 逐字节相同（sha256 一致），核对日期 2026-10-14。"
+    },
+    {
+      "docKey": "rag-principles",
+      "path": "docs/02_rag_principles.md",
+      "sha256": "2bdbca889b75399cc84a2944aadebe51707aad5e0cbfe66bd1fc2155ad248b8b",
+      "normalizedSha256": "2bdbca889b75399cc84a2944aadebe51707aad5e0cbfe66bd1fc2155ad248b8b",
+      "sourcePath": "docs/public-demo/02_rag_principles.md",
+      "license": "MIT（本仓库自写文档，见根 LICENSE）",
+      "role": "public-demo",
+      "title": "RAG 检索原理：从公开资料到有依据的回答",
+      "lines": 31,
+      "bytes": 4091,
+      "notes": "与仓库内 docs/public-demo/02_rag_principles.md 逐字节相同（sha256 一致），核对日期 2026-10-14。"
+    },
+    {
+      "docKey": "java-backend-faq",
+      "path": "docs/03_java_backend_faq.md",
+      "sha256": "bd0126d25579fa098705da6599f658dbb636fca0f821cf476391c3417006dbce",
+      "normalizedSha256": "bd0126d25579fa098705da6599f658dbb636fca0f821cf476391c3417006dbce",
+      "sourcePath": "docs/public-demo/03_java_backend_faq.md",
+      "license": "MIT（本仓库自写文档，见根 LICENSE）",
+      "role": "public-demo",
+      "title": "Java 后端技术问答：ExoBrain 工程入门",
+      "lines": 35,
+      "bytes": 5089,
+      "notes": "与仓库内 docs/public-demo/03_java_backend_faq.md 逐字节相同（sha256 一致），核对日期 2026-10-14。"
+    },
+    {
+      "docKey": "eval-synthetic-java-notes",
+      "path": "synthetic/eval-only-java-notes.md",
+      "sha256": "ec365ecd81f9f57ea14b6325975c20c84ab7104f96ebfa3707466742f0bea5f0",
+      "normalizedSha256": "ec365ecd81f9f57ea14b6325975c20c84ab7104f96ebfa3707466742f0bea5f0",
+      "sourcePath": "evaluation/corpus/v1-2026-10-14/synthetic/eval-only-java-notes.md（本任务自写合成文本，无外部来源）",
+      "license": "本任务自写，仅限评测使用（synthetic-eval-only）；不得上传到任何产品知识库或公开演示环境。",
+      "role": "synthetic-eval-only",
+      "title": "评测专用合成文档：Java 与后端问答笔记（请勿上传产品知识库）",
+      "lines": 19,
+      "bytes": 2473,
+      "notes": "刻意写入与仓库事实不符的数字（Java 17、Spring Boot 3.2.0、React 16、512 维、返回 10 个片段、MySQL 全文检索），用于「同标题不同内容」与「相近但错误干扰信息」两类场景；引用它的回答都必须判为错误。清理范围仅限 exobrain_eval 库与本目录。"
+    }
+  ],
+  "excludedFromIndex": [
+    {
+      "path": "evaluation/datasets/**",
+      "reason": "题集、冻结记录与答案标注：属于评测输入，不入库（否则等于把答案喂给检索）。"
+    },
+    {
+      "path": "evaluation/scripts/**、evaluation/tests/**、evaluation/README.md",
+      "reason": "评测脚本、测试与说明文档：不入库。"
+    },
+    {
+      "path": "docs/development/**、docs/public-demo/99_test_questions.md、docs/public-demo/agent-system-prompt.md",
+      "reason": "开发过程文档、问题种子清单与系统提示词：不入库；99_test_questions.md 只作为出题参考，不作为可检索资料。"
+    }
+  ]
+}

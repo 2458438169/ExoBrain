@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 1,
+  "runId": "legacy-title-v1-v1-2026-10-14-20261017T102252Z",
+  "startedAt": "2026-10-17T10:22:52Z",
+  "finishedAt": "2026-10-17T10:29:46Z",
+  "wallClockSeconds": 413.955,
+  "code": {
+    "commit": "0aa79edd9ee56765f4e5b702e4617162cc5fdc4a",
+    "branch": "main",
+    "source": "git rev-parse（只读；不执行 git status，避免与并行任务争用索引锁）"
+  },
+  "corpusVersion": "v1-2026-10-14",
+  "corpusManifestPath": "evaluation/corpus/v1-2026-10-14/manifest.json",
+  "corpusManifestSha256": "7999340d125f8d2c133a24cffb4965086b63608ad74c68c6663176a3b7bca821",
+  "corpusDocumentSha256": {
+    "exobrain-overview": "b4440be10c02c079cca0ec7c69cc68a1a3127c4b22e6db804c2218adefc1bc9f",
+    "rag-principles": "2bdbca889b75399cc84a2944aadebe51707aad5e0cbfe66bd1fc2155ad248b8b",
+    "java-backend-faq": "bd0126d25579fa098705da6599f658dbb636fca0f821cf476391c3417006dbce",
+    "eval-synthetic-java-notes": "ec365ecd81f9f57ea14b6325975c20c84ab7104f96ebfa3707466742f0bea5f0"
+  },
+  "sectionCount": 23,
+  "datasetPath": "evaluation/datasets/questions-v1.jsonl",
+  "datasetSha256": "c795c7f69d33fa56c8cafe8535300490057f3ec69bbdeb587958c535ae5df08f",
+  "datasetTestSplitSha256": "d60b933e5e3233b02ade04a344a9c73c71a6b1eca8bb9fb98699218662f67c78",
+  "questionCount": 50,
+  "variant": "legacy-title-v1",
+  "strategy": {
+    "variant": "legacy-title-v1",
+    "indexVersion": "legacy-title-v1",
+    "indexRevision": "legacy-title-v1/v1-2026-10-14/62408bc8895f",
+    "kbId": "b2026ba5-c6c0-5190-96df-028437751e73",
+    "topK": 3,
+    "embeddingInput": "章节标题文本（title）",
+    "payload": "chunk_bge_m3.content（章节正文，与 RagServiceImpl.similaritySearch 返回的字段一致）",
+    "kbFilter": "WHERE kb_id = CAST(<eval kb uuid> AS uuid)（与 mapper 的 CAST(#{kbId} AS uuid) 一致）",
+    "ordering": "ORDER BY embedding <-> :query LIMIT k（L2，越小越近）",
+    "productionMapper": "jchatmind/src/main/resources/mapper/ChunkBgeM3Mapper.xml similaritySearch",
+    "knownDifferenceFromProduction": "SELECT 列表额外返回 distance 与 to_json(metadata)，用于离线评分；WHERE / ORDER BY / LIMIT 与生产 SQL 相同，未加入阈值、重排或正文向量。",
+    "sqlTemplate": "SELECT id,\n       kb_id,\n       doc_id,\n       content,\n       metadata,\n       embedding,\n       created_at,\n       updated_at\nFROM chunk_bge_m3\nWHERE kb_id = CAST('%s' AS uuid)\nORDER BY embedding <-> '%s'::vector\nLIMIT %d\n"
+  },
+  "index": {
+    "indexVersion": "legacy-title-v1",
+    "indexRevision": "legacy-title-v1/v1-2026-10-14/62408bc8895f",
+    "kbId": "b2026ba5-c6c0-5190-96df-028437751e73",
+    "rowCount": 23,
+    "buildStats": {
+      "variant": "legacy-title-v1",
+      "indexVersion": "legacy-title-v1",
+      "indexRevision": "legacy-title-v1/v1-2026-10-14/62408bc8895f",
+      "kbId": "b2026ba5-c6c0-5190-96df-028437751e73",
+      "sections": 23,
+      "indexedRows": 23,
+      "emptyTitlesSkipped": 0,
+      "embeddingInputs": 23,
+      "embeddingInputText": "章节标题（不含正文、不含文档名）",
+      "embeddingLatencyMs": {
+        "n": 23,
+        "min": 5162.168503,
+        "max": 5685.356379,
+        "total": 122641.563416
+      },
+      "sectionsPerDocument": [
+        {
+          "docKey": "exobrain-overview",
+          "role": "public-demo",
+          "sections": 6,
+          "lines": 34
+        },
+        {
+          "docKey": "rag-principles",
+          "role": "public-demo",
+          "sections": 6,
+          "lines": 32
+        },
+        {
+          "docKey": "java-backend-faq",
+          "role": "public-demo",
+          "sections": 6,
+          "lines": 36
+        },
+        {
+          "docKey": "eval-synthetic-java-notes",
+          "role": "synthetic-eval-only",
+          "sections": 5,
+          "lines": 20
+        }
+      ]
+    }
+  },
+  "embedding": {
+    "model": "BAAI/bge-m3",
+    "baseUrl": "https://emrank.tech/v1",
+    "expectedDimension": 1024,
+    "timeoutSeconds": 60.0,
+    "maxRetries": 3,
+    "calls": 74,
+    "retries": 0,
+    "inputs": 74,
+    "totalTokens": 1712
+  },
+  "embeddingApiKeyEnv": "EXOBRAIN_EVAL_EMBEDDING_API_KEY",
+  "embeddingApiKeyPresent": true,
+  "database": {
+    "transport": "docker-exec+psql",
+    "container": "exobrain-dev-pg",
+    "database": "exobrain_eval",
+    "user": "exobrain",
+    "postgresVersion": "PostgreSQL 17.11 (Debian 17.11-1.pgdg12+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 12.2.0-14+deb12u1) 12.2.0, 64-bit",
+    "pgvectorVersion": "0.8.7"
+  },
+  "execution": {
+    "concurrency": 1,
+    "warmup": {
+      "queries": 1,
+      "text": "固定预热文本（不属于题集）",
+      "latencyMs": 5204.131365
+    },
+    "kValues": [
+      1,
+      3
+    ],
+    "topK": 3,
+    "planDiagnostic": true,
+    "cache": "无缓存：每题单独调用 Embedding 与一次向量查询",
+    "rateLimit": "未启用限流；顺序执行"
+  },
+  "environment": {
+    "pythonVersion": "3.7.0",
+    "platform": "Windows-10-10.0.19041-SP0",
+    "processor": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD"
+  },
+  "outputs": {
+    "results": "evaluation/runs/legacy-title-v1/results.jsonl",
+    "summary": "evaluation/runs/legacy-title-v1/summary.json",
+    "failures": "evaluation/runs/legacy-title-v1/failures.jsonl",
+    "requests": "evaluation/runs/legacy-title-v1/requests.jsonl",
+    "sql": "evaluation/runs/legacy-title-v1/sql"
+  }
+}

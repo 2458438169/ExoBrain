@@ -1,0 +1,54 @@
+[18:22:52] 语料 v1-2026-10-14：4 篇文档，23 个 section（分节规则见 evaluation/scripts/exo_corpus.py）
+[18:22:52] 重建 legacy-title-v1 索引（真实 Embedding 逐条生成标题向量）
+[18:24:56] 索引完成：23 行（embedding 输入 23 条）
+[18:25:01] 预热完成：5204 ms（该样本不计入延迟统计）
+[18:25:07]  1/50 q001 OK：title-fact（hit=3，5824 ms）
+[18:25:13]  2/50 q002 OK：paraphrase-zh（hit=3，5647 ms）
+[18:25:19]  3/50 q003 OK：body-fact（hit=3，5439 ms）
+[18:25:24]  4/50 q004 OK：same-title-different-content（hit=3，5444 ms）
+[18:25:30]  5/50 q005 OK：title-fact（hit=3，5372 ms）
+[18:25:36]  6/50 q006 OK：paraphrase-zh（hit=3，5811 ms）
+[18:25:41]  7/50 q007 OK：body-fact（hit=3，5336 ms）
+[18:25:47]  8/50 q008 OK：body-fact（hit=3，5393 ms）
+[18:25:52]  9/50 q009 OK：body-fact（hit=3，5436 ms）
+[18:25:58] 10/50 q010 OK：title-fact（hit=3，5363 ms）
+[18:26:04] 11/50 q011 OK：paraphrase-zh（hit=3，5462 ms）
+[18:26:09] 12/50 q012 OK：title-fact（hit=3，5367 ms）
+[18:26:15] 13/50 q013 OK：body-fact（hit=3，5400 ms）
+[18:26:20] 14/50 q014 OK：body-fact（hit=3，5401 ms）
+[18:26:26] 15/50 q015 OK：title-fact（hit=3，5656 ms）
+[18:26:32] 16/50 q016 OK：distractor（hit=3，5511 ms）
+[18:26:38] 17/50 q017 OK：title-fact（hit=3，5765 ms）
+[18:26:43] 18/50 q018 OK：title-fact（hit=3，5546 ms）
+[18:26:49] 19/50 q019 OK：body-fact（hit=3，5514 ms）
+[18:26:55] 20/50 q020 OK：body-fact（hit=3，5556 ms）
+[18:27:01] 21/50 q021 OK：body-fact（hit=3，5485 ms）
+[18:27:06] 22/50 q022 OK：cross-document（hit=3，5363 ms）
+[18:27:12] 23/50 q023 OK：cross-document（hit=3，5498 ms）
+[18:27:17] 24/50 q024 OK：insufficient-info（hit=3，5511 ms）
+[18:27:23] 25/50 q025 OK：insufficient-info（hit=3，5590 ms）
+[18:27:29] 26/50 q026 OK：insufficient-info（hit=3，5357 ms）
+[18:27:34] 27/50 q027 OK：insufficient-info（hit=3，5431 ms）
+[18:27:40] 28/50 q028 OK：insufficient-info（hit=3，5424 ms）
+[18:27:46] 29/50 q029 OK：insufficient-info（hit=3，5950 ms）
+[18:27:52] 30/50 q030 OK：insufficient-info（hit=3，5420 ms）
+[18:27:57] 31/50 q031 OK：body-fact（hit=3，5473 ms）
+[18:28:03] 32/50 q032 OK：same-title-different-content（hit=3，5378 ms）
+[18:28:09] 33/50 q033 OK：body-fact（hit=3，5674 ms）
+[18:28:14] 34/50 q034 OK：title-fact（hit=3，5451 ms）
+[18:28:20] 35/50 q035 OK：body-fact（hit=3，5482 ms）
+[18:28:26] 36/50 q036 OK：body-fact（hit=3，5541 ms）
+[18:28:31] 37/50 q037 OK：paraphrase-zh（hit=3，5450 ms）
+[18:28:37] 38/50 q038 OK：body-fact（hit=3，5478 ms）
+[18:28:43] 39/50 q039 OK：body-fact（hit=3，5526 ms）
+[18:28:48] 40/50 q040 OK：title-fact（hit=3，5425 ms）
+[18:28:54] 41/50 q041 OK：body-fact（hit=3，5397 ms）
+[18:29:00] 42/50 q042 OK：title-fact（hit=3，6055 ms）
+[18:29:06] 43/50 q043 OK：paraphrase-zh（hit=3，5946 ms）
+[18:29:12] 44/50 q044 OK：body-fact（hit=3，5363 ms）
+[18:29:17] 45/50 q045 OK：body-fact（hit=3，5397 ms）
+[18:29:23] 46/50 q046 OK：cross-document（hit=3，5442 ms）
+[18:29:29] 47/50 q047 OK：cross-document（hit=3，5387 ms）
+[18:29:34] 48/50 q048 OK：insufficient-info（hit=3，5548 ms）
+[18:29:40] 49/50 q049 OK：insufficient-info（hit=3，5504 ms）
+[18:29:46] 50/50 q050 OK：insufficient-info（hit=3，5550 ms）

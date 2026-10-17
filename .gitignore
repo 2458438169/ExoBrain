@@ -1,0 +1,10 @@
+# Local tool and editor state that is not part of the product.
+.idea/
+.claude/
+.vscode/
+
+# Python caches from the evaluation scripts.
+__pycache__/
+*.py[cod]
+
+# Published evaluation runs keep their own evidence files, including any run log.
