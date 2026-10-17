@@ -60,7 +60,8 @@ class AccountResourceControllerTest {
         when(auth.authenticate("session")).thenReturn(new AuthRepository.LoginSession(
                 new AuthUser(USER, "demo", "体验", "USER", true, Instant.now()), "hash", "csrf", Instant.now().plusSeconds(100), 1));
         mvc = MockMvcBuilders.standaloneSetup(new AgentController(agents, access, converter),
-                        new KnowledgeBaseController(kbs, access), new DocumentController(documents, access),
+                        new KnowledgeBaseController(kbs, access), new DocumentController(documents,
+                                mock(com.kama.jchatmind.ingestion.IngestionService.class), access),
                         new ChatSessionController(sessions, access), new ChatMessageController(messages, access),
                         new SseController(sse, access, mock(AuthenticatedStreams.class)), new ToolController(mock(ToolFacadeService.class)))
                 .defaultRequest(get("/").cookie(new Cookie(properties.cookieName(), "session")).header("X-CSRF-Token", "csrf"))

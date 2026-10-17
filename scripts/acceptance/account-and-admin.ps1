@@ -141,6 +141,22 @@ $docTwo = Join-Path $root "beta.md"
 New-SyntheticDocument $docOne "ALPHA" $factOne $tailOne
 New-SyntheticDocument $docTwo "BETA" $factTwo $tailTwo
 
+# Upload only queues an ingestion job (see task 06), so a document is searchable only after the
+# worker publishes its index revision. Wait for the real job status instead of sleeping blindly.
+function Wait-IngestionReady {
+    param($Owner, [string]$DocumentId, [int]$TimeoutSeconds = 300)
+    $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
+    $last = [pscustomobject]@{ Status = "UNKNOWN"; JobId = $null; ChunksDone = $null; ChunksTotal = $null }
+    while ((Get-Date) -lt $deadline) {
+        $response = Invoke-Api -Name "ingestion-$DocumentId" -Method GET -Path "/api/documents/$DocumentId/ingestion" -CookieJar $Owner.Jar
+        if (-not (Ok $response)) { break }
+        $data = $response.Json.data
+        $last = [pscustomobject]@{ Status = $data.status; JobId = $data.jobId; ChunksDone = $data.chunksDone; ChunksTotal = $data.chunksTotal }
+        if ($data.status -eq "SUCCEEDED" -or $data.status -eq "FAILED" -or $data.status -eq "CANCELLED") { break }
+        Start-Sleep -Seconds 3
+    }
+    return $last
+}
 function New-PrivateKnowledge {
     param([string]$account, [string]$password, [string]$name, [string]$documentPath, [string]$marker)
     $session = Login $account $password
@@ -155,6 +171,9 @@ function New-PrivateKnowledge {
     $documentId = $null
     if (Ok $upload) { $documentId = $upload.Json.data.documentId }
     Check "$account uploads its own document" ([bool]$documentId) (Short $upload)
+    # Upload only queues an ingestion job, so the index is not ready immediately.
+    $indexed = Wait-IngestionReady -Owner $session -DocumentId $documentId
+    Check "$account document becomes searchable" ($indexed.Status -eq "SUCCEEDED") ("job " + $indexed.JobId + ", chunks " + $indexed.ChunksDone + "/" + $indexed.ChunksTotal)
 
     $agent = Invoke-Api -Name "agent-$account" -Method POST -Path "/api/agents" -Body @{
         name = "$marker assistant"; description = "acceptance"

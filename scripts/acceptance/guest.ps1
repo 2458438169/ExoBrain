@@ -84,6 +84,18 @@ if ($Phase -eq "setup") {
     if (Ok $upload) { $documentId = $upload.Json.data.documentId }
     Check "public document uploaded and indexed" ([bool]$documentId) (Short $upload)
 
+    # Upload queues an ingestion job; wait for the published index before the guest phase runs.
+    $deadline = (Get-Date).AddMinutes(5)
+    $jobStatus = "UNKNOWN"
+    while ((Get-Date) -lt $deadline) {
+        $job = Invoke-Api -Name "ingestion-public" -Method GET -Path "/api/documents/$documentId/ingestion" -CookieJar $jar
+        if (-not (Ok $job)) { break }
+        $jobStatus = $job.Json.data.status
+        if ($jobStatus -eq "SUCCEEDED" -or $jobStatus -eq "FAILED" -or $jobStatus -eq "CANCELLED") { break }
+        Start-Sleep -Seconds 3
+    }
+    Check "public document index is published" ($jobStatus -eq "SUCCEEDED") ("job status " + $jobStatus)
+
     $catalogue = (Invoke-Api -Name "models-list-guest" -Method GET -Path "/api/admin/models" -CookieJar $jar).Json.data
     if ($catalogue.models) { $catalogue = $catalogue.models }
     $llm = ($catalogue | Where-Object { $_.kind -eq "LLM" -and $_.enabled } | Select-Object -First 1)
