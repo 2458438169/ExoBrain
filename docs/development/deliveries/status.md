@@ -32,10 +32,10 @@
 | 02 检索评测基线 | 子 Agent A2 → 子 Agent A2b（上游中断后重派） | 共享目录 | `68f71d3` | 无（候选对比依赖 03） | `evaluation/**`、`deliveries/02.md` | **验收通过** | `a8fed26` | `evaluation/runs/legacy-title-v1/summary.json`（真实基线 Hit@3 0.850 / Recall@3 0.812 / MRR@3 0.738；`validate.py` 退出 0；pytest 60 passed） |
 | 03 正文索引与结构化检索 | 子 Agent B1 + 主 Agent 审查 | 共享目录 | `0aa79ed` | 01（已合入）；与 02 共用语料 | `retrieval/**`、`DocumentFacadeServiceImpl`、chunk 实体/mapper、`RagService*`、`KnowledgeTools`、`DemoKnowledgeTool`、`20261017-03-body-index.sql`、`docs/adr/0003-*.md`、`deliveries/03.md` | **验收通过** | `6aac8cd` | `deliveries/03.md`；默认 profile 230/0/0/4、`-Ppostgres-it` 19/19（主 Agent 复跑） |
 | 04 可核验引用 | 子 Agent B1（中断后主 Agent 收尾） | 共享目录 | `ecdb738` | 03 协议；前端按契约开发 | `citation/**`、`JChatMind.java`、`DirectAnswerTool`、`ChatMessageDTO`、`DemoCatalogService`、`AgentChatHistory.tsx`、`DocumentPreviewDrawer.tsx`、`ui/src/types`、`ui/src/api`、`docs/adr/0004-*.md`、`deliveries/04.md` | **验收通过**（后端与构建已复核；浏览器交互矩阵在最终回归补测） | 见下一提交 | `deliveries/04.md`（230 单测 + 19 集成 + lint + 两套构建） |
-| 05 执行追踪 | 子 Agent C1 | 共享目录 | 04 合入后 | 04 | `execution/**`、run/event mapper/DTO/service、05 迁移、`deliveries/05.md` | 待开始 | — | `docs/development/deliveries/05.md` |
-| 06 持久化文档导入 | 子 Agent C2 | 共享目录 | 03 合入后 | 03 | `ingestion/**`、`DocumentFacadeServiceImpl`、06 迁移、导入状态 UI、`deliveries/06.md` | 待开始 | — | `docs/development/deliveries/06.md` |
+| 05 执行追踪 | 子 Agent C1 | 共享目录 | `a6921dc` | 04（已合入） | `execution/**`、run/event mapper/DTO/service、`20261017-05-runs.sql`、`docs/adr/0005-*.md`、`deliveries/05.md` | 执行中 | — | `docs/development/deliveries/05.md` |
+| 06 持久化文档导入 | 子 Agent C2 | 共享目录 | `a6921dc` | 03（已合入） | `ingestion/**`、`DocumentFacadeServiceImpl`、`20261017-06-ingestion.sql`、导入状态 UI、`deliveries/06.md` | 执行中 | — | `docs/development/deliveries/06.md` |
 | 07 持久化对话任务 | 主 Agent/子 Agent | 共享目录 | 05 合入后 | 05（参考 06） | 07 迁移、提交/入队路径、`deliveries/07.md` | 待开始 | — | `docs/development/deliveries/07.md` |
-| 08 CI、工程文档与集成 | 子 Agent A3（中断）→ 子 Agent A3b | 共享目录 | `68f71d3` | 基础部分独立；验收随批 | `.github/**`、`pom.xml`、`scripts/**`、`README.md`、`docs/architecture.md`、`docs/adr/**`、`docs/provenance.md`、`deliveries/08.md` | 执行中（基础部分代码已核验、尚未提交） | — | `docs/development/deliveries/08.md` |
+| 08 CI、工程文档与集成 | 子 Agent A3（中断）→ 子 Agent A3b | 共享目录 | `68f71d3` | 基础部分独立；验收随批 | `.github/**`、`pom.xml`、`scripts/**`、`README.md`、`docs/architecture.md`、`docs/adr/**`、`docs/provenance.md`、`deliveries/08.md` | **验收通过**（文档中的“待实现”标注在 03 合入后由主 Agent 修正） | `ecdb738` | `deliveries/08.md`；`-Punit` 165 / `-Ppostgres-it` 6（隔离副本），复跑后 230 / 19 |
 
 共享文件所有权（本轮实际约定）：
 
@@ -60,3 +60,12 @@
 
 - 代码推送：待完成（推送目标 `exobrain`）。
 - 生产部署：未执行。本机没有可用的生产环境（SSH/凭据）与授权细节；本机运行中的 Docker 栈 `eb-local-20261012-*` 属于其他项目（`External Brain`），不是本仓库的部署。如后续取得实际环境与授权，再按 08 的部署章节执行并回填本节。
+
+## 4. 第一阶段验收（已完成）
+
+- 记录：`docs/development/deliveries/acceptance-phase1.md`
+- 被测提交 `a6921dc`，用 `git archive` 导出后独立构建的 jar 运行（不是共享工作目录里的后续改动）。
+- 真实环境：PostgreSQL 17.11 + pgvector 0.8.7、真实 Embedding `BAAI/bge-m3`（1024 维）、真实对话模型（DeepSeek-V4-Flash-0731）。
+- 结果：账号/管理员矩阵 38/38 通过，游客路径 18/18 通过，应用日志 0 条 ERROR；正文事实命中并给出可复核的行号引用（48-73 / 43-64，`indexVersion = body-v1`）。
+- 同一提交的自动化检查：后端默认 profile 230 通过 / 4 跳过、真实 PostgreSQL 集成 19/19、评测 `validate.py` 退出 0 与 `pytest 60 passed`、前端 lint 与两套构建通过。
+- 未执行：真实浏览器界面检查；02 的 body-v1 候选同条件对比（原因与复现路径见验收记录第 5 节）。
