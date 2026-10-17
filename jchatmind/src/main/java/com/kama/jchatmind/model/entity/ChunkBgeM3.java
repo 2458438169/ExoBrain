@@ -25,8 +25,20 @@ public class ChunkBgeM3 {
     private float[] embedding;
 
     private LocalDateTime createdAt;
-
     private LocalDateTime updatedAt;
+
+    /** 以下为任务 03 的增量列：旧行保持 NULL 表示 legacy（见 deploy/migrations/20261017-03-body-index.sql）。 */
+    private String revisionId;
+
+    private String indexVersion;
+
+    private Integer chunkOrdinal;
+
+    private String sourceHash;
+
+    private Integer startLine;
+
+    private Integer endLine;
 
     @Override
     public boolean equals(Object that) {

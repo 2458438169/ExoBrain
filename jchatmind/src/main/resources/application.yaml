@@ -50,3 +50,15 @@ app:
     base-url: http://localhost:11434
     model: bge-m3                        # ⚠️ 维度必须与 chunk_bge_m3.embedding vector(1024) 一致
     api-key:                             # 留空则不发送 Authorization 头
+  # 检索与切块配置（任务 03）。
+  # top-k：每次检索返回的片段数，默认 3，范围 1–10（超出会被夹取）。
+  # max-distance：可选的 L2 拒绝阈值，默认留空 = 未启用；没有用开发集校准前不要填值，
+  #               未校准时不使用任何“相似度百分比”，也不用 1 - distance 冒充置信度。
+  # chunk-*：正文切块预算，单位是 estimated token（保守字符估算：CJK 1 字符≈1，其余 2 字符≈1），
+  #          目标 512–800、重叠 64–100，另有 max-chunk-characters 字符硬上限。
+  retrieval:
+    top-k: 3
+    max-distance:
+    chunk-target-estimated-tokens: 640
+    chunk-overlap-estimated-tokens: 80
+    max-chunk-characters: 4096

@@ -98,4 +98,91 @@
         LIMIT #{limit}
         ]]>
     </select>
+    <resultMap id="ScoredResultMap" type="com.kama.jchatmind.retrieval.ScoredChunk">
+        <id property="id" column="id" jdbcType="VARCHAR"/>
+        <result property="kbId" column="kb_id" jdbcType="VARCHAR"/>
+        <result property="docId" column="doc_id" jdbcType="VARCHAR"/>
+        <result property="content" column="content" jdbcType="VARCHAR"/>
+        <result property="metadata" column="metadata" jdbcType="VARCHAR"/>
+        <result property="revisionId" column="revision_id" jdbcType="VARCHAR"/>
+        <result property="indexVersion" column="index_version" jdbcType="VARCHAR"/>
+        <result property="chunkOrdinal" column="chunk_ordinal" jdbcType="INTEGER"/>
+        <result property="sourceHash" column="source_hash" jdbcType="VARCHAR"/>
+        <result property="startLine" column="start_line" jdbcType="INTEGER"/>
+        <result property="endLine" column="end_line" jdbcType="INTEGER"/>
+        <result property="distance" column="distance" jdbcType="DOUBLE"/>
+    </resultMap>
+
+    <!-- 任务 03：正文索引写入。legacy 路径把 revisionId/metadata/位置列留空，旧行语义保持不变。 -->
+    <insert id="insertIndexed" parameterType="com.kama.jchatmind.model.entity.ChunkBgeM3"
+            keyColumn="id" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO chunk_bge_m3
+        (kb_id,
+         doc_id,
+         content,
+         metadata,
+         embedding,
+         revision_id,
+         index_version,
+         chunk_ordinal,
+         source_hash,
+         start_line,
+         end_line,
+         created_at,
+         updated_at)
+        VALUES (CAST(#{kbId} AS uuid),
+                CAST(#{docId} AS uuid),
+                #{content},
+                #{metadata},
+                #{embedding}::vector,
+                <choose>
+                    <when test="revisionId != null">CAST(#{revisionId} AS uuid)</when>
+                    <otherwise>NULL</otherwise>
+                </choose>,
+                #{indexVersion},
+                #{chunkOrdinal},
+                #{sourceHash},
+                #{startLine},
+                #{endLine},
+                #{createdAt},
+                #{updatedAt})
+    </insert>
+
+    <!--
+      任务 03：结构化检索。KB 与活动索引版本都在排序/limit 之前限定；
+      revisionId 为 null 时只读 legacy 行，不会与某次已发布版本的正文行混用。
+      排序表达式 &lt;-&gt; 与索引算子类一致（vector_l2_ops），distance 是 L2 距离，不是相似度。
+      含 &lt; 的片段必须放在 CDATA 里，否则 MyBatis 解析 XML 会失败。
+    -->
+    <select id="searchScoped" resultMap="ScoredResultMap">
+        <![CDATA[
+        SELECT id,
+               kb_id,
+               doc_id,
+               content,
+               metadata,
+               revision_id,
+               index_version,
+               chunk_ordinal,
+               source_hash,
+               start_line,
+               end_line,
+               embedding <-> #{vectorLiteral}::vector AS distance
+        FROM chunk_bge_m3
+        WHERE kb_id = CAST(#{kbId} AS uuid)
+        ]]>
+        <choose>
+            <when test="revisionId != null and revisionId != ''">
+                AND revision_id = CAST(#{revisionId} AS uuid)
+            </when>
+            <otherwise>
+                AND revision_id IS NULL
+            </otherwise>
+        </choose>
+        <![CDATA[
+        ORDER BY embedding <-> #{vectorLiteral}::vector
+        LIMIT #{limit}
+        ]]>
+    </select>
+
 </mapper>

@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "retrievalId": "11111111-1111-4111-8111-111111111111",
+  "status": "OK",
+  "hits": [
+    {
+      "citationId": "11111111-1111-4111-8111-111111111111:1",
+      "chunkId": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+      "kbId": "22222222-2222-4222-8222-222222222222",
+      "rank": 1,
+      "content": "网关使用 Nginx 转发到后端 8080 端口。\n\n反转要点 BOM-CRLF-FACT 就绪探针间隔是 7 秒。",
+      "source": {
+        "documentId": "33333333-3333-4333-8333-333333333333",
+        "documentName": "bom-crlf.md",
+        "headingPath": ["部署说明", "网络入口"],
+        "sourceHash": "42500bd4ad6cb02a4701edd5b4390308b48bcdc40b24b8a516bd6e3b1952c5b3",
+        "startLine": 5,
+        "endLine": 7
+      },
+      "indexVersion": "body-v1",
+      "indexRevision": "44444444-4444-4444-8444-444444444444",
+      "metric": "l2",
+      "distance": 6.8123
+    },
+    {
+      "citationId": "11111111-1111-4111-8111-111111111111:2",
+      "chunkId": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+      "kbId": "22222222-2222-4222-8222-222222222222",
+      "rank": 2,
+      "content": "具体事实：中文资料 CN-FACT 的保存期限是 21 天。",
+      "source": {
+        "documentId": "55555555-5555-4555-8555-555555555555",
+        "documentName": "chinese.md",
+        "headingPath": ["中文切块", "背景"],
+        "sourceHash": "22211152e8d9c745cb950303302688fec25c67008372c8327ea260aac11d3de4",
+        "startLine": 7,
+        "endLine": 7
+      },
+      "indexVersion": "body-v1",
+      "indexRevision": "44444444-4444-4444-8444-444444444444",
+      "metric": "l2",
+      "distance": 8.4402
+    }
+  ]
+}

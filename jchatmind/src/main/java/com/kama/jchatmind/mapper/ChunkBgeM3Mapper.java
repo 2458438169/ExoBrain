@@ -27,4 +27,20 @@ public interface ChunkBgeM3Mapper {
             @Param("vectorLiteral") String vectorLiteral,
             @Param("limit") int limit
     );
+
+    /**
+     * 任务 03 的索引写入：额外写入 revision/来源位置列。
+     * legacy 路径传 {@code revisionId = null}、{@code metadata = null}、位置列为 null，旧行语义不变。
+     */
+    int insertIndexed(ChunkBgeM3 chunkBgeM3);
+
+    /**
+     * 结构化检索查询：在 SQL 里限定 KB 与活动索引版本。
+     * {@code revisionId == null} 表示只读 legacy 行（{@code revision_id IS NULL}），不会与 body 行混用。
+     */
+    List<com.kama.jchatmind.retrieval.ScoredChunk> searchScoped(
+            @Param("kbId") String kbId,
+            @Param("revisionId") String revisionId,
+            @Param("vectorLiteral") String vectorLiteral,
+            @Param("limit") int limit);
 }

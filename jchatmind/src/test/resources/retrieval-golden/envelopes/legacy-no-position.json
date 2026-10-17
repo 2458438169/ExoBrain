@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "retrievalId": "88888888-8888-4888-8888-888888888888",
+  "status": "OK",
+  "hits": [
+    {
+      "citationId": "88888888-8888-4888-8888-888888888888:1",
+      "chunkId": "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+      "kbId": "99999999-9999-4999-8999-999999999999",
+      "rank": 1,
+      "content": "旧库的标题向量命中的正文片段（没有可靠位置）。",
+      "source": {
+        "documentId": "12121212-1212-4212-8212-121212121212",
+        "documentName": "旧资料.md",
+        "headingPath": [],
+        "sourceHash": null,
+        "startLine": null,
+        "endLine": null
+      },
+      "indexVersion": "legacy-title-v1",
+      "indexRevision": "legacy-unversioned",
+      "metric": "l2",
+      "distance": 11.5
+    }
+  ]
+}

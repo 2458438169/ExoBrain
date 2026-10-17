@@ -1,23 +1,25 @@
 package com.kama.jchatmind.service.impl;
 
-import com.kama.jchatmind.mapper.ChunkBgeM3Mapper;
-import com.kama.jchatmind.model.entity.ChunkBgeM3;
 import com.kama.jchatmind.models.ModelCatalogService;
 import com.kama.jchatmind.models.ModelRuntimeService;
+import com.kama.jchatmind.retrieval.RetrievalAuthorization;
+import com.kama.jchatmind.retrieval.RetrievalHit;
+import com.kama.jchatmind.retrieval.RetrievalService;
 import com.kama.jchatmind.service.RagService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
 @Service
 public class RagServiceImpl implements RagService {
-    private final ChunkBgeM3Mapper chunks;
     private final ModelCatalogService catalog;
     private final ModelRuntimeService runtime;
+    private final RetrievalService retrieval;
 
-    public RagServiceImpl(ChunkBgeM3Mapper chunks, ModelCatalogService catalog, ModelRuntimeService runtime) {
-        this.chunks = chunks;
+    public RagServiceImpl(ModelCatalogService catalog, ModelRuntimeService runtime, RetrievalService retrieval) {
         this.catalog = catalog;
         this.runtime = runtime;
+        this.retrieval = retrieval;
     }
 
     @Override
@@ -30,19 +32,16 @@ public class RagServiceImpl implements RagService {
         return runtime.embed(catalog.embeddingForKnowledgeBase(kbId), text);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p>过渡适配：走与结构化检索同一套作用域（KB + 当前活动索引版本 + 绑定模型），
+     * 只是把命中压平成正文；不可用时抛异常，不会把服务失败伪装成“资料不足”。</p>
+     */
+    @Deprecated
     @Override
     public List<String> similaritySearch(String kbId, String title) {
-        String queryEmbedding = toPgVector(embed(kbId, title));
-        return chunks.similaritySearch(kbId, queryEmbedding, 3).stream().map(ChunkBgeM3::getContent).toList();
-    }
-
-    private String toPgVector(float[] v) {
-        StringBuilder sb = new StringBuilder("[");
-        for (int i = 0; i < v.length; i++) {
-            sb.append(v[i]);
-            if (i < v.length - 1) sb.append(",");
-        }
-        sb.append("]");
-        return sb.toString();
+        List<RetrievalHit> hits = retrieval.requireHits(kbId, title, RetrievalAuthorization.argumentBound(kbId));
+        return hits.stream().map(RetrievalHit::content).toList();
     }
 }

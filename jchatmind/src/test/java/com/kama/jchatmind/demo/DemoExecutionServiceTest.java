@@ -18,7 +18,7 @@ import com.kama.jchatmind.model.dto.AgentDTO;
 import com.kama.jchatmind.model.entity.Agent;
 import com.kama.jchatmind.model.response.CreateChatMessageResponse;
 import com.kama.jchatmind.service.ChatMessageFacadeService;
-import com.kama.jchatmind.service.RagService;
+import com.kama.jchatmind.retrieval.RetrievalService;
 import com.kama.jchatmind.service.SseService;
 import com.kama.jchatmind.service.impl.ToolFacadeServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,7 +47,7 @@ class DemoExecutionServiceTest {
     private final KnowledgeBaseConverter knowledgeConverter = mock(KnowledgeBaseConverter.class);
     private final ChatMessageFacadeService messages = mock(ChatMessageFacadeService.class);
     private final ChatMessageConverter messageConverter = mock(ChatMessageConverter.class);
-    private final RagService rag = mock(RagService.class);
+    private final RetrievalService rag = mock(RetrievalService.class);
     private final List<Runnable> queued = new ArrayList<>();
     private DemoAccessPolicy access;
     private DemoExecutionService execution;

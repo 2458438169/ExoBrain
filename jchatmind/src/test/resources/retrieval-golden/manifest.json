@@ -1,0 +1,146 @@
+{
+    "version":  1,
+    "task":  "03-body-index",
+    "normalization":  "UTF-8 decode, strip first BOM, CRLF/CR to LF; sha256 over the UTF-8 bytes of that text; line numbers are 1-based and both ends inclusive",
+    "note":  "这些文件是事实基准：04 与 03 复用同一份。不要为了迎合实现而修改夹具内容或这里的行号。",
+    "fixtures":  [
+                     {
+                         "file":  "bom-crlf.md",
+                         "encoding":  "UTF-8 with BOM + CRLF",
+                         "sha256":  "42500bd4ad6cb02a4701edd5b4390308b48bcdc40b24b8a516bd6e3b1952c5b3",
+                         "lineCount":  7,
+                         "headings":  [
+                                          "部署说明",
+                                          "网络入口"
+                                      ],
+                         "markers":  {
+                                         "BOM-CRLF-FACT":  7
+                                     }
+                     },
+                     {
+                         "file":  "bom-crlf-lf-twin.md",
+                         "encoding":  "UTF-8 no BOM + LF (same normalized text as bom-crlf.md)",
+                         "sha256":  "42500bd4ad6cb02a4701edd5b4390308b48bcdc40b24b8a516bd6e3b1952c5b3",
+                         "lineCount":  7,
+                         "headings":  [
+                                          "部署说明",
+                                          "网络入口"
+                                      ],
+                         "markers":  {
+                                         "BOM-CRLF-FACT":  7
+                                     }
+                     },
+                     {
+                         "file":  "chinese.md",
+                         "encoding":  "UTF-8 LF",
+                         "sha256":  "22211152e8d9c745cb950303302688fec25c67008372c8327ea260aac11d3de4",
+                         "lineCount":  7,
+                         "headings":  [
+                                          "中文切块",
+                                          "背景"
+                                      ],
+                         "markers":  {
+                                         "CN-FACT":  7
+                                     }
+                     },
+                     {
+                         "file":  "code-block.md",
+                         "encoding":  "UTF-8 LF",
+                         "sha256":  "59453ff744b64d4a0a5006c4ed5b9ec28ca3c6813d3bf3c603caf55ec943d971",
+                         "lineCount":  90,
+                         "headings":  [
+                                          "代码块"
+                                      ],
+                         "markers":  {
+                                         "CODE-FACT":  87
+                                     }
+                     },
+                     {
+                         "file":  "duplicate-headings.md",
+                         "encoding":  "UTF-8 LF",
+                         "sha256":  "88b870fa74d07547da891f93162bc5bc79248042a13e976ada0c47021919480a",
+                         "lineCount":  15,
+                         "headings":  [
+                                          [
+                                              "服务端",
+                                              "参数"
+                                          ],
+                                          [
+                                              "客户端",
+                                              "参数"
+                                          ],
+                                          [
+                                              "客户端",
+                                              "参数"
+                                          ]
+                                      ],
+                         "markers":  {
+                                         "DUP-A":  5,
+                                         "DUP-B":  11,
+                                         "DUP-C":  15
+                                     }
+                     },
+                     {
+                         "file":  "empty.md",
+                         "encoding":  "zero bytes",
+                         "sha256":  "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                         "lineCount":  0,
+                         "headings":  [
+
+                                      ],
+                         "markers":  {
+
+                                     }
+                     },
+                     {
+                         "file":  "long-section.md",
+                         "encoding":  "UTF-8 LF",
+                         "sha256":  "13715afdfab18a8549dfe6cca9a59920dcf182c34042e3cc9fb5cff6bbfa2d3a",
+                         "lineCount":  126,
+                         "headings":  [
+                                          "长章节",
+                                          "过程"
+                                      ],
+                         "markers":  {
+                                         "LONG-TAIL-FACT":  126,
+                                         "LONG-MID-FACT":  64
+                                     }
+                     },
+                     {
+                         "file":  "plain-no-heading.md",
+                         "encoding":  "UTF-8 LF",
+                         "sha256":  "ac757a2d7e52b5185daabf5b2eea30a131121182d0990c49d5c1a773d69a351c",
+                         "lineCount":  5,
+                         "headings":  [
+
+                                      ],
+                         "markers":  {
+                                         "PLAIN-FACT":  3
+                                     }
+                     },
+                     {
+                         "file":  "preamble.md",
+                         "encoding":  "UTF-8 LF",
+                         "sha256":  "508289b9ae14d6961bf71e002152291acc803c5c35f7da99cc1e454cb0948090",
+                         "lineCount":  5,
+                         "headings":  [
+                                          "正式章节"
+                                      ],
+                         "markers":  {
+                                         "PREAMBLE-FACT":  1
+                                     }
+                     },
+                     {
+                         "file":  "table.md",
+                         "encoding":  "UTF-8 LF",
+                         "sha256":  "c343484c77b8a1ad9f8d51828c5ccee6f460a1be972b41edbafbd40b9ee6350e",
+                         "lineCount":  65,
+                         "headings":  [
+                                          "容量表"
+                                      ],
+                         "markers":  {
+                                         "TABLE-FACT":  65
+                                     }
+                     }
+                 ]
+}

@@ -5,6 +5,7 @@ import com.kama.jchatmind.converter.DocumentConverter;
 import com.kama.jchatmind.exception.BizException;
 import com.kama.jchatmind.exception.DocumentContentException;
 import com.kama.jchatmind.mapper.DocumentMapper;
+import com.kama.jchatmind.mapper.ChunkBgeM3Mapper;
 import com.kama.jchatmind.model.dto.DocumentDTO;
 import com.kama.jchatmind.model.entity.Document;
 import com.kama.jchatmind.model.request.CreateDocumentRequest;
@@ -13,15 +14,20 @@ import com.kama.jchatmind.model.response.CreateDocumentResponse;
 import com.kama.jchatmind.model.response.GetDocumentContentResponse;
 import com.kama.jchatmind.model.response.GetDocumentsResponse;
 import com.kama.jchatmind.model.vo.DocumentVO;
-import com.kama.jchatmind.mapper.ChunkBgeM3Mapper;
-import com.kama.jchatmind.model.entity.ChunkBgeM3;
+import com.kama.jchatmind.retrieval.IndexCandidate;
+import com.kama.jchatmind.retrieval.IndexScope;
+import com.kama.jchatmind.retrieval.IndexVersion;
+import com.kama.jchatmind.retrieval.LegacyTitleIndexer;
+import com.kama.jchatmind.retrieval.RetrievalIndexService;
+import com.kama.jchatmind.retrieval.SourceDocument;
+import com.kama.jchatmind.retrieval.SourceText;
 import com.kama.jchatmind.service.DocumentFacadeService;
 import com.kama.jchatmind.service.DocumentStorageService;
 import com.kama.jchatmind.service.MarkdownParserService;
 import com.kama.jchatmind.service.RagService;
 import com.kama.jchatmind.service.StorageCleanupService;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -40,17 +46,42 @@ import java.util.UUID;
 import java.util.function.Predicate;
 
 @Service
-@AllArgsConstructor
 @Slf4j
 public class DocumentFacadeServiceImpl implements DocumentFacadeService {
 
     private final DocumentMapper documentMapper;
     private final DocumentConverter documentConverter;
     private final DocumentStorageService documentStorageService;
-    private final MarkdownParserService markdownParserService;
-    private final RagService ragService;
-    private final ChunkBgeM3Mapper chunkBgeM3Mapper;
+    private final RetrievalIndexService retrievalIndexService;
+    private final LegacyTitleIndexer legacyTitleIndexer;
     private final StorageCleanupService storageCleanup;
+
+    /** 生产装配：走“候选 → 校验 → 原子发布”，并遵循该 KB 当前的索引策略。 */
+    @Autowired
+    public DocumentFacadeServiceImpl(DocumentMapper documentMapper, DocumentConverter documentConverter,
+                                     DocumentStorageService documentStorageService,
+                                     RetrievalIndexService retrievalIndexService,
+                                     LegacyTitleIndexer legacyTitleIndexer,
+                                     StorageCleanupService storageCleanup) {
+        this.documentMapper = documentMapper;
+        this.documentConverter = documentConverter;
+        this.documentStorageService = documentStorageService;
+        this.retrievalIndexService = retrievalIndexService;
+        this.legacyTitleIndexer = legacyTitleIndexer;
+        this.storageCleanup = storageCleanup;
+    }
+
+    /**
+     * 兼容构造器：不接索引版本服务，按基线 legacy-title-v1 语义写入（每个章节标题一个向量）。
+     * 只用于既有基线风格测试；生产装配使用上面的构造器。
+     */
+    public DocumentFacadeServiceImpl(DocumentMapper documentMapper, DocumentConverter documentConverter,
+                                     DocumentStorageService documentStorageService,
+                                     MarkdownParserService markdownParserService, RagService ragService,
+                                     ChunkBgeM3Mapper chunkBgeM3Mapper, StorageCleanupService storageCleanup) {
+        this(documentMapper, documentConverter, documentStorageService, null,
+                new LegacyTitleIndexer(markdownParserService, ragService, chunkBgeM3Mapper), storageCleanup);
+    }
 
     @Override
     public GetDocumentContentResponse getDocumentContent(String documentId) {
@@ -226,9 +257,9 @@ public class DocumentFacadeServiceImpl implements DocumentFacadeService {
                 throw new BizException("保存文档路径失败");
             }
 
-            // 如果是 Markdown 文件，进行解析并生成 chunks
+            // 如果是 Markdown 文件，构建候选索引并原子发布
             if ("md".equalsIgnoreCase(filetype) || "markdown".equalsIgnoreCase(filetype)) {
-                processMarkdownDocument(kbId, documentId, filePath);
+                indexMarkdownDocument(kbId, documentId, filePath, originalFilename);
             } else {
                 // TODO: 未来可以增加其他文件类型的处理逻辑
                 log.warn("待新增处理的文件类型: {}", filetype);
@@ -272,67 +303,44 @@ public class DocumentFacadeServiceImpl implements DocumentFacadeService {
             throw new BizException("删除文档失败");
         }
         storageCleanup.enqueueDocument(document.getKbId(), document.getId());
+        // 删除不能留下可检索的索引：该文档的 chunk 由外键级联删除，活动版本的计数按事实重算、
+        // 来源摘要置空（不保留一个已不对应任何文档集合的 hash）。文件清理仍由 StorageCleanupService 负责。
+        if (retrievalIndexService != null) {
+            retrievalIndexService.refreshActiveRevision(document.getKbId());
+        }
     }
 
     /**
-     * 处理 Markdown 文档，解析并生成 chunks
+     * 上传路径的索引：这一阶段仍然在上传事务内同步完成解析 / Embedding / 发布
+     * （长事务与重试体验的限制见 docs/development/deliveries/03.md，持久化导入由任务 06 负责），
+     * 但失败边界与离线重建一致：先构建候选（切块 + Embedding，不写任何索引行），再原子发布。
+     * 发布走 {@link RetrievalIndexService#publish}，它在事务内重新核对文档清单 / 源 hash / 模型绑定
+     * 与活动版本；任何一步失败都会回滚，并在事务外/调用方补偿删除已保存文件。
      */
-    private void processMarkdownDocument(String kbId, String documentId, String filePath) {
+    private void indexMarkdownDocument(String kbId, String documentId, String filePath, String filename) {
         try {
             log.info("开始处理 Markdown 文档: kbId={}, documentId={}, filePath={}", kbId, documentId, filePath);
-
-            // 从保存的文件路径读取文件
             Path path = documentStorageService.getFilePath(filePath);
-            try (InputStream inputStream = Files.newInputStream(path)) {
-                // 解析 Markdown 文件
-                List<MarkdownParserService.MarkdownSection> sections = markdownParserService.parseMarkdown(inputStream);
-
-                if (sections.isEmpty()) {
+            byte[] raw = Files.readAllBytes(path);
+            // 兼容构造器（不接索引版本服务）按基线 legacy 语义写入。
+            IndexScope scope = retrievalIndexService == null
+                    ? IndexScope.legacy()
+                    : retrievalIndexService.resolveScope(kbId);
+            if (scope.indexVersion() == IndexVersion.LEGACY_TITLE_V1) {
+                // 旧库不静默切换：继续按 legacy-title-v1 写（无 revision、无位置），迁移必须显式重建。
+                if (legacyTitleIndexer.index(kbId, documentId, raw) == 0) {
                     throw new BizException("Markdown 文档没有可索引的章节");
                 }
-
-                LocalDateTime now = LocalDateTime.now();
-                int chunkCount = 0;
-
-                // 为每个章节生成 chunk
-                for (MarkdownParserService.MarkdownSection section : sections) {
-                    String title = section.getTitle();
-                    String content = section.getContent();
-
-                    if (title == null || title.trim().isEmpty()) {
-                        continue;
-                    }
-
-                    // 对标题进行 embedding
-                    float[] embedding = ragService.embed(kbId, title);
-
-                    // 创建 ChunkBgeM3 实体
-                    ChunkBgeM3 chunk = ChunkBgeM3.builder()
-                            .kbId(kbId)
-                            .docId(documentId)
-                            .content(content != null ? content : "")
-                            .metadata(null) // 可以存储标题信息到 metadata
-                            .embedding(embedding)
-                            .createdAt(now)
-                            .updatedAt(now)
-                            .build();
-
-                    // 插入数据库
-                    int result = chunkBgeM3Mapper.insert(chunk);
-
-                    if (result > 0) {
-                        chunkCount++;
-                        log.debug("创建 chunk 成功: title={}, chunkId={}", title, chunk.getId());
-                    } else {
-                        throw new BizException("保存文档索引失败");
-                    }
-                }
-                if (chunkCount == 0) {
-                    throw new BizException("Markdown 文档没有可索引的章节");
-                }
-                log.info("Markdown 文档处理完成: documentId={}, 共生成 {} 个 chunks", documentId, chunkCount);
+                return;
             }
-        } catch (Exception e) {
+            SourceDocument source = new SourceDocument(documentId, filename, SourceText.normalize(raw));
+            IndexCandidate candidate = retrievalIndexService.prepareDocument(kbId, source);
+            if (candidate.chunks().isEmpty()) {
+                throw new BizException("Markdown 文档没有可索引的章节");
+            }
+            retrievalIndexService.publish(retrievalIndexService.embedCandidate(candidate));
+            log.info("Markdown 文档索引发布完成: documentId={}, chunks={}", documentId, candidate.chunks().size());
+        } catch (IOException | RuntimeException e) {
             log.error("处理 Markdown 文档失败: documentId={}", documentId, e);
             if (e instanceof BizException bizException) {
                 throw bizException;

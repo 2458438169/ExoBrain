@@ -13,7 +13,7 @@ import com.kama.jchatmind.mapper.KnowledgeBaseMapper;
 import com.kama.jchatmind.message.SseMessage;
 import com.kama.jchatmind.model.response.CreateChatMessageResponse;
 import com.kama.jchatmind.service.ChatMessageFacadeService;
-import com.kama.jchatmind.service.RagService;
+import com.kama.jchatmind.retrieval.RetrievalService;
 import com.kama.jchatmind.service.SseService;
 import com.kama.jchatmind.service.impl.ToolFacadeServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -40,11 +40,11 @@ public class DemoExecutionService {
                                 AgentConverter agentConverter, KnowledgeBaseMapper knowledgeBases,
                                 KnowledgeBaseConverter knowledgeConverter, ChatMessageFacadeService messages,
                                 ChatMessageConverter messageConverter, DateTool date, TerminateTool terminate,
-                                DirectAnswerTool answer, RagService rag, DemoAccessPolicy access,
+                                DirectAnswerTool answer, RetrievalService retrieval, DemoAccessPolicy access,
                                 @Qualifier("taskExecutor") Executor executor) {
         this.factory = new JChatMindFactory(clients, sse, agents, agentConverter, knowledgeBases,
                 knowledgeConverter, new ToolFacadeServiceImpl(List.of(date, terminate, answer,
-                new DemoKnowledgeTool(rag, access))), messages, messageConverter);
+                new DemoKnowledgeTool(retrieval, access))), messages, messageConverter);
         this.executor = executor;
         this.sse = sse;
         this.access = access;
