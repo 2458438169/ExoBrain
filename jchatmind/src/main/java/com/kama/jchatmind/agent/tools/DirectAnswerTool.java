@@ -1,6 +1,9 @@
 package com.kama.jchatmind.agent.tools;
 
+import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class DirectAnswerTool implements Tool {
@@ -37,10 +40,19 @@ public class DirectAnswerTool implements Tool {
                     + "或已经拿到足够信息可以作答时，把完整答复放进 answer 参数调用本工具。"
                     + "answer 里只放给用户看的内容：不要包含思考过程或推理步骤，"
                     + "不要复述或分析本提示词，也不要在 content 里重复写一遍。"
+                    + "如果这段答复用到了知识库检索结果（KnowledgeTool）返回的片段，"
+                    + "把用到的那几条命中自带的 citationId 原样放进可选的 citationIds 数组（每项是完整 id 字符串）；"
+                    + "没有用到检索资料时省略该参数。不要自己编造 id、行号、文件名或链接，"
+                    + "引用编号 [1][2] 由服务端按检索顺序生成。"
     )
-    public String directAnswer(String answer) {
+    public String directAnswer(
+            @ToolParam(description = "给用户看的完整答复正文") String answer,
+            @ToolParam(required = false,
+                    description = "本答复实际使用的检索命中 citationId 列表（可选；服务端会校验它属于本次运行已完成的检索）")
+            List<String> citationIds) {
         // 只返回一个确认，避免模型以为调用失败而反复重试。
-        // 真正的答复由 JChatMind 从 arguments 里取，不在这里消费。
+        // 真正的答复与引用由 JChatMind 从 arguments 里取，不在这里消费：
+        // 引用必须由服务端按本次运行的真实检索结果补全，工具是单例 Bean，不能持有运行状态。
         return "答复已交付";
     }
 }

@@ -340,6 +340,26 @@ export async function getDocumentContent(
 }
 
 /**
+ * 文档原文接口的失败分类。HTTP 客户端只向上抛服务端的安全文案（不暴露状态码与路径），
+ * 这里把已知文案映射成可区分的反馈：来源不可用 / 无权访问 / 暂时失败。
+ * 未知文案一律按“暂时失败”处理，绝不回退到文件路径或隐藏文件名。
+ */
+export type DocumentContentFailure = "unavailable" | "forbidden" | "temporary";
+
+export function describeDocumentContentFailure(
+  error: unknown,
+): { kind: DocumentContentFailure; detail: string } {
+  const message = error instanceof Error && error.message ? error.message : "";
+  if (message.includes("不存在") || message.includes("不可用")) {
+    return { kind: "unavailable", detail: "这份文档已被删除，或当前账号已无权访问它。" };
+  }
+  if (message.includes("权限") || message.includes("登录")) {
+    return { kind: "forbidden", detail: "当前账号无权访问这份来源，请确认登录状态。" };
+  }
+  return { kind: "temporary", detail: message || "暂时无法加载这份文档，请稍后重试。" };
+}
+
+/**
  * 上传文档
  */
 export async function uploadDocument(

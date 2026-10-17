@@ -6,7 +6,14 @@ import {
   FileSearchOutlined,
   RobotOutlined,
 } from "@ant-design/icons";
-import type { ChatMessageVO, SseMessageType, ToolCall, ToolResponse } from "../../../types";
+import type {
+  AnswerCitation,
+  ChatMessageVO,
+  SseMessageType,
+  ToolCall,
+  ToolResponse,
+} from "../../../types";
+import DocumentPreviewDrawer from "../../modals/DocumentPreviewDrawer.tsx";
 
 interface AgentChatHistoryProps {
   messages: ChatMessageVO[];
@@ -59,6 +66,73 @@ const ToolResponseDisplay: React.FC<{ toolResponse: ToolResponse }> = ({ toolRes
   </details>
 );
 
+function citationKey(citation: AnswerCitation, index: number): string {
+  return `${citation.label}:${citation.citationId ?? citation.source.documentId}:${index}`;
+}
+
+function citationHeading(citation: AnswerCitation): string {
+  const headingPath = citation.source.headingPath ?? [];
+  return headingPath.filter(Boolean).join(" › ");
+}
+
+function citationRange(citation: AnswerCitation): string {
+  const { startLine, endLine } = citation.source;
+  return startLine != null && endLine != null ? `第 ${startLine}–${endLine} 行` : "整份文档（无精确位置）";
+}
+
+/**
+ * 只渲染服务端校验过的结构化引用（answer metadata 里的 citations）。
+ * 模型正文里的 [1] 或任意 Markdown 链接不在这里，也不会变成可点击来源；
+ * 技术细节默认折叠，主阅读区只显示编号、文档名、章节与节选。
+ */
+const CitationList: React.FC<{
+  citations: AnswerCitation[];
+  onOpen: (citation: AnswerCitation) => void;
+}> = ({ citations, onOpen }) => (
+  <section
+    className="mt-2 rounded-lg border border-teal-100 bg-teal-50/40 text-xs"
+    aria-label="回答来源"
+  >
+    <div className="flex flex-wrap items-center gap-x-1.5 px-3 pt-2 text-teal-700">
+      <FileSearchOutlined />
+      <span className="font-medium">来源</span>
+      <span className="text-teal-700/70">（已由服务端校验，点击查看原文）</span>
+    </div>
+    <ul className="flex flex-col gap-1.5 px-3 py-2">
+      {citations.map((citation, index) => (
+        <li key={citationKey(citation, index)} className="min-w-0">
+          <button
+            type="button"
+            onClick={() => onOpen(citation)}
+            aria-label={`打开来源 ${citation.label}：${citation.source.documentName}`}
+            className="flex w-full min-w-0 flex-wrap items-baseline gap-x-2 gap-y-0.5 rounded px-1 py-0.5 text-left hover:bg-teal-100/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-teal-500"
+          >
+            <span className="font-mono font-medium text-teal-700">[{citation.label}]</span>
+            <span className="min-w-0 max-w-full flex-1 truncate font-medium text-slate-700">
+              {citation.source.documentName}
+            </span>
+            {citationHeading(citation) && (
+              <span className="w-full min-w-0 truncate text-slate-500 sm:w-auto">{citationHeading(citation)}</span>
+            )}
+            <span className="text-slate-400">查看原文</span>
+          </button>
+          <p className="mt-0.5 break-words px-1 leading-5 text-slate-600">{citation.excerpt}</p>
+          <details className="px-1 text-slate-500">
+            <summary className="cursor-pointer leading-6">技术细节</summary>
+            <dl className="mt-1 grid grid-cols-1 gap-x-3 gap-y-0.5 pb-1 sm:grid-cols-2">
+              <div className="min-w-0"><dt className="inline text-slate-400">位置：</dt><dd className="inline break-all">{citationRange(citation)}</dd></div>
+              <div className="min-w-0"><dt className="inline text-slate-400">引用 ID：</dt><dd className="inline break-all">{citation.citationId ?? "未公开"}</dd></div>
+              <div className="min-w-0"><dt className="inline text-slate-400">片段：</dt><dd className="inline break-all">{citation.chunkId ?? "未公开"}</dd></div>
+              <div className="min-w-0"><dt className="inline text-slate-400">索引：</dt><dd className="inline break-all">{[citation.indexVersion, citation.indexRevision].filter(Boolean).join(" / ") || "未公开"}</dd></div>
+              <div className="min-w-0"><dt className="inline text-slate-400">来源哈希：</dt><dd className="inline break-all">{citation.source.sourceHash ? citation.source.sourceHash.slice(0, 16) : "无（旧版索引）"}</dd></div>
+            </dl>
+          </details>
+        </li>
+      ))}
+    </ul>
+  </section>
+);
+
 const AgentChatHistory: React.FC<AgentChatHistoryProps> = ({
   messages,
   autoScroll = true,
@@ -70,6 +144,8 @@ const AgentChatHistory: React.FC<AgentChatHistoryProps> = ({
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   // 是否允许自动滚动（用户是否接近底部）
   const [isNearBottom, setIsNearBottom] = useState(true);
+  // 当前打开的引用来源；关闭抽屉即清理请求与状态
+  const [citedSource, setCitedSource] = useState<AnswerCitation | null>(null);
   // 容错阈值（像素）
   const SCROLL_THRESHOLD = 20;
   // 上一次消息数量，用于检测新消息
@@ -160,13 +236,14 @@ const AgentChatHistory: React.FC<AgentChatHistoryProps> = ({
       className="min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-8 lg:px-12"
     >
       {messages.map((message) => {
+        const citations = message.metadata?.citations ?? [];
         return (
           <div className="mb-4" key={message.id}>
             {/* Assistant 消息 */}
             {message.role === "assistant" && (
               <Bubble
                 content={
-                  <div className="w-full">
+                  <div className="w-full min-w-0">
                     {/* 工具调用展示 */}
                     {message.metadata?.toolCalls &&
                       message.metadata.toolCalls.length > 0 && (
@@ -185,6 +262,10 @@ const AgentChatHistory: React.FC<AgentChatHistoryProps> = ({
                           {message.content}
                         </XMarkdown>
                       </div>
+                    )}
+                    {/* 回答来源：只有服务端校验过的结构化引用才会出现在这里 */}
+                    {citations.length > 0 && (
+                      <CitationList citations={citations} onOpen={setCitedSource} />
                     )}
                   </div>
                 }
@@ -250,6 +331,14 @@ const AgentChatHistory: React.FC<AgentChatHistoryProps> = ({
             />
           </div>
         </div>
+      )}
+      {/* 引用原文：使用当前构建的授权原文接口，关闭即清理请求 */}
+      {citedSource && (
+        <DocumentPreviewDrawer
+          document={{ id: citedSource.source.documentId, filename: citedSource.source.documentName }}
+          citation={citedSource.source}
+          onClose={() => setCitedSource(null)}
+        />
       )}
     </div>
   );

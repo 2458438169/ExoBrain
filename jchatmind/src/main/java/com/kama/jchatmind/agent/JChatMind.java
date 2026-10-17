@@ -2,6 +2,8 @@ package com.kama.jchatmind.agent;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kama.jchatmind.citation.AnswerCitation;
+import com.kama.jchatmind.citation.CitationRegistry;
 import com.kama.jchatmind.converter.ChatMessageConverter;
 import com.kama.jchatmind.message.SseMessage;
 import com.kama.jchatmind.model.dto.ChatMessageDTO;
@@ -26,9 +28,11 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.Locale;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -90,6 +94,10 @@ public class JChatMind {
 
     // AI 返回的，已经持久化，但是需要 sse 发给前端的消息
     private final List<ChatMessageDTO> pendingChatMessages = new ArrayList<>();
+
+    // 本次运行的来源登记：只登记本轮真实完成的 KnowledgeTool 结果（见 CitationRegistry）。
+    // 每次 run() 都是新的 JChatMind 实例，因此登记天然按运行隔离，不会跨会话/跨用户复用。
+    private final CitationRegistry citationRegistry = new CitationRegistry();
 
     public JChatMind() {
     }
@@ -178,6 +186,12 @@ public class JChatMind {
     // SystemMessage 不需要持久化
     // UserMessage 在每次用户发送问题之间就已经持久化过了
     private void saveMessage(Message message) {
+        saveMessage(message, List.of());
+    }
+
+    // citations 只在「本轮确实产生了面向用户的答复」时非空：内容由服务端从本次运行的来源登记补全，
+    // 不是模型文本，也不从历史或客户端 metadata 继承。
+    private void saveMessage(Message message, List<AnswerCitation> citations) {
         runtimeGuard.run();
         ChatMessageDTO.ChatMessageDTOBuilder builder = ChatMessageDTO.builder();
         if (message instanceof AssistantMessage assistantMessage) {
@@ -186,6 +200,7 @@ public class JChatMind {
                     .sessionId(this.chatSessionId)
                     .metadata(ChatMessageDTO.MetaData.builder()
                             .toolCalls(assistantMessage.getToolCalls())
+                            .citations(citations == null || citations.isEmpty() ? null : List.copyOf(citations))
                             .build())
                     .build();
             CreateChatMessageResponse chatMessage = chatMessageFacadeService.createChatMessage(chatMessageDTO);
@@ -263,9 +278,14 @@ public class JChatMind {
         return toolCalls.stream().anyMatch(call -> !CONTROL_TOOLS.contains(call.name()));
     }
 
-    // 从 directAnswer 工具的 arguments 里取出模型交付的答复。
-    // 形如 {"answer": "……"}；工具没被调用、字段缺失或解析失败都返回 null。
-    private String extractDirectAnswer(List<AssistantMessage.ToolCall> toolCalls) {
+    // 模型交付的答复请求：answer 是给用户看的正文，citationIds 是它选择引用的来源 id（可选）。
+    private record DirectAnswerRequest(String answer, List<String> citationIds) {
+    }
+
+    // 从 directAnswer 工具的 arguments 里取出模型交付的答复与它选择的来源 id。
+    // 形如 {"answer": "……", "citationIds": ["…"]}；工具没被调用、answer 缺失或解析失败都返回 null。
+    // citationIds 只是「模型的请求」：形状无效时整段忽略，其真实性由 CitationRegistry 校验。
+    private DirectAnswerRequest readDirectAnswer(List<AssistantMessage.ToolCall> toolCalls) {
         for (AssistantMessage.ToolCall call : toolCalls) {
             if (!DIRECT_ANSWER_TOOL.equals(call.name())) {
                 continue;
@@ -273,14 +293,58 @@ public class JChatMind {
             try {
                 JsonNode node = JSON.readTree(call.arguments());
                 JsonNode answer = node == null ? null : node.get("answer");
-                if (answer != null && StringUtils.hasText(answer.asText())) {
-                    return answer.asText();
+                if (answer == null || !StringUtils.hasText(answer.asText())) {
+                    continue;
                 }
+                return new DirectAnswerRequest(answer.asText(), readCitationIds(node.get("citationIds")));
             } catch (Exception e) {
                 log.warn("解析 directAnswer 参数失败: {}", e.getMessage());
             }
         }
         return null;
+    }
+
+    // 只接受字符串数组；其它形状（对象、数字、null、超长列表）一律忽略，留给模型重试的空间由提示词负责。
+    private List<String> readCitationIds(JsonNode citationIds) {
+        if (citationIds == null || citationIds.isNull()) {
+            return List.of();
+        }
+        if (!citationIds.isArray()) {
+            log.warn("directAnswer 的 citationIds 参数形状无效，本次不生成引用");
+            return List.of();
+        }
+        List<String> ids = new ArrayList<>();
+        for (JsonNode id : citationIds) {
+            if (!id.isTextual() || id.asText().isBlank()) {
+                log.warn("directAnswer 的 citationIds 含无效条目，本次不生成引用");
+                return List.of();
+            }
+            ids.add(id.asText());
+        }
+        return ids;
+    }
+
+    // 服务端校验：id 必须属于本次运行已完成的检索，且来源仍在本次运行的获准 KB 范围内。
+    // 校验失败只记录安全的原因码与数量，不生成可点击引用，也不读取任何文档正文。
+    private List<AnswerCitation> resolveCitations(List<String> requestedCitationIds) {
+        if (requestedCitationIds == null || requestedCitationIds.isEmpty()) {
+            return List.of();
+        }
+        runtimeGuard.run();
+        Set<String> allowedKbIds = new LinkedHashSet<>();
+        if (this.availableKbs != null) {
+            for (KnowledgeBaseDTO knowledgeBase : this.availableKbs) {
+                if (knowledgeBase != null && knowledgeBase.getId() != null) {
+                    allowedKbIds.add(knowledgeBase.getId().toLowerCase(Locale.ROOT));
+                }
+            }
+        }
+        CitationRegistry.Resolution resolution = citationRegistry.resolve(requestedCitationIds,
+                kbId -> kbId != null && allowedKbIds.contains(kbId.toLowerCase(Locale.ROOT)));
+        for (CitationRegistry.Notice notice : resolution.notices()) {
+            log.warn("回答引用校验未通过: reason={} count={}", notice.reason(), notice.count());
+        }
+        return resolution.citations();
     }
 
     // 上游（模型服务 / 中转站）过载时，会把「资源繁忙」这类提示当成**正常的 assistant.content**
@@ -318,13 +382,7 @@ public class JChatMind {
         RuntimeException lastError = null;
         for (int attempt = 1; attempt <= MODEL_MAX_ATTEMPTS; attempt++) {
             runtimeGuard.run();
-            ChatResponse response = this.chatClient
-                    .prompt(prompt)
-                    .system(thinkPrompt)
-                    .toolCallbacks(this.availableTools.toArray(new ToolCallback[0]))
-                    .call()
-                    .chatClientResponse()
-                    .chatResponse();
+            ChatResponse response = requestModel(prompt, thinkPrompt);
 
             // A response may arrive long after logout, expiry, or a role/resource change.
             runtimeGuard.run();
@@ -342,6 +400,18 @@ public class JChatMind {
             }
         }
         throw lastError;
+    }
+
+    // 单次模型调用的实际入口。生产行为不变；同包测试用它回放脚本化的模型响应，
+    // 从而在没有任何网络与密钥的情况下测试真实执行循环。
+    ChatResponse requestModel(Prompt prompt, String thinkPrompt) {
+        return this.chatClient
+                .prompt(prompt)
+                .system(thinkPrompt)
+                .toolCallbacks(this.availableTools.toArray(new ToolCallback[0]))
+                .call()
+                .chatClientResponse()
+                .chatResponse();
     }
 
     private void sleepQuietly(long millis) {
@@ -420,20 +490,23 @@ public class JChatMind {
 
         boolean decisionRound = hasRealWorkToolCall(toolCalls);
 
-        // 最终答复的正式通道：模型调用 directAnswer，答复放在 answer 参数里。
-        String directAnswer = extractDirectAnswer(toolCalls);
+        // 最终答复的正式通道：模型调用 directAnswer，答复放在 answer 参数里，可选地带上它选择的来源 id。
+        DirectAnswerRequest directAnswer = readDirectAnswer(toolCalls);
 
         AssistantMessage toPersist;
         String answerText = null;
+        List<AnswerCitation> citations = List.of();
         if (decisionRound) {
             // 决策轮：content 是模型的内部独白（「先获取城市和日期」之类），不是给用户看的答复。
             // 落库时清空，避免它留在历史里；也不下发前端。
             toPersist = AssistantMessage.builder().content("").toolCalls(toolCalls).build();
-        } else if (StringUtils.hasText(directAnswer)) {
+        } else if (directAnswer != null && StringUtils.hasText(directAnswer.answer())) {
             // 答复轮（正式通道）：只认 directAnswer 的 answer。
             // content 里可能混着思维链，一律丢弃 —— 这就是通道分离的意义。
-            answerText = directAnswer;
-            toPersist = AssistantMessage.builder().content(directAnswer).toolCalls(toolCalls).build();
+            answerText = directAnswer.answer();
+            // 引用在这里补全：只有本次运行登记过的真实检索命中、且来源仍在获准范围内才会生成。
+            citations = resolveCitations(directAnswer.citationIds());
+            toPersist = AssistantMessage.builder().content(answerText).toolCalls(toolCalls).build();
         } else if (StringUtils.hasText(output.getText())) {
             // 兜底：模型没走 directAnswer 通道，只能把 content 当答复。
             // ⚠️ 这条路径正是独白可能泄漏的地方（实测过 943 字思维链混在这里，且那轮没有任何工具调用），
@@ -451,7 +524,7 @@ public class JChatMind {
             this.userAnswerProduced = true;
         }
 
-        saveMessage(toPersist);
+        saveMessage(toPersist, citations);
 
         if (answerText != null) {
             // 本轮产出了给用户的答复 → 下发前端
@@ -495,6 +568,8 @@ public class JChatMind {
                 .conversationHistory()
                 .get(toolExecutionResult.conversationHistory().size() - 1);
 
+        registerCompletedRetrievals(toolResponseMessage);
+
         String collect = toolResponseMessage.getResponses()
                 .stream()
                 .map(resp -> "工具" + resp.name() + "的返回结果为：" + resp.responseData())
@@ -526,6 +601,24 @@ public class JChatMind {
                 // 这种「流程跑完了但用户什么都没收到」不能算成功结束。
                 forceFinalizeRound("模型调用 terminate 结束，但从未给出面向用户的答复");
             }
+        }
+    }
+
+    // 把本轮真实完成的工具调用结果登记为本次运行的来源。
+    // 只有「本轮 assistant 消息实际请求过的 toolCallId」+「工具名为 KnowledgeTool」+
+    // 「返回的是契约 §2 的信封」三个条件同时成立时才会登记；模型文本、历史消息与客户端参数都不进入登记表。
+    private void registerCompletedRetrievals(ToolResponseMessage toolResponseMessage) {
+        List<CitationRegistry.CompletedCall> completed = toolResponseMessage.getResponses().stream()
+                .map(response -> new CitationRegistry.CompletedCall(response.id(), response.name(), response.responseData()))
+                .toList();
+        Set<String> requestedKnowledgeCalls = this.lastChatResponse.getResult().getOutput().getToolCalls().stream()
+                .filter(call -> CitationRegistry.KNOWLEDGE_TOOL_NAME.equals(call.name()))
+                .map(AssistantMessage.ToolCall::id)
+                .collect(Collectors.toSet());
+        int registered = citationRegistry.registerCompletedCalls(completed, requestedKnowledgeCalls);
+        if (registered > 0) {
+            log.info("本次运行已登记检索来源：retrievals={}, citations={}", registered,
+                    citationRegistry.registered().size());
         }
     }
 

@@ -3,12 +3,15 @@ package com.kama.jchatmind.demo;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kama.jchatmind.agent.tools.ToolType;
+import com.kama.jchatmind.citation.AnswerCitation;
 import com.kama.jchatmind.mapper.DocumentMapper;
 import com.kama.jchatmind.mapper.KnowledgeBaseMapper;
 import com.kama.jchatmind.model.dto.ChatMessageDTO;
-import com.kama.jchatmind.model.response.GetDocumentsResponse;
+import com.kama.jchatmind.model.entity.Document;
 import com.kama.jchatmind.model.response.GetDocumentContentResponse;
+import com.kama.jchatmind.model.response.GetDocumentsResponse;
 import com.kama.jchatmind.model.response.GetKnowledgeBasesResponse;
+import com.kama.jchatmind.retrieval.SourceLocation;
 import com.kama.jchatmind.model.vo.ChatMessageVO;
 import com.kama.jchatmind.model.vo.ChatSessionVO;
 import com.kama.jchatmind.model.vo.DocumentVO;
@@ -104,7 +107,8 @@ public class DemoCatalogService {
         if (message.getRole() == ChatMessageDTO.RoleType.ASSISTANT && message.getMetadata() != null) {
             List<AssistantMessage.ToolCall> calls = message.getMetadata().getToolCalls();
             if (calls != null && calls.stream().anyMatch(call -> !publicCall(call))) throw missing();
-            metadata = ChatMessageDTO.MetaData.builder().toolCalls(calls).build();
+            metadata = ChatMessageDTO.MetaData.builder().toolCalls(calls)
+                    .citations(publicCitations(message.getMetadata().getCitations())).build();
         } else if (message.getRole() == ChatMessageDTO.RoleType.TOOL) {
             var response = message.getMetadata() == null ? null : message.getMetadata().getToolResponse();
             if (response == null || response.name() == null || !DemoAccessPolicy.PUBLIC_TOOL_NAMES.contains(response.name())
@@ -113,6 +117,36 @@ public class DemoCatalogService {
         }
         return ChatMessageVO.builder().id(message.getId()).sessionId(sessionId).role(message.getRole())
                 .content(message.getContent()).metadata(metadata).build();
+    }
+
+    /**
+     * 公开精选的引用白名单投影。只保留展示所需字段，并把内部检索字段置空；
+     * 来源已经不再公开（资料撤下、文档被删、或与声明的知识库不一致）时不隐藏链接，而是整条精选不可见 ——
+     * 被撤下的资料不能通过引用节选继续公开。
+     */
+    private List<AnswerCitation> publicCitations(List<AnswerCitation> citations) {
+        if (citations == null || citations.isEmpty()) return null;
+        if (citations.stream().anyMatch(citation -> !isPublicCitation(citation))) throw missing();
+        return citations.stream().map(DemoCatalogService::publicCitation).toList();
+    }
+
+    private boolean isPublicCitation(AnswerCitation citation) {
+        if (citation == null || citation.source() == null || citation.excerpt() == null) return false;
+        SourceLocation source = citation.source();
+        if (!access.isPublicKb(citation.kbId()) || citation.chunkId() == null || citation.citationId() == null) {
+            return false;
+        }
+        if (!DemoAccessPolicy.validId(source.documentId())) return false;
+        Document document = documents.selectById(UUID.fromString(source.documentId()).toString());
+        return document != null && citation.kbId().equalsIgnoreCase(document.getKbId());
+    }
+
+    private static AnswerCitation publicCitation(AnswerCitation citation) {
+        SourceLocation source = citation.source();
+        return new AnswerCitation(citation.label(), null, null, null, null,
+                new SourceLocation(source.documentId(), source.documentName(), source.headingPath(),
+                        source.sourceHash(), source.startLine(), source.endLine()),
+                null, null, citation.excerpt());
     }
 
     private boolean publicCall(AssistantMessage.ToolCall call) {
