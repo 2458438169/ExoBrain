@@ -1,9 +1,10 @@
 # 第一阶段集成验收记录（真实运行）
 
-- 被测提交：`a6921dc`（01 `0aa79ed`、02 `a8fed26`、08 `ecdb738`、03 `6aac8cd`、04 `a6921dc` 全部合入）
-- 被测构建：`git archive a6921dc` 导出到仓库外临时目录后 `.\mvnw.cmd -o package -DskipTests`，产物 `jchatmind-0.0.1-SNAPSHOT.jar`（62,769,558 字节）。**测试针对该提交构建的 jar，不是共享工作目录里后续进行中的改动。**
+- 被测提交：`dd19818`（01 `0aa79ed`、02 `a8fed26`、08 `ecdb738`、03 `6aac8cd`、04 `a6921dc`、05 `39108e4`、06 `09814f3`、修正 `dd19818`）
+- 被测构建：`git archive dd19818` 导出到仓库外临时目录后 `.\mvnw.cmd -o package -DskipTests`，产物 `jchatmind-0.0.1-SNAPSHOT.jar`（62,881,026 字节）。**测试针对该提交构建的 jar，不是共享工作目录里后续进行中的改动。**
 - 执行：主 Agent
-- 结果：**账号/管理员 38 项全部通过；游客 18 项全部通过；应用日志 0 条 ERROR**
+- 结果：**账号/管理员矩阵 40 项全部通过；游客路径 19 项全部通过；应用日志 0 条 ERROR**；数据库可见真实运行记录（`exobrain_run` 3 条 `SUCCEEDED`、`exobrain_run_event` 35 条）。
+- 与第一版记录的关系：`a6921dc`（仅 01–04 + 08，同步上传）曾以同样脚本跑出 38/38 与 18/18；下表是包含 05/06 之后的复跑结果，本节及以下数字以该次为准。
 
 ## 1. 环境
 
@@ -78,3 +79,9 @@
 - **检索拒绝阈值未校准**：`app.retrieval.max-distance` 默认 `null`（不启用）。本次“资料不足”场景由模型在拿到低相关片段后自行说明，不是阈值拒绝；不要把这当成拒绝率指标。
 - **既有知识库仍是标题索引**：本次新建库为 `body-v1`；已经在生产的老库需要显式重建才会切换，重建前后行为不同，README 与部署说明必须区分。
 - 观察到一处既有健壮性问题（未修改，属基线行为，不在本批范围）：`POST /api/agents` 传 `allowedTools: null` 会抛 `IllegalArgumentException` 并返回 500，而不是 400。普通账号正确用法是传空数组。
+
+## 6. 05/06 之后的补充证据（同一提交 `dd19818`）
+
+- **导入改为持久任务后的真实链路**：上传响应返回 `{documentId, jobId, indexStatus:"QUEUED"}`；脚本轮询 `GET /api/documents/{documentId}/ingestion`，两次上传都在真实 Embedding 完成后变为 `SUCCEEDED`，`chunksDone/chunksTotal = 6/6`。也就是说“文件已接收”与“可检索”确实分开，且索引确实被发布后才可被检索到。
+- **执行记录落库**：三次真实问答（u1 正文事实、u2 资料不足、游客公开事实）在 `exobrain_run` 中留下 3 条 `SUCCEEDED` 摘要与 `exobrain_run_event` 中 35 条顺序事件；答复 metadata 带服务端 `runId`。
+- **隔离与引用语义未因 05/06 改变**：账号/管理员 5 项隔离检查、正文事实命中、行号复核（48-73 / 43-64）、删除后 404 与历史保留全部复跑通过。
