@@ -1,8 +1,8 @@
 # ExoBrain 架构：实际请求链路与恢复边界
 
-本文描述**当前代码实际执行**的链路，并明确区分已实现与待实现能力。基线：提交 `0aa79ed`（另含尚未提交的 `jchatmind/pom.xml` 测试分类与 `jchatmind/src/test/java/com/kama/jchatmind/integration/PostgresBaselineIntegrationTest.java`）。
+本文描述**当前代码实际执行**的链路，并明确区分已实现与待实现能力。基线：提交 `39108e4`（任务 01–06 与 08 已合入）。
 
-文档中的“待实现”指 `docs/development/tasks/` 中 03（正文索引与结构化检索）、04（可核验引用）、05（执行追踪）、06（持久化导入）、07（持久化对话任务）的**计划**。计划中的队列、索引代际切换、引用校验、运行记录和模型降级**尚未存在**，架构图上也不会把它们画成已有组件。接口语义以 [共享契约](development/contracts.md) 为准。
+文档中的“待实现”目前只剩任务 07（持久化对话任务的入队、租约与重启恢复）。01–06 已实现：并发隔离的 Markdown 解析、可复现检索评测、正文索引与结构化检索（含索引版本与原子发布）、服务端校验的回答引用、真实执行追踪、持久化文档导入任务。**尚未实现**的能力不会被画成已有组件：对话任务的持久队列/领取/断点续跑（07）、混合检索与重排、自动模型降级、PDF/Word 解析。接口语义以 [共享契约](development/contracts.md) 为准，决策理由见 `docs/adr/`。
 
 ## 1. 部署形态
 
@@ -110,14 +110,14 @@ POST /api/knowledge-bases/{id}/documents （multipart）
 即：索引的“发布”就是文档事务的提交——没有候选索引、没有 `indexVersion` / `indexRevision`、chunk `metadata` 为空、没有行号与来源哈希；失败时整体回滚并清理已写入的文件。旧库中已有的 chunk 不会被重新处理。
 
 检索侧现状：`chunk_bge_m3(embedding vector(1024))` + `ivfflat (vector_l2_ops)` 索引（是否被规划器使用由数据库决定）；`ChunkBgeM3Mapper.similaritySearch` 限定 `kb_id`、按 `<->` L2 距离排序、`limit 3`、没有相关性阈值。`KnowledgeTools.knowledgeQuery(kbsId, query)` 返回拼接后的纯文本片段，没有命中状态、来源位置或距离。
-
-**待实现**：正文切块与来源位置（`sourceHash` / `startLine` / `endLine`）、`indexVersion` / `indexRevision` 的候选构建与原子发布（03，ADR 由 03 提供）；异步导入任务、短事务、失败重试与重启恢复（06，ADR 由 06 提供）。在这些落地前：未重建的旧库继续是“标题向量 v1”行为，新上传必须遵循该库当前策略，不得混用候选与旧版本结果（契约 §3）。
+检索侧现状：`chunk_bge_m3(embedding vector(1024))` + `ivfflat (vector_l2_ops)` 索引（是否被规划器使用由数据库决定）。`RetrievalService.retrieve` 在 SQL 里先限定知识库与当前活动索引版本，再按 `<->` L2 距离排序并 `limit topK`（`app.retrieval.top-k`，默认 3，可选 `max-distance` 拒绝阈值默认关闭）；`KnowledgeTool` 与演示工具都返回 `RetrievalEnvelope` JSON（状态、命中、来源位置、索引版本与距离），不再是拼接文本。
+**已实现（03）**：正文切块与来源位置（`sourceHash` / `startLine` / `endLine`）、`indexVersion` / `indexRevision` 的候选构建与原子发布（ADR 0003）；**已实现（06）**：导入任务、短事务、有界重试、租约/fencing 与重启恢复（ADR 0006）。未重建的旧库继续是“标题向量 v1”行为，新上传遵循该库当前策略，候选与旧版本结果不混用（契约 §3）。
 
 ## 6. 回答、引用与执行记录（现状与差距）
 
 已实现：`directAnswer` 交付答复；消息 `metadata` 保存 `toolCalls` / `toolResponse`；SSE 推 `AI_THINKING` / `AI_EXECUTING` / `AI_GENERATED_CONTENT` / `AI_DONE`（`AI_PLANNING` 仍是预留事件，未实现单独规划阶段）；历史可从数据库重新拉取。
 
-待实现：03 的结构化检索结果（`OK` / `NO_MATCH` / `UNAVAILABLE`）、04 的服务端引用校验与点击定位、05 的真实运行时间线与 `runId`。当前界面上的“来源”来自正文里由模型组织的文本片段，**不是**服务端校验过的可点击引用；不要把现状描述为“答案已验证”。模型繁忙时按特征词重试 3 次，仍失败即报错，**没有**自动切换备用模型的机制。
+**已实现（03/04/05）**：03 的结构化检索结果（`OK` / `NO_MATCH` / `UNAVAILABLE`）由 `KnowledgeTool` / 演示工具返回；04 的 `CitationRegistry` 只登记本次运行真实完成的 `KnowledgeTool` 结果，模型只能选择 `citationId`，`documentId`、行号与节选由服务端补全，界面点击走授权原文接口并按行定位；05 的 `runId` 与执行事件落库，聊天页可展开真实时间线。**仍未实现**：`AI_PLANNING` 独立规划阶段、自动切换备用模型（只有有限重试）。引用有效只证明来源可核对，不证明答案正确。
 
 ## 7. 删除与数据生命周期（已实现）
 
@@ -141,7 +141,7 @@ POST /api/knowledge-bases/{id}/documents （multipart）
 - 任意执行位置的断点续跑与 exactly-once 语义、运行级事件重放（`Last-Event-ID` 续传）。
 - 自动模型降级/切换、混合检索、重排模型、知识图谱。
 
-这些边界属于 05（运行记录）、06（导入任务）、07（对话任务）。账号异步执行使用进程内线程池（`AsyncConfig`），游客使用进程内 `running` 集合（`DemoExecutionService`）：**进程重启会丢失正在执行的运行**，数据库中的历史消息仍然保留。
+这些边界现在由 05（运行记录）、06（导入任务）与 07（对话任务）承担。账号与游客的**对话执行**目前仍是进程内调度（`AsyncConfig` 线程池、游客 `running` 集合）：**进程重启会丢失正在执行的运行**，05 只在读取时把心跳过期的 `RUNNING` 呈现为中断，真正的入队、领取与重启恢复属于 07。**文档导入**已改为持久任务队列（`exobrain_ingestion_job`，租约 + fencing + 有界重试），重启后可继续领取。
 
 ## 9. 模型目录与密钥（已实现）
 

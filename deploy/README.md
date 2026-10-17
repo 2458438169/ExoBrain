@@ -84,13 +84,23 @@ cd /opt/exobrain
 docker compose exec -T postgres psql -U exobrain -d exobrain -v ON_ERROR_STOP=1 < deploy/migrations/20261014-accounts.sql
 docker compose exec -T postgres psql -U exobrain -d exobrain -v ON_ERROR_STOP=1 < deploy/migrations/20261014-models.sql
 docker compose exec -T postgres psql -U exobrain -d exobrain -v ON_ERROR_STOP=1 < deploy/migrations/20261016-storage-cleanup.sql
+docker compose exec -T postgres psql -U exobrain -d exobrain -v ON_ERROR_STOP=1 < deploy/migrations/20261017-03-body-index.sql
+docker compose exec -T postgres psql -U exobrain -d exobrain -v ON_ERROR_STOP=1 < deploy/migrations/20261017-05-runs.sql
+docker compose exec -T postgres psql -U exobrain -d exobrain -v ON_ERROR_STOP=1 < deploy/migrations/20261017-06-ingestion.sql
 docker compose exec -T postgres psql -U exobrain -d exobrain -v ON_ERROR_STOP=1 -c \
-  'GRANT SELECT, INSERT, UPDATE, DELETE ON exobrain_user, exobrain_login_session, exobrain_resource_acl, exobrain_model, exobrain_model_state, exobrain_kb_embedding, exobrain_storage_cleanup TO exobrain_app;'
+  'GRANT SELECT, INSERT, UPDATE, DELETE ON exobrain_user, exobrain_login_session, exobrain_resource_acl, exobrain_model, exobrain_model_state, exobrain_kb_embedding, exobrain_storage_cleanup, exobrain_index_revision, exobrain_kb_index_state, exobrain_run, exobrain_run_event, exobrain_ingestion_job TO exobrain_app;'
 ```
 
 The migration files may be placed in a release staging directory instead; adjust
-the input paths accordingly. The tables add accounts, sessions, ownership, model
-definitions and knowledge-base bindings without recreating business tables.
+the input paths accordingly. All migrations are additive and repeatable: they add
+accounts, sessions, ownership, model definitions, knowledge-base bindings, the
+versioned body index (revision + per-knowledge-base active state + chunk source
+columns), execution records and the ingestion job table, without recreating
+business tables. `20261017-03-body-index.sql` must run before
+`20261017-06-ingestion.sql` because the ingestion worker publishes through the
+revision tables it creates. Existing rows are untouched: chunks without a
+revision stay on the legacy title index, and knowledge bases without an active
+revision keep their previous retrieval behaviour until an explicit rebuild.
 Private knowledge bases require recorded ownership even for administrators;
 the explicit public catalog remains shared. Data is not reassigned between users
 during this upgrade. On a fresh installation, initialize the base
@@ -263,10 +273,32 @@ current public knowledge base:
 
 Upload only these three content documents. The [test checklist](../docs/public-demo/99_test_questions.md)
 and [demo Agent system prompt](../docs/public-demo/agent-system-prompt.md) are
-maintenance references and must not be indexed as knowledge-base content. The
-published baseline contains 18 indexed sections with 1024-dimensional vectors.
-The current parser embeds section titles and stores their bodies; it does not
-perform whole-document embedding or automatic PDF/Word parsing.
+maintenance references and must not be indexed as knowledge-base content.
+
+Indexing behaviour depends on which policy the knowledge base is on, and the two
+must not be mixed:
+
+- **`body-v1` (new knowledge bases).** Text is normalized (UTF-8, BOM removed,
+  CRLF/CR to LF), the source SHA-256 and line range of every chunk are stored,
+  and retrieval returns the chunk body together with its document, heading path
+  and line range. Chunks are sized from the `app.retrieval.*` budget (target and
+  overlap estimated tokens, bounded characters) and embedded with the
+  knowledge base's bound 1024-dimension model. Publishing is atomic per revision:
+  a candidate is built, its document set, source hashes, model and active revision
+  are re-checked, and only then does it become the active revision.
+- **`legacy-title-v1` (existing knowledge bases that were never rebuilt).** The
+  section title is embedded and the section body is stored as the retrieved text.
+  Those rows have no revision and no line range, so a citation can only open the
+  whole document. They keep working until an explicit rebuild; the service never
+  switches an existing knowledge base silently.
+
+Uploads are queued: `POST /api/documents/upload` commits the document record and
+an ingestion job in one transaction and returns `documentId` plus a job id with
+status `QUEUED`. The worker parses and embeds outside the database transaction and
+publishes the index when it succeeds; the document list shows the job status, and
+a failed job can be retried by the owner. A document that is still `QUEUED` or
+`RUNNING` is previewable but not yet retrievable. Parsing does not cover
+PDF/Word or whole-document embedding.
 
 Do not copy private knowledge bases or production configuration into the public
 knowledge base. Listing or uploading a file elsewhere does not publish it:
