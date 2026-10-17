@@ -132,4 +132,95 @@
             </plugin>
         </plugins>
     </build>
+    <!--
+        测试分类（任务 08）。默认 profile 只跑确定性单元测试；需要完整 Spring 上下文、
+        真实 PostgreSQL/pgvector 或真实外部模型的测试用显式 profile 选择。没有任何 profile
+        使用 skipTests 或全局忽略失败：每个选择器只是缩小“运行哪些类”的范围。
+        真实 PostgreSQL 集成测试不需要 Testcontainers 依赖，通过 JDBC 连接由
+        EXOBRAIN_IT_JDBC_URL / -Dexobrain.it.jdbcUrl 指定的数据库（CI 使用 pgvector 服务容器，
+        本地可指向开发库或一次性容器）；未配置且未要求数据库时以 assumption 跳过并如实报告。
+    -->
+    <profiles>
+        <!-- 默认：确定性单元测试，覆盖原 deploy/README.md 选择器选中的全部类。 -->
+        <profile>
+            <id>unit</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <excludes>
+                                <!-- 启动完整 Spring 上下文；需要已建表的 PostgreSQL 与本机私有运行配置。 -->
+                                <exclude>**/JchatmindApplicationTests.java</exclude>
+                                <exclude>**/JChatMindTests.java</exclude>
+                                <!-- 调用环境里真实配置的 DeepSeek 账号，属于真实外部模型实验。 -->
+                                <exclude>**/agent/examples/*Test.java</exclude>
+                                <!-- 真实 PostgreSQL 集成测试；用 -Ppostgres-it 显式运行。 -->
+                                <exclude>**/integration/*Test.java</exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- 真实 PostgreSQL 17 + pgvector 集成：先建隔离 schema，再安装基线脚本与全部迁移。 -->
+        <profile>
+            <id>postgres-it</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <includes>
+                                <include>**/integration/*Test.java</include>
+                            </includes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- 完整 Spring 上下文冒烟：需要可达数据库、基线表结构与私有运行配置，另行显式运行。 -->
+        <profile>
+            <id>app-context</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <includes>
+                                <include>**/JchatmindApplicationTests.java</include>
+                                <include>**/JChatMindTests.java</include>
+                            </includes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- 真实外部模型实验（产生外部调用与费用），只在显式指定时运行。 -->
+        <profile>
+            <id>external-model</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <includes>
+                                <include>**/agent/examples/*Test.java</include>
+                            </includes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

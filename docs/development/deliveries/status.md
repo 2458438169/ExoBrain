@@ -28,14 +28,14 @@
 
 | 编号 | 负责人 | 工作目录 | 起始提交 | 依赖 | 允许修改文件 | 状态 | 交付提交 | 证据位置 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 01 Markdown 并发隔离 | 子 Agent A1 | 共享目录 | `68f71d3` | 无 | `MarkdownParserServiceImpl.java`、新增解析器测试、`deliveries/01.md` | 待开始 | — | `docs/development/deliveries/01.md` |
-| 02 检索评测基线 | 子 Agent A2 | 共享目录 | `68f71d3` | 无（候选对比依赖 03） | `evaluation/**`、`deliveries/02.md` | 待开始 | — | `docs/development/deliveries/02.md` |
-| 03 正文索引与结构化检索 | 主 Agent（主写）+ 审查 | 共享目录 | 01 合入后 | 01；与 02 共用语料 | `retrieval/**` 新增、解析器分块扩展、chunk 实体/mapper、`RagService*`、`KnowledgeTools`、03 迁移、`deliveries/03.md` | 待开始 | — | `docs/development/deliveries/03.md` |
+| 01 Markdown 并发隔离 | 子 Agent A1（中断后主 Agent 核验收尾） | 共享目录 | `68f71d3` | 无 | `MarkdownParserServiceImpl.java`、新增解析器测试、`deliveries/01.md` | **验收通过** | `0aa79ed` | `docs/development/deliveries/01.md`（49 测试通过、4 个 Windows 符号链接跳过） |
+| 02 检索评测基线 | 子 Agent A2 → 子 Agent A2b（上游中断后重派） | 共享目录 | `68f71d3` | 无（候选对比依赖 03） | `evaluation/**`、`deliveries/02.md` | **验收通过** | `a8fed26` | `evaluation/runs/legacy-title-v1/summary.json`（真实基线 Hit@3 0.850 / Recall@3 0.812 / MRR@3 0.738；`validate.py` 退出 0；pytest 60 passed） |
+| 03 正文索引与结构化检索 | 子 Agent B1 + 主 Agent 审查 | 共享目录 | `0aa79ed` | 01（已合入）；与 02 共用语料 | `retrieval/**` 新增、`DocumentFacadeServiceImpl`、chunk 实体/mapper、`RagService*`、`KnowledgeTools`、`DemoKnowledgeTool`、`20261017-03-body-index.sql`、`docs/adr/0003-*.md`、`deliveries/03.md` | 执行中 | — | `docs/development/deliveries/03.md` |
 | 04 可核验引用 | 子 Agent B1 | 共享目录 | 03 协议冻结后 | 03；前端可先用夹具 | `JChatMind.java`、`DirectAnswerTool`、消息 metadata、`AgentChatHistory.tsx`、`DocumentPreviewDrawer.tsx`、共享 TS 类型、`deliveries/04.md` | 待开始 | — | `docs/development/deliveries/04.md` |
 | 05 执行追踪 | 子 Agent C1 | 共享目录 | 04 合入后 | 04 | `execution/**`、run/event mapper/DTO/service、05 迁移、`deliveries/05.md` | 待开始 | — | `docs/development/deliveries/05.md` |
 | 06 持久化文档导入 | 子 Agent C2 | 共享目录 | 03 合入后 | 03 | `ingestion/**`、`DocumentFacadeServiceImpl`、06 迁移、导入状态 UI、`deliveries/06.md` | 待开始 | — | `docs/development/deliveries/06.md` |
 | 07 持久化对话任务 | 主 Agent/子 Agent | 共享目录 | 05 合入后 | 05（参考 06） | 07 迁移、提交/入队路径、`deliveries/07.md` | 待开始 | — | `docs/development/deliveries/07.md` |
-| 08 CI、工程文档与集成 | 子 Agent A3 → 主 Agent | 共享目录 | `68f71d3` | 基础部分独立；验收随批 | `.github/**`、`pom.xml`、`README.md`、`deploy/README.md`、`docs/architecture.md`、`docs/adr/**`、`docs/provenance.md`、`deliveries/08.md` | 待开始 | — | `docs/development/deliveries/08.md` |
+| 08 CI、工程文档与集成 | 子 Agent A3（中断）→ 子 Agent A3b | 共享目录 | `68f71d3` | 基础部分独立；验收随批 | `.github/**`、`pom.xml`、`scripts/**`、`README.md`、`docs/architecture.md`、`docs/adr/**`、`docs/provenance.md`、`deliveries/08.md` | 执行中（基础部分代码已核验、尚未提交） | — | `docs/development/deliveries/08.md` |
 
 共享文件所有权（本轮实际约定）：
 
@@ -52,6 +52,9 @@
 | 波次 | 分派 | 实际并发 | 备注 |
 | --- | --- | --- | --- |
 | A | 01、02、08 基础并行；主 Agent 核实基线、准备真实 PostgreSQL 与 Embedding 坐标 | 子 Agent 3 + 主 Agent | 共享目录，文件所有权已在上表固定 |
+| B | 03 正文索引（依赖已合入的 01）、08 剩余部分（CI + 工程文档）；02 收尾（数据集/测试/真实基线） | 子 Agent 3 + 主 Agent | 2026-10-17 18:20 前后分派 |
+
+> 说明：波次 A 的三个子 Agent 均被上游模型服务中断（403），其中 02 由新会话接手收尾；01 与 08 的已完成代码由主 Agent 亲自复核（`.\mvnw.cmd -o test "-Dtest=MarkdownParser*Test,Document*Test,RagServiceImplTest"` → 49 通过 / 4 跳过；`.\mvnw.cmd -o test -Ppostgres-it` 对真实 PostgreSQL 17.11 → 6 通过 / 0 跳过），01 已提交为 `0aa79ed`。
 
 ## 3. 发布状态
 

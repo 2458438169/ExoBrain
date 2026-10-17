@@ -6,5 +6,6 @@
 # Python caches from the evaluation scripts.
 __pycache__/
 *.py[cod]
+.pytest_cache/
 
 # Published evaluation runs keep their own evidence files, including any run log.

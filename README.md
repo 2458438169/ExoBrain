@@ -321,6 +321,17 @@ docs/development/               # 优化开发指南、共享契约与可分发�
 
 ---
 
+## 工程文档与检查
+
+- [架构说明](docs/architecture.md)：实际请求链路、身份校验、索引发布与执行恢复边界，并明确区分已实现能力与待实现方案（03–07）。
+- [设计决策（ADR）](docs/adr/README.md)：后台工作线程的权限传播等决策；其余任务的条目位置先保留，内容由对应任务提供。
+- [来源与许可](docs/provenance.md)：上游 JChatMind 来源、MIT 许可，以及继承能力与本仓库新增能力的划分。
+- 构建、双前端、网关与更新/回滚步骤见[部署说明](deploy/README.md#build)；历史验证记录保留在该文档内，不在本 README 重复。
+- 统一检查入口（CI 与本地使用同一份逻辑）：`scripts/check.sh`（Linux / CI）与 `scripts/check.ps1`（Windows）。默认只跑确定性单元 profile；`--postgres-it` 跑真实 PostgreSQL 17 + pgvector 集成（未配置数据库时如实报告为跳过），`--frontend` 跑前端 lint，`--build` 跑游客版与账号版两次构建，`--all` 全部执行。CI 工作流为 [`.github/workflows/ci.yml`](.github/workflows/ci.yml)，不注入生产凭据、不自动部署。
+- 检索评测的冻结语料、题集与运行脚本在 [`evaluation/`](evaluation/)；真实语义评测不属于常规检查，需显式运行，未运行时如实标记。
+
+---
+
 ## 来源与许可
 
-ExoBrain 基于 [JChatMind](https://github.com/youngyangyang04/JChatMind) 持续开发，Java 包名沿用 `com.kama.jchatmind`。项目保留上游作者程序员 Carl 的版权声明，并遵循 [MIT License](LICENSE)；使用和再分发时请保留原许可与版权声明。
+ExoBrain 基于 [JChatMind](https://github.com/youngyangyang04/JChatMind) 持续开发，Java 包名沿用 `com.kama.jchatmind`。项目保留上游作者程序员 Carl 的版权声明，并遵循 [MIT License](LICENSE)；继承能力与本仓库新增能力的划分见[来源与能力归属](docs/provenance.md)。使用和再分发时请保留原许可与版权声明。

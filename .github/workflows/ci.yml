@@ -1,0 +1,179 @@
+# Continuous integration for ExoBrain (task 08).
+#
+# Runs on GitHub-hosted ubuntu runners with no production credentials: the repository is
+# checked out read-only and the workflow never deploys anything. The database used by the
+# integration step is a throwaway pgvector container whose password is generated per run.
+#
+# Every step calls scripts/check.sh, the same entry point documented for local use
+# (scripts/check.ps1 is the Windows equivalent). A failing step fails this job: there is no
+# -DskipTests, no ignored failure and no dynamic exclusion anywhere in the chain.
+
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+
+# Least privilege: the workflow only reads the repository, and no secret is referenced.
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  # Throwaway PostgreSQL instance used by -Ppostgres-it only. EXOBRAIN_IT_PASSWORD is not
+  # defined here; it is generated for each run in the "Start the PostgreSQL 17 service
+  # container" step below and never reused outside this job.
+  PG_CONTAINER: exobrain-ci-pg
+  PG_DATABASE: exobrain
+  PG_HOST_PORT: '54329'
+
+jobs:
+  checks:
+    name: unit, real PostgreSQL, frontend
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up JDK 21 (Temurin) with the Maven cache
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Set up Node.js 22 with the npm cache
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: ui/package-lock.json
+
+      - name: Prepare the log directory
+        run: mkdir -p "${RUNNER_TEMP}/check-logs"
+
+      # 1. Deterministic backend unit profile (jchatmind/pom.xml profile "unit", active by default).
+      - name: Backend unit profile
+        run: |
+          set -euo pipefail
+          bash scripts/check.sh --unit 2>&1 | tee "${RUNNER_TEMP}/check-logs/unit.log"
+
+      # 2. Real PostgreSQL 17 + pgvector for the "postgres-it" profile.
+      # A `docker run` service container is used instead of the `services:` block because the
+      # test password has to be random per run, and `services:` environment values cannot be
+      # produced by a previous step. The container is never reachable outside this runner.
+      - name: Start the PostgreSQL 17 service container
+        run: |
+          set -euo pipefail
+          password="it$(openssl rand -hex 16)"
+          echo "::add-mask::${password}"
+          docker run -d --name "${PG_CONTAINER}" \
+            -e POSTGRES_USER="${PG_DATABASE}" \
+            -e POSTGRES_PASSWORD="${password}" \
+            -e POSTGRES_DB="${PG_DATABASE}" \
+            -p "127.0.0.1:${PG_HOST_PORT}:5432" \
+            --health-cmd "pg_isready -U ${PG_DATABASE} -d ${PG_DATABASE} -h 127.0.0.1" \
+            --health-interval 5s \
+            --health-timeout 5s \
+            --health-retries 24 \
+            pgvector/pgvector:pg17
+
+          status="starting"
+          for _ in $(seq 1 60); do
+            status="$(docker inspect -f '{{.State.Health.Status}}' "${PG_CONTAINER}")"
+            if [ "${status}" = "healthy" ]; then
+              break
+            fi
+            if [ "${status}" = "unhealthy" ]; then
+              break
+            fi
+            sleep 2
+          done
+          if [ "${status}" != "healthy" ]; then
+            echo "the pgvector service container did not become healthy (status: ${status})" >&2
+            docker logs "${PG_CONTAINER}" >&2 || true
+            exit 1
+          fi
+
+          echo "service container status: ${status}"
+          docker exec "${PG_CONTAINER}" psql -U "${PG_DATABASE}" -d "${PG_DATABASE}" \
+            -c 'SELECT version()' -c "SELECT extversion FROM pg_extension WHERE extname = 'vector'"
+
+          {
+            echo "EXOBRAIN_IT_JDBC_URL=jdbc:postgresql://127.0.0.1:${PG_HOST_PORT}/${PG_DATABASE}"
+            echo "EXOBRAIN_IT_USERNAME=${PG_DATABASE}"
+            echo "EXOBRAIN_IT_PASSWORD=${password}"
+            echo "EXOBRAIN_IT_REQUIRE_DATABASE=true"
+          } >> "${GITHUB_ENV}"
+
+      - name: Real PostgreSQL integration profile
+        run: |
+          set -euo pipefail
+          bash scripts/check.sh --postgres-it --require-database 2>&1 | tee "${RUNNER_TEMP}/check-logs/postgres-it.log"
+
+      # 3. Front-end dependencies, lint and the two compiled configurations.
+      - name: Install front-end dependencies
+        working-directory: ui
+        run: npm ci
+
+      - name: Front-end lint
+        run: |
+          set -euo pipefail
+          bash scripts/check.sh --frontend 2>&1 | tee "${RUNNER_TEMP}/check-logs/frontend-lint.log"
+
+      - name: Guest and account front-end builds
+        run: |
+          set -euo pipefail
+          bash scripts/check.sh --build 2>&1 | tee "${RUNNER_TEMP}/check-logs/frontend-build.log"
+
+      - name: Collect service container diagnostics
+        if: failure()
+        run: |
+          docker logs "${PG_CONTAINER}" > "${RUNNER_TEMP}/check-logs/postgres.log" 2>&1 || true
+          docker inspect "${PG_CONTAINER}" > "${RUNNER_TEMP}/check-logs/postgres-inspect.log" 2>&1 || true
+
+      # Only test reports and check logs, with a bounded retention period. Local tool
+      # directories (.idea/, .claude/), private runtime configuration and knowledge-base
+      # corpora are never uploaded.
+      - name: Upload test reports and check logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-failure-reports
+          retention-days: 7
+          if-no-files-found: ignore
+          path: |
+            ${{ runner.temp }}/check-logs/*.log
+            jchatmind/target/surefire-reports/*.txt
+            jchatmind/target/surefire-reports/*.xml
+
+      - name: Summarize the surefire results
+        if: always()
+        run: |
+          {
+            echo "### Backend test summary"
+            echo
+            found=0
+            for report in jchatmind/target/surefire-reports/*.txt; do
+              if [ -f "${report}" ]; then
+                found=1
+                echo "- ${report##*/}: $(tail -n 1 "${report}")"
+              fi
+            done
+            if [ "${found}" -eq 0 ]; then
+              echo "No surefire report was produced."
+            fi
+          } >> "${GITHUB_STEP_SUMMARY}" || true
