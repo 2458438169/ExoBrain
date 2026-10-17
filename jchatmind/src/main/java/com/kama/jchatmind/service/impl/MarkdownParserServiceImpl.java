@@ -17,31 +17,45 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Markdown 解析服务。
+ *
+ * <p>并发约定：本类是 Spring 单例，因此不允许在实例字段中保存请求状态。
+ * 上传的正文只以局部不可变变量的形式在单次调用内传递，AST 与提取过程同样限定在本次调用内，
+ * 也不使用 static 字段、共享 ThreadLocal 或方法级 synchronized 来掩盖共享状态。</p>
+ *
+ * <p>关于 flexmark Parser 实例的复用（flexmark-all 0.64.8，本地 ~/.m2 只有二进制包，
+ * 因此直接核对 jar 内字节码，而不是仅凭“字段是 final”推断线程安全）：</p>
+ * <ul>
+ *   <li>{@code com.vladsch.flexmark.parser.Parser} 的实例字段全部为 final，
+ *       {@code parse(String)} / {@code parse(BasedSequence)} / {@code parseReader(Reader)} / {@code postProcess}
+ *       中只有 getfield 读取，没有 putfield，也没有 monitorenter/monitorexit。</li>
+ *   <li>但 Parser 持有的配置 DataHolder 会在首次解析时把“计算出的默认值”写回自身：
+ *       实测一次 parse 之后 {@code parser.getOptions()} 多出
+ *       {@code DataKey<EmptyList> SPECIAL_LEAD_IN_HANDLERS}，而
+ *       {@code MutableDataSet.getOrCompute} 的写回目标是普通 {@code java.util.HashMap}，没有任何同步。</li>
+ *   <li>因此共享同一个 Parser 会让并发解析同时写同一张 HashMap，官方也没有给出线程安全承诺。
+ *       这里改为每次调用新建 Parser（实测构建约 0.063ms/次），配置与请求状态都不跨调用共享；
+ *       单次调用的可变状态（DocumentParser、Document 及其引用仓库）由 flexmark 在 parse() 内部按调用创建。</li>
+ * </ul>
+ */
 @Service
 @Slf4j
 public class MarkdownParserServiceImpl implements MarkdownParserService {
 
-    private final Parser parser;
-    private String originalMarkdownContent;
-
-    public MarkdownParserServiceImpl() {
-        MutableDataSet options = new MutableDataSet();
-        this.parser = Parser.builder(options).build();
-    }
-
     @Override
     public List<MarkdownSection> parseMarkdown(InputStream inputStream) {
         try {
-            // 读取文件内容
-            originalMarkdownContent = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-            
-            // 解析 Markdown
-            Document document = parser.parse(originalMarkdownContent);
-            
+            // 请求正文只在本次调用内使用，不再写入实例字段。
+            String originalMarkdownContent = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+
+            // 每次调用使用独立的解析器实例，避免跨请求共享 flexmark 内部的配置缓存。
+            Document document = newParser().parse(originalMarkdownContent);
+
             // 提取标题和内容
             List<MarkdownSection> sections = new ArrayList<>();
-            extractSections(document, sections);
-            
+            extractSections(document, originalMarkdownContent, sections);
+
             log.info("解析 Markdown 完成，共提取 {} 个章节", sections.size());
             return sections;
         } catch (Exception e) {
@@ -51,10 +65,25 @@ public class MarkdownParserServiceImpl implements MarkdownParserService {
     }
 
     /**
+     * 创建仅服务于一次解析调用的解析器。
+     *
+     * <p>配置与基线保持一致：没有显式注册任何 extension。因此 GFN 风格的表格文本目前
+     * 仍按普通段落解析，{@link TableBlock} 分支不会被触发；若后续任务启用
+     * {@code TablesExtension}，表格章节的内容会从“纯文本”变成“原始表格 Markdown”，
+     * 属于需要单独评估的解析行为变更。</p>
+     */
+    static Parser newParser() {
+        MutableDataSet options = new MutableDataSet();
+        return Parser.builder(options).build();
+    }
+
+    /**
      * 提取标题和内容
      * 只遍历文档的直接子节点，遇到任何标题就停止收集当前标题的内容
+     *
+     * @param originalMarkdownContent 本次调用的原文，用于按 AST 偏移切片取回原始 Markdown
      */
-    private void extractSections(Document document, List<MarkdownSection> sections) {
+    private void extractSections(Document document, String originalMarkdownContent, List<MarkdownSection> sections) {
         // 收集文档的所有直接子节点（顶层节点）
         List<Node> topLevelNodes = new ArrayList<>();
         Node child = document.getFirstChild();
@@ -86,7 +115,7 @@ public class MarkdownParserServiceImpl implements MarkdownParserService {
                     }
                     
                     // 提取节点内容
-                    String content = extractNodeContent(nextNode);
+                    String content = extractNodeContent(nextNode, originalMarkdownContent);
                     if (content != null && !content.trim().isEmpty()) {
                         if (contentBuilder.length() > 0) {
                             contentBuilder.append("\n");
@@ -122,15 +151,17 @@ public class MarkdownParserServiceImpl implements MarkdownParserService {
 
     /**
      * 提取节点内容（保留格式，特别是表格）
+     *
+     * @param originalMarkdownContent 本次调用的原文
      */
-    private String extractNodeContent(Node node) {
+    private String extractNodeContent(Node node, String originalMarkdownContent) {
         if (node == null) {
             return null;
         }
         
         // 对于表格，保留原始 Markdown 格式
         if (node instanceof TableBlock) {
-            return extractTableMarkdown(node);
+            return extractTableMarkdown(node, originalMarkdownContent);
         }
         
         // 对于其他节点，提取文本内容
@@ -139,8 +170,10 @@ public class MarkdownParserServiceImpl implements MarkdownParserService {
 
     /**
      * 提取表格的原始 Markdown 格式
+     *
+     * @param originalMarkdownContent 本次调用的原文，表格偏移量相对该原文
      */
-    private String extractTableMarkdown(Node tableNode) {
+    private String extractTableMarkdown(Node tableNode, String originalMarkdownContent) {
         if (originalMarkdownContent == null) {
             return extractPlainText(tableNode);
         }
@@ -232,4 +265,3 @@ public class MarkdownParserServiceImpl implements MarkdownParserService {
         }
     }
 }
-
