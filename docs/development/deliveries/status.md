@@ -53,19 +53,23 @@
 | --- | --- | --- | --- |
 | A | 01、02、08 基础并行；主 Agent 核实基线、准备真实 PostgreSQL 与 Embedding 坐标 | 子 Agent 3 + 主 Agent | 共享目录，文件所有权已在上表固定 |
 | B | 03 正文索引（依赖已合入的 01）、08 剩余部分（CI + 工程文档）；02 收尾（数据集/测试/真实基线） | 子 Agent 3 + 主 Agent | 2026-10-17 18:20 前后分派 |
+| C | 04 可核验引用（消费 03 的契约） | 子 Agent + 主 Agent | 03 冻结协议后分派；04 会话中断后由主 Agent 补齐 ADR、交付记录与实测 |
+| D | 05 执行追踪 + 06 持久化导入并行；第一阶段端到端验收（独立构建） | 子 Agent 2 + 主 Agent | 第一阶段是检查点：03/04 合入并提交后用 `git archive` 独立构建跑真实验收 |
+| E | 07 持久化对话任务（依赖 05，参考 06 的租约模式） | 子 Agent + 主 Agent | 07 子 Agent 因上游配额耗尽中断，主 Agent 接手核验正常路径、补 ADR/交付记录 |
+| F | 统一回归（单元/集成/前端/端到端）、README 与部署文档校正、推送 `exobrain` | 主 Agent | 见第 3、4 节；生产部署未执行 |
 
 > 说明：波次 A 的三个子 Agent 均被上游模型服务中断（403），其中 02 由新会话接手收尾；01 与 08 的已完成代码由主 Agent 亲自复核（`.\mvnw.cmd -o test "-Dtest=MarkdownParser*Test,Document*Test,RagServiceImplTest"` → 49 通过 / 4 跳过；`.\mvnw.cmd -o test -Ppostgres-it` 对真实 PostgreSQL 17.11 → 6 通过 / 0 跳过），01 已提交为 `0aa79ed`。
 
 ## 3. 发布状态
 
-- 代码推送：待完成（推送目标 `exobrain`）。
+- 代码推送：**已完成**。`exobrain`（https://github.com/2458438169/ExoBrain.git）的 `main` 从 `68f71d3` 快进到 `cecf8e2`（本轮 13 个提交：01–07、08 与验收材料）。未推送上游 `origin`，未强推，未覆盖他人提交；推送时本机需经系统代理（`127.0.0.1:7897`）才能访问 github.com。
 - 生产部署：未执行。本机没有可用的生产环境（SSH/凭据）与授权细节；本机运行中的 Docker 栈 `eb-local-20261012-*` 属于其他项目（`External Brain`），不是本仓库的部署。如后续取得实际环境与授权，再按 08 的部署章节执行并回填本节。
 
 ## 4. 第一阶段验收（已完成）
 
-- 记录：`docs/development/deliveries/acceptance-phase1.md`
-- 被测提交 `a6921dc`，用 `git archive` 导出后独立构建的 jar 运行（不是共享工作目录里的后续改动）。
+- 记录：`docs/development/deliveries/acceptance-phase1.md`（含阶段一与 05/06/07 之后的两次真实复跑）
+- 被测提交：第一阶段 `a6921dc`（38/38 + 18/18）；加入 05/06 后 `dd19818`（40/40 + 19/19）；加入 07 后同一脚本再次复跑（40/40 + 19/19，队列与运行记录均为 `SUCCEEDED`）。每次都用 `git archive` 导出后独立构建的 jar 运行，不是共享工作目录里的进行中改动。
 - 真实环境：PostgreSQL 17.11 + pgvector 0.8.7、真实 Embedding `BAAI/bge-m3`（1024 维）、真实对话模型（DeepSeek-V4-Flash-0731）。
-- 结果：账号/管理员矩阵 38/38 通过，游客路径 18/18 通过，应用日志 0 条 ERROR；正文事实命中并给出可复核的行号引用（48-73 / 43-64，`indexVersion = body-v1`）。
-- 同一提交的自动化检查：后端默认 profile 230 通过 / 4 跳过、真实 PostgreSQL 集成 19/19、评测 `validate.py` 退出 0 与 `pytest 60 passed`、前端 lint 与两套构建通过。
-- 未执行：真实浏览器界面检查；02 的 body-v1 候选同条件对比（原因与复现路径见验收记录第 5 节）。
+- 结果：账号/管理员矩阵 40/40、游客路径 19/19，应用日志 0 条 ERROR；正文事实命中并给出可复核的行号引用（48-73 / 43-64，`indexVersion = body-v1`）；上传返回 jobId 后任务 `SUCCEEDED`（6/6 chunks）；`exobrain_chat_run_job` 与 `exobrain_run` 均有 `SUCCEEDED` 记录。
+- 同一提交的自动化检查：后端默认 profile 269 通过 / 4 跳过、真实 PostgreSQL 集成 38/38、评测 `validate.py` 退出 0 与 `pytest 60 passed`、前端 lint 与两套构建通过。
+- 未执行：真实浏览器界面检查；02 的 body-v1 候选同条件对比（原因与复现路径见验收记录第 5 节）；07 的队列故障/重启场景（见 `deliveries/07.md` 第 6 节）。
