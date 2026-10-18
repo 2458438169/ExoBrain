@@ -24,8 +24,10 @@
 | `scripts/validate.py` | 命令行校验器（题集 + 语料 + 冻结哈希） |
 | `scripts/run.py` | 真实运行器：建索引、逐题检索、输出结果与 run manifest |
 | `scripts/compare.py` | 同条件两次运行的对比报告 |
-| `tests/` | 离线 pytest（失败路径与已知排名夹具），不访问网络与数据库 |
+| `scripts/diagnose_boundaries.py` | 命中差距的边界归因诊断（只读；不改变冻结指标） |
 | `runs/legacy-title-v1/` | 真实基线结果（逐题 JSONL、失败、请求、SQL、run manifest） |
+| `runs/body-v1/` | 真实候选结果（同一题集与模型；含 `comparison.md`、`chunks.csv`、`index-snapshot.json`、`boundary-diagnostic.json`） |
+| `tests/` | 离线 pytest（失败路径与已知排名夹具），不访问网络与数据库 |
 
 ## 2. 语料与来源许可
 
@@ -100,15 +102,22 @@ D:\Soft\Python\Anaconda5.3.0\python.exe evaluation/scripts/run.py `
   --freeze evaluation/datasets/freeze.json `
   --variant legacy-title-v1 --build-index --out evaluation/runs/legacy-title-v1
 
-# 5) 候选策略（03 提供 body-v1 索引后）：同语料、同题集、同模型、同 k
+# 5) 候选策略 body-v1：索引由产品自己建（上传 -> 导入队列 -> IndexPublisher），
+#    本脚本只读；配置需给 kbId，并打开 useActiveRevision 与 docKeyFromDocumentName
 D:\Soft\Python\Anaconda5.3.0\python.exe evaluation/scripts/run.py `
-  --config <仓库外路径>\eval-config.json `
-  --dataset evaluation/datasets/questions-v1.jsonl --variant body-v1 `
-  --out evaluation/runs/body-v1
+  --config <仓库外路径>\body-v1-config.json `
+  --dataset evaluation/datasets/questions-v1.jsonl `
+  --corpus-manifest evaluation/corpus/v1-2026-10-14/manifest.json `
+  --freeze evaluation/datasets/freeze.json `
+  --variant body-v1 --out evaluation/runs/body-v1
 
 # 6) 对比（可比性检查 + 逐题差异）
 D:\Soft\Python\Anaconda5.3.0\python.exe evaluation/scripts/compare.py `
   --baseline evaluation/runs/legacy-title-v1 --candidate evaluation/runs/body-v1 --k 3
+
+# 7) 归因诊断（只读；把命中差距拆成边界差异与真实检索缺口）
+D:\Soft\Python\Anaconda5.3.0\python.exe evaluation/scripts/diagnose_boundaries.py `
+  --out evaluation/runs/body-v1/boundary-diagnostic.json
 ```
 
 说明与注意：
@@ -132,6 +141,33 @@ D:\Soft\Python\Anaconda5.3.0\python.exe evaluation/scripts/compare.py `
 
 其它真实数字：微平均 Recall@3 = 0.773（全）/ 0.760（dev）/ 0.789（test）；跨文档覆盖率@3 = 0.812，全文档覆盖题比例 = 0.775；干扰片段命中率@3 = 0.857（6/7 题的干扰单元进入 top-3，`distractor` 类别那一题因此完全失败）；无答案 10 题**检索级拒绝率 0.000**（`topK=3` 无阈值，10 题全部返回 3 个片段）；每题检索延迟（含 Embedding）：n=50，p50 = 5467 ms，p95 = 5891 ms，max = 6055 ms，而每题 Embedding 单独看 p50 = 5285 ms——**延迟由远端 Embedding 调用主导**（每次约 5.2–5.9 s），本地向量查询只占几十毫秒。距离分布：有答案题 top1 L2 均值 0.806（min 0.426，max 0.997），无答案题均值 0.935（min 0.736，max 1.033）——**有重叠，不能直接拿单一 L2 阈值当「资料不足」判据**，需要 03 用 dev 集校准。10 道题的 top-3 内部出现完全相同的距离（并列），排名不可区分。
 
+## 7.1 候选结果（body-v1，2026-10-18）与归因
+
+- 索引来源：**产品路径**。冻结语料经 `POST /api/documents/upload` 进入 `exobrain_ingestion_job`
+  队列，由 `IndexPublisher` 用产品的 `BodyChunker` 切块、用同一个 `BAAI/bge-m3` 建向量；
+  评测端只执行只读 SQL，**没有**在 Python 里重实现切块。一次性库 `exobrain_eval02`，
+  发布 revision `7b69ef54-…`，`chunk_count = 23`、`document_count = 4`（`runs/body-v1/index-snapshot.json`、`chunks.csv`）。
+- 适配器要求：`kbId` + `useActiveRevision`（产品检索按「KB + 当前 PUBLISHED revision」过滤）
+  + `docKeyFromDocumentName`（产品元数据写 `documentName`，`docKey` 是评测标注键）。
+- 真实结果（`runs/body-v1/comparison.md`，可比性检查“一致”）：
+
+| 范围 | Hit@1 | Hit@3 | Recall@3 | MRR@3 |
+| --- | --- | --- | --- | --- |
+| 全部（40 题） | 0.525 | 0.600 | 0.588 | 0.562 |
+| dev（23 题） | — | 0.783 | 0.761 | 0.717 |
+| test（17 题） | — | 0.353 | 0.353 | 0.353 |
+
+  干扰片段命中率@3 = 0.286（基线 0.857）；无答案检索拒绝率仍为 0.000；检索延迟 p50 = 5182 ms、p95 = 5343 ms。
+- **必须一起读的归因**（`scripts/diagnose_boundaries.py` → `runs/body-v1/boundary-diagnostic.json`）：
+  44 个 required 单元里，body-v1 冻结口径覆盖 26 个，其中 **17 个是「boundary-only」**——片段覆盖了
+  去掉首尾标题/空行后的正文窗口、事实字符串也都在 payload 里，只差把标题行算进行范围；
+  真实检索缺口只有 1 个。原因是 03 的切块把标题行排除在正文之外（标题进 `headingPath`），
+  而本文第 3 节的判据要求单个片段完整包含 gold 行范围。按“正文窗口”诊断口径，body-v1 覆盖
+  43/44 单元、40/40 题，legacy 仍是 34/44、34/40。
+- 因此：**当前冻结判据下 body-v1 的 Hit/Recall/MRR 低于基线，但差距几乎全部来自判据与切块边界的
+  结构性冲突**，不是检索质量下降。判据本身**未修改**；若要正式改变口径，必须重新冻结题集
+  （`freeze.json`）并重跑两侧，见 `docs/development/deliveries/02.md` 第 12 节。
+
 ## 8. 已知局限
 
 1. **只测检索，不测回答**：本任务不调用生成模型，回答级「资料不足」拒绝率、引用有效性与事实支持度均未测（`summary.noAnswer.answerLevelRejection = null`）。
@@ -142,9 +178,11 @@ D:\Soft\Python\Anaconda5.3.0\python.exe evaluation/scripts/compare.py `
 6. **单模型单库单机**：只测 `BAAI/bge-m3`(1024) 与 pgvector 0.8.7 / PostgreSQL 17；换模型/距离算子/索引类型都必须重建索引并重新基线。
 7. **题集由作者人工标注**：`insufficient-info` 的期望值是「资料未提供」，`expectedFacts` 不参与自动评分；检索级拒绝不能用它替代回答级拒绝。
 8. **未测场景**：权限越界、真实超时/限流、索引发布失败与回滚由 03/04/06/07 的任务负责，本目录的故障处理只在离线夹具里覆盖（`UNAVAILABLE` 不计入拒绝）。
+9. **判据按「章节整段」设计，对细切块不利**：第 3 节要求单个 hit 完整包含 gold 行范围，而 gold 单元的 `startLine` 常是章节标题行。03 的正文切块把标题行排除在 chunk 之外（标题进 `headingPath`），因此这类单元在 body-v1 下结构性不可命中；第 7.1 节的 boundary-only 统计给出了量化。**判据未修改**，对外报 body-v1 数字时必须同时说明这一点。
+10. **`runs/body-v1/sections.json` 不是候选的切块表**：它仍是冻结语料的章节表（供 legacy 建索引用）；body-v1 的真实切块看 `runs/body-v1/chunks.csv` 与 `index-snapshot.json`。
 
 ## 9. 给其它任务的接口
 
-- **03（正文索引与结构化检索）**：用 `datasets/questions-v1.jsonl` 的 dev 集（30 题）调参，test 集（20 题）只在最终比较时用一次；用 `freeze.json` 保证同一题集；用 `runs/legacy-title-v1/summary.json` 的 `distanceSeparation` 校准阈值；命中判据与来源字段语义见第 3 节与 `contracts.md` 第 2、3 节。`body-v1` 适配器已就位（`scripts/exo_runtime.py`），只消费已发布索引，查询不到索引时返回 `UNAVAILABLE / INDEX_NOT_FOUND`，不会伪装成 `NO_MATCH`。
+- **03（正文索引与结构化检索）**：用 `datasets/questions-v1.jsonl` 的 dev 集（30 题）调参，test 集（20 题）只在最终比较时用一次；用 `freeze.json` 保证同一题集；用 `runs/legacy-title-v1/summary.json` 的 `distanceSeparation` 校准阈值；命中判据与来源字段语义见第 3 节与 `contracts.md` 第 2、3 节。`body-v1` 适配器（`scripts/exo_runtime.py`）已按真实产品实现校准：只读、按 `active_revision_id` 过滤、用 `documentName` 映射 `docKey`；**产品元数据需要 `indexVersion/documentName/sourceHash/startLine/endLine/headingPath`**，缺任何一个都只能降级为“不可评分”，不会伪装成命中。查询不到索引时返回 `UNAVAILABLE / INDEX_NOT_FOUND`，不会伪装成 `NO_MATCH`。
 - **04（可核验引用）**：`payload` 是交给模型的正文，`headingPath/startLine/endLine/sourceHash` 是引用定位所需字段；`tests/test_scoring_known_rankings.py` 的 `hit_covers_unit` 夹具可用于检查「引用位置是否真的覆盖事实」。
 - **08（CI 与工程文档）**：`validate.py`（离线、退出码 2/3）与 `pytest evaluation/tests` 可直接进 CI；真实运行需要密钥，CI 只跑离线部分。

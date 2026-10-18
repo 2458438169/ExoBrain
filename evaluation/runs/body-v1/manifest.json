@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "runId": "body-v1-v1-2026-10-14-20261018T111843Z",
+  "startedAt": "2026-10-18T11:18:43Z",
+  "finishedAt": "2026-10-18T11:23:19Z",
+  "wallClockSeconds": 275.902,
+  "code": {
+    "commit": "e6a2da567d501168061f0bc788f20316c213f817",
+    "branch": "main",
+    "source": "git rev-parse（只读；不执行 git status，避免与并行任务争用索引锁）"
+  },
+  "corpusVersion": "v1-2026-10-14",
+  "corpusManifestPath": "evaluation/corpus/v1-2026-10-14/manifest.json",
+  "corpusManifestSha256": "7999340d125f8d2c133a24cffb4965086b63608ad74c68c6663176a3b7bca821",
+  "corpusDocumentSha256": {
+    "exobrain-overview": "b4440be10c02c079cca0ec7c69cc68a1a3127c4b22e6db804c2218adefc1bc9f",
+    "rag-principles": "2bdbca889b75399cc84a2944aadebe51707aad5e0cbfe66bd1fc2155ad248b8b",
+    "java-backend-faq": "bd0126d25579fa098705da6599f658dbb636fca0f821cf476391c3417006dbce",
+    "eval-synthetic-java-notes": "ec365ecd81f9f57ea14b6325975c20c84ab7104f96ebfa3707466742f0bea5f0"
+  },
+  "sectionCount": 23,
+  "datasetPath": "evaluation/datasets/questions-v1.jsonl",
+  "datasetSha256": "c795c7f69d33fa56c8cafe8535300490057f3ec69bbdeb587958c535ae5df08f",
+  "datasetTestSplitSha256": "d60b933e5e3233b02ade04a344a9c73c71a6b1eca8bb9fb98699218662f67c78",
+  "questionCount": 50,
+  "variant": "body-v1",
+  "strategy": {
+    "variant": "body-v1",
+    "kbId": "f2e4c9b7-7966-42a9-b786-a3df16e7db66",
+    "topK": 3,
+    "note": "任务 03 接入点：02 只查询已发布的 body-v1 索引，不生成切块。",
+    "requiredMetadataKeys": [
+      "indexVersion",
+      "documentName",
+      "sourceHash",
+      "startLine",
+      "endLine",
+      "headingPath"
+    ],
+    "metadataLike": null,
+    "useActiveRevision": true,
+    "docKeyResolution": "manifest-document-name",
+    "docKeyResolutionNote": "产品元数据不含评测键 docKey；按冻结 manifest 的原始文件名唯一映射。"
+  },
+  "index": {
+    "indexVersion": "body-v1",
+    "indexRevision": null,
+    "kbId": "f2e4c9b7-7966-42a9-b786-a3df16e7db66",
+    "rowCount": 23,
+    "buildStats": null
+  },
+  "embedding": {
+    "model": "BAAI/bge-m3",
+    "baseUrl": "https://emrank.tech/v1",
+    "expectedDimension": 1024,
+    "timeoutSeconds": 60.0,
+    "maxRetries": 3,
+    "calls": 51,
+    "retries": 0,
+    "inputs": 51,
+    "totalTokens": 1251
+  },
+  "embeddingApiKeyEnv": "EXOBRAIN_EVAL_EMBEDDING_API_KEY",
+  "embeddingApiKeyPresent": true,
+  "database": {
+    "transport": "docker-exec+psql",
+    "container": "exobrain-dev-pg",
+    "database": "exobrain_eval02",
+    "user": "exobrain",
+    "postgresVersion": "PostgreSQL 17.11 (Debian 17.11-1.pgdg12+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 12.2.0-14+deb12u1) 12.2.0, 64-bit",
+    "pgvectorVersion": "0.8.7"
+  },
+  "execution": {
+    "concurrency": 1,
+    "warmup": {
+      "queries": 1,
+      "text": "固定预热文本（不属于题集）",
+      "latencyMs": 5575.697899
+    },
+    "kValues": [
+      1,
+      3
+    ],
+    "topK": 3,
+    "planDiagnostic": true,
+    "cache": "无缓存：每题单独调用 Embedding 与一次向量查询",
+    "rateLimit": "未启用限流；顺序执行"
+  },
+  "environment": {
+    "pythonVersion": "3.7.0",
+    "platform": "Windows-10-10.0.19041-SP0",
+    "processor": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD"
+  },
+  "outputs": {
+    "results": "evaluation/runs/body-v1/results.jsonl",
+    "summary": "evaluation/runs/body-v1/summary.json",
+    "failures": "evaluation/runs/body-v1/failures.jsonl",
+    "requests": "evaluation/runs/body-v1/requests.jsonl",
+    "sql": "evaluation/runs/body-v1/sql"
+  }
+}

@@ -304,6 +304,26 @@ def decode_json_column(text):
     return value
 
 
+def document_keys_by_name(snapshot):
+    """把冻结语料里的文件名映射到 docKey。
+
+    body-v1 的产品元数据只写 `documentName`（上传时的原始文件名），它没有评测专用的
+    `docKey` 概念（`docs/development/contracts.md` 第 3 节的 docKey 是 02 的标注键）。
+    这里按 manifest 里 `documents[].path` 的 basename 建立映射：同一文件名只允许对应
+    一个 docKey，出现重名直接失败，绝不猜测或用相似度兜底。
+    """
+    mapping = {}
+    for document in snapshot.documents:
+        name = os.path.basename(document["path"])
+        existing = mapping.get(name)
+        if existing is not None and existing != document["docKey"]:
+            raise EvalError(
+                "冻结语料里文件名重复（%s），无法把 documentName 唯一映射到 docKey" % name
+            )
+        mapping[name] = document["docKey"]
+    return mapping
+
+
 def hit_from_row(row, rank, index_version, index_revision):
     """把 SQL 行转成可评分的 hit。
 
@@ -321,6 +341,7 @@ def hit_from_row(row, rank, index_version, index_revision):
         "chunkId": chunk_id,
         "docId": doc_id,
         "docKey": metadata.get("docKey"),
+        "documentName": metadata.get("documentName"),
         "sourceHash": metadata.get("sourceHash"),
         "headingPath": metadata.get("headingPath") or [],
         "startLine": metadata.get("startLine"),
@@ -598,24 +619,44 @@ class LegacyTitleV1Strategy(object):
 
 
 class BodyV1Strategy(object):
-    """任务 03 的接入点：只消费已发布的 body-v1 索引，不实现正文切块。"""
+    """任务 03 的接入点：只消费已发布的 body-v1 索引，不实现正文切块。
+
+    产品检索的 WHERE 是「KB + 当前 PUBLISHED revision」（`RetrievalIndexRepository`），
+    因此 `use_active_revision=True` 时本适配器按 `exobrain_kb_index_state.active_revision_id`
+    过滤；否则同一 KB 里被新版本替换的旧 chunk 也会进 top-k，指标就不是产品行为了。
+
+    产品元数据写的是 `documentName`（原始文件名）而不是评测专用的 `docKey`，
+    `doc_key_by_name` 用冻结 manifest 的文件名映射补齐；映射缺失时该 hit 标记为
+    `scorable=False`，不会静默当成命中。
+    """
 
     name = "body-v1"
     index_version = "body-v1"
 
-    def __init__(self, snapshot, bridge, embedder, top_k=3, kb_id=None, metadata_like=None):
+    def __init__(self, snapshot, bridge, embedder, top_k=3, kb_id=None, metadata_like=None,
+                 use_active_revision=False, doc_key_by_name=None):
         self.snapshot = snapshot
         self.bridge = bridge
         self.embedder = embedder
         self.top_k = int(top_k)
         self.kb_id = kb_id or deterministic_uuid("kb", "%s:%s" % (self.index_version, snapshot.version))
         self.metadata_like = metadata_like
+        self.use_active_revision = bool(use_active_revision)
+        self.doc_key_by_name = doc_key_by_name or {}
 
-    def index_row_count(self):
-        where = "kb_id = CAST(%s AS uuid)" % sql_literal(self.kb_id)
+    def _where(self):
+        where = "kb_id = CAST('%s' AS uuid)" % self.kb_id
+        if self.use_active_revision:
+            where += (
+                " AND revision_id = (SELECT active_revision_id FROM exobrain_kb_index_state"
+                " WHERE kb_id = CAST('%s' AS uuid))" % self.kb_id
+            )
         if self.metadata_like:
             where += " AND metadata LIKE %s" % sql_literal(self.metadata_like)
-        return int(self.bridge.scalar("SELECT count(*) FROM chunk_bge_m3 WHERE %s;" % where) or 0)
+        return where
+
+    def index_row_count(self):
+        return int(self.bridge.scalar("SELECT count(*) FROM chunk_bge_m3 WHERE %s;" % self._where()) or 0)
 
     def search(self, question, top_k=None):
         top_k = int(top_k or self.top_k)
@@ -629,15 +670,12 @@ class BodyV1Strategy(object):
                 "errorCode": "INDEX_NOT_FOUND",
                 "message": (
                     "kb_id=%s 没有 body-v1 索引；该索引由任务 03 构建（chunk_bge_m3.metadata 至少包含 "
-                    "indexVersion/docKey/sourceHash/startLine/endLine/headingPath）。" % self.kb_id
+                    "indexVersion/documentName/sourceHash/startLine/endLine/headingPath）。" % self.kb_id
                 ),
                 "hits": [],
             }
         started = time.time()
         embedding = self.embedder.embed(question)
-        where = "kb_id = CAST('%s' AS uuid)" % self.kb_id
-        if self.metadata_like:
-            where += " AND metadata LIKE %s" % sql_literal(self.metadata_like)
         sql = (
             "SELECT id, doc_id, to_json(content)::text, to_json(metadata)::text,\n"
             "       (embedding <-> '%s'::vector)::text\n"
@@ -645,7 +683,8 @@ class BodyV1Strategy(object):
             "WHERE %s\n"
             "ORDER BY embedding <-> '%s'::vector\n"
             "LIMIT %d;"
-        ) % (vector_literal(embedding["vectors"][0]), where, vector_literal(embedding["vectors"][0]), top_k)
+        ) % (vector_literal(embedding["vectors"][0]), self._where(),
+             vector_literal(embedding["vectors"][0]), top_k)
         try:
             rows = self.bridge.query(sql)
         except ServiceUnavailable as exc:
@@ -656,6 +695,8 @@ class BodyV1Strategy(object):
             }
         hits = [hit_from_row(row, index, self.index_version, None) for index, row in enumerate(rows, start=1)]
         for hit in hits:
+            if not hit.get("docKey") and hit.get("documentName"):
+                hit["docKey"] = self.doc_key_by_name.get(hit["documentName"])
             if hit.get("startLine") is None or hit.get("endLine") is None or not hit.get("docKey"):
                 hit["scorable"] = False
         return {
@@ -673,8 +714,16 @@ class BodyV1Strategy(object):
             "kbId": self.kb_id,
             "topK": self.top_k,
             "note": "任务 03 接入点：02 只查询已发布的 body-v1 索引，不生成切块。",
-            "requiredMetadataKeys": ["indexVersion", "docKey", "sourceHash", "startLine", "endLine", "headingPath"],
+            "requiredMetadataKeys": ["indexVersion", "documentName", "sourceHash", "startLine", "endLine", "headingPath"],
             "metadataLike": self.metadata_like,
+            "useActiveRevision": self.use_active_revision,
+            "docKeyResolution": (
+                "manifest-document-name" if self.doc_key_by_name else None
+            ),
+            "docKeyResolutionNote": (
+                "产品元数据不含评测键 docKey；按冻结 manifest 的原始文件名唯一映射。"
+                if self.doc_key_by_name else None
+            ),
         }
 
 
@@ -687,9 +736,14 @@ def make_strategy(name, snapshot, bridge, embedder, config):
             snapshot, bridge, embedder, top_k=top_k, kb_id=settings.get("kbId")
         )
     if name == BodyV1Strategy.name:
+        doc_key_by_name = None
+        if settings.get("docKeyFromDocumentName"):
+            doc_key_by_name = document_keys_by_name(snapshot)
         return BodyV1Strategy(
             snapshot, bridge, embedder, top_k=top_k, kb_id=settings.get("kbId"),
             metadata_like=settings.get("metadataLike"),
+            use_active_revision=settings.get("useActiveRevision", False),
+            doc_key_by_name=doc_key_by_name,
         )
     raise EvalError(
         "未知 variant=%s（当前实现：%s；body-v1 等候选策略由对应任务提供适配器）"

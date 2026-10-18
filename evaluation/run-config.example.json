@@ -35,7 +35,10 @@
     },
     "body-v1": {
       "topK": 3,
-      "metadataLike": "%\"indexVersion\": \"body-v1\"%"
+      "kbId": "<一次性评测库里由产品上传建出的 KB id>",
+      "useActiveRevision": true,
+      "docKeyFromDocumentName": true,
+      "note": "产品检索按「KB + 当前 PUBLISHED revision」过滤，因此必须打开 useActiveRevision；产品元数据只写 documentName，用 docKeyFromDocumentName 按冻结 manifest 的唯一文件名映射。不要用 metadataLike 过滤 indexVersion：产品写入的是紧凑 JSON（\"indexVersion\":\"body-v1\"），带空格的模式匹配不到。"
     }
   }
 }

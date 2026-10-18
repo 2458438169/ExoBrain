@@ -1,0 +1,289 @@
+{
+  "schemaVersion": 1,
+  "note": "非冻结口径；冻结指标见 summary.json 与 compare.py 的输出。",
+  "runs": [
+    {
+      "run": "legacy-title-v1",
+      "answerableQuestions": 40,
+      "requiredUnits": 44,
+      "buckets": {
+        "covered": 34,
+        "boundary-only": 0,
+        "facts-missing": 0,
+        "partial-overlap": 6,
+        "no-hit-in-doc": 4
+      },
+      "frozenHitAt": 0.85,
+      "bodyWindowHitAt": 0.85,
+      "unitsCoveredOnlyWithBodyWindow": 0,
+      "examples": [
+        {
+          "id": "q020",
+          "kind": "no-hit-in-doc",
+          "docKey": "rag-principles",
+          "unit": [
+            19,
+            21
+          ],
+          "hits": [
+            [
+              "java-backend-faq",
+              17,
+              21
+            ],
+            [
+              "java-backend-faq",
+              31,
+              35
+            ],
+            [
+              "eval-synthetic-java-notes",
+              1,
+              3
+            ]
+          ]
+        },
+        {
+          "id": "q022",
+          "kind": "no-hit-in-doc",
+          "docKey": "exobrain-overview",
+          "unit": [
+            25,
+            25
+          ],
+          "hits": [
+            [
+              "eval-synthetic-java-notes",
+              13,
+              15
+            ],
+            [
+              "rag-principles",
+              11,
+              15
+            ],
+            [
+              "rag-principles",
+              29,
+              31
+            ]
+          ]
+        },
+        {
+          "id": "q023",
+          "kind": "no-hit-in-doc",
+          "docKey": "exobrain-overview",
+          "unit": [
+            25,
+            25
+          ],
+          "hits": [
+            [
+              "rag-principles",
+              1,
+              3
+            ],
+            [
+              "rag-principles",
+              29,
+              31
+            ],
+            [
+              "rag-principles",
+              23,
+              27
+            ]
+          ]
+        },
+        {
+          "id": "q047",
+          "kind": "no-hit-in-doc",
+          "docKey": "exobrain-overview",
+          "unit": [
+            23,
+            27
+          ],
+          "hits": [
+            [
+              "rag-principles",
+              29,
+              31
+            ],
+            [
+              "java-backend-faq",
+              31,
+              35
+            ],
+            [
+              "rag-principles",
+              5,
+              9
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "run": "body-v1",
+      "answerableQuestions": 40,
+      "requiredUnits": 44,
+      "buckets": {
+        "covered": 26,
+        "boundary-only": 17,
+        "facts-missing": 0,
+        "partial-overlap": 0,
+        "no-hit-in-doc": 1
+      },
+      "frozenHitAt": 0.6,
+      "bodyWindowHitAt": 1.0,
+      "unitsCoveredOnlyWithBodyWindow": 17,
+      "examples": [
+        {
+          "id": "q003",
+          "kind": "boundary-only",
+          "docKey": "exobrain-overview",
+          "unit": [
+            5,
+            9
+          ],
+          "window": [
+            7,
+            9
+          ],
+          "hit": [
+            7,
+            9
+          ]
+        },
+        {
+          "id": "q004",
+          "kind": "boundary-only",
+          "docKey": "exobrain-overview",
+          "unit": [
+            5,
+            9
+          ],
+          "window": [
+            7,
+            9
+          ],
+          "hit": [
+            7,
+            9
+          ]
+        },
+        {
+          "id": "q008",
+          "kind": "boundary-only",
+          "docKey": "exobrain-overview",
+          "unit": [
+            17,
+            21
+          ],
+          "window": [
+            19,
+            21
+          ],
+          "hit": [
+            19,
+            21
+          ]
+        },
+        {
+          "id": "q013",
+          "kind": "boundary-only",
+          "docKey": "rag-principles",
+          "unit": [
+            5,
+            9
+          ],
+          "window": [
+            7,
+            9
+          ],
+          "hit": [
+            7,
+            9
+          ]
+        },
+        {
+          "id": "q021",
+          "kind": "boundary-only",
+          "docKey": "rag-principles",
+          "unit": [
+            29,
+            31
+          ],
+          "window": [
+            31,
+            31
+          ],
+          "hit": [
+            31,
+            31
+          ]
+        },
+        {
+          "id": "q022",
+          "kind": "no-hit-in-doc",
+          "docKey": "exobrain-overview",
+          "unit": [
+            25,
+            25
+          ],
+          "hits": [
+            [
+              "rag-principles",
+              31,
+              31
+            ],
+            [
+              "eval-synthetic-java-notes",
+              15,
+              15
+            ],
+            [
+              "rag-principles",
+              13,
+              15
+            ]
+          ]
+        },
+        {
+          "id": "q031",
+          "kind": "boundary-only",
+          "docKey": "java-backend-faq",
+          "unit": [
+            5,
+            9
+          ],
+          "window": [
+            7,
+            9
+          ],
+          "hit": [
+            7,
+            9
+          ]
+        },
+        {
+          "id": "q032",
+          "kind": "boundary-only",
+          "docKey": "java-backend-faq",
+          "unit": [
+            5,
+            9
+          ],
+          "window": [
+            7,
+            9
+          ],
+          "hit": [
+            7,
+            9
+          ]
+        }
+      ]
+    }
+  ]
+}

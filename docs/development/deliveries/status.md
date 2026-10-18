@@ -12,7 +12,7 @@
 | 起始未提交修改 | 仅未跟踪目录 `.claude/`、`.idea/`（非本任务产物，保持不提交） |
 | JDK | `D:\Soft\Java\jdk-21`（Java 21，PATH 上默认 Java 8 需先覆盖 `JAVA_HOME`） |
 | 前端 | Node `v24.18.0`、npm `11.16.0`；`ui/node_modules` 已安装 |
-| 评测 Python | `D:\Soft\Python\Anaconda5.3.0\python.exe`（Python 3.7.0，pytest 3.8.0，requests 可用） |
+| 评测 Python | `D:\Soft\Python\Anaconda5.3.0\python.exe`（Python 3.7.0，pytest 3.8.0，requests 可用；2026-10-18 离线用例 74 passed） |
 | 真实 PostgreSQL | Docker 容器 `exobrain-dev-pg`（`pgvector/pgvector:pg17`，`127.0.0.1:15432`，用户/库 `exobrain`） |
 | 真实 Embedding 服务 | `https://emrank.tech/v1/embeddings`，模型 `BAAI/bge-m3`，实际返回 1024 维（探测提交见下） |
 | 生产部署 | 本机无可达的线上环境与凭据；生产发布状态按本台账末尾“发布状态”一节据实说明 |
@@ -29,7 +29,7 @@
 | 编号 | 负责人 | 工作目录 | 起始提交 | 依赖 | 允许修改文件 | 状态 | 交付提交 | 证据位置 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 01 Markdown 并发隔离 | 子 Agent A1（中断后主 Agent 核验收尾） | 共享目录 | `68f71d3` | 无 | `MarkdownParserServiceImpl.java`、新增解析器测试、`deliveries/01.md` | **验收通过** | `0aa79ed` | `docs/development/deliveries/01.md`（49 测试通过、4 个 Windows 符号链接跳过） |
-| 02 检索评测基线 | 子 Agent A2 → 子 Agent A2b（上游中断后重派） | 共享目录 | `68f71d3` | 无（候选对比依赖 03） | `evaluation/**`、`deliveries/02.md` | **验收通过** | `a8fed26` | `evaluation/runs/legacy-title-v1/summary.json`（真实基线 Hit@3 0.850 / Recall@3 0.812 / MRR@3 0.738；`validate.py` 退出 0；pytest 60 passed） |
+| 02 检索评测基线 | 子 Agent A2 → 子 Agent A2b（上游中断后重派） | 共享目录 | `68f71d3` | 无（候选对比依赖 03） | `evaluation/**`、`deliveries/02.md` | **验收通过**（基线 + 2026-10-18 补做 body-v1 同条件对比） | `a8fed26`；对比见本批提交 | `evaluation/runs/legacy-title-v1/summary.json`（真实基线 Hit@3 0.850 / Recall@3 0.812 / MRR@3 0.738；`validate.py` 退出 0；pytest 74 passed）；`evaluation/runs/body-v1/`（真实候选 Hit@3 0.600，`comparison.md`、`chunks.csv`、`index-snapshot.json`、`boundary-diagnostic.json`） |
 | 03 正文索引与结构化检索 | 子 Agent B1 + 主 Agent 审查 | 共享目录 | `0aa79ed` | 01（已合入）；与 02 共用语料 | `retrieval/**`、`DocumentFacadeServiceImpl`、chunk 实体/mapper、`RagService*`、`KnowledgeTools`、`DemoKnowledgeTool`、`20261017-03-body-index.sql`、`docs/adr/0003-*.md`、`deliveries/03.md` | **验收通过** | `6aac8cd` | `deliveries/03.md`；默认 profile 230/0/0/4、`-Ppostgres-it` 19/19（主 Agent 复跑） |
 | 04 可核验引用 | 子 Agent B1（中断后主 Agent 收尾） | 共享目录 | `ecdb738` | 03 协议；前端按契约开发 | `citation/**`、`JChatMind.java`、`DirectAnswerTool`、`ChatMessageDTO`、`DemoCatalogService`、`AgentChatHistory.tsx`、`DocumentPreviewDrawer.tsx`、`ui/src/types`、`ui/src/api`、`docs/adr/0004-*.md`、`deliveries/04.md` | **验收通过**（后端与构建已复核；浏览器交互矩阵在最终回归补测） | 见下一提交 | `deliveries/04.md`（230 单测 + 19 集成 + lint + 两套构建） |
 | 05 执行追踪 | 子 Agent C1 | 共享目录 | `a6921dc` | 04（已合入） | `execution/**`、run/event mapper/DTO/service、`20261017-05-runs.sql`、`docs/adr/0005-*.md`、`deliveries/05.md` | **验收通过** | `39108e4` | `deliveries/05.md`；单元 265（当时）、集成 38/38、端到端含 `runId` 与事件 |
@@ -79,4 +79,5 @@
 - 真实环境：PostgreSQL 17.11 + pgvector 0.8.7、真实 Embedding `BAAI/bge-m3`（1024 维）、真实对话模型（DeepSeek-V4-Flash-0731）。
 - 结果：账号/管理员矩阵 40/40、游客路径 19/19，应用日志 0 条 ERROR；正文事实命中并给出可复核的行号引用（48-73 / 43-64，`indexVersion = body-v1`）；上传返回 jobId 后任务 `SUCCEEDED`（6/6 chunks）；`exobrain_chat_run_job` 与 `exobrain_run` 均有 `SUCCEEDED` 记录。
 - 同一提交的自动化检查：后端默认 profile 269 通过 / 4 跳过、真实 PostgreSQL 集成 51/51（含 07 的 13 项队列场景）、评测 `validate.py` 退出 0 与 `pytest 60 passed`、前端 lint 与两套构建通过。
-- 未执行：真实浏览器界面检查；02 的 body-v1 候选同条件对比（原因与复现路径见验收记录第 5 节）；07 的多实例、并发 HTTP 提交与真实 JVM 重启演练（队列语义本身已由 13 项集成测试覆盖，见 `deliveries/07.md` 第 6 节）。
+- 未执行：真实浏览器界面检查；07 的多实例、并发 HTTP 提交与真实 JVM 重启演练（队列语义本身已由 13 项集成测试覆盖，见 `deliveries/07.md` 第 6 节）。
+- 2026-10-18 补做：02 的 body-v1 同条件对比（隔离库 `exobrain_eval02`，产品切块 + 真实 Embedding；见 `deliveries/02.md` 第 12 节）。冻结判据下 Hit@3 0.600 < 基线 0.850，但 17/44 个证据单元只差「标题行」边界（诊断口径 43/44 单元、40/40 题），判据与题集均未修改。

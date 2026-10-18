@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "note": "body-v1 候选在运行时实际被查询的索引快照。索引由产品路径写入（上传 -> 导入队列 -> IndexPublisher：产品切块 + 产品 Embedding），评测只读，不生成切块。",
+  "database": "exobrain_eval02",
+  "container": "exobrain-dev-pg",
+  "postgres": "PostgreSQL 17.11 + pgvector 0.8.7",
+  "buildPath": "POST /api/documents/upload -> exobrain_ingestion_job（工作队列）-> IndexPublisher",
+  "revision": {
+    "revision_id": "7b69ef54-3d4b-45a0-8a4a-b553efd99486",
+    "index_version": "body-v1",
+    "status": "PUBLISHED",
+    "model_name": "BAAI/bge-m3",
+    "dimensions": 1024,
+    "document_count": 4,
+    "chunk_count": 23,
+    "source_set_hash": "37dbb92283a09b63dcfc8189705dc6d9084d0e9bfe8dae6c001fd268ed34ff7e",
+    "published_at": "2026-10-18T11:17:44.518153+00:00",
+    "active_index_version": "body-v1"
+  },
+  "chunksCsv": "evaluation/runs/body-v1/chunks.csv",
+  "capturedAt": "2026-10-18T19:25:04+08:00"
+}

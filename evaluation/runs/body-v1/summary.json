@@ -1,0 +1,727 @@
+{
+  "schemaVersion": 1,
+  "kValues": [
+    1,
+    3
+  ],
+  "questionCount": 50,
+  "answerableQuestions": 40,
+  "unanswerableQuestions": 10,
+  "metricsAll": {
+    "k=1": {
+      "questions": 40,
+      "hitAt": 0.525,
+      "recallAt": 0.5,
+      "mrrAt": 0.525,
+      "goldUnits": 44,
+      "goldUnitsCovered": 21,
+      "microRecall": 0.477273,
+      "crossDocumentCoverageAt": 0.5,
+      "allRequiredDocumentsCoveredRateAt": 0.475,
+      "crossDocumentQuestions": 40,
+      "distractorTopkRate": 0.0,
+      "distractorQuestions": 7
+    },
+    "k=3": {
+      "questions": 40,
+      "hitAt": 0.6,
+      "recallAt": 0.5875,
+      "mrrAt": 0.5625,
+      "goldUnits": 44,
+      "goldUnitsCovered": 26,
+      "microRecall": 0.590909,
+      "crossDocumentCoverageAt": 0.5875,
+      "allRequiredDocumentsCoveredRateAt": 0.575,
+      "crossDocumentQuestions": 40,
+      "distractorTopkRate": 0.285714,
+      "distractorQuestions": 7
+    }
+  },
+  "metricsDev": {
+    "k=1": {
+      "questions": 23,
+      "hitAt": 0.652174,
+      "recallAt": 0.630435,
+      "mrrAt": 0.652174,
+      "goldUnits": 25,
+      "goldUnitsCovered": 15,
+      "microRecall": 0.6,
+      "crossDocumentCoverageAt": 0.630435,
+      "allRequiredDocumentsCoveredRateAt": 0.608696,
+      "crossDocumentQuestions": 23,
+      "distractorTopkRate": 0.0,
+      "distractorQuestions": 6
+    },
+    "k=3": {
+      "questions": 23,
+      "hitAt": 0.782609,
+      "recallAt": 0.76087,
+      "mrrAt": 0.717391,
+      "goldUnits": 25,
+      "goldUnitsCovered": 19,
+      "microRecall": 0.76,
+      "crossDocumentCoverageAt": 0.76087,
+      "allRequiredDocumentsCoveredRateAt": 0.73913,
+      "crossDocumentQuestions": 23,
+      "distractorTopkRate": 0.333333,
+      "distractorQuestions": 6
+    }
+  },
+  "metricsTest": {
+    "k=1": {
+      "questions": 17,
+      "hitAt": 0.352941,
+      "recallAt": 0.323529,
+      "mrrAt": 0.352941,
+      "goldUnits": 19,
+      "goldUnitsCovered": 6,
+      "microRecall": 0.315789,
+      "crossDocumentCoverageAt": 0.323529,
+      "allRequiredDocumentsCoveredRateAt": 0.294118,
+      "crossDocumentQuestions": 17,
+      "distractorTopkRate": 0.0,
+      "distractorQuestions": 1
+    },
+    "k=3": {
+      "questions": 17,
+      "hitAt": 0.352941,
+      "recallAt": 0.352941,
+      "mrrAt": 0.352941,
+      "goldUnits": 19,
+      "goldUnitsCovered": 7,
+      "microRecall": 0.368421,
+      "crossDocumentCoverageAt": 0.352941,
+      "allRequiredDocumentsCoveredRateAt": 0.352941,
+      "crossDocumentQuestions": 17,
+      "distractorTopkRate": 0.0,
+      "distractorQuestions": 1
+    }
+  },
+  "byCategory": {
+    "title-fact": {
+      "questions": 10,
+      "hitAt": 0.9,
+      "recallAt": 0.9,
+      "mrrAt": 0.9,
+      "goldUnits": 10,
+      "goldUnitsCovered": 9,
+      "microRecall": 0.9,
+      "crossDocumentCoverageAt": null,
+      "allRequiredDocumentsCoveredRateAt": null,
+      "crossDocumentQuestions": 0,
+      "distractorTopkRate": null,
+      "distractorQuestions": 0
+    },
+    "paraphrase-zh": {
+      "questions": 5,
+      "hitAt": 0.8,
+      "recallAt": 0.8,
+      "mrrAt": 0.7,
+      "goldUnits": 5,
+      "goldUnitsCovered": 4,
+      "microRecall": 0.8,
+      "crossDocumentCoverageAt": null,
+      "allRequiredDocumentsCoveredRateAt": null,
+      "crossDocumentQuestions": 0,
+      "distractorTopkRate": null,
+      "distractorQuestions": 0
+    },
+    "body-fact": {
+      "questions": 18,
+      "hitAt": 0.388889,
+      "recallAt": 0.388889,
+      "mrrAt": 0.388889,
+      "goldUnits": 18,
+      "goldUnitsCovered": 7,
+      "microRecall": 0.388889,
+      "crossDocumentCoverageAt": null,
+      "allRequiredDocumentsCoveredRateAt": null,
+      "crossDocumentQuestions": 0,
+      "distractorTopkRate": null,
+      "distractorQuestions": 0
+    },
+    "same-title-different-content": {
+      "questions": 2,
+      "hitAt": 0.0,
+      "recallAt": 0.0,
+      "mrrAt": 0.0,
+      "goldUnits": 2,
+      "goldUnitsCovered": 0,
+      "microRecall": 0.0,
+      "crossDocumentCoverageAt": null,
+      "allRequiredDocumentsCoveredRateAt": null,
+      "crossDocumentQuestions": 0,
+      "distractorTopkRate": null,
+      "distractorQuestions": 0
+    },
+    "distractor": {
+      "questions": 1,
+      "hitAt": 1.0,
+      "recallAt": 1.0,
+      "mrrAt": 0.5,
+      "goldUnits": 1,
+      "goldUnitsCovered": 1,
+      "microRecall": 1.0,
+      "crossDocumentCoverageAt": null,
+      "allRequiredDocumentsCoveredRateAt": null,
+      "crossDocumentQuestions": 0,
+      "distractorTopkRate": null,
+      "distractorQuestions": 0
+    },
+    "cross-document": {
+      "questions": 4,
+      "hitAt": 0.75,
+      "recallAt": 0.625,
+      "mrrAt": 0.625,
+      "goldUnits": 8,
+      "goldUnitsCovered": 5,
+      "microRecall": 0.625,
+      "crossDocumentCoverageAt": null,
+      "allRequiredDocumentsCoveredRateAt": null,
+      "crossDocumentQuestions": 0,
+      "distractorTopkRate": null,
+      "distractorQuestions": 0
+    }
+  },
+  "noAnswer": {
+    "total": 10,
+    "retrievalRejected": 0,
+    "retrievalRejectionRate": 0.0,
+    "retrievalRejectionRateExcludingFailures": 0.0,
+    "serviceFailures": 0,
+    "okButEmpty": 0,
+    "okWithHits": 10,
+    "answerLevelRejection": null,
+    "answerLevelNote": "本次运行只调用 Embedding 与向量检索，未调用生成模型：回答级拒绝率未测。"
+  },
+  "noAnswerTest": {
+    "total": 3,
+    "retrievalRejected": 0,
+    "retrievalRejectionRate": 0.0,
+    "retrievalRejectionRateExcludingFailures": 0.0,
+    "serviceFailures": 0,
+    "okButEmpty": 0,
+    "okWithHits": 3,
+    "answerLevelRejection": null,
+    "answerLevelNote": "本次运行只调用 Embedding 与向量检索，未调用生成模型：回答级拒绝率未测。"
+  },
+  "latency": {
+    "retrieval": {
+      "n": 50,
+      "min": 5091.597,
+      "p50": 5181.5925,
+      "p95": 5343.0666,
+      "max": 5719.079,
+      "mean": 5207.46924
+    },
+    "embeddingPerQuery": {
+      "n": 50,
+      "min": 4913.723,
+      "p50": 4985.9775,
+      "p95": 5145.2004,
+      "max": 5534.283,
+      "mean": 5009.13836
+    }
+  },
+  "distanceSeparation": {
+    "answerable": {
+      "n": 40,
+      "min": 0.596402,
+      "p50": 0.815659,
+      "p95": 0.92486,
+      "max": 0.967608,
+      "mean": 0.808797
+    },
+    "unanswerable": {
+      "n": 10,
+      "min": 0.906947,
+      "p50": 0.959604,
+      "p95": 1.039464,
+      "max": 1.068988,
+      "mean": 0.963958
+    }
+  },
+  "ties": {
+    "questionsWithIdenticalDistances": 0,
+    "tolerance": 0.0
+  },
+  "failures": {
+    "serviceFailures": [],
+    "answerableMisses": [
+      {
+        "id": "q003",
+        "category": "body-fact",
+        "split": "dev",
+        "question": "ExoBrain 的前端框架、数据库访问层与向量检索分别使用什么？",
+        "goldUnits": [
+          {
+            "docKey": "exobrain-overview",
+            "startLine": 5,
+            "endLine": 9
+          }
+        ],
+        "top1": {
+          "docKey": "exobrain-overview",
+          "startLine": 7,
+          "endLine": 9,
+          "headingPath": [
+            "ExoBrain 项目导览：公开演示资料",
+            "ExoBrain 技术栈：Java、Spring Boot、Spring AI、React 与数据库"
+          ],
+          "distance": 0.793189
+        }
+      },
+      {
+        "id": "q004",
+        "category": "same-title-different-content",
+        "split": "dev",
+        "question": "知识库里有两份同名章节「ExoBrain 技术栈」，哪一份与仓库部署说明一致？前端到底用哪个 React 版本？",
+        "goldUnits": [
+          {
+            "docKey": "exobrain-overview",
+            "startLine": 5,
+            "endLine": 9
+          }
+        ],
+        "top1": {
+          "docKey": "exobrain-overview",
+          "startLine": 7,
+          "endLine": 9,
+          "headingPath": [
+            "ExoBrain 项目导览：公开演示资料",
+            "ExoBrain 技术栈：Java、Spring Boot、Spring AI、React 与数据库"
+          ],
+          "distance": 0.756543
+        }
+      },
+      {
+        "id": "q008",
+        "category": "body-fact",
+        "split": "dev",
+        "question": "聊天记录会被自动加进知识库，或者用来重新训练模型吗？",
+        "goldUnits": [
+          {
+            "docKey": "exobrain-overview",
+            "startLine": 17,
+            "endLine": 21
+          }
+        ],
+        "top1": {
+          "docKey": "exobrain-overview",
+          "startLine": 19,
+          "endLine": 21,
+          "headingPath": [
+            "ExoBrain 项目导览：公开演示资料",
+            "ExoBrain Agent 配置、知识库与会话历史分别保存什么"
+          ],
+          "distance": 0.820165
+        }
+      },
+      {
+        "id": "q013",
+        "category": "body-fact",
+        "split": "dev",
+        "question": "向量距离近就说明内容正确吗？应该怎样理解向量？",
+        "goldUnits": [
+          {
+            "docKey": "rag-principles",
+            "startLine": 5,
+            "endLine": 9
+          }
+        ],
+        "top1": {
+          "docKey": "rag-principles",
+          "startLine": 19,
+          "endLine": 21,
+          "headingPath": [
+            "RAG 检索原理：从公开资料到有依据的回答",
+            "ExoBrain KnowledgeTool 如何用 1024 维向量检索三个片段"
+          ],
+          "distance": 0.923747
+        }
+      },
+      {
+        "id": "q021",
+        "category": "body-fact",
+        "split": "dev",
+        "question": "资料里提到的检索改进建议有哪些？",
+        "goldUnits": [
+          {
+            "docKey": "rag-principles",
+            "startLine": 29,
+            "endLine": 31
+          }
+        ],
+        "top1": {
+          "docKey": "rag-principles",
+          "startLine": 31,
+          "endLine": 31,
+          "headingPath": [
+            "RAG 检索原理：从公开资料到有依据的回答",
+            "ExoBrain 文档格式与检索改进方向：哪些尚未实现"
+          ],
+          "distance": 0.850276
+        }
+      },
+      {
+        "id": "q031",
+        "category": "body-fact",
+        "split": "test",
+        "question": "部署说明要求哪个 JDK 版本？容器镜像用的是哪个 Java 运行时？",
+        "goldUnits": [
+          {
+            "docKey": "java-backend-faq",
+            "startLine": 5,
+            "endLine": 9
+          }
+        ],
+        "top1": {
+          "docKey": "java-backend-faq",
+          "startLine": 7,
+          "endLine": 9,
+          "headingPath": [
+            "Java 后端技术问答：ExoBrain 工程入门",
+            "Java、JDK 与 Spring Boot 分别负责什么"
+          ],
+          "distance": 0.814651
+        }
+      },
+      {
+        "id": "q032",
+        "category": "same-title-different-content",
+        "split": "test",
+        "question": "本项目的 JDK 包含编译工具吗？同名章节说法不一致时，哪个与部署说明一致？",
+        "goldUnits": [
+          {
+            "docKey": "java-backend-faq",
+            "startLine": 5,
+            "endLine": 9
+          }
+        ],
+        "top1": {
+          "docKey": "eval-synthetic-java-notes",
+          "startLine": 7,
+          "endLine": 7,
+          "headingPath": [
+            "评测专用合成文档：Java 与后端问答笔记（请勿上传产品知识库）",
+            "Java、JDK 与 Spring Boot 分别负责什么"
+          ],
+          "distance": 0.849434
+        }
+      },
+      {
+        "id": "q033",
+        "category": "body-fact",
+        "split": "test",
+        "question": "模型调用失败时会自动切换备用模型吗？和现有的重试机制有什么区别？",
+        "goldUnits": [
+          {
+            "docKey": "exobrain-overview",
+            "startLine": 23,
+            "endLine": 27
+          }
+        ],
+        "top1": {
+          "docKey": "exobrain-overview",
+          "startLine": 25,
+          "endLine": 27,
+          "headingPath": [
+            "ExoBrain 项目导览：公开演示资料",
+            "ExoBrain 已实现的功能与尚待改进的方向"
+          ],
+          "distance": 0.946
+        }
+      },
+      {
+        "id": "q035",
+        "category": "body-fact",
+        "split": "test",
+        "question": "解析器遇到下一个标题（哪怕级别更低）时会怎么处理？",
+        "goldUnits": [
+          {
+            "docKey": "rag-principles",
+            "startLine": 11,
+            "endLine": 15
+          }
+        ],
+        "top1": {
+          "docKey": "rag-principles",
+          "startLine": 13,
+          "endLine": 15,
+          "headingPath": [
+            "RAG 检索原理：从公开资料到有依据的回答",
+            "ExoBrain 如何处理 Markdown 文档、标题和章节正文"
+          ],
+          "distance": 0.881856
+        }
+      },
+      {
+        "id": "q036",
+        "category": "body-fact",
+        "split": "test",
+        "question": "向量检索按什么排序？一次最多返回几个片段正文？",
+        "goldUnits": [
+          {
+            "docKey": "rag-principles",
+            "startLine": 17,
+            "endLine": 21
+          }
+        ],
+        "top1": {
+          "docKey": "rag-principles",
+          "startLine": 19,
+          "endLine": 21,
+          "headingPath": [
+            "RAG 检索原理：从公开资料到有依据的回答",
+            "ExoBrain KnowledgeTool 如何用 1024 维向量检索三个片段"
+          ],
+          "distance": 0.811554
+        }
+      },
+      {
+        "id": "q037",
+        "category": "paraphrase-zh",
+        "split": "test",
+        "question": "为什么检索结果会从小到大排？一次最多给我几个片段？",
+        "goldUnits": [
+          {
+            "docKey": "rag-principles",
+            "startLine": 17,
+            "endLine": 21
+          }
+        ],
+        "top1": {
+          "docKey": "rag-principles",
+          "startLine": 19,
+          "endLine": 21,
+          "headingPath": [
+            "RAG 检索原理：从公开资料到有依据的回答",
+            "ExoBrain KnowledgeTool 如何用 1024 维向量检索三个片段"
+          ],
+          "distance": 0.881893
+        }
+      },
+      {
+        "id": "q038",
+        "category": "body-fact",
+        "split": "test",
+        "question": "检索服务怎样检查向量维度？和数据库向量列是什么关系？",
+        "goldUnits": [
+          {
+            "docKey": "rag-principles",
+            "startLine": 17,
+            "endLine": 19
+          }
+        ],
+        "top1": {
+          "docKey": "rag-principles",
+          "startLine": 19,
+          "endLine": 21,
+          "headingPath": [
+            "RAG 检索原理：从公开资料到有依据的回答",
+            "ExoBrain KnowledgeTool 如何用 1024 维向量检索三个片段"
+          ],
+          "distance": 0.768006
+        }
+      },
+      {
+        "id": "q039",
+        "category": "body-fact",
+        "split": "test",
+        "question": "资料不足时应该怎么回答？跨主题的问题怎么办？",
+        "goldUnits": [
+          {
+            "docKey": "rag-principles",
+            "startLine": 23,
+            "endLine": 27
+          }
+        ],
+        "top1": {
+          "docKey": "rag-principles",
+          "startLine": 25,
+          "endLine": 27,
+          "headingPath": [
+            "RAG 检索原理：从公开资料到有依据的回答",
+            "RAG 回答如何核对来源，以及资料不足时怎么办"
+          ],
+          "distance": 0.850503
+        }
+      },
+      {
+        "id": "q040",
+        "category": "title-fact",
+        "split": "test",
+        "question": "Controller、Service、Mapper 分别做什么？文档上传入口属于聊天流程吗？",
+        "goldUnits": [
+          {
+            "docKey": "java-backend-faq",
+            "startLine": 11,
+            "endLine": 15
+          }
+        ],
+        "top1": {
+          "docKey": "java-backend-faq",
+          "startLine": 13,
+          "endLine": 15,
+          "headingPath": [
+            "Java 后端技术问答：ExoBrain 工程入门",
+            "ExoBrain 后端的 Controller、Service 和 Mapper 怎样分工"
+          ],
+          "distance": 0.640775
+        }
+      },
+      {
+        "id": "q044",
+        "category": "body-fact",
+        "split": "test",
+        "question": "SSE 连接断了，已经保存的消息会丢失吗？还能看到历史吗？",
+        "goldUnits": [
+          {
+            "docKey": "java-backend-faq",
+            "startLine": 23,
+            "endLine": 29
+          }
+        ],
+        "top1": {
+          "docKey": "java-backend-faq",
+          "startLine": 25,
+          "endLine": 29,
+          "headingPath": [
+            "Java 后端技术问答：ExoBrain 工程入门",
+            "ExoBrain SSE 实时状态和数据库会话历史有什么区别"
+          ],
+          "distance": 0.844435
+        }
+      },
+      {
+        "id": "q047",
+        "category": "cross-document",
+        "split": "test",
+        "question": "哪些格式还没实现自动索引？正文级分段索引现在属于已实现还是改进方向？",
+        "goldUnits": [
+          {
+            "docKey": "rag-principles",
+            "startLine": 29,
+            "endLine": 31
+          },
+          {
+            "docKey": "exobrain-overview",
+            "startLine": 23,
+            "endLine": 27
+          }
+        ],
+        "top1": {
+          "docKey": "rag-principles",
+          "startLine": 31,
+          "endLine": 31,
+          "headingPath": [
+            "RAG 检索原理：从公开资料到有依据的回答",
+            "ExoBrain 文档格式与检索改进方向：哪些尚未实现"
+          ],
+          "distance": 0.767093
+        }
+      }
+    ],
+    "unanswerableWithHits": [
+      {
+        "id": "q024",
+        "hitCount": 3
+      },
+      {
+        "id": "q025",
+        "hitCount": 3
+      },
+      {
+        "id": "q026",
+        "hitCount": 3
+      },
+      {
+        "id": "q027",
+        "hitCount": 3
+      },
+      {
+        "id": "q028",
+        "hitCount": 3
+      },
+      {
+        "id": "q029",
+        "hitCount": 3
+      },
+      {
+        "id": "q030",
+        "hitCount": 3
+      },
+      {
+        "id": "q048",
+        "hitCount": 3
+      },
+      {
+        "id": "q049",
+        "hitCount": 3
+      },
+      {
+        "id": "q050",
+        "hitCount": 3
+      }
+    ]
+  },
+  "counts": {
+    "total": 50,
+    "answerable": 40,
+    "unanswerable": 10,
+    "bySplit": {
+      "dev": 30,
+      "test": 20
+    },
+    "byCategory": {
+      "title-fact": 10,
+      "paraphrase-zh": 5,
+      "body-fact": 18,
+      "same-title-different-content": 2,
+      "distractor": 1,
+      "cross-document": 4,
+      "insufficient-info": 10
+    },
+    "bySplitAnswerable": {
+      "dev.answerable": 23,
+      "dev.unanswerable": 7,
+      "test.answerable": 17,
+      "test.unanswerable": 3
+    },
+    "requiredEvidenceUnits": 44,
+    "documents": {
+      "exobrain-overview": 15,
+      "rag-principles": 17,
+      "java-backend-faq": 12
+    }
+  },
+  "variant": "body-v1",
+  "strategy": {
+    "variant": "body-v1",
+    "kbId": "f2e4c9b7-7966-42a9-b786-a3df16e7db66",
+    "topK": 3,
+    "note": "任务 03 接入点：02 只查询已发布的 body-v1 索引，不生成切块。",
+    "requiredMetadataKeys": [
+      "indexVersion",
+      "documentName",
+      "sourceHash",
+      "startLine",
+      "endLine",
+      "headingPath"
+    ],
+    "metadataLike": null,
+    "useActiveRevision": true,
+    "docKeyResolution": "manifest-document-name",
+    "docKeyResolutionNote": "产品元数据不含评测键 docKey；按冻结 manifest 的原始文件名唯一映射。"
+  },
+  "index": {
+    "rowCount": 23,
+    "buildStats": null,
+    "planDiagnosticMismatch": 0
+  },
+  "dataset": {
+    "path": "evaluation/datasets/questions-v1.jsonl",
+    "sha256": "c795c7f69d33fa56c8cafe8535300490057f3ec69bbdeb587958c535ae5df08f",
+    "testSplitSha256": "d60b933e5e3233b02ade04a344a9c73c71a6b1eca8bb9fb98699218662f67c78"
+  }
+}

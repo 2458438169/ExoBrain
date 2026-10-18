@@ -1,0 +1,347 @@
+{
+  "schemaVersion": 1,
+  "k": 3,
+  "baseline": {
+    "dir": "evaluation/runs/legacy-title-v1",
+    "variant": "legacy-title-v1",
+    "runId": "legacy-title-v1-v1-2026-10-14-20261017T102252Z",
+    "indexRevision": "legacy-title-v1/v1-2026-10-14/62408bc8895f",
+    "serviceFailures": 0
+  },
+  "candidate": {
+    "dir": "evaluation/runs/body-v1",
+    "variant": "body-v1",
+    "runId": "body-v1-v1-2026-10-14-20261018T111843Z",
+    "indexRevision": null,
+    "serviceFailures": 0
+  },
+  "comparability": [
+    {
+      "field": "datasetSha256",
+      "label": "题集 SHA-256",
+      "baseline": "c795c7f69d33fa56c8cafe8535300490057f3ec69bbdeb587958c535ae5df08f",
+      "candidate": "c795c7f69d33fa56c8cafe8535300490057f3ec69bbdeb587958c535ae5df08f",
+      "same": true
+    },
+    {
+      "field": "corpusVersion",
+      "label": "语料版本",
+      "baseline": "v1-2026-10-14",
+      "candidate": "v1-2026-10-14",
+      "same": true
+    },
+    {
+      "field": "questionCount",
+      "label": "题数",
+      "baseline": 50,
+      "candidate": 50,
+      "same": true
+    },
+    {
+      "field": "embedding.model",
+      "label": "Embedding 模型",
+      "baseline": "BAAI/bge-m3",
+      "candidate": "BAAI/bge-m3",
+      "same": true
+    },
+    {
+      "field": "execution.kValues",
+      "label": "k 取值",
+      "baseline": [
+        1,
+        3
+      ],
+      "candidate": [
+        1,
+        3
+      ],
+      "same": true
+    },
+    {
+      "field": "execution.topK",
+      "label": "topK",
+      "baseline": 3,
+      "candidate": 3,
+      "same": true
+    }
+  ],
+  "comparable": true,
+  "metrics": [
+    {
+      "scope": "全部",
+      "metric": "Hit@3",
+      "baseline": 0.85,
+      "candidate": 0.6,
+      "delta": -0.25,
+      "baselineQuestions": 40,
+      "candidateQuestions": 40
+    },
+    {
+      "scope": "全部",
+      "metric": "Recall@3",
+      "baseline": 0.8125,
+      "candidate": 0.5875,
+      "delta": -0.225,
+      "baselineQuestions": 40,
+      "candidateQuestions": 40
+    },
+    {
+      "scope": "全部",
+      "metric": "MRR@3",
+      "baseline": 0.7375,
+      "candidate": 0.5625,
+      "delta": -0.175,
+      "baselineQuestions": 40,
+      "candidateQuestions": 40
+    },
+    {
+      "scope": "全部",
+      "metric": "跨文档覆盖率@3",
+      "baseline": 0.8125,
+      "candidate": 0.5875,
+      "delta": -0.225,
+      "baselineQuestions": 40,
+      "candidateQuestions": 40
+    },
+    {
+      "scope": "全部",
+      "metric": "微平均 Recall@3",
+      "baseline": 0.772727,
+      "candidate": 0.590909,
+      "delta": -0.181818,
+      "baselineQuestions": 40,
+      "candidateQuestions": 40
+    },
+    {
+      "scope": "开发集",
+      "metric": "Hit@3",
+      "baseline": 0.826087,
+      "candidate": 0.782609,
+      "delta": -0.043478,
+      "baselineQuestions": 23,
+      "candidateQuestions": 23
+    },
+    {
+      "scope": "开发集",
+      "metric": "Recall@3",
+      "baseline": 0.782609,
+      "candidate": 0.76087,
+      "delta": -0.021739,
+      "baselineQuestions": 23,
+      "candidateQuestions": 23
+    },
+    {
+      "scope": "开发集",
+      "metric": "MRR@3",
+      "baseline": 0.673913,
+      "candidate": 0.717391,
+      "delta": 0.043478,
+      "baselineQuestions": 23,
+      "candidateQuestions": 23
+    },
+    {
+      "scope": "开发集",
+      "metric": "跨文档覆盖率@3",
+      "baseline": 0.782609,
+      "candidate": 0.76087,
+      "delta": -0.021739,
+      "baselineQuestions": 23,
+      "candidateQuestions": 23
+    },
+    {
+      "scope": "开发集",
+      "metric": "微平均 Recall@3",
+      "baseline": 0.76,
+      "candidate": 0.76,
+      "delta": 0.0,
+      "baselineQuestions": 23,
+      "candidateQuestions": 23
+    },
+    {
+      "scope": "保留测试集",
+      "metric": "Hit@3",
+      "baseline": 0.882353,
+      "candidate": 0.352941,
+      "delta": -0.529412,
+      "baselineQuestions": 17,
+      "candidateQuestions": 17
+    },
+    {
+      "scope": "保留测试集",
+      "metric": "Recall@3",
+      "baseline": 0.852941,
+      "candidate": 0.352941,
+      "delta": -0.5,
+      "baselineQuestions": 17,
+      "candidateQuestions": 17
+    },
+    {
+      "scope": "保留测试集",
+      "metric": "MRR@3",
+      "baseline": 0.823529,
+      "candidate": 0.352941,
+      "delta": -0.470588,
+      "baselineQuestions": 17,
+      "candidateQuestions": 17
+    },
+    {
+      "scope": "保留测试集",
+      "metric": "跨文档覆盖率@3",
+      "baseline": 0.852941,
+      "candidate": 0.352941,
+      "delta": -0.5,
+      "baselineQuestions": 17,
+      "candidateQuestions": 17
+    },
+    {
+      "scope": "保留测试集",
+      "metric": "微平均 Recall@3",
+      "baseline": 0.789474,
+      "candidate": 0.368421,
+      "delta": -0.421053,
+      "baselineQuestions": 17,
+      "candidateQuestions": 17
+    },
+    {
+      "scope": "全部",
+      "metric": "无答案检索拒绝率",
+      "baseline": 0.0,
+      "candidate": 0.0,
+      "delta": 0.0
+    },
+    {
+      "scope": "全部",
+      "metric": "服务故障题数",
+      "baseline": 0,
+      "candidate": 0,
+      "delta": 0
+    },
+    {
+      "scope": "全部",
+      "metric": "无答案题数",
+      "baseline": 10,
+      "candidate": 10,
+      "delta": 0
+    },
+    {
+      "scope": "保留测试集",
+      "metric": "无答案检索拒绝率",
+      "baseline": 0.0,
+      "candidate": 0.0,
+      "delta": 0.0
+    },
+    {
+      "scope": "保留测试集",
+      "metric": "服务故障题数",
+      "baseline": 0,
+      "candidate": 0,
+      "delta": 0
+    },
+    {
+      "scope": "保留测试集",
+      "metric": "无答案题数",
+      "baseline": 3,
+      "candidate": 3,
+      "delta": 0
+    },
+    {
+      "scope": "全部",
+      "metric": "检索延迟 p50 (ms)",
+      "baseline": 5467.4275,
+      "candidate": 5181.5925,
+      "delta": -285.835
+    },
+    {
+      "scope": "全部",
+      "metric": "检索延迟 p95 (ms)",
+      "baseline": 5891.35195,
+      "candidate": 5343.0666,
+      "delta": -548.28535
+    },
+    {
+      "scope": "全部",
+      "metric": "延迟样本量",
+      "baseline": 50,
+      "candidate": 50,
+      "delta": 0
+    }
+  ],
+  "perQuestionDifferences": [
+    {
+      "id": "q002",
+      "kind": "top1-document",
+      "baseline": "eval-synthetic-java-notes",
+      "candidate": "exobrain-overview"
+    },
+    {
+      "id": "q003",
+      "kind": "top1-document",
+      "baseline": "java-backend-faq",
+      "candidate": "exobrain-overview"
+    },
+    {
+      "id": "q014",
+      "kind": "top1-document",
+      "baseline": "java-backend-faq",
+      "candidate": "rag-principles"
+    },
+    {
+      "id": "q018",
+      "kind": "top1-document",
+      "baseline": "eval-synthetic-java-notes",
+      "candidate": "java-backend-faq"
+    },
+    {
+      "id": "q020",
+      "kind": "top1-document",
+      "baseline": "java-backend-faq",
+      "candidate": "rag-principles"
+    },
+    {
+      "id": "q022",
+      "kind": "top1-document",
+      "baseline": "eval-synthetic-java-notes",
+      "candidate": "rag-principles"
+    },
+    {
+      "id": "q027",
+      "kind": "top1-document",
+      "baseline": "eval-synthetic-java-notes",
+      "candidate": "exobrain-overview"
+    },
+    {
+      "id": "q028",
+      "kind": "top1-document",
+      "baseline": "java-backend-faq",
+      "candidate": "exobrain-overview"
+    },
+    {
+      "id": "q029",
+      "kind": "top1-document",
+      "baseline": "exobrain-overview",
+      "candidate": "java-backend-faq"
+    },
+    {
+      "id": "q031",
+      "kind": "top1-document",
+      "baseline": "eval-synthetic-java-notes",
+      "candidate": "java-backend-faq"
+    },
+    {
+      "id": "q032",
+      "kind": "top1-document",
+      "baseline": "java-backend-faq",
+      "candidate": "eval-synthetic-java-notes"
+    },
+    {
+      "id": "q033",
+      "kind": "top1-document",
+      "baseline": "java-backend-faq",
+      "candidate": "exobrain-overview"
+    }
+  ],
+  "notes": [
+    "两组结果必须来自同一语料、题集、模型版本与 k；任一项不同则不能声称单变量提升。",
+    "指标差异不等于回答质量差异：回答事实支持度需要单独的人工 rubric 复核。"
+  ]
+}
