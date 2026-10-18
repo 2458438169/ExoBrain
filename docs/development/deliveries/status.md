@@ -62,8 +62,15 @@
 
 ## 3. 发布状态
 
-- 代码推送：**已完成**。`exobrain`（https://github.com/2458438169/ExoBrain.git）的 `main` 从 `68f71d3` 快进到 `cecf8e2`（本轮 13 个提交：01–07、08 与验收材料）。未推送上游 `origin`，未强推，未覆盖他人提交；推送时本机需经系统代理（`127.0.0.1:7897`）才能访问 github.com。
-- 生产部署：未执行。本机没有可用的生产环境（SSH/凭据）与授权细节；本机运行中的 Docker 栈 `eb-local-20261012-*` 属于其他项目（`External Brain`），不是本仓库的部署。如后续取得实际环境与授权，再按 08 的部署章节执行并回填本节。
+- 代码推送：**已完成**。`exobrain`（https://github.com/2458438169/ExoBrain.git）的 `main` 从 `68f71d3` 快进到 `85e68b1`（本轮 16 个提交：01–07、08、验收材料与 07 的队列测试）。未推送上游 `origin`，未强推，未覆盖他人提交；推送需经本机系统代理（`127.0.0.1:7897`）访问 github.com。
+- 生产部署：**已执行（2026-10-18，Asia/Shanghai）**。
+  - 镜像 `exobrain:20261018-durable-runs`（JAR 62,928,190 字节，`FROM exobrain:20261014` + 覆盖 app.jar），容器 healthy。
+  - 迁移按 03 → 05 → 06 → 07 顺序应用并补齐应用角色 GRANT（新增 6 张表：`exobrain_index_revision`、`exobrain_kb_index_state`、`exobrain_run`、`exobrain_run_event`、`exobrain_ingestion_job`、`exobrain_chat_run_job`）。
+  - 前端切换到 `releases/20261018-durable-runs`（`ui/` 游客版 + `admin/` 账号版），`current` 符号链接已切换。
+  - 网关：生产 `nginx.conf` 的 demo 白名单加入 `chat-sessions/<uuid>/runs`、`runs/<uuid>`、`documents/<uuid>/ingestion`，`nginx -t` 通过后 `systemctl reload nginx`。
+  - 备份：`backups/pre-durable-runs-20261018-134926/`（db.sql.gz、documents.tar.gz、secrets、旧 release、nginx.conf、compose.yaml）。
+  - 验证：应用与数据库 healthy、启动后无 ERROR 日志；首页 200、`/admin/` 200、游客 agents/knowledge-bases 200、公开文档预览 200（`03_java_backend_faq.md`，2615 字符）、未知 demo 路径 404（fail-closed 仍在）、`/api/runs/*` 与 `/api/chat-sessions/*/runs` 无会话 401；数据行数保持 2 KB / 3 文档 / 18 chunk / 10 会话 / 62 消息 / 2 账号不变。
+  - 回滚：`ln -sfn releases/20261016-kb-privacy current` 并把 compose 的 image 改回 `exobrain:20261016-kb-privacy` 后 `docker compose up -d app`；迁移为增量、旧代码可读旧列，不要回删表。<br>说明：本次发布在 07 的队列测试补齐之后执行；`docs/adr/0007` 与 `deliveries/07.md` 记录的未验证项（多实例、真实 JVM 重启演练、浏览器交互）仍然有效。
 
 ## 4. 第一阶段验收（已完成）
 
