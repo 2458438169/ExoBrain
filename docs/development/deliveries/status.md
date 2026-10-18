@@ -62,7 +62,7 @@
 
 ## 3. 发布状态
 
-- 代码推送：**已完成**。`exobrain`（https://github.com/2458438169/ExoBrain.git）的 `main` 从 `68f71d3` 快进到 `85e68b1`（本轮 16 个提交：01–07、08、验收材料与 07 的队列测试）。未推送上游 `origin`，未强推，未覆盖他人提交；推送需经本机系统代理（`127.0.0.1:7897`）访问 github.com。
+- 代码推送：**已完成**。`exobrain`（https://github.com/2458438169/ExoBrain.git）的 `main` 从 `68f71d3` 快进到 `85e68b1`（第一批 16 个提交：01–07、08、验收材料与 07 的队列测试）；随后补做 02 候选对比、浏览器验收、07 多实例/并发/真实 kill 演练，再追加 `a6bc0ae`、`34a5d28`、`c06ecfe` 与本行所在提交。未推送上游 `origin`，未强推，未覆盖他人提交；推送需经本机系统代理（`127.0.0.1:7897`）访问 github.com。按用户选择，本轮推送**接受触发一次 GitHub Actions CI**。
 - 生产部署：**已执行（2026-10-18，Asia/Shanghai）**。
   - 镜像 `exobrain:20261018-durable-runs`（JAR 62,928,190 字节，`FROM exobrain:20261014` + 覆盖 app.jar），容器 healthy。
   - 迁移按 03 → 05 → 06 → 07 顺序应用并补齐应用角色 GRANT（新增 6 张表：`exobrain_index_revision`、`exobrain_kb_index_state`、`exobrain_run`、`exobrain_run_event`、`exobrain_ingestion_job`、`exobrain_chat_run_job`）。
