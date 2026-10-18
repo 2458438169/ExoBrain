@@ -34,7 +34,7 @@
 | 04 可核验引用 | 子 Agent B1（中断后主 Agent 收尾） | 共享目录 | `ecdb738` | 03 协议；前端按契约开发 | `citation/**`、`JChatMind.java`、`DirectAnswerTool`、`ChatMessageDTO`、`DemoCatalogService`、`AgentChatHistory.tsx`、`DocumentPreviewDrawer.tsx`、`ui/src/types`、`ui/src/api`、`docs/adr/0004-*.md`、`deliveries/04.md` | **验收通过**（2026-10-18 补做真实浏览器交互验收：引用按行定位、执行时间线、SSE 断线刷新通过；390px 发现布局缺陷，见 `deliveries/browser-acceptance.md`） | 见下一提交 | `deliveries/04.md`（230 单测 + 19 集成 + lint + 两套构建）；`deliveries/browser-acceptance.md` |
 | 05 执行追踪 | 子 Agent C1 | 共享目录 | `a6921dc` | 04（已合入） | `execution/**`、run/event mapper/DTO/service、`20261017-05-runs.sql`、`docs/adr/0005-*.md`、`deliveries/05.md` | **验收通过** | `39108e4` | `deliveries/05.md`；单元 265（当时）、集成 38/38、端到端含 `runId` 与事件 |
 | 06 持久化文档导入 | 子 Agent C2 | 共享目录 | `a6921dc` | 03（已合入） | `ingestion/**`、`DocumentFacadeServiceImpl`、`20261017-06-ingestion.sql`、导入状态 UI、`deliveries/06.md` | **验收通过** | `09814f3` | `deliveries/06.md`；单元 265、集成 38/38（含 14 项故障注入）、端到端上传返回 jobId 后 `SUCCEEDED` |
-| 07 持久化对话任务 | 子 Agent（上游配额耗尽中断）→ 主 Agent 收尾 | 共享目录 | `39108e4` | 05（已合入）；参考 06 | `runs/**`、`20261017-07-durable-runs.sql`、提交/入队路径、`CreateChatMessageRequest/Response`、`DemoChatService`/`DemoController`、`docs/adr/0007-*.md`、`deliveries/07.md` | **验收通过**：单元 269、集成 51/51（含 13 项队列故障/重启场景）、端到端 40/40 + 19/19；仍未验证多实例、浏览器与并发 HTTP 提交（见 `deliveries/07.md` 第 6 节） | `1f4d776c` 之后本批提交 | `docs/development/deliveries/07.md` |
+| 07 持久化对话任务 | 子 Agent（上游配额耗尽中断）→ 主 Agent 收尾 | 共享目录 | `39108e4` | 05（已合入）；参考 06 | `runs/**`、`20261017-07-durable-runs.sql`、提交/入队路径、`CreateChatMessageRequest/Response`、`DemoChatService`/`DemoController`、`docs/adr/0007-*.md`、`deliveries/07.md` | **验收通过**：单元 269、集成 51/51（含 13 项队列故障/重启场景）、端到端 40/40 + 19/19；2026-10-18 补做**双实例 + 并发 HTTP + 真实 kill 演练**（同会话并发 200/409、幂等重放同 `runId`、崩溃后 `INTERRUPTED` 不重放；默认租约下 3/3 冒烟通过） | `1f4d776c` 之后本批提交 | `docs/development/deliveries/07.md`、`deliveries/durable-runs-drill.md` |
 | 08 CI、工程文档与集成 | 子 Agent A3（中断）→ 子 Agent A3b | 共享目录 | `68f71d3` | 基础部分独立；验收随批 | `.github/**`、`pom.xml`、`scripts/**`、`README.md`、`docs/architecture.md`、`docs/adr/**`、`docs/provenance.md`、`deliveries/08.md` | **验收通过**（文档中的“待实现”标注在 03 合入后由主 Agent 修正） | `ecdb738` | `deliveries/08.md`；`-Punit` 165 / `-Ppostgres-it` 6（隔离副本），复跑后 230 / 19 |
 
 共享文件所有权（本轮实际约定）：
@@ -78,6 +78,9 @@
 - 被测提交：第一阶段 `a6921dc`（38/38 + 18/18）；加入 05/06 后 `dd19818`（40/40 + 19/19）；加入 07 后同一脚本再次复跑（40/40 + 19/19，队列与运行记录均为 `SUCCEEDED`）。每次都用 `git archive` 导出后独立构建的 jar 运行，不是共享工作目录里的进行中改动。
 - 真实环境：PostgreSQL 17.11 + pgvector 0.8.7、真实 Embedding `BAAI/bge-m3`（1024 维）、真实对话模型（DeepSeek-V4-Flash-0731）。
 - 结果：账号/管理员矩阵 40/40、游客路径 19/19，应用日志 0 条 ERROR；正文事实命中并给出可复核的行号引用（48-73 / 43-64，`indexVersion = body-v1`）；上传返回 jobId 后任务 `SUCCEEDED`（6/6 chunks）；`exobrain_chat_run_job` 与 `exobrain_run` 均有 `SUCCEEDED` 记录。
-- 同一提交的自动化检查：后端默认 profile 269 通过 / 4 跳过、真实 PostgreSQL 集成 51/51（含 07 的 13 项队列场景）、评测 `validate.py` 退出 0 与 `pytest 60 passed`、前端 lint 与两套构建通过。
-- 未执行：真实浏览器界面检查；07 的多实例、并发 HTTP 提交与真实 JVM 重启演练（队列语义本身已由 13 项集成测试覆盖，见 `deliveries/07.md` 第 6 节）。
-- 2026-10-18 补做：02 的 body-v1 同条件对比（隔离库 `exobrain_eval02`，产品切块 + 真实 Embedding；见 `deliveries/02.md` 第 12 节）。冻结判据下 Hit@3 0.600 < 基线 0.850，但 17/44 个证据单元只差「标题行」边界（诊断口径 43/44 单元、40/40 题），判据与题集均未修改。
+- 同一提交的自动化检查：后端默认 profile 269 通过 / 4 跳过、真实 PostgreSQL 集成 51/51（含 07 的 13 项队列场景）、评测 `validate.py` 退出 0 与 `pytest 74 passed`、前端 lint 与两套构建通过。
+- 2026-10-18 补做（三项原「未执行」）：
+  - 02 的 body-v1 同条件对比（隔离库 `exobrain_eval02`，产品切块 + 真实 Embedding；见 `deliveries/02.md` 第 12 节）。冻结判据下 Hit@3 0.600 < 基线 0.850，但 17/44 个证据单元只差「标题行」边界（诊断口径 43/44 单元、40/40 题），判据与题集均未修改。
+  - 真实浏览器交互验收（引用按行定位 7–9 行、执行时间线 9 事件、SSE 断线刷新后只有一条回答；390px 发现引用卡片无宽度约束导致横向滚动的缺陷，未改代码）。见 `deliveries/browser-acceptance.md`。
+  - 07 的双实例 + 并发 HTTP + 真实 kill 演练（同会话并发 200/409 且只 1 个运行、幂等键三次同 `runId`、`kill -9` 后 22.1 s 标记 `INTERRUPTED` 且不重放、默认租约下 3/3 冒烟通过；另记录 20 s 租约低于模型时延的自我中断限制）。见 `deliveries/durable-runs-drill.md`。
+- 仍未执行：多主机部署、网络分区/时钟漂移、390px 缺陷修复（需先与未提交的 UI 主题改动对齐）、CI 在 GitHub 上的实际执行。
