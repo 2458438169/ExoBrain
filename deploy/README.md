@@ -406,6 +406,17 @@ IDs, unsupported formats, invalid UTF-8, the 2 MiB boundary, and denied write
 methods. Confirm that both management content routes still require authentication
 and that errors do not disclose storage paths.
 
+The read-only paths added by tasks 05 and 06 are already inside that allowlist:
+`GET /api/demo/chat-sessions/<uuid>/runs`, `GET /api/demo/runs/<uuid>` and
+`GET /api/demo/documents/<uuid>/ingestion` are matched explicitly, while unknown
+`/api/demo/...` paths (including a non-UUID run id) still return 404. The account
+equivalents (`GET /api/chat-sessions/<uuid>/runs`, `GET /api/runs/<uuid>`,
+`GET /api/documents/<uuid>/ingestion` and the `/admin/api/...` aliases) require a
+session and re-check ownership on every request, so they need no anonymous
+allowlist entry. The configuration was syntax-checked with `nginx -t` after the
+change; a candidate gateway still has to be probed with real requests before a
+release.
+
 ## Verification record
 
 The `20261016-kb-privacy` release completed deployment and API verification on
