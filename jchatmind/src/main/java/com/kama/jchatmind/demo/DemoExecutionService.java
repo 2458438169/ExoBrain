@@ -1,6 +1,5 @@
 package com.kama.jchatmind.demo;
 
-import com.kama.jchatmind.agent.AgentState;
 import com.kama.jchatmind.agent.JChatMind;
 import com.kama.jchatmind.agent.JChatMindFactory;
 import com.kama.jchatmind.agent.tools.DirectAnswerTool;
@@ -10,92 +9,85 @@ import com.kama.jchatmind.config.ChatClientRegistry;
 import com.kama.jchatmind.converter.AgentConverter;
 import com.kama.jchatmind.converter.ChatMessageConverter;
 import com.kama.jchatmind.converter.KnowledgeBaseConverter;
-import com.kama.jchatmind.execution.RunLifecycleService;
+import com.kama.jchatmind.execution.RunOrigin;
 import com.kama.jchatmind.mapper.AgentMapper;
 import com.kama.jchatmind.mapper.KnowledgeBaseMapper;
-import com.kama.jchatmind.message.SseMessage;
+import com.kama.jchatmind.model.dto.AgentDTO;
 import com.kama.jchatmind.model.response.CreateChatMessageResponse;
-import com.kama.jchatmind.service.ChatMessageFacadeService;
 import com.kama.jchatmind.retrieval.RetrievalService;
+import com.kama.jchatmind.runs.RunQueueRepository;
+import com.kama.jchatmind.runs.RunSubmissionException;
+import com.kama.jchatmind.runs.RunSubmissionService;
+import com.kama.jchatmind.service.ChatMessageFacadeService;
 import com.kama.jchatmind.service.SseService;
 import com.kama.jchatmind.service.impl.ToolFacadeServiceImpl;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executor;
-import java.util.function.Supplier;
+import java.util.function.Consumer;
 
-/** Public demo has its own tool allowlist and a knowledge search restricted to published IDs. */
+/**
+ * 游客侧：与账号一样的持久队列提交，以及公开运行时的构造。
+ *
+ * <p>提交走 {@link RunSubmissionService#submitDemo}：用户消息、固定快照、运行摘要与任务同一事务落库，
+ * 游客只保存访客 Cookie 的 SHA-256（{@code demoOwner}），不保存原始 Cookie。执行由数据库队列领取，
+ * 不再是进程内的线程池 + 内存集合。公开运行时仍只注册 {@link DemoAccessPolicy#PUBLIC_TOOL_NAMES}
+ * 中的四个工具；管理员/账号配置不会进入游客运行。</p>
+ */
 @Service
 @Slf4j
 public class DemoExecutionService {
     private final JChatMindFactory factory;
-    private final Executor executor;
-    private final SseService sse;
     private final DemoAccessPolicy access;
-    private final RunLifecycleService runs;
-    private final Set<String> running = ConcurrentHashMap.newKeySet();
+    private final RunSubmissionService submissions;
+    private final RunQueueRepository jobs;
 
     public DemoExecutionService(ChatClientRegistry clients, SseService sse, AgentMapper agents,
                                 AgentConverter agentConverter, KnowledgeBaseMapper knowledgeBases,
                                 KnowledgeBaseConverter knowledgeConverter, ChatMessageFacadeService messages,
                                 ChatMessageConverter messageConverter, DateTool date, TerminateTool terminate,
                                 DirectAnswerTool answer, RetrievalService retrieval, DemoAccessPolicy access,
-                                @Qualifier("taskExecutor") Executor executor, RunLifecycleService runs) {
+                                RunSubmissionService submissions, RunQueueRepository jobs) {
         this.factory = new JChatMindFactory(clients, sse, agents, agentConverter, knowledgeBases,
                 knowledgeConverter, new ToolFacadeServiceImpl(List.of(date, terminate, answer,
                 new DemoKnowledgeTool(retrieval, access))), messages, messageConverter);
-        this.executor = executor;
-        this.sse = sse;
         this.access = access;
-        this.runs = runs;
+        this.submissions = submissions;
+        this.jobs = jobs;
     }
 
-    public boolean isRunning(String sessionId) { return running.contains(sessionId); }
+    /** 该会话是否仍有排队/执行中的任务（删除会话前检查；来自数据库，不是进程内 Set）。 */
+    public boolean isRunning(String sessionId) {
+        return jobs.findActiveBySession(sessionId).isPresent();
+    }
 
-    public CreateChatMessageResponse submit(String agentId, String sessionId,
-                                            Supplier<CreateChatMessageResponse> persistUserMessage) {
-        if (!running.add(sessionId)) throw new DemoException(409, "上一条消息仍在处理中，请等待完成");
+    /** 游客提交：与账号共用同一个持久队列；重复提交由幂等键返回原来的 message/run。 */
+    public CreateChatMessageResponse submit(String owner, String agentId, String sessionId, String content,
+                                            String idempotencyKey) {
         try {
-            CreateChatMessageResponse response = persistUserMessage.get();
-            // 游客运行：主记录创建失败就不启动执行，也不假装已接入追踪。
-            RunLifecycleService.RunStart run;
+            return submissions.submitDemo(owner, agentId, sessionId, content, idempotencyKey).toResponse();
+        } catch (RunSubmissionException rejected) {
+            throw new DemoException(rejected.status(), rejected.getMessage());
+        } catch (DataIntegrityViolationException concurrentConflict) {
             try {
-                run = runs.startDemoRun(sessionId, response.getChatMessageId(), agentId);
-            } catch (RuntimeException unavailable) {
-                log.error("Demo run record could not be created; the chat execution was not started: session={}",
-                        sessionId);
-                throw new DemoException(503, "执行记录不可用，请稍后重试");
+                return submissions.replayAfterConflict(RunOrigin.DEMO,
+                        RunSubmissionService.actorScope(RunOrigin.DEMO, owner), sessionId, idempotencyKey,
+                        RunSubmissionService.requestDigest(RunOrigin.DEMO, sessionId, agentId, content))
+                        .toResponse();
+            } catch (RunSubmissionException conflict) {
+                throw new DemoException(conflict.status(), conflict.getMessage());
             }
-            executor.execute(() -> {
-                try {
-                    JChatMind runtime = factory.create(agentId, sessionId, access::validateAgent);
-                    runtime.attachRun(run.recorder());
-                    runtime.run();
-                    if (runtime.state() == AgentState.ERROR) {
-                        runs.failed(run, "NO_ANSWER_PRODUCED");
-                    } else {
-                        runs.succeeded(run);
-                    }
-                } catch (Exception error) {
-                    runs.failed(run, RunLifecycleService.classify(error));
-                    log.warn("Demo execution failed: session={}", sessionId, error);
-                    try {
-                        sse.send(sessionId, SseMessage.builder().type(SseMessage.Type.AI_DONE)
-                                .payload(SseMessage.Payload.builder().done(true).statusText("执行失败，请稍后重试").build()).build());
-                    } catch (RuntimeException ignored) { }
-                } finally {
-                    running.remove(sessionId);
-                }
-            });
-            return response;
-        } catch (RuntimeException error) {
-            running.remove(sessionId);
-            throw error;
         }
+    }
+
+    /** 公开运行时：固定的四工具白名单 + 公开助手校验。 */
+    public JChatMind runtime(String agentId, String sessionId, Consumer<AgentDTO> validateConfig) {
+        return factory.create(agentId, sessionId, validateConfig);
+    }
+
+    public DemoAccessPolicy policy() {
+        return access;
     }
 }

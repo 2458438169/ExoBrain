@@ -24,7 +24,7 @@ public class DemoController {
 
     public record SessionInput(String agentId, String title) { }
     public record TitleInput(String title) { }
-    public record MessageInput(String agentId, String sessionId, String role, String content) { }
+    public record MessageInput(String agentId, String sessionId, String role, String content, String idempotencyKey) { }
 
     @GetMapping("/api/demo/agents")
     public ApiResponse<GetAgentsResponse> agents(HttpServletRequest request, HttpServletResponse response) {
@@ -78,7 +78,7 @@ public class DemoController {
     public ApiResponse<CreateChatMessageResponse> send(@RequestBody MessageInput input,
             HttpServletRequest request, HttpServletResponse response) {
         return ApiResponse.success(demo.send(visitors.owner(request, response), input.agentId(), input.sessionId(),
-                input.role(), input.content()));
+                input.role(), input.content(), input.idempotencyKey()));
     }
 
     @GetMapping(value = "/sse/demo/connect/{id}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)

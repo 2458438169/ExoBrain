@@ -87,17 +87,20 @@ docker compose exec -T postgres psql -U exobrain -d exobrain -v ON_ERROR_STOP=1 
 docker compose exec -T postgres psql -U exobrain -d exobrain -v ON_ERROR_STOP=1 < deploy/migrations/20261017-03-body-index.sql
 docker compose exec -T postgres psql -U exobrain -d exobrain -v ON_ERROR_STOP=1 < deploy/migrations/20261017-05-runs.sql
 docker compose exec -T postgres psql -U exobrain -d exobrain -v ON_ERROR_STOP=1 < deploy/migrations/20261017-06-ingestion.sql
+docker compose exec -T postgres psql -U exobrain -d exobrain -v ON_ERROR_STOP=1 < deploy/migrations/20261017-07-durable-runs.sql
 docker compose exec -T postgres psql -U exobrain -d exobrain -v ON_ERROR_STOP=1 -c \
-  'GRANT SELECT, INSERT, UPDATE, DELETE ON exobrain_user, exobrain_login_session, exobrain_resource_acl, exobrain_model, exobrain_model_state, exobrain_kb_embedding, exobrain_storage_cleanup, exobrain_index_revision, exobrain_kb_index_state, exobrain_run, exobrain_run_event, exobrain_ingestion_job TO exobrain_app;'
+  'GRANT SELECT, INSERT, UPDATE, DELETE ON exobrain_user, exobrain_login_session, exobrain_resource_acl, exobrain_model, exobrain_model_state, exobrain_kb_embedding, exobrain_storage_cleanup, exobrain_index_revision, exobrain_kb_index_state, exobrain_run, exobrain_run_event, exobrain_ingestion_job, exobrain_chat_run_job TO exobrain_app;'
 ```
 
 The migration files may be placed in a release staging directory instead; adjust
 the input paths accordingly. All migrations are additive and repeatable: they add
 accounts, sessions, ownership, model definitions, knowledge-base bindings, the
 versioned body index (revision + per-knowledge-base active state + chunk source
-columns), execution records and the ingestion job table, without recreating
-business tables. `20261017-03-body-index.sql` must run before
+columns), execution records, the ingestion job table and the durable conversation run queue,
+without recreating business tables. `20261017-03-body-index.sql` must run before
 `20261017-06-ingestion.sql` because the ingestion worker publishes through the
+revision tables it creates; `20261017-07-durable-runs.sql` needs `20261017-05-runs.sql`
+(it references `exobrain_run`).
 revision tables it creates. Existing rows are untouched: chunks without a
 revision stay on the legacy title index, and knowledge bases without an active
 revision keep their previous retrieval behaviour until an explicit rebuild.

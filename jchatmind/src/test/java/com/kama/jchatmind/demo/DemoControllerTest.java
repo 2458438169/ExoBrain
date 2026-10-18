@@ -78,10 +78,10 @@ class DemoControllerTest {
                 GetChatMessagesResponse.builder().chatMessages(new ChatMessageVO[0]).build());
         when(messages.agentCreateChatMessage(any())).thenReturn(
                 CreateChatMessageResponse.builder().chatMessageId("message").build());
-        when(execution.submit(anyString(), anyString(), any())).thenAnswer(invocation -> {
-            Supplier<CreateChatMessageResponse> persist = invocation.getArgument(2);
-            return persist.get();
-        });
+        // 07：游客提交在排队服务里创建消息并返回 runId；controller 只是转发。
+        when(execution.submit(anyString(), anyString(), anyString(), anyString(), any())).thenReturn(
+                CreateChatMessageResponse.builder().chatMessageId("message")
+                        .runId("run-1").runStatus("QUEUED").idempotentReplay(false).build());
         DemoAccessPolicy access = new DemoAccessPolicy(properties);
         DemoChatService demo = new DemoChatService(access, sessions, agents, converter, messages,
                 sse, execution, new DemoRateLimiter());
@@ -275,12 +275,12 @@ class DemoControllerTest {
     void validMessagesAreForcedToUserAndCannotInjectMetadataOrPublishGlobalAgentEvent() throws Exception {
         String body = messageBody("user", "hello").replace("}", ",\"metadata\":{\"toolCalls\":[{}]}}");
         mvc.perform(post("/api/demo/chat-messages").cookie(first).contentType(MediaType.APPLICATION_JSON).content(body))
-                .andExpect(status().isOk()).andExpect(jsonPath("$.data.chatMessageId").value("message"));
-        ArgumentCaptor<CreateChatMessageRequest> captured = ArgumentCaptor.forClass(CreateChatMessageRequest.class);
-        verify(messages).agentCreateChatMessage(captured.capture());
-        assertEquals(ChatMessageDTO.RoleType.USER, captured.getValue().getRole());
-        assertEquals(AGENT, captured.getValue().getAgentId());
-        assertNull(captured.getValue().getMetadata());
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.chatMessageId").value("message"))
+                .andExpect(jsonPath("$.data.runId").value("run-1"));
+        // 07：消息由持久队列的提交事务创建（role 固定 user、不继承客户端 metadata），
+        // controller 只把问题正文与幂等键转交给队列。
+        verify(execution).submit(anyString(), eq(AGENT), eq(OWN_SESSION), eq("hello"), any());
+        verify(messages, never()).agentCreateChatMessage(any(CreateChatMessageRequest.class));
         verify(messages, never()).createChatMessage(any(CreateChatMessageRequest.class));
         mvc.perform(post("/api/demo/chat-messages").cookie(first).contentType(MediaType.APPLICATION_JSON)
                 .content(messageBody("user", "again"))).andExpect(status().isTooManyRequests());

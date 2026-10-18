@@ -89,7 +89,7 @@ public class DemoChatService {
     }
 
     public CreateChatMessageResponse send(String owner, String requestedAgentId, String sessionId,
-                                          String role, String content) {
+                                          String role, String content, String idempotencyKey) {
         requireAgent(requestedAgentId);
         requireOwned(owner, sessionId);
         requireEditable(sessionId);
@@ -99,9 +99,9 @@ public class DemoChatService {
         }
         demoAgent();
         limiter.acquire(owner);
-        CreateChatMessageRequest safeRequest = CreateChatMessageRequest.builder().agentId(agentId())
-                .sessionId(sessionId).role(ChatMessageDTO.RoleType.USER).content(content.strip()).metadata(null).build();
-        return execution.submit(agentId(), sessionId, () -> messages.agentCreateChatMessage(safeRequest));
+        // 07：与账号共用同一个持久队列（消息 + 固定快照 + 运行 + 任务同一事务）；
+        // 同会话的“上一条仍在处理中”由数据库唯一活动约束保证，不再依赖进程内 Set。
+        return execution.submit(owner, agentId(), sessionId, content.strip(), idempotencyKey);
     }
 
     public SseEmitter connect(String owner, String sessionId) {
