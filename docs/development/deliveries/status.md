@@ -121,3 +121,26 @@ Embedding 端点 503，非代码问题）；`RunResultGuardIntegrationTest` 现 
 行锁隔离两项）；前端 lint 与构建通过；真实浏览器复现「丢响应 → 手动重试同键 → 杀后端触发 SSE 重连」后
 提交仍只有 2 次、1 个键，DB 1 运行 / 1 用户消息，输入框恢复可用。
 - 仍未完成：真实付费模型对比（Embedding 端点 503）、GitHub Actions 远端执行。
+
+## 7. 生产热修（2026-10-19，模型改名 + 知识库换绑）
+
+中转站把 `cloudflare/bge-m3` 改名为 `BAAI/bge-m3`。旧模型被 2 个知识库绑着，按设计不允许原地改模型名
+（会静默改变向量空间），而当时没有「把知识库换到新模型」的手段，所以换不上。
+
+- 代码：`de6638a` 新增 `GET /api/admin/model-bindings` 与 `POST /api/admin/models/{id}/knowledge-bases`
+  （必须显式 `vectorSpaceUnchanged=true`；LLM 目标、停用模型、未确认一律拒绝）。同一批还带上了
+  `43a5204`（运行结果 fencing + 心跳隔离）与 `999a133`（冻结资产固定 LF）。
+- 镜像：`exobrain:20261019-model-rebind`（JAR 62,942,144 字节，sha256 `764cfeea…`，`FROM exobrain:20261014` 覆盖 app.jar）。
+  `compose.yaml` 的 `app.image` 已改到该镜像，容器 healthy，启动后 0 条 ERROR。
+- 备份：`backups/pre-model-rebind-20261019-134814/`（旧 `compose.yaml`、`exobrain_model.csv`、`exobrain_kb_embedding.csv`）。
+- 数据变更（经新增接口执行，非手写 SQL）：
+  - `bge-m3` 的 `provider_model`：`BAAI/bge-m31`（录入时多了一个 `1`）→ `BAAI/bge-m3`。
+  - 两个知识库（`ExoBrain 公开演示知识库`、`test`）从 `legacy-embedding` 换绑到 `bge-m3`，`rebound=2`。
+  - `legacy-embedding` 保留未删（已无绑定，可随时删除）。
+- 只上了后端：前端仍为 `releases/20261018-durable-runs`；工作区里的界面改动（主题、390px 修复、知识库列表排版、
+  迁移按钮）**未提交、未发布**。
+- **未能验证**：模型连通性测试连续 5 次失败，原因是中转站 `/v1/embeddings` 返回 `503 completion_backlog`
+  （服务端 `curl` 用同一 Key 复现，**新旧两个模型名都 503**），不是配置或命名问题。同一原因导致用户在 13:19
+  上传的 `TEST.MD` 导入 3/3 失败（`EMBEDDING_UNAVAILABLE`），需在中转站恢复后重试导入。
+- 回滚：`sed -i 's#exobrain:20261019-model-rebind#exobrain:20261018-durable-runs#' compose.yaml && docker compose up -d app`；
+  数据回滚用备份里的两个 CSV（换绑前的绑定关系）。
