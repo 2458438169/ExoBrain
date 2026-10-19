@@ -144,3 +144,19 @@ Embedding 端点 503，非代码问题）；`RunResultGuardIntegrationTest` 现 
   上传的 `TEST.MD` 导入 3/3 失败（`EMBEDDING_UNAVAILABLE`），需在中转站恢复后重试导入。
 - 回滚：`sed -i 's#exobrain:20261019-model-rebind#exobrain:20261018-durable-runs#' compose.yaml && docker compose up -d app`；
   数据回滚用备份里的两个 CSV（换绑前的绑定关系）。
+
+## 8. 第三轮独立验收（2026-10-19，R3）与修复
+
+第三轮验收结论：**R2-01～R2-04 四项均通过**，新增 1 个 P2。本轮已修复（源码在工作区，待提交）：
+
+| 编号 | 级别 | 问题 | 修复 |
+| --- | --- | --- | --- |
+| R3-01 | P2 | `checkpoint()` 遇 `BLOCKED` 直接放行；行锁等待跨过租约期限后，模型重试继续发请求（两次复现超出期限 2.608711 s / 2.606319 s，无迟到答案落库） | `checkpoint()` 在 `BLOCKED` 后按预算（租约 1/3，≤5 s）重试续租；预算耗尽改用不加锁 `findById` 确认：非 `RUNNING` / fencing 前进 / 租约过期 / 读不到 → `RunLeaseLostException`，`cancel_requested` → `RunCancelledException`，仅确认有效才放行 |
+
+验证：`RunResultGuardIntegrationTest` **7 → 10 项全过**（新增“锁等待中租约到期即停止”“无法确认即停止且不续租”
+“确认仍有效才放行”三条，均为真实 PostgreSQL）；单元 `-Punit` **271（267 通过 / 4 跳过 / 0 失败）**；
+真实 PostgreSQL `-Ppostgres-it` **61 项，60 通过 / 0 失败 / 1 环境性错误**（仍是外部 Embedding 端点
+`503 completion_backlog`，本轮该用例实际执行而非跳过）。
+
+- 仍未完成：真实付费模型 / Embedding 对比（端点 503）、GitHub Actions 远端执行、验收方 R3 的 HTTP 故障注入脚本重跑。
+- 前端 20 个文件（含主题与他人改动）仍未提交，按用户要求先不提交。

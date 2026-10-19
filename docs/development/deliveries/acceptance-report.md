@@ -137,3 +137,25 @@
 
 - 真实付费模型 / Embedding 对比未执行（端点 503）；GitHub Actions 仍未在远端执行。
 - R2-01 复现用的是「杀掉后端 JVM 让 SSE 断开」，与验收方的「重启本地代理」等价但不完全相同。
+
+## 10. 第三轮独立验收（2026-10-19，R3）与修复
+
+第三轮验收确认 **R2-01～R2-04 四项通过**，新增 1 个 P2，本轮已修复：
+
+| 编号 | 级别 | 问题 | 修复 | 验证 |
+| --- | --- | --- | --- | --- |
+| R3-01 | P2 | `checkpoint()` 收到 `BLOCKED` 直接放行，行锁等待跨过租约期限后仍继续发起模型请求（两次复现超出期限 2.608711 s / 2.606319 s，最终无迟到答案落库） | `BLOCKED` 后先在预算内（租约 1/3，最多 5 s）重试续租；预算耗尽改用不加锁的 `findById` 确认：状态非 `RUNNING` / fencing 前进 / 租约过期 / 读不到 → `RunLeaseLostException`；`cancel_requested` → `RunCancelledException`；仅确认有效才放行这一步 | 三条真实 PostgreSQL 回归：到期→停止、无法确认→停止（且未续租）、仍有效→放行；`RunResultGuardIntegrationTest` **10/10** |
+
+### 10.1 本轮复跑
+
+- 后端单元 `-Punit`：**271，267 通过 / 4 跳过 / 0 失败**。
+- 真实 PostgreSQL `-Ppostgres-it`：**61 项，60 通过 / 0 失败 / 1 错误**；唯一错误仍是
+  `RetrievalIndexIntegrationTest.realEmbeddingAnswersBodyOnlyFacts`——外部 Embedding 端点返回
+  `HTTP 503 completion_backlog`（本轮该用例实际执行，未跳过）。
+- 前端本轮没有改动，`eslint` / 构建结果沿用 R2。
+
+### 10.2 仍未完成
+
+- 验收方 R3 使用的 HTTP + 合成模型服务故障注入脚本不在本仓库，本轮未重跑；R3-01 的结论以三条真实 PG 回归为准。
+- 真实付费模型 / Embedding 效果对比仍未执行（端点 503）；GitHub Actions 远端执行仍无结论。
+- 前端 20 个文件（主题，以及 R2-01/R2-02、F04、窄屏、知识库排版等修复）仍在工作区未提交（按用户要求）。

@@ -6,6 +6,7 @@ import com.kama.jchatmind.execution.RunStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Instant;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -136,6 +137,12 @@ public class RunLease {
      *
      * <p>取消与租约丢失分开处理：续租被拒时先看是否只是收到了取消请求——那种情况必须走
      * {@link RunCancelledException}（最终记为 {@code CANCELLED}），不能被当成崩溃中断。</p>
+     *
+     * <p>续租被行锁挡住（{@link RunQueueRepository.RenewOutcome#BLOCKED}）时<b>不能直接放行</b>：
+     * 行锁等待开始时租约可能还有效，等待超时返回时却已经跨过租约期限（R3-01）。因此这里先在预算内反复
+     * 重试续租，预算耗尽后再用<b>不加锁</b>的读确认一次——行锁只阻塞写，这条 {@code SELECT} 不会被挡住。
+     * 只有确认 {@code status='RUNNING'}、fencing 未变、未请求取消且租约未过期时才放行这一步；
+     * 确认不了就按租约丢失停止执行，绝不带着过期租约去发下一次模型/工具调用。</p>
      */
     public void checkpoint() {
         if (cancelled) {
@@ -144,12 +151,26 @@ public class RunLease {
         if (leaseLost) {
             throw new RunLeaseLostException("租约已丢失，本次执行不会写回结果");
         }
-        RunQueueRepository.RenewOutcome outcome = jobs.renewHeartbeat(
-                job.id(), job.fencingToken(), leaseSeconds, heartbeatLockTimeoutMs());
+        RunQueueRepository.RenewOutcome outcome = renew();
         if (outcome == RunQueueRepository.RenewOutcome.BLOCKED) {
-            // 行锁短暂冲突：心跳线程会继续续租，这里不发起失败，也不改写任何状态。
-            log.debug("Run lease renewal was blocked by a row lock; heartbeat keeps trying: run={}", job.runId());
-            return;
+            outcome = awaitRenewal();
+        }
+        if (outcome == RunQueueRepository.RenewOutcome.BLOCKED) {
+            Confirmation confirmation = confirmByRead();
+            if (confirmation == Confirmation.CONFIRMED) {
+                log.warn("Run lease renewal stayed blocked by a row lock, but the lease is still valid: run={}",
+                        job.runId());
+                touch();
+                return;
+            }
+            if (confirmation == Confirmation.CANCELLED) {
+                cancelled = true;
+                throw new RunCancelledException("本次运行已收到取消请求");
+            }
+            leaseLost = true;
+            log.warn("Run lease could not be confirmed after a blocked checkpoint; the worker stops without "
+                    + "writing a result: run={}", job.runId());
+            throw new RunLeaseLostException("租约已丢失，本次执行不会写回结果");
         }
         if (outcome == RunQueueRepository.RenewOutcome.LOST) {
             RunQueueJob current = jobs.findById(job.id()).orElse(null);
@@ -161,8 +182,85 @@ public class RunLease {
             log.warn("Run lease lost; the worker stops without writing a result: run={}", job.runId());
             throw new RunLeaseLostException("租约已丢失，本次执行不会写回结果");
         }
+        touch();
+    }
+
+    private RunQueueRepository.RenewOutcome renew() {
+        return jobs.renewHeartbeat(job.id(), job.fencingToken(), leaseSeconds, heartbeatLockTimeoutMs());
+    }
+
+    /** 检查点确认续租的预算：最多等租约的 1/3，且不超过 5 秒（单次尝试仍受 {@code lock_timeout} 约束）。 */
+    private long checkpointConfirmBudgetMs() {
+        return Math.max(200L, Math.min(5_000L, leaseSeconds * 1000L / 3));
+    }
+
+    /**
+     * 在预算内反复重试续租。一直被行锁挡住时等到预算耗尽返回 {@code BLOCKED}，由调用方改用无锁读确认；
+     * 线程被中断（实例关闭）时按租约丢失处理，不再发起新的外部调用。
+     */
+    private RunQueueRepository.RenewOutcome awaitRenewal() {
+        long deadline = System.nanoTime() + checkpointConfirmBudgetMs() * 1_000_000L;
+        RunQueueRepository.RenewOutcome outcome = RunQueueRepository.RenewOutcome.BLOCKED;
+        while (true) {
+            long remainingNanos = deadline - System.nanoTime();
+            if (remainingNanos <= 0L) {
+                return outcome;
+            }
+            long sleepMs = Math.max(1L, Math.min(remainingNanos / 1_000_000L, heartbeatLockTimeoutMs()));
+            try {
+                Thread.sleep(sleepMs);
+            } catch (InterruptedException interrupted) {
+                Thread.currentThread().interrupt();
+                return RunQueueRepository.RenewOutcome.LOST;
+            }
+            outcome = renew();
+            if (outcome != RunQueueRepository.RenewOutcome.BLOCKED) {
+                return outcome;
+            }
+        }
+    }
+
+    /** 无锁读确认的三种结局：可以继续执行 / 收到取消 / 租约已丢失。 */
+    private enum Confirmation {
+        CONFIRMED,
+        CANCELLED,
+        LOST
+    }
+
+    /**
+     * 不加锁地读一次任务行，确认这一拍还能不能继续执行。
+     *
+     * <p>行锁只阻塞写：{@code SELECT} 在这里不会被慢事务挡住，所以它能在“锁等待跨过租约期限”之后给出答案。
+     * 读不到、状态不再是 {@code RUNNING}、fencing 已前进（被接管）或租约已过期，一律按丢失处理。</p>
+     */
+    private Confirmation confirmByRead() {
+        RunQueueJob current;
         try {
-            // 05 的读取层用心跳判断“重启遗留的 RUNNING”；续租时同步刷新，避免活跃运行被投影成中断。
+            current = jobs.findById(job.id()).orElse(null);
+        } catch (RuntimeException unavailable) {
+            log.warn("Run lease could not be read for confirmation: run={} cause={}", job.runId(),
+                    unavailable.getClass().getSimpleName());
+            return Confirmation.LOST;
+        }
+        if (current == null || current.status() != RunQueueStatus.RUNNING) {
+            return Confirmation.LOST;
+        }
+        if (current.fencingToken() != job.fencingToken()) {
+            return Confirmation.LOST;
+        }
+        if (current.cancelRequested()) {
+            return Confirmation.CANCELLED;
+        }
+        Instant expiry = current.leaseExpiresAt();
+        if (expiry == null || !expiry.isAfter(Instant.now())) {
+            return Confirmation.LOST;
+        }
+        return Confirmation.CONFIRMED;
+    }
+
+    /** 05 的读取层用心跳判断“重启遗留的 RUNNING”；续租时同步刷新，失败不影响执行。 */
+    private void touch() {
+        try {
             runs.touch(job.runId());
         } catch (RuntimeException failure) {
             log.warn("Run heartbeat could not be refreshed: run={}", job.runId());

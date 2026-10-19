@@ -283,6 +283,98 @@ class RunResultGuardIntegrationTest {
         assertEquals("CANCELLED_BY_USER", runErrorCode(runId));
     }
 
+    // ------------------------------------------------------------------ R3-01
+
+    @Test
+    @DisplayName("a blocked checkpoint stops the run when the lease expires during the lock wait")
+    void blockedCheckpointStopsAfterTheLeaseExpires() throws Exception {
+        assumeDatabase();
+        String sessionId = newSession();
+        String runId = newRun(sessionId);
+        jobs.insert(demoJob(sessionId, runId, "owner-r3a", "key-blocked-expired"));
+        RunQueueJob claimed = claimAndStart("worker-r3a", runId);
+        // 让租约在锁等待期间自然到期（不是提前过期，也不是靠改写 fencing / 取消请求）。
+        assertEquals(1, jdbc.update("UPDATE exobrain_chat_run_job "
+                + "SET lease_expires_at = NOW() + INTERVAL '1 second' WHERE id = CAST(? AS uuid)", claimed.id()));
+
+        // 与执行器相同的租约句柄：3 秒租约 → 单次 lock_timeout 1 秒、确认预算 1 秒。
+        RunLease lease = new RunLease(claimed, jobs, terminalWriter, runs, 3);
+        CountDownLatch locked = new CountDownLatch(1);
+        Thread holder = holdRowLock(claimed.id(), locked, 4_000L);
+        try {
+            assertTrue(locked.await(5, java.util.concurrent.TimeUnit.SECONDS));
+            long start = System.nanoTime();
+            // 修复前这里会直接 return 放行，让重试循环继续发出新的模型请求。
+            assertThrows(RunLeaseLostException.class, lease::checkpoint);
+            long elapsedMs = (System.nanoTime() - start) / 1_000_000L;
+            assertTrue(elapsedMs >= 1_000L, "checkpoint returned before confirming the lease: " + elapsedMs + "ms");
+            assertTrue(elapsedMs < 4_000L, "checkpoint waited beyond its budget: " + elapsedMs + "ms");
+        } finally {
+            lease.close();
+            holder.join(15_000L);
+        }
+
+        // 检查点停止后没有任何结果被写出：任务行留给过期扫描处理，答复一条都没有。
+        assertEquals(0, count("SELECT count(*) FROM chat_message WHERE session_id = CAST(? AS uuid)", sessionId));
+        assertNull(answerMessageId(runId));
+    }
+
+    @Test
+    @DisplayName("a blocked checkpoint continues only when the lease is still confirmed valid")
+    void blockedCheckpointContinuesOnlyWithAValidLease() throws Exception {
+        assumeDatabase();
+        String sessionId = newSession();
+        String runId = newRun(sessionId);
+        jobs.insert(demoJob(sessionId, runId, "owner-r3b", "key-blocked-valid"));
+        // 领取时的 10 秒租约仍然有效；下面的句柄只把 lock_timeout / 确认预算压到 1 秒。
+        RunQueueJob claimed = claimAndStart("worker-r3b", runId);
+
+        RunLease lease = new RunLease(claimed, jobs, terminalWriter, runs, 3);
+        CountDownLatch locked = new CountDownLatch(1);
+        Thread holder = holdRowLock(claimed.id(), locked, 4_000L);
+        try {
+            assertTrue(locked.await(5, java.util.concurrent.TimeUnit.SECONDS));
+            lease.checkpoint();
+            // 放行的前提是被无锁读确认过：租约还在有效期内，且没有任何取消请求。
+            assertTrue(leaseExpiry(claimed.id()).isAfter(Instant.now()));
+            assertFalse(lease.isCancelled());
+        } finally {
+            lease.close();
+            holder.join(15_000L);
+        }
+    }
+    @Test
+    @DisplayName("a blocked checkpoint that cannot confirm the lease stops the run")
+    void blockedCheckpointStopsWhenTheLeaseCannotBeConfirmed() throws Exception {
+        assumeDatabase();
+        String sessionId = newSession();
+        String runId = newRun(sessionId);
+        jobs.insert(demoJob(sessionId, runId, "owner-r3c", "key-blocked-unconfirmed"));
+        RunQueueJob claimed = claimAndStart("worker-r3c", runId);
+        // 第一次续租时租约还有效（WHERE 条件成立 → 真的去抢行锁并被 lock_timeout 挡住），
+        // 第二次尝试时仍然有效（还会被挡住），等预算耗尽做无锁读时它已经过期：这一拍必须停止。
+        assertEquals(1, jdbc.update("UPDATE exobrain_chat_run_job "
+                + "SET lease_expires_at = NOW() + INTERVAL '2500 milliseconds' WHERE id = CAST(? AS uuid)",
+                claimed.id()));
+
+        RunLease lease = new RunLease(claimed, jobs, terminalWriter, runs, 3);
+        CountDownLatch locked = new CountDownLatch(1);
+        // 第一次续租时租约还有效（WHERE 条件成立 → 真的去抢行锁并被 lock_timeout 挡住），
+        // 等到预算耗尽再做无锁读时它已经过期：这一拍必须停止。
+        Thread holder = holdRowLock(claimed.id(), locked, 5_000L);
+        try {
+            assertTrue(locked.await(5, java.util.concurrent.TimeUnit.SECONDS));
+            assertThrows(RunLeaseLostException.class, lease::checkpoint);
+            // 既没有续上租约（过期时间没被延长），也没有偷偷写终态：任务行留给过期扫描。
+            assertTrue(leaseExpiry(claimed.id()).isBefore(Instant.now()));
+        } finally {
+            lease.close();
+            holder.join(15_000L);
+        }
+        assertEquals(0, count("SELECT count(*) FROM chat_message WHERE session_id = CAST(? AS uuid)", sessionId));
+        assertNull(answerMessageId(runId));
+    }
+
     // ------------------------------------------------------------------ R2-04
 
     @Test
@@ -344,6 +436,7 @@ class RunResultGuardIntegrationTest {
         holder.start();
         return holder;
     }
+
 
     private static Instant leaseExpiry(String jobId) {
         java.sql.Timestamp value = jdbc.queryForObject(
