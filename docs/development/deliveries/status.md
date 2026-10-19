@@ -83,4 +83,41 @@
   - 02 的 body-v1 同条件对比（隔离库 `exobrain_eval02`，产品切块 + 真实 Embedding；见 `deliveries/02.md` 第 12 节）。冻结判据下 Hit@3 0.600 < 基线 0.850，但 17/44 个证据单元只差「标题行」边界（诊断口径 43/44 单元、40/40 题），判据与题集均未修改。
   - 真实浏览器交互验收（引用按行定位 7–9 行、执行时间线 9 事件、SSE 断线刷新后只有一条回答；390px 发现引用卡片无宽度约束导致横向滚动的缺陷，未改代码）。见 `deliveries/browser-acceptance.md`。
   - 07 的双实例 + 并发 HTTP + 真实 kill 演练（同会话并发 200/409 且只 1 个运行、幂等键三次同 `runId`、`kill -9` 后 22.1 s 标记 `INTERRUPTED` 且不重放、默认租约下 3/3 冒烟通过；另记录 20 s 租约低于模型时延的自我中断限制）。见 `deliveries/durable-runs-drill.md`。
-- 仍未执行：多主机部署、网络分区/时钟漂移、390px 缺陷修复（需先与未提交的 UI 主题改动对齐）、CI 在 GitHub 上的实际执行。
+- 仍未执行：多主机部署、网络分区/时钟漂移、CI 在 GitHub 上的实际执行。
+
+## 5. 独立验收（2026-10-19，提交 `65b1237`）与整改
+
+外部独立验收判定**暂不通过**，列出 6 项；本轮已全部改动源码（**未提交**，除 `.gitattributes` 已入暂存区）：
+
+| 编号 | 级别 | 处理 | 验证 |
+| --- | --- | --- | --- |
+| F01 迟到答案 | P1 | 新增 `RunResultWriter`（锁任务行 + fencing + RUNNING 校验，消息与 `answer_message_id` 同事务）+ 租约独立心跳 | 新增 `RunResultGuardIntegrationTest` 5 项全过 |
+| F02 前端未传幂等键 | P1 | `AgentChatView` 每个发送意图一个稳定键，重试/重连复用 | 真实 Chromium 丢弃响应后重试：2 次提交 / 1 个运行 / 1 条用户消息 / `attempts=1` |
+| F03 同键并发 409 | P2 | `replayAfterConflict` 参数顺序改为 `(scope, session, key)` | 集成测试断言同键取回原 `runId`、异内容仍冲突 |
+| F04 无答复运行不可见 | P2 | 按 `triggeringMessageId` 展示终态/错误码/耗时；活动运行 5 s 轮询 | 真实取消与真实中断会话均可见 |
+| F05 冻结资产哈希漂移 | P2 | `.gitattributes` 对 corpus/datasets/public-demo 固定 `eol=lf` | `core.autocrlf=true` 检出后 `validate.py` 退出 0、`pytest 74 passed` |
+| F06 390px 引用溢出 | P2 | 引用卡片 `min-w-0 max-w-full overflow-hidden`、文件名 `break-all`、标题 `break-words`、正文 `break-words [&_a]:break-all` | 390px 与 320px：消息列 `scrollWidth == clientWidth`，无元素超宽 |
+
+复跑结果：单元 269（265 通过 / 4 跳过 / 0 失败）；真实 PostgreSQL 56（**55 通过 / 0 失败 / 1 错误**，错误项为
+`RetrievalIndexIntegrationTest.realEmbeddingAnswersBodyOnlyFacts`，外部 Embedding 端点返回 `HTTP 503
+completion_backlog`，`curl` 可直接复现，非代码缺陷）；前端 lint 与构建通过。
+
+- 仍未完成：F01 的真实 HTTP 注入延迟复现脚本、真实付费模型对比、GitHub Actions 远端执行。
+- 工作区另有未提交的界面主题改动（15 个文件）和 `ui/preview.html`（他人未跟踪文件），本轮未改其内容。
+
+## 6. 第二轮独立验收（2026-10-19，R2）与修复
+
+第二轮验收结论：**F03–F06 通过、F01 迟到写入已挡住**，新增 1 个 P1 + 3 个 P2。本轮全部处理完毕（仍未提交）：
+
+| 编号 | 级别 | 问题 | 修复 |
+| --- | --- | --- | --- |
+| R2-01 | P1 | 首条消息手动重试后，SSE 重连换新键重发 | 任何一次确认受理都清空 `initialMessage`、置 `initialSent=true`；失败只回退标记 |
+| R2-02 | P2 | 终态重放后界面停在“生成中”、输入禁用 | 新增 `settleSubmission`：消费 `runStatus`/`idempotentReplay`，终态恢复输入 |
+| R2-03 | P2 | 取消跨心跳周期被误记为重启中断 | 心跳/检查点区分取消 / 被锁挡住 / 真丢失；过期扫描对 `cancel_requested` 写 `CANCELLED` |
+| R2-04 | P2 | 一个任务的行锁堵死唯一心跳线程 | 每租约独立单线程调度器 + 独立连接 + `SET LOCAL lock_timeout` |
+
+验证：单元 269（265 通过 / 4 跳过 / 0 失败）；真实 PostgreSQL **58（57 通过 / 0 失败 / 1 错误**，仍是外部
+Embedding 端点 503，非代码问题）；`RunResultGuardIntegrationTest` 现 **7 项全过**（新增取消跨心跳周期、
+行锁隔离两项）；前端 lint 与构建通过；真实浏览器复现「丢响应 → 手动重试同键 → 杀后端触发 SSE 重连」后
+提交仍只有 2 次、1 个键，DB 1 运行 / 1 用户消息，输入框恢复可用。
+- 仍未完成：真实付费模型对比（Embedding 端点 503）、GitHub Actions 远端执行。

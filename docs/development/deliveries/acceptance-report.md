@@ -79,3 +79,61 @@
 - 子 Agent 共 11 个会话，其中 3 个因上游服务中断（403）或配额耗尽（`quota_exceeded`）退出，均由主 Agent 接手核验、补齐记录并完成验收。
 - 已修复的自身缺陷：06 提交漏带一个测试文件导致提交态编译失败（`dd19818` 修复）；生产 `nginx.conf` 打补丁时一度取错行号，`nginx -t` 通过但校验行被注释覆盖，**在 reload 前发现并恢复**，随后才 reload。
 - 详细逐任务证据见 `docs/development/deliveries/01.md` – `08.md` 与 `status.md` 台账。
+
+## 8. 独立验收反馈（2026-10-19，针对 `65b1237`）与修复状态
+
+外部独立验收对提交 `65b1237` 判定**暂不通过**，共 6 项；本仓库的处置如下（改动**未提交**）。
+
+| 编号 | 级别 | 问题 | 状态 | 证据 |
+| --- | --- | --- | --- | --- |
+| F01 | P1 | 运行已 `INTERRUPTED` 后，过期 worker 仍能写入最终答复 | **已修复** | 新增 `RunResultWriter`（锁任务行 + fencing + `RUNNING` 校验，消息与答案关联同事务）+ 租约独立心跳；`RunResultGuardIntegrationTest` 5 项全过 |
+| F02 | P1 | 前端未接入幂等键，网络重试会重复执行 | **已修复** | `AgentChatView` 为每个发送意图生成并复用稳定键；真实 Chromium 丢弃响应后重试：2 次提交、1 个运行、1 条用户消息、`attempts=1` |
+| F03 | P2 | 同键并发重试参数顺序错误导致误报 409 | **已修复** | `RunSubmissionService.replayAfterConflict` 改为 `(actorScope, sessionId, key)`；集成测试断言同键同内容取回原 `runId`、同键异内容仍冲突 |
+| F04 | P2 | 无 assistant 消息的 `CANCELLED/FAILED/INTERRUPTED` 运行刷新后不可见 | **已修复** | `AgentChatHistory` 按 `triggeringMessageId` 展示无答复运行的状态/错误码/耗时；真实取消与真实中断两个会话实测可见 |
+| F05 | P2 | 冻结资产与自身哈希不一致（CRLF/LF），评测不能直接复现 | **已修复** | `.gitattributes` 为 `evaluation/corpus/**`、`evaluation/datasets/**`、`docs/public-demo/*.md` 固定 `eol=lf`；`core.autocrlf=true` 的检出/导出后 `validate.py` 退出 0、`pytest` 74 passed，冻结哈希全部匹配 |
+| F06 | P2 | 390px 窄屏长引用撑破消息区域 | **已修复（待验收方复测）** | 引用卡片加 `min-w-0 max-w-full overflow-hidden`、文件名 `break-all`、标题 `break-words`、助手正文 `break-words [&_a]:break-all`；390px 与 320px 视口下消息列 `scrollWidth == clientWidth`，无元素超宽 |
+
+### 8.1 本轮复跑
+
+- 后端单元：`-Punit` **269 项，265 通过 / 4 跳过 / 0 失败**。
+- 真实 PostgreSQL：`-Ppostgres-it` **56 项，55 通过 / 0 失败 / 1 错误**；错误项
+  `RetrievalIndexIntegrationTest.realEmbeddingAnswersBodyOnlyFacts` 由外部 Embedding 端点
+  `HTTP 503 completion_backlog` 引起（`curl` 直接复现），**不是代码缺陷**，端点恢复后需重跑。
+- 前端：`eslint` 与 `tsc -b && vite build` 通过。
+- 评测：`.gitattributes` 生效后的干净检出 `validate.py` 退出 0、`pytest evaluation/tests` 74 passed（本机此前为 67 passed/1 failed/6 error）。
+
+### 8.2 与 F06 相关的界面改动边界
+
+工作区里另有一份**未提交**的界面主题改动（sakura/milk/skyblue 主题，15 个文件）。本轮把 F06 的窄屏修复
+叠加在该主题之上验证，两者都保持未提交；提交与发布时机由用户决定。
+
+### 8.3 尚未完成
+
+- F01 的**真实 HTTP 注入延迟**复现脚本本轮未重跑（只用真实数据库集成测试覆盖同一写入路径）。
+- 新的真实付费模型 / Embedding 对比未执行；GitHub Actions 本轮仍未在远端执行。
+
+## 9. 第二轮独立验收（2026-10-19，R2）与修复
+
+第二轮独立验收确认 **F03–F06 通过、F01 的迟到写入漏洞已挡住**，但新增 1 个 P1 + 3 个 P2（均落在上一轮修复内）。
+本轮已全部处理：
+
+| 编号 | 级别 | 问题 | 修复 | 验证 |
+| --- | --- | --- | --- | --- |
+| R2-01 | P1 | 首条消息手动重试成功后，SSE 重连换新键重发（2 运行 / 2 次模型调用） | 任何一次确认受理都清空 `initialMessage` 并置 `initialSent=true`；失败只回退标记、保留意图 | 真实浏览器：丢响应 → 手动重试（同键）→ **杀掉后端 JVM 迫使 SSE TCP 断开并自动重连**（`已连接` 只由 `init` 设置）→ 提交次数仍 2、键仍 1 个；DB 1 运行 / 1 用户消息 |
+| R2-02 | P2 | 终态重放后停在“生成中”、输入禁用 | 消费响应里的 `runStatus` / `idempotentReplay`：终态恢复输入并给提示，活动态继续等待 | 同上复现：`textarea.disabled=false`、提示“该问题此前已提交并完成，这次没有重复执行” |
+| R2-03 | P2 | 取消跨过心跳周期被误记为重启中断 | `beat()`/`checkpoint()` 区分取消 / 被锁挡住 / 真丢失；过期扫描对 `cancel_requested=true` 写 `CANCELLED / CANCELLED_BY_USER` | 新增集成测试 `cancellationOutlivingTheLeaseIsNotReportedAsRestart`（真实 PG） |
+| R2-04 | P2 | 一个任务的行锁堵死唯一心跳线程，连累其它运行 | 每个租约独立单线程调度器；心跳续租走独立连接 + `SET LOCAL lock_timeout`，被挡只跳过一拍 | 新增集成测试 `heartbeatIsIsolatedFromAnotherRunsRowLock`：A 的行锁被持有 6 s，B 仍正常续租并 `SUCCEEDED` |
+
+### 9.1 本轮复跑
+
+- 后端单元 `-Punit`：**269，265 通过 / 4 跳过 / 0 失败**。
+- 真实 PostgreSQL `-Ppostgres-it`：**58 项，57 通过 / 0 失败 / 1 错误**；唯一错误仍是
+  `RetrievalIndexIntegrationTest.realEmbeddingAnswersBodyOnlyFacts`，外部 Embedding 端点返回
+  `HTTP 503 completion_backlog`（本轮再次 `curl` 复测仍 503），与代码无关。
+- 前端 `eslint` 与 `tsc -b && vite build` 通过。
+- 冻结评测：`.gitattributes` 生效后的干净检出仍为 `validate.py` 退出 0、`pytest 74 passed`（F05 未被本轮改动影响）。
+
+### 9.2 仍未完成
+
+- 真实付费模型 / Embedding 对比未执行（端点 503）；GitHub Actions 仍未在远端执行。
+- R2-01 复现用的是「杀掉后端 JVM 让 SSE 断开」，与验收方的「重启本地代理」等价但不完全相同。
