@@ -1,0 +1,308 @@
+{
+  "evidence": {
+    "first": {
+      "sid": "877742e6-8cf6-42e6-b58a-267f1f836c11",
+      "runs": [
+        {
+          "runId": "930af73d-4cc8-4e53-bbe0-ce4ef8f5a87d",
+          "status": "SUCCEEDED",
+          "interrupted": false,
+          "agentName": "合成验收助手 public",
+          "modelName": "review-llm",
+          "submittedAt": "2026-10-19T13:53:08.258696Z",
+          "startedAt": "2026-10-19T13:53:08.281072Z",
+          "finishedAt": "2026-10-19T13:53:12.689701Z",
+          "durationMs": 4407,
+          "queueDurationMs": 22,
+          "inputTokens": 40,
+          "outputTokens": 20,
+          "totalTokens": 60,
+          "errorCode": null,
+          "traceIncomplete": false,
+          "triggeringMessageId": "2fd1d00a-a65d-4637-9b39-43eec5898d4d",
+          "answerMessageId": "3777e082-e79c-4f1d-9930-a9351ef09fa0"
+        }
+      ],
+      "answerTop": 12.000007629394531,
+      "scrollTop": 80,
+      "bodyHeight": 577
+    },
+    "widths": [
+      {
+        "viewport": 320,
+        "pageWidth": 320,
+        "messageWidth": 312,
+        "messageScroll": 312,
+        "answerWidth": 280,
+        "codeScrollers": [
+          {
+            "client": 248,
+            "scroll": 248,
+            "overflow": "auto"
+          }
+        ]
+      },
+      {
+        "viewport": 390,
+        "pageWidth": 390,
+        "messageWidth": 382,
+        "messageScroll": 382,
+        "answerWidth": 350.3999938964844,
+        "codeScrollers": [
+          {
+            "client": 318,
+            "scroll": 318,
+            "overflow": "auto"
+          }
+        ]
+      },
+      {
+        "viewport": 768,
+        "pageWidth": 768,
+        "messageWidth": 440,
+        "messageScroll": 440,
+        "answerWidth": 376,
+        "codeScrollers": [
+          {
+            "client": 344,
+            "scroll": 344,
+            "overflow": "auto"
+          }
+        ]
+      },
+      {
+        "viewport": 1366,
+        "pageWidth": 1366,
+        "messageWidth": 1038,
+        "messageScroll": 1038,
+        "answerWidth": 942.4000244140625,
+        "codeScrollers": [
+          {
+            "client": 910,
+            "scroll": 910,
+            "overflow": "auto"
+          }
+        ]
+      }
+    ],
+    "sourceView": {
+      "text": "探针间隔为 37 秒，重试上限为 4 次。",
+      "top": 349.5249938964844,
+      "bottom": 365.5249938964844,
+      "viewportTop": 141.58750915527344,
+      "viewportBottom": 844.0000457763672
+    },
+    "focusReturned": true,
+    "observedOld": {
+      "type": "AI_DONE",
+      "runId": "930af73d-4cc8-4e53-bbe0-ce4ef8f5a87d",
+      "at": 1792418004696
+    },
+    "stopAfterOld": true,
+    "runsDuring": [
+      {
+        "runId": "930af73d-4cc8-4e53-bbe0-ce4ef8f5a87d",
+        "status": "SUCCEEDED",
+        "interrupted": false,
+        "agentName": "合成验收助手 public",
+        "modelName": "review-llm",
+        "submittedAt": "2026-10-19T13:53:08.258696Z",
+        "startedAt": "2026-10-19T13:53:08.281072Z",
+        "finishedAt": "2026-10-19T13:53:12.689701Z",
+        "durationMs": 4407,
+        "queueDurationMs": 22,
+        "inputTokens": 40,
+        "outputTokens": 20,
+        "totalTokens": 60,
+        "errorCode": null,
+        "traceIncomplete": false,
+        "triggeringMessageId": "2fd1d00a-a65d-4637-9b39-43eec5898d4d",
+        "answerMessageId": "3777e082-e79c-4f1d-9930-a9351ef09fa0"
+      },
+      {
+        "runId": "8a83bf82-4863-465a-bc7e-58780250461b",
+        "status": "RUNNING",
+        "interrupted": false,
+        "agentName": "合成验收助手 public",
+        "modelName": "review-llm",
+        "submittedAt": "2026-10-19T13:53:23.331793Z",
+        "startedAt": "2026-10-19T13:53:23.364519Z",
+        "finishedAt": null,
+        "durationMs": null,
+        "queueDurationMs": 32,
+        "inputTokens": null,
+        "outputTokens": null,
+        "totalTokens": null,
+        "errorCode": null,
+        "traceIncomplete": false,
+        "triggeringMessageId": "045dd14d-38c6-4085-be1b-43ee897df3a1",
+        "answerMessageId": null
+      }
+    ],
+    "selected": {
+      "text": "这是完整回答的开头，用于确认阅读定位。",
+      "top": 225.60000610351562,
+      "scrollTop": 0
+    },
+    "readingAfter": {
+      "text": "这是完整回答的开头，用于确认阅读定位。",
+      "top": 225.60000610351562
+    },
+    "jumped": 11.937507629394531,
+    "draft": "阅读时保留的下一条草稿",
+    "events": [
+      {
+        "type": "AI_THINKING",
+        "runId": "930af73d-4cc8-4e53-bbe0-ce4ef8f5a87d",
+        "at": 1792417988346
+      },
+      {
+        "type": "AI_THINKING",
+        "runId": "930af73d-4cc8-4e53-bbe0-ce4ef8f5a87d",
+        "at": 1792417988346
+      },
+      {
+        "type": "AI_EXECUTING",
+        "runId": "930af73d-4cc8-4e53-bbe0-ce4ef8f5a87d",
+        "at": 1792417992447
+      },
+      {
+        "type": "AI_EXECUTING",
+        "runId": "930af73d-4cc8-4e53-bbe0-ce4ef8f5a87d",
+        "at": 1792417992447
+      },
+      {
+        "type": "AI_GENERATED_CONTENT",
+        "runId": "930af73d-4cc8-4e53-bbe0-ce4ef8f5a87d",
+        "at": 1792417992532
+      },
+      {
+        "type": "AI_GENERATED_CONTENT",
+        "runId": "930af73d-4cc8-4e53-bbe0-ce4ef8f5a87d",
+        "at": 1792417992532
+      },
+      {
+        "type": "AI_THINKING",
+        "runId": "930af73d-4cc8-4e53-bbe0-ce4ef8f5a87d",
+        "at": 1792417992543
+      },
+      {
+        "type": "AI_THINKING",
+        "runId": "930af73d-4cc8-4e53-bbe0-ce4ef8f5a87d",
+        "at": 1792417992543
+      },
+      {
+        "type": "AI_GENERATED_CONTENT",
+        "runId": "930af73d-4cc8-4e53-bbe0-ce4ef8f5a87d",
+        "at": 1792417992608
+      },
+      {
+        "type": "AI_GENERATED_CONTENT",
+        "runId": "930af73d-4cc8-4e53-bbe0-ce4ef8f5a87d",
+        "at": 1792417992608
+      },
+      {
+        "type": "AI_EXECUTING",
+        "runId": "930af73d-4cc8-4e53-bbe0-ce4ef8f5a87d",
+        "at": 1792417992626
+      },
+      {
+        "type": "AI_EXECUTING",
+        "runId": "930af73d-4cc8-4e53-bbe0-ce4ef8f5a87d",
+        "at": 1792417992626
+      },
+      {
+        "type": "AI_GENERATED_CONTENT",
+        "runId": "930af73d-4cc8-4e53-bbe0-ce4ef8f5a87d",
+        "at": 1792417992681
+      },
+      {
+        "type": "AI_GENERATED_CONTENT",
+        "runId": "930af73d-4cc8-4e53-bbe0-ce4ef8f5a87d",
+        "at": 1792417992681
+      },
+      {
+        "type": "AI_THINKING",
+        "runId": "8a83bf82-4863-465a-bc7e-58780250461b",
+        "at": 1792418003429
+      },
+      {
+        "type": "AI_THINKING",
+        "runId": "8a83bf82-4863-465a-bc7e-58780250461b",
+        "at": 1792418003429
+      },
+      {
+        "type": "AI_DONE",
+        "runId": "930af73d-4cc8-4e53-bbe0-ce4ef8f5a87d",
+        "at": 1792418004696
+      },
+      {
+        "type": "AI_DONE",
+        "runId": "930af73d-4cc8-4e53-bbe0-ce4ef8f5a87d",
+        "at": 1792418004696
+      },
+      {
+        "type": "AI_EXECUTING",
+        "runId": "8a83bf82-4863-465a-bc7e-58780250461b",
+        "at": 1792418031561
+      },
+      {
+        "type": "AI_EXECUTING",
+        "runId": "8a83bf82-4863-465a-bc7e-58780250461b",
+        "at": 1792418031561
+      },
+      {
+        "type": "AI_GENERATED_CONTENT",
+        "runId": "8a83bf82-4863-465a-bc7e-58780250461b",
+        "at": 1792418031724
+      },
+      {
+        "type": "AI_GENERATED_CONTENT",
+        "runId": "8a83bf82-4863-465a-bc7e-58780250461b",
+        "at": 1792418031725
+      },
+      {
+        "type": "AI_THINKING",
+        "runId": "8a83bf82-4863-465a-bc7e-58780250461b",
+        "at": 1792418031742
+      },
+      {
+        "type": "AI_THINKING",
+        "runId": "8a83bf82-4863-465a-bc7e-58780250461b",
+        "at": 1792418031742
+      },
+      {
+        "type": "AI_GENERATED_CONTENT",
+        "runId": "8a83bf82-4863-465a-bc7e-58780250461b",
+        "at": 1792418032091
+      },
+      {
+        "type": "AI_GENERATED_CONTENT",
+        "runId": "8a83bf82-4863-465a-bc7e-58780250461b",
+        "at": 1792418032091
+      },
+      {
+        "type": "AI_EXECUTING",
+        "runId": "8a83bf82-4863-465a-bc7e-58780250461b",
+        "at": 1792418032147
+      },
+      {
+        "type": "AI_EXECUTING",
+        "runId": "8a83bf82-4863-465a-bc7e-58780250461b",
+        "at": 1792418032147
+      },
+      {
+        "type": "AI_GENERATED_CONTENT",
+        "runId": "8a83bf82-4863-465a-bc7e-58780250461b",
+        "at": 1792418032435
+      },
+      {
+        "type": "AI_GENERATED_CONTENT",
+        "runId": "8a83bf82-4863-465a-bc7e-58780250461b",
+        "at": 1792418032435
+      }
+    ]
+  },
+  "originalFile": "long-read-and-old-events-repaired.json",
+  "originalSha256": "1eea47c58099fa0171792e5a5229448f76272ae02e67ad0f8e57b88b7da17792"
+}

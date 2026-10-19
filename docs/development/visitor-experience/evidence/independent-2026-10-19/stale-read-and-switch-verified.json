@@ -1,0 +1,30 @@
+{
+  "evidence": {
+    "stale": {
+      "restoredActiveAfterReload": true,
+      "before": 2,
+      "after": 2,
+      "notice": "执行记录尚未更新：后续读取失败",
+      "falseMissing": false
+    },
+    "after": {
+      "url": "http://127.0.0.1:19103/chat/877742e6-8cf6-42e6-b58a-267f1f836c11",
+      "draft": "切换后的新草稿",
+      "stopVisible": false,
+      "accepted": {
+        "chatMessageId": "6e4a34f9-ea2f-4c96-8671-a81750e66e2c",
+        "runId": "791ad209-8c06-4801-992a-d5b8104059f9",
+        "runStatus": "QUEUED",
+        "idempotentReplay": false
+      }
+    },
+    "cleanupCancellation": {
+      "runId": "791ad209-8c06-4801-992a-d5b8104059f9",
+      "status": "RUNNING",
+      "cancelRequested": true,
+      "message": "已请求停止：后续检查点不再发起新的工具调用；已经发出的外部请求无法撤回"
+    }
+  },
+  "originalFile": "stale-read-and-switch-verified.json",
+  "originalSha256": "493a8248336c8f10cda4d1121f909bffadc653061abe4719d1c767ae81fff8af"
+}

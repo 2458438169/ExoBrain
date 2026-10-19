@@ -1,0 +1,170 @@
+{
+  "evidence": {
+    "results": [
+      {
+        "target": "FAILED",
+        "passed": true,
+        "observed": [
+          {
+            "body": {
+              "agentId": "6753651b-d33e-4ba7-b106-04118c689621",
+              "sessionId": "b012252c-2cf3-44bc-9db2-7b719207cf45",
+              "role": "user",
+              "content": "[PROBE:ux-terminal-failed-01] 测试终态重放",
+              "idempotencyKey": "6c0bbb8f-386c-4c36-8e94-ebfe47fea4aa"
+            },
+            "http": 200,
+            "reply": {
+              "code": 200,
+              "message": "success",
+              "data": {
+                "chatMessageId": "6a7cb1cb-9b2f-4846-854d-91c7c37f8127",
+                "runId": "32485780-47c8-41d6-9854-a7f743ff1198",
+                "runStatus": "QUEUED",
+                "idempotentReplay": false
+              }
+            }
+          },
+          {
+            "body": {
+              "agentId": "6753651b-d33e-4ba7-b106-04118c689621",
+              "sessionId": "b012252c-2cf3-44bc-9db2-7b719207cf45",
+              "role": "user",
+              "content": "[PROBE:ux-terminal-failed-01] 测试终态重放",
+              "idempotencyKey": "6c0bbb8f-386c-4c36-8e94-ebfe47fea4aa"
+            },
+            "http": 200,
+            "reply": {
+              "code": 200,
+              "message": "success",
+              "data": {
+                "chatMessageId": "6a7cb1cb-9b2f-4846-854d-91c7c37f8127",
+                "runId": "32485780-47c8-41d6-9854-a7f743ff1198",
+                "runStatus": "FAILED",
+                "idempotentReplay": true
+              }
+            }
+          }
+        ],
+        "snapshot": {
+          "sid": "b012252c-2cf3-44bc-9db2-7b719207cf45",
+          "runs": [
+            {
+              "runId": "32485780-47c8-41d6-9854-a7f743ff1198",
+              "status": "FAILED",
+              "interrupted": false,
+              "agentName": "合成验收助手 public",
+              "modelName": "review-llm",
+              "submittedAt": "2026-10-19T13:57:32.787918Z",
+              "startedAt": "2026-10-19T13:57:32.825897Z",
+              "finishedAt": "2026-10-19T13:57:32.938839Z",
+              "durationMs": 111,
+              "queueDurationMs": 37,
+              "inputTokens": null,
+              "outputTokens": null,
+              "totalTokens": null,
+              "errorCode": "EXECUTION_FAILED",
+              "traceIncomplete": false,
+              "triggeringMessageId": "6a7cb1cb-9b2f-4846-854d-91c7c37f8127",
+              "answerMessageId": null
+            }
+          ],
+          "messages": [
+            {
+              "id": "6a7cb1cb-9b2f-4846-854d-91c7c37f8127",
+              "sessionId": "b012252c-2cf3-44bc-9db2-7b719207cf45",
+              "role": "user",
+              "content": "[PROBE:ux-terminal-failed-01] 测试终态重放",
+              "metadata": null
+            }
+          ]
+        },
+        "draftCleared": true,
+        "canSend": true
+      },
+      {
+        "target": "CANCELLED",
+        "passed": true,
+        "observed": [
+          {
+            "body": {
+              "agentId": "6753651b-d33e-4ba7-b106-04118c689621",
+              "sessionId": "cf48c8ae-4165-4305-8b6d-b159b0d5ff1f",
+              "role": "user",
+              "content": "[PROBE:ux-terminal-cancelled-01] 测试终态重放",
+              "idempotencyKey": "b46975fe-4b65-4023-864e-5417c6e011a0"
+            },
+            "http": 200,
+            "reply": {
+              "code": 200,
+              "message": "success",
+              "data": {
+                "chatMessageId": "2824de7a-bfb6-4535-ab4f-940054dd6c5c",
+                "runId": "a5cd2cd0-8f1b-4157-8d2a-aeefe72d83e1",
+                "runStatus": "QUEUED",
+                "idempotentReplay": false
+              }
+            }
+          },
+          {
+            "body": {
+              "agentId": "6753651b-d33e-4ba7-b106-04118c689621",
+              "sessionId": "cf48c8ae-4165-4305-8b6d-b159b0d5ff1f",
+              "role": "user",
+              "content": "[PROBE:ux-terminal-cancelled-01] 测试终态重放",
+              "idempotencyKey": "b46975fe-4b65-4023-864e-5417c6e011a0"
+            },
+            "http": 200,
+            "reply": {
+              "code": 200,
+              "message": "success",
+              "data": {
+                "chatMessageId": "2824de7a-bfb6-4535-ab4f-940054dd6c5c",
+                "runId": "a5cd2cd0-8f1b-4157-8d2a-aeefe72d83e1",
+                "runStatus": "CANCELLED",
+                "idempotentReplay": true
+              }
+            }
+          }
+        ],
+        "snapshot": {
+          "sid": "cf48c8ae-4165-4305-8b6d-b159b0d5ff1f",
+          "runs": [
+            {
+              "runId": "a5cd2cd0-8f1b-4157-8d2a-aeefe72d83e1",
+              "status": "CANCELLED",
+              "interrupted": false,
+              "agentName": "合成验收助手 public",
+              "modelName": "review-llm",
+              "submittedAt": "2026-10-19T13:57:43.512365Z",
+              "startedAt": "2026-10-19T13:57:43.530668Z",
+              "finishedAt": "2026-10-19T13:57:51.623672Z",
+              "durationMs": 8091,
+              "queueDurationMs": 18,
+              "inputTokens": 20,
+              "outputTokens": 10,
+              "totalTokens": 30,
+              "errorCode": "CANCELLED_BY_USER",
+              "traceIncomplete": false,
+              "triggeringMessageId": "2824de7a-bfb6-4535-ab4f-940054dd6c5c",
+              "answerMessageId": null
+            }
+          ],
+          "messages": [
+            {
+              "id": "2824de7a-bfb6-4535-ab4f-940054dd6c5c",
+              "sessionId": "cf48c8ae-4165-4305-8b6d-b159b0d5ff1f",
+              "role": "user",
+              "content": "[PROBE:ux-terminal-cancelled-01] 测试终态重放",
+              "metadata": null
+            }
+          ]
+        },
+        "draftCleared": true,
+        "canSend": true
+      }
+    ]
+  },
+  "originalFile": "terminal-replays-repaired.json",
+  "originalSha256": "58e0cd6e53e5afa5a83f2a62b620991c33665294791952a3de2be301beaa1a09"
+}

@@ -129,6 +129,8 @@ function Step-PostgresIt {
 function Step-FrontendLint {
     Assert-UiDependencies
     Invoke-Npm @('run', 'lint')
+    if ($LASTEXITCODE -ne 0) { throw "frontend lint failed with exit code $LASTEXITCODE" }
+    Invoke-Npm @('run', 'test:state')
 }
 
 function Step-FrontendBuild {

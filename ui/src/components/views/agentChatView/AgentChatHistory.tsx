@@ -17,6 +17,7 @@ import type {
   ToolResponse,
 } from "../../../types";
 import DocumentPreviewDrawer from "../../modals/DocumentPreviewDrawer.tsx";
+import { buildTurns, isReadableAnswer } from "./chatTurns.ts";
 import { getRun, listSessionRuns } from "../../../api/execution.ts";
 import type {
   RunEventType,
@@ -30,6 +31,8 @@ interface AgentChatHistoryProps {
   messages: ChatMessageVO[];
   /** 会话标识：用于按需读取服务端运行记录；缺省（例如公开精选）时不显示执行详情。 */
   sessionId?: string;
+  refreshVersion?: number;
+  waitStartedAt?: number | null;
   autoScroll?: boolean;
   displayAgentStatus?: boolean;
   agentStatusText?: string;
@@ -122,6 +125,7 @@ const RUN_ERROR_LABELS: Record<string, string> = {
   RETRIEVAL_DENIED: "知识库检索被拒绝",
   MESSAGE_PERSISTENCE_FAILED: "消息保存失败",
   NO_ANSWER_PRODUCED: "本次执行没有产出面向用户的答复",
+  INVALID_ANSWER_FORMAT: "模型答复格式异常，请重新提问",
   EXECUTION_FAILED: "执行失败",
 };
 
@@ -178,39 +182,6 @@ function runFailureDetail(run: RunSummaryView): string {
     default:
       return "本次运行没有产出答复。";
   }
-}
-
-/**
- * 一轮问答的阅读单元：问题 → 活动状态或最终答案 → 紧凑来源 → 可展开执行过程。
- * 归组只依据服务端关联（答案消息 ID / 触发消息 ID）与核对过的 metadata.runId，
- * 不按相邻位置或时间猜测配对。
- */
-interface ChatTurn {
-  key: string;
-  question?: ChatMessageVO;
-  answers: ChatMessageVO[];
-  tools: ChatMessageVO[];
-  systems: ChatMessageVO[];
-}
-
-function buildTurns(messages: ChatMessageVO[]): ChatTurn[] {
-  const turns: ChatTurn[] = [];
-  let current: ChatTurn | null = null;
-  for (const message of messages) {
-    if (message.role === "user") {
-      current = { key: `turn-${message.id}`, question: message, answers: [], tools: [], systems: [] };
-      turns.push(current);
-      continue;
-    }
-    if (!current) {
-      current = { key: `turn-pre-${message.id}`, answers: [], tools: [], systems: [] };
-      turns.push(current);
-    }
-    if (message.role === "assistant") current.answers.push(message);
-    else if (message.role === "tool") current.tools.push(message);
-    else current.systems.push(message);
-  }
-  return turns;
 }
 
 interface CitationGroup {
@@ -285,7 +256,7 @@ const CitationEntry: React.FC<{
           <ul className="flex flex-col gap-3">
             {groups.map((group) => (
               <li key={group.key} className="min-w-0">
-                <p className="mb-1 break-words font-semibold text-slate-700">
+                <p className="mb-1 break-all font-semibold text-slate-700">
                   {group.documentName}
                   <span className="ml-2 font-normal text-slate-400">本条文档 {group.citations.length} 处片段</span>
                 </p>
@@ -306,7 +277,7 @@ const CitationEntry: React.FC<{
                         <span className="ml-auto shrink-0 font-semibold text-teal-700">查看原文</span>
                       </button>
                       <p className="mt-0.5 break-words px-1.5 leading-5 text-slate-600">{citation.excerpt}</p>
-                      <p className="mt-0.5 break-words px-1.5 font-mono text-[11px] text-slate-400">
+                      <p className="mt-0.5 break-all px-1.5 font-mono text-[11px] text-slate-400">
                         哈希 {citation.source.sourceHash ? citation.source.sourceHash.slice(0, 16) : "无（旧版索引）"}
                         {citation.chunkId ? ` · 片段 ${citation.chunkId}` : ""}
                         {citation.indexVersion || citation.indexRevision
@@ -341,7 +312,9 @@ const AnswerBody: React.FC<{ messageId: string; content: string }> = ({ messageI
           ? "relative max-h-[60vh] min-w-0 overflow-hidden after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-16 after:bg-gradient-to-t after:from-white after:to-transparent"
           : "min-w-0"}
       >
-        <XMarkdown streaming={{ enableAnimation: false, hasNextChunk: false }}>{content}</XMarkdown>
+        <div className="answer-markdown min-w-0 max-w-full">
+          <XMarkdown streaming={{ enableAnimation: false, hasNextChunk: false }}>{content}</XMarkdown>
+        </div>
       </div>
       {collapsible && (
         <button
@@ -433,7 +406,7 @@ const ProcessDisclosure: React.FC<{
     >
       <summary className="flex min-h-11 cursor-pointer flex-wrap items-center gap-x-2 gap-y-0.5 px-3 py-2 leading-6">
         <RobotOutlined className="shrink-0 text-slate-400" />
-        <span className="font-medium text-slate-700">执行过程</span>
+        <span className="font-medium text-slate-700">{run ? "执行过程" : "工具记录"}</span>
         {status && <span className={RUN_STATUS_CLASSES[status]}>{RUN_STATUS_LABELS[status]}</span>}
         {run && <span className="text-slate-500">执行 {formatDuration(run.durationMs)}</span>}
         {run?.queueDurationMs != null && run.queueDurationMs >= 1000 && (
@@ -445,7 +418,7 @@ const ProcessDisclosure: React.FC<{
         <span className="ml-auto shrink-0 text-slate-400">查看过程</span>
       </summary>
       <div className="flex flex-col gap-2 border-t border-slate-200 px-3 py-2">
-        {opened && run && <RunTimeline runId={run.runId} />}
+        {opened && run && canLoadTimeline && <RunTimeline runId={run.runId} />}
         {opened && run && !canLoadTimeline && <p className="text-slate-400">当前页面没有读取执行过程所需的信息。</p>}
         {opened && run && formatUsage(run) && <p className="text-slate-400">{formatUsage(run)}</p>}
         {toolCalls.length > 0 && (
@@ -482,7 +455,6 @@ const ProcessDisclosure: React.FC<{
             ))}
           </div>
         )}
-        {!run && <p className="text-slate-400">这次执行没有保存时间线记录。</p>}
       </div>
     </details>
   );
@@ -530,9 +502,26 @@ const RunLoadNotice: React.FC<{
   </div>
 );
 
+/** The timer measures elapsed waiting only; it never predicts provider progress. */
+const ElapsedWait: React.FC<{ startedAt: number }> = ({ startedAt }) => {
+  const [now, setNow] = useState(Date.now);
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, []);
+  const seconds = Math.max(0, Math.floor((now - startedAt) / 1000));
+  return (
+    <span className="text-xs text-slate-500" data-wait-seconds={seconds} aria-live="off">
+      已等待 {seconds} 秒{seconds >= 10 ? " · 仍在处理中，可停止或稍后回来查看" : ""}
+    </span>
+  );
+};
+
 const AgentChatHistory: React.FC<AgentChatHistoryProps> = ({
   messages,
   sessionId,
+  refreshVersion = 0,
+  waitStartedAt = null,
   autoScroll = true,
   displayAgentStatus = false,
   agentStatusText = "",
@@ -546,6 +535,7 @@ const AgentChatHistory: React.FC<AgentChatHistoryProps> = ({
   const followRef = useRef(true);
   const suppressScrollRef = useRef(0);
   const seenAnswerIdsRef = useRef<Set<string>>(new Set());
+  const seenQuestionIdsRef = useRef<Set<string>>(new Set());
   const didInitialPositionRef = useRef(false);
   const requestSeqRef = useRef(0);
   const hadSuccessfulReadRef = useRef(false);
@@ -554,7 +544,12 @@ const AgentChatHistory: React.FC<AgentChatHistoryProps> = ({
   const [citedSource, setCitedSource] = useState<AnswerCitation | null>(null);
   // 打开引用预览前记录触发元素：抽屉关闭（含 Esc）后焦点必须回到它。
   const previewTriggerRef = useRef<HTMLElement | null>(null);
+  const focusRestoreTimerRef = useRef<number | null>(null);
   const openCitation = useCallback((citation: AnswerCitation) => {
+    // A new source may open before the previous drawer has restored focus.
+    // Its pending callback must not move focus outside the new dialog.
+    if (focusRestoreTimerRef.current !== null) window.clearTimeout(focusRestoreTimerRef.current);
+    focusRestoreTimerRef.current = null;
     previewTriggerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     setCitedSource(citation);
   }, []);
@@ -562,7 +557,14 @@ const AgentChatHistory: React.FC<AgentChatHistoryProps> = ({
     setCitedSource(null);
     const trigger = previewTriggerRef.current;
     previewTriggerRef.current = null;
-    window.setTimeout(() => trigger?.focus?.(), 60);
+    if (focusRestoreTimerRef.current !== null) window.clearTimeout(focusRestoreTimerRef.current);
+    focusRestoreTimerRef.current = window.setTimeout(() => {
+      focusRestoreTimerRef.current = null;
+      if (trigger?.isConnected) trigger.focus();
+    }, 60);
+  }, []);
+  useEffect(() => () => {
+    if (focusRestoreTimerRef.current !== null) window.clearTimeout(focusRestoreTimerRef.current);
   }, []);
 
   // 数据与请求状态分开保存：失败不清空已取得的运行记录。
@@ -610,8 +612,11 @@ const AgentChatHistory: React.FC<AgentChatHistoryProps> = ({
     if (!sessionId) return;
     // 放进定时器回调里触发：读取本身是异步的，失败也不会同步改状态。
     const timer = window.setTimeout(() => { void loadRuns(); }, 0);
-    return () => window.clearTimeout(timer);
-  }, [loadRuns, messages.length, sessionId]);
+    return () => {
+      window.clearTimeout(timer);
+      requestSeqRef.current += 1;
+    };
+  }, [loadRuns, messages.length, sessionId, refreshVersion]);
 
   // 轮询只用于可见页面里的活动运行；终态停止。
   const hasActiveRun = runs.some((run) => run.status === "QUEUED" || run.status === "RUNNING");
@@ -623,35 +628,7 @@ const AgentChatHistory: React.FC<AgentChatHistoryProps> = ({
     return () => window.clearInterval(timer);
   }, [sessionId, hasActiveRun, loadRuns]);
 
-  const runMaps = useMemo(() => {
-    const byAnswer = new Map<string, RunSummaryView>();
-    const byTrigger = new Map<string, RunSummaryView>();
-    const byId = new Map<string, RunSummaryView>();
-    for (const run of runs) {
-      byId.set(run.runId, run);
-      if (run.answerMessageId) byAnswer.set(run.answerMessageId, run);
-      if (run.triggeringMessageId) byTrigger.set(run.triggeringMessageId, run);
-    }
-    return { byAnswer, byTrigger, byId };
-  }, [runs]);
-
-  const runForTurn = useCallback((turn: ChatTurn): RunSummaryView | undefined => {
-    for (const answer of turn.answers) {
-      const byAnswer = runMaps.byAnswer.get(answer.id);
-      if (byAnswer) return byAnswer;
-      const runId = messageRunId(answer);
-      if (runId && runMaps.byId.has(runId)) return runMaps.byId.get(runId);
-    }
-    if (turn.question) {
-      const byTrigger = runMaps.byTrigger.get(turn.question.id);
-      if (byTrigger) return byTrigger;
-      const runId = messageRunId(turn.question);
-      if (runId && runMaps.byId.has(runId)) return runMaps.byId.get(runId);
-    }
-    return undefined;
-  }, [runMaps]);
-
-  const turns = useMemo(() => buildTurns(messages), [messages]);
+  const turns = useMemo(() => buildTurns(messages, runs), [messages, runs]);
 
   const markProgrammaticScroll = useCallback(() => {
     suppressScrollRef.current = performance.now() + 400;
@@ -690,46 +667,60 @@ const AgentChatHistory: React.FC<AgentChatHistoryProps> = ({
       }
       if (nearBottom) setNewAnswerId((previous) => (previous ? null : previous));
     };
+    const onSelection = () => {
+      const selection = window.getSelection();
+      if (selection && !selection.isCollapsed && container.contains(selection.anchorNode)) followRef.current = false;
+    };
+    const onInteraction = (event: Event) => {
+      if (event.target instanceof Element && event.target.closest("button, summary, a")) followRef.current = false;
+    };
+    const onWheel = (event: WheelEvent) => {
+      if (event.deltaY < 0) {
+        suppressScrollRef.current = 0;
+        followRef.current = false;
+      }
+    };
     container.addEventListener("scroll", onScroll, { passive: true });
-    return () => container.removeEventListener("scroll", onScroll);
+    container.addEventListener("wheel", onWheel, { passive: true });
+    container.addEventListener("pointerdown", onInteraction, { passive: true });
+    document.addEventListener("selectionchange", onSelection);
+    return () => {
+      container.removeEventListener("scroll", onScroll);
+      container.removeEventListener("wheel", onWheel);
+      container.removeEventListener("pointerdown", onInteraction);
+      document.removeEventListener("selectionchange", onSelection);
+    };
   }, []);
 
-  // 首屏：定位到最近一轮答案开头，不让展开的来源把答案挤出视野。
+  // Track real answer IDs, not the last message's role: a tool acknowledgement often
+  // follows the final answer in the same snapshot. Mark IDs only after the scroll
+  // callback actually runs, so a replaced render cannot silently cancel the anchor.
   useEffect(() => {
-    if (!autoScroll || didInitialPositionRef.current || messages.length === 0) return;
-    didInitialPositionRef.current = true;
-    const lastAnswer = [...messages].reverse().find((message) => message.role === "assistant");
-    for (const message of messages) {
-      if (message.role === "assistant") seenAnswerIdsRef.current.add(message.id);
-    }
+    if (!autoScroll || messages.length === 0) return;
     const timer = requestAnimationFrame(() => {
-      if (lastAnswer) scrollToElementTop(answerElement(lastAnswer.id));
-      else scrollToBottom();
-    });
-    return () => cancelAnimationFrame(timer);
-  }, [answerElement, autoScroll, messages, scrollToBottom, scrollToElementTop]);
-
-  // 新问题 / 新答案的阅读位置：用户仍在跟随时定位到答案开头，否则只给「查看新回答」。
-  useEffect(() => {
-    if (!autoScroll || messages.length === 0 || !didInitialPositionRef.current) return;
-    const last = messages[messages.length - 1];
-    if (!last) return;
-    if (last.role === "user") {
-      followRef.current = true;
-      const timer = requestAnimationFrame(() => {
+      const answers = messages.filter(isReadableAnswer);
+      const questions = messages.filter((message) => message.role === "user");
+      const newAnswers = answers.filter((message) => !seenAnswerIdsRef.current.has(message.id));
+      const newQuestions = questions.filter((message) => !seenQuestionIdsRef.current.has(message.id));
+      answers.forEach((message) => seenAnswerIdsRef.current.add(message.id));
+      questions.forEach((message) => seenQuestionIdsRef.current.add(message.id));
+      if (!didInitialPositionRef.current) {
+        didInitialPositionRef.current = true;
+        const last = answers.at(-1);
+        if (last) scrollToElementTop(answerElement(last.id));
+        else scrollToBottom();
+        return;
+      }
+      if (newQuestions.length) {
+        followRef.current = true;
         setNewAnswerId(null);
         scrollToBottom();
-      });
-      return () => cancelAnimationFrame(timer);
-    }
-    if (last.role !== "assistant") return;
-    if (seenAnswerIdsRef.current.has(last.id)) return;
-    seenAnswerIdsRef.current.add(last.id);
-    if (followRef.current) {
-      const timer = requestAnimationFrame(() => scrollToElementTop(answerElement(last.id)));
-      return () => cancelAnimationFrame(timer);
-    }
-    const timer = requestAnimationFrame(() => setNewAnswerId(last.id));
+      }
+      const last = newAnswers.at(-1);
+      if (!last) return;
+      if (followRef.current) scrollToElementTop(answerElement(last.id));
+      else setNewAnswerId(last.id);
+    });
     return () => cancelAnimationFrame(timer);
   }, [answerElement, autoScroll, messages, scrollToBottom, scrollToElementTop]);
 
@@ -779,10 +770,10 @@ const AgentChatHistory: React.FC<AgentChatHistoryProps> = ({
         )}
 
         {turns.map((turn, turnIndex) => {
-          const run = runForTurn(turn);
+          const run = turn.run;
           const declaredRunId = messageRunId(turn.answers[0]) ?? messageRunId(turn.question);
           const answerlessRun = run && !run.answerMessageId && turn.answers.length === 0 ? run : undefined;
-          const toolCalls = turn.answers.flatMap((answer) => answer.metadata?.toolCalls ?? []);
+          const toolCalls = turn.traceMessages.flatMap((answer) => answer.metadata?.toolCalls ?? []);
           const toolResponses = turn.tools
             .map((message) => message.metadata?.toolResponse)
             .filter((response): response is ToolResponse => !!response);
@@ -790,7 +781,7 @@ const AgentChatHistory: React.FC<AgentChatHistoryProps> = ({
             run && (run.status === "QUEUED" || run.status === "RUNNING") ? run.status : null;
           const showProcess = !!run || toolCalls.length > 0 || toolResponses.length > 0;
           const runConfirmedMissing = !!sessionId && runLoad === "ready" && !runStale && !run;
-          const missingAssociatedRun = !!sessionId && runLoad === "ready" && !run && !!declaredRunId;
+          const missingAssociatedRun = !!sessionId && runLoad === "ready" && !runStale && !run && !!declaredRunId;
 
           return (
             <div key={turn.key} className="mb-5 min-w-0">
@@ -826,14 +817,6 @@ const AgentChatHistory: React.FC<AgentChatHistoryProps> = ({
                         <div className="w-full min-w-0 break-words [&_a]:break-all">
                           {answer.content && <AnswerBody messageId={answer.id} content={answer.content} />}
                           {citations.length > 0 && <CitationEntry citations={citations} onOpen={openCitation} />}
-                          {showProcess && (
-                            <ProcessDisclosure
-                              run={answerRun}
-                              sessionId={sessionId}
-                              toolCalls={toolCalls}
-                              toolResponses={toolResponses}
-                            />
-                          )}
                           {failedRun && (
                             <p className="mt-1 text-xs text-rose-700">
                               {RUN_STATUS_LABELS[failedRun.interrupted ? "INTERRUPTED" : failedRun.status]}：
@@ -850,6 +833,12 @@ const AgentChatHistory: React.FC<AgentChatHistoryProps> = ({
                   </div>
                 );
               })}
+
+              {showProcess && (
+                <div className="w-full min-w-0 max-w-3xl">
+                  <ProcessDisclosure run={run} sessionId={sessionId} toolCalls={toolCalls} toolResponses={toolResponses} />
+                </div>
+              )}
 
               {/* 有运行记录但仍在执行、又没有答案消息时，把活动状态放在本轮下面 */}
               {answerlessRun && busyRunStatus && !displayAgentStatus && (
@@ -884,6 +873,7 @@ const AgentChatHistory: React.FC<AgentChatHistoryProps> = ({
                 <span className="flex flex-wrap items-center gap-2">
                   <span className="animate-pulse font-semibold text-sketch0">✨ {statusLabel}</span>
                   {agentStatusText && <span className="break-words text-gray-600">{agentStatusText}</span>}
+                  {waitStartedAt != null && <ElapsedWait key={waitStartedAt} startedAt={waitStartedAt} />}
                 </span>
               )}
               placement="start"

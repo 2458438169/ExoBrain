@@ -5,6 +5,7 @@ import com.kama.jchatmind.agent.tools.DirectAnswerTool;
 import com.kama.jchatmind.citation.AnswerCitation;
 import com.kama.jchatmind.citation.CitationRegistry;
 import com.kama.jchatmind.converter.ChatMessageConverter;
+import com.kama.jchatmind.execution.RunLifecycleService;
 import com.kama.jchatmind.model.dto.ChatMessageDTO;
 import com.kama.jchatmind.model.dto.KnowledgeBaseDTO;
 import com.kama.jchatmind.model.response.CreateChatMessageResponse;
@@ -37,6 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -149,6 +151,57 @@ class JChatMindCitationTest {
                 "a run without a completed retrieval may not register any source");
     }
 
+    @Test
+    void toolParameterSpillNeverPersistsAnAnswer() throws Exception {
+        List<ChatMessageDTO> saved = new ArrayList<>();
+        ChatResponse malformed = answerRound("call-a1",
+                "取消后迟到答复不会写入。</answer>\n<parameter name=\"citationIds\">[\"ret-1:1\"]", null);
+        RuntimeException error = assertThrows(RuntimeException.class,
+                () -> run(List.of(malformed), saved, List.of(), ""));
+        assertEquals("INVALID_ANSWER_FORMAT", RunLifecycleService.classify(error));
+        assertFalse(saved.stream().anyMatch(message -> message.getRole() == ChatMessageDTO.RoleType.ASSISTANT),
+                "the malformed answer must be rejected before persistence");
+    }
+
+    @Test
+    void fallbackContentUsesTheSameFormatGuard() {
+        List<ChatMessageDTO> saved = new ArrayList<>();
+        ChatResponse malformed = new ChatResponse(List.of(new Generation(AssistantMessage.builder()
+                .content("回答</answer>\n<parameter name=\"citationIds\">[]").build())));
+        RuntimeException error = assertThrows(RuntimeException.class,
+                () -> run(List.of(malformed), saved, List.of(), ""));
+        assertEquals("INVALID_ANSWER_FORMAT", RunLifecycleService.classify(error));
+        assertTrue(saved.isEmpty());
+    }
+
+    @Test
+    void xmlExamplesInFencedCodeRemainUnmodified() throws Exception {
+        for (String fence : List.of("```", "~~~~")) {
+            List<ChatMessageDTO> saved = new ArrayList<>();
+            String answer = "XML 示例：\n" + fence + "xml\n</answer>\n<parameter name=\"citationIds\">[]\n"
+                    + fence + fence.charAt(0) + "\n这是代码中的示例。";
+            run(List.of(answerRound("call-a1", answer, null)), saved, List.of(), "");
+            assertEquals(answer, answerIn(saved).getContent());
+        }
+    }
+
+    @Test
+    void inlineProtocolExampleRemainsUnmodified() throws Exception {
+        List<ChatMessageDTO> saved = new ArrayList<>();
+        String answer = "异常边界的例子是 `</answer><parameter name=\"citationIds\">[]`。";
+        run(List.of(answerRound("call-a1", answer, null)), saved, List.of(), "");
+        assertEquals(answer, answerIn(saved).getContent());
+    }
+
+    @Test
+    void aCodeExampleDoesNotHideALaterSpill() throws Exception {
+        List<ChatMessageDTO> saved = new ArrayList<>();
+        ChatResponse malformed = answerRound("call-a1",
+                "```xml\n<answer>示例</answer>\n```\n回答</answer><parameter name=\"citationIds\">[]", null);
+        assertThrows(RuntimeException.class, () -> run(List.of(malformed), saved, List.of(), ""));
+        assertTrue(saved.isEmpty());
+    }
+
     // ------------------------------------------------------------------ fixtures
 
     /** 用脚本响应运行一次真实执行循环，返回本次运行的运行时对象以便检查内部登记表。 */
@@ -193,10 +246,10 @@ class JChatMindCitationTest {
         return new ChatResponse(List.of(new Generation(message)));
     }
 
-    private static ChatResponse answerRound(String toolCallId, String answer, String citationIdsJson) {
-        String arguments = citationIdsJson == null
-                ? "{\"answer\":\"" + answer + "\"}"
-                : "{\"answer\":\"" + answer + "\",\"citationIds\":" + citationIdsJson + "}";
+    private static ChatResponse answerRound(String toolCallId, String answer, String citationIdsJson) throws Exception {
+        var parameters = JSON.createObjectNode().put("answer", answer);
+        if (citationIdsJson != null) parameters.set("citationIds", JSON.readTree(citationIdsJson));
+        String arguments = JSON.writeValueAsString(parameters);
         AssistantMessage message = AssistantMessage.builder().content("")
                 .toolCalls(List.of(new AssistantMessage.ToolCall(toolCallId, "function", "directAnswer", arguments)))
                 .build();

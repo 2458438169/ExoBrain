@@ -1,167 +1,121 @@
 # ExoBrain 架构：实际请求链路与恢复边界
 
-本文描述**当前代码实际执行**的链路，并明确区分已实现与待验证能力。基线：提交 `a61d4af`（任务 01–07 与 08 已合入；07 的未验证项见其交付记录）。
-
-文档中的“待实现”目前**没有**属于任务 01–07 的条目：并发隔离的 Markdown 解析、可复现检索评测、正文索引与结构化检索（含索引版本与原子发布）、服务端校验的回答引用、真实执行追踪、持久化文档导入任务、持久化对话任务（提交与入队同事务、幂等键、租约领取与中断语义）均已落地。**仍然不存在**、也不在架构图上画成已有组件的能力：混合检索与重排、自动模型降级、PDF/Word 解析、任意执行位置的断点续跑与 exactly-once 语义。任务 07 的队列语义已由 `RunQueueIntegrationTest` 在真实 PostgreSQL 上覆盖（幂等键唯一、会话内单活动运行、领取与 fencing、租约过期后中断且迟到 worker 写不进终态、取消与完成的竞争、重启后重新领取 QUEUED）；仍未验证的是多实例部署、真实浏览器界面与并发 HTTP 提交，逐条列在 [07 交付记录](development/deliveries/07.md)第 6 节。接口语义以 [共享契约](development/contracts.md) 为准，决策理由见 `docs/adr/`。
+本文对应 UX-01–06 独立验收候选代码（2026-10-19）。实际部署版本与检查回执见 [UX-06](development/visitor-experience/deliveries/UX-06.md)；内容和耗时测量见 [UX-05](development/visitor-experience/deliveries/UX-05.md)。历史交付记录保留当时的状态，不能把其“未实现”段落当作当前结论。
 
 ## 1. 部署形态
 
 ```text
-浏览器（游客版 / 账号版两套独立构建）
-   │  HTTPS
-   ▼
-Nginx（HTTPS 网关 / 反代，见 deploy/nginx.conf）
-   ├── /                        → 游客前端（current/ui，base=/）
-   ├── /admin/                  → 账号前端（current/admin，base=/admin/）
-   ├── /api/demo/**, /sse/demo/**  → 匿名白名单（严格路径匹配 + 访客 Cookie）
-   ├── /admin/api/ → 后端 /api/    ┐
-   ├── /admin/sse/ → 后端 /sse/    ├ 需要应用会话
-   └── 其他 /api/**, /sse/**       ┘
-   ▼
-Spring Boot 应用（loopback 18082，TZ Asia/Shanghai）
-   ├── AuthFilter → Controller → ResourceAccess → Facade/Service → MyBatis
-   ├── @Async 执行线程池（async-event-*，core 4 / max 10 / queue 100）
-   └── SSE 订阅表（进程内）+ 15 秒注释心跳
-   ▼
-PostgreSQL 17 + pgvector（业务表 + exobrain_* 账号/模型/归属/清理表）
+浏览器：游客版 / 账号版，同一 React 源码独立构建
+   │ HTTPS
+Nginx：严格路径与方法白名单、静态资源、API / SSE 反代
+   ├── /                         → current/ui
+   ├── /admin/                   → current/admin
+   ├── /api/demo/** /sse/demo/** → 游客 Cookie + 公开资源策略
+   └── /admin/api/** /admin/sse/** → 应用会话 + 资源归属
+   │
+Spring Boot：控制器 / 授权 / 提交服务 / 数据库 worker
+   ├── RunWorker：持久对话任务、每次运行独立租约心跳
+   ├── IngestionWorker：持久导入任务、候选索引构建与发布
+   ├── StorageCleanupService：持久文件清理
+   └── SSE：进程内订阅、状态通知；历史和运行摘要可重新查询
+   │
+PostgreSQL 17 + pgvector：业务数据、权限、任务、运行事件与版本化索引
 ```
 
-同一份 `ui/` 源码构建两次，`VITE_*` 是**编译期**配置，改容器环境变量不能把游客版变成账号版（见 [部署说明](../deploy/README.md#build)）。`AuthFilter` 只拦截 `/api` 与 `/sse/`，静态资源与登录页由网关直接提供。
+`VITE_*` 是编译期配置。游客和账号资源必须分别构建；修改容器环境不能改变已经构建的前端。公开取消路径只允许 POST，其他方法由网关返回 405；未发布路径仍拒绝访问。模板与实际生效网关必须分别核对。
 
-## 2. 身份与访问控制（已实现）
+## 2. 身份与访问控制
 
-| 主体 | 身份载体 | 校验位置 |
-| --- | --- | --- |
-| 游客 | HttpOnly Cookie `exobrain_demo`（Secure/SameSite=Lax，30 天，库中存哈希） | `DemoAccessPolicy`、`DemoController`、各 `Demo*` 服务 |
-| 账号 | HttpOnly Cookie `__Host-exobrain_session`（服务端会话，库中存 token 哈希） | `AuthFilter` → `AuthContext` → `ResourceAccess` |
-| 管理员 | 账号会话 + `ADMIN` 角色 | `AuthFilter`（`/api/admin/**`）、`ResourceAccess` 的归属判定 |
-
-账号请求链路（`AuthFilter`，`OncePerRequestFilter`，优先级 `HIGHEST_PRECEDENCE + 20`）：
-
-1. 只处理 `/api`、`/sse/`；`/api/demo`、`/api/demo/**`、`/sse/demo/**` 直接放行给游客策略。
-2. 拒绝带 `;`、`\`、`%` 或 `/../`、`/./` 的原始路径，避免路径参数把公开路径变成受保护路径。
-3. 校验 Cookie 会话（重复同名 Cookie 直接拒绝，不猜测哪个权威）；设置 `Cache-Control: no-store`、`X-Content-Type-Options: nosniff`。
-4. 同源校验（`Sec-Fetch-Site: cross-site` 一律拒绝）；`/api/admin/**` 额外要求 `ADMIN`；非 `GET/HEAD/OPTIONS` 要求 `X-CSRF-Token`。
-5. 身份放入 `AuthContext`（ThreadLocal），请求结束在 `finally` 中清理。
-
-资源级授权集中在 `ResourceAccess`：UUID 规范化后按 `exobrain_resource_acl` 判定归属；普通用户对公开演示资源只读（写操作返回“共享资源为只读”）；管理员只对自己的资源、公开演示库以及**未归属的旧系统资源**有写权限，**不能**访问其他账号的私有知识库、文档、助手、会话（越权统一返回“不存在”）。控制器方法入口即调用 `requireSession` / `requireKb` / `requireDocument` / `requireMessage` / `validateChatMessage`，不依赖前端是否隐藏按钮。
-
-## 3. 账号问答链路（已实现）
-
-```text
-POST /api/chat-messages
-→ AuthFilter（会话 + CSRF + 同源）
-→ ChatMessageController → ResourceAccess.validateChatMessage
-    · 会话可读、会话 agentId == 请求 agentId
-    · role 必须是 user，禁止客户端传 metadata
-    · 助手配置与模型仍可用
-→ ChatMessageFacadeServiceImpl.createChatMessage
-    · 读取最近 100 条历史 → 插入 user 消息 → 序列化“历史快照”
-    · 发布 ChatEvent(agentId, sessionId, content, actorId, authVersion, tokenHash, messageId, historySnapshot)
-→ 立即返回 chatMessageId（HTTP 已结束）
-```
-
-后台线程（`ChatEventListener.handle`，`@Async`，`taskExecutor`）：
-
-```text
-ChatEvent
-→ JChatMindFactory.createForSubmission
-    · 用提交时的快照恢复会话记忆（不再读取执行期间新写入的消息）
-    · 校验快照非空、属于本会话、最后一条就是触发消息
-    · 校验运行时配置：ResourceAccess.validateRuntime(actorId, authVersion, tokenHash, sessionId, config)
-    · 装配工具：每个 ToolCallback 包一层 ScopedToolCallback(delegate, allowedKbs, runtimeGuard)
-→ JChatMind.run()：think → execute → 回填，直到 directAnswer / terminate / 自然结束 / MAX_STEPS=20
-→ 每一步推送 SSE（AI_THINKING / AI_EXECUTING / AI_GENERATED_CONTENT / AI_DONE）
-```
-
-后台身份传播的要点（详见 [ADR 0001](adr/0001-background-authorization.md)）：执行线程**没有** `ThreadLocal` 权威，身份只用提交时快照；`validateRuntime` 会重新核对账号状态、`authVersion`、会话哈希、会话归属、助手配置与模型；`ScopedToolCallback` 在**每次**工具调用前重跑该守卫，并把 `KnowledgeTool` 的 `kbsId` 规范化后与助手获准 KB 白名单比对——模型给出的知识库 ID 不被信任。校验失败时静默停止，不向客户端泄漏内部信息；其他异常会先再次校验 actor，再发送 `AI_DONE` 失败状态。
-
-边界：账号被停用、会话被撤销或角色变更后，下一次运行时校验（每次工具调用）即失败；已经发出的模型/工具调用不会回滚。
-
-## 4. 游客问答链路（已实现）
-
-```text
-POST /api/demo/chat-messages
-→ AuthFilter 放行（匿名白名单）
-→ DemoController → DemoAccessPolicy（规范化配置的 agentId / publicKbIds / showcaseSessionIds）
-→ DemoChatService（事务内持久化访客消息）
-→ DemoExecutionService.submit
-    · 进程内 running 集合做“同一会话一次一个执行”（重复提交 409）
-    · 线程池执行 JChatMindFactory.create(...)（配置校验走 DemoAccessPolicy.validateAgent）
-```
-
-游客执行器**只注册四个工具**：`KnowledgeTool`（`DemoKnowledgeTool`）、`getDate`、`directAnswer`、`terminate`；`validateAgent` 只清空“本次加载的 DTO 副本”中的可选工具，数据库里的管理端选择不变。公开知识检索在工具执行时再次确认 `kbId` 在 `publicKbIds` 内。精选示例会话只读（发送、改名、删除、订阅 SSE 均拒绝）。
-
-## 5. 文档导入与索引发布（已实现，仍同步）
-
-```text
-POST /api/knowledge-bases/{id}/documents （multipart）
-→ DocumentController → ResourceAccess.requireKb(write)
-→ DocumentFacadeServiceImpl.uploadDocument  @Transactional
-    1. 插入 document 行（拿到 documentId）
-    2. 保存原文件；注册事务同步：回滚时补偿删除上传文件
-    3. 回写 document.metadata.filePath
-    4. Markdown：解析 → 以任一级标题分段，每个章节生成一段 chunk
-       · embedding 的输入是**标题**，保存的是该标题对应的正文
-       · 每次解析新建 flexmark Parser，正文只在单次调用内存在（任务 01）
-    5. chunk 行与 document 行在同一事务提交
-```
-
-即：索引的“发布”就是文档事务的提交——没有候选索引、没有 `indexVersion` / `indexRevision`、chunk `metadata` 为空、没有行号与来源哈希；失败时整体回滚并清理已写入的文件。旧库中已有的 chunk 不会被重新处理。
-
-检索侧现状：`chunk_bge_m3(embedding vector(1024))` + `ivfflat (vector_l2_ops)` 索引（是否被规划器使用由数据库决定）；`ChunkBgeM3Mapper.similaritySearch` 限定 `kb_id`、按 `<->` L2 距离排序、`limit 3`、没有相关性阈值。`KnowledgeTools.knowledgeQuery(kbsId, query)` 返回拼接后的纯文本片段，没有命中状态、来源位置或距离。
-检索侧现状：`chunk_bge_m3(embedding vector(1024))` + `ivfflat (vector_l2_ops)` 索引（是否被规划器使用由数据库决定）。`RetrievalService.retrieve` 在 SQL 里先限定知识库与当前活动索引版本，再按 `<->` L2 距离排序并 `limit topK`（`app.retrieval.top-k`，默认 3，可选 `max-distance` 拒绝阈值默认关闭）；`KnowledgeTool` 与演示工具都返回 `RetrievalEnvelope` JSON（状态、命中、来源位置、索引版本与距离），不再是拼接文本。
-**已实现（03）**：正文切块与来源位置（`sourceHash` / `startLine` / `endLine`）、`indexVersion` / `indexRevision` 的候选构建与原子发布（ADR 0003）；**已实现（06）**：导入任务、短事务、有界重试、租约/fencing 与重启恢复（ADR 0006）。未重建的旧库继续是“标题向量 v1”行为，新上传遵循该库当前策略，候选与旧版本结果不混用（契约 §3）。
-
-## 6. 回答、引用与执行记录（现状与差距）
-
-已实现：`directAnswer` 交付答复；消息 `metadata` 保存 `toolCalls` / `toolResponse`；SSE 推 `AI_THINKING` / `AI_EXECUTING` / `AI_GENERATED_CONTENT` / `AI_DONE`（`AI_PLANNING` 仍是预留事件，未实现单独规划阶段）；历史可从数据库重新拉取。
-
-**已实现（03/04/05）**：03 的结构化检索结果（`OK` / `NO_MATCH` / `UNAVAILABLE`）由 `KnowledgeTool` / 演示工具返回；04 的 `CitationRegistry` 只登记本次运行真实完成的 `KnowledgeTool` 结果，模型只能选择 `citationId`，`documentId`、行号与节选由服务端补全，界面点击走授权原文接口并按行定位；05 的 `runId` 与执行事件落库，聊天页可展开真实时间线。**仍未实现**：`AI_PLANNING` 独立规划阶段、自动切换备用模型（只有有限重试）。引用有效只证明来源可核对，不证明答案正确。
-
-## 7. 删除与数据生命周期（已实现）
-
-- 知识库删除（`KnowledgeBaseFacadeServiceImpl.deleteKnowledgeBase`，`@Transactional`）：删 `knowledge_base` 行 → 由外键级联删除 `document`、`chunk_bge_m3`、模型绑定与资源归属 → 解除助手引用 → **同一事务内**写入 `exobrain_storage_cleanup`（不在事务内抛异常，否则拒绝入队）。
-- 文件清理（`StorageCleanupService`）：`afterCommit` 立即尝试；独立 `REQUIRES_NEW` 事务里 `FOR UPDATE SKIP LOCKED` 取行，先确认资源行确实已删除，再删文件，成功才删队列行；失败保留队列行并按分钟重试（重启后继续）。删除的文件立刻对所有 API 不可用，与物理删除是否成功无关。
-- 文档删除同理（`enqueueDocument`）。删除知识库**不**删除聊天记录；`chat_session.agent_id` 在助手删除后置空但历史保留。
-- 存储路径：使用规范化的知识库/文档 UUID 构造路径，拒绝越界路径，不跟随符号链接（Windows 上无法创建符号链接的用例按平台跳过并如实报告）。
-
-## 8. 执行恢复边界（明确区分）
-
-**已实现**
-
-- 消息持久化：刷新/重连后可从 `chat_message` 恢复历史；SSE 断线重连 + 15 秒注释心跳（`SseServiceImpl`，emitter 30 分钟超时）。
-- 会话生命周期：`AuthenticatedStreams` 每 15 秒确认账号会话仍存在，撤销/过期即关闭长连接。
-- 失败可见：账号链路异常先复核 actor 再推 `AI_DONE` 失败状态；游客链路推同样状态。
-- 文件清理的持久重试（见上一节）。
-
-**没有实现（不得对外声称）**
-
-- 对话/导入任务的持久化队列、领取与租约；重启后继续未完成的运行；崩溃后把运行标记为 `INTERRUPTED`；提交与入队原子化；重复提交的幂等（当前重复请求会再写入一条 user 消息）。
-- 任意执行位置的断点续跑与 exactly-once 语义、运行级事件重放（`Last-Event-ID` 续传）。
-- 自动模型降级/切换、混合检索、重排模型、知识图谱。
-
-这些边界由 05（运行记录）、06（导入任务）与 07（对话任务）共同实现。**对话提交**现在把用户消息、固定输入快照与排队任务写在同一个事务里（`exobrain_chat_run_job`），由 worker 领取/续租/fencing 后执行，重启后仍能领取尚未开始的任务；已经执行而结果未知的运行按中断处理，不自动重放外部调用。**文档导入**同样是持久任务队列（`exobrain_ingestion_job`，租约 + fencing + 有界重试）。两条队列与文件删除清理队列互相独立。三者都**不提供** exactly-once：重复执行的模型或外部调用可能重复计费，运行记录只能如实反映已知尝试与未知结果。
-
-## 9. 模型目录与密钥（已实现）
-
-`exobrain_model` / `exobrain_model_state` / `exobrain_kb_embedding` 保存系统 LLM / Embedding 目录、启用状态与知识库绑定；API Key 用 AES-GCM 加密、密钥文件在仓库外且不得重新生成；`ChatClientRegistry` 按 `agent.model` 读取目录 ID，`ModelRuntimeService` 动态构建客户端。模型被停用或不存在时**明确拒绝运行**，不回退到静态客户端。每个知识库在创建时绑定 Embedding 模型，协议、模型名与 1024 维不可静默变更；更换供应商/模型/向量空间需要新建模型与知识库并重新导入。
-
-## 10. 代码位置索引
-
-| 关注点 | 入口 |
+| 主体 | 身份与权限 |
 | --- | --- |
-| 匿名/账号统一入口与网关白名单 | `deploy/nginx.conf`、`com.kama.jchatmind.auth.AuthFilter` |
-| 资源级授权 | `com.kama.jchatmind.auth.ResourceAccess`、`ResourceAclRepository` |
-| 游客公开策略与执行器 | `com.kama.jchatmind.demo.DemoAccessPolicy`、`DemoExecutionService`、`DemoKnowledgeTool` |
-| 账号异步执行 | `com.kama.jchatmind.event.listener.ChatEventListener`、`config.AsyncConfig` |
-| 运行时装配与工具白名单 | `com.kama.jchatmind.agent.JChatMindFactory`、`auth.ScopedToolCallback` |
-| Agent 循环与状态机 | `com.kama.jchatmind.agent.JChatMind`、`AgentState` |
-| 文档导入与索引写入 | `service.impl.DocumentFacadeServiceImpl`、`service.impl.MarkdownParserServiceImpl` |
-| 检索 | `service.impl.RagServiceImpl`、`resources/mapper/ChunkBgeM3Mapper.xml` |
-| 删除与文件清理 | `service.impl.KnowledgeBaseFacadeServiceImpl`、`service.StorageCleanupService` |
-| 模型目录 | `com.kama.jchatmind.models.*`、`config.ChatClientRegistry` |
+| 游客 | HttpOnly Cookie；只能访问已发布资料、自己的会话和明确发布的只读示例 |
+| 普通账号 | 服务端会话 + CSRF / 同源校验；私有知识库、文档、助手和会话按账号归属 |
+| 管理员 | 管理账号与系统模型；不获得其他账号私有资源的读取、检索或修改权 |
 
-## 11. 检查与验证入口
+`AuthFilter` 校验账号会话和写请求。`ResourceAccess` 及 `ResourceAclRepository` 执行资源授权；`DemoAccessPolicy` 执行公开范围与精选只读规则。后台任务保存提交身份快照，在执行与工具调用前重新授权，不依赖请求线程的 `ThreadLocal`。
 
-后端确定性单元、真实 PostgreSQL 集成、前端 lint 与双构建使用同一份逻辑：`scripts/check.sh`（Linux / CI）与 `scripts/check.ps1`（Windows），参数与步骤见脚本头部说明。真实语义评测（外部 Embedding/LLM）不属于常规检查，需显式运行并在无凭据时如实标记“未执行”。
+公开运行投影只有会话所有者能看到 `triggeringMessageId` / `answerMessageId`。精选示例中的这两个字段恒为 null。原文与导入状态使用同一公开 KB 策略；游客没有导入重试权限。
+
+## 3. 账号与游客提交
+
+```text
+POST /api/chat-messages 或 /api/demo/chat-messages
+→ 身份、会话、助手、内容与公开范围校验
+→ RunSubmissionService.submitAccount / submitDemo
+→ 一个事务内写用户消息、固定输入快照、exobrain_run 和 exobrain_chat_run_job
+→ 返回 chatMessageId、runId、runStatus、idempotentReplay
+```
+
+幂等范围包含主体、会话与键。同一范围的同键同内容返回原运行；同键异内容冲突。没有同键的两个请求属于两个意图，不能宣称全局去重。数据库约束保证同一会话最多一个活动任务。前端同一发送意图在响应丢失、手动重试和重连时复用键，受理成功后不自动重新提交。
+
+## 4. 运行、心跳与结果提交
+
+`RunWorker` 通过短事务领取任务，`RunExecutor` 重新授权并运行 Think-Execute 循环。模型和检索外部调用不占数据库事务；工具调用前执行运行权限与租约检查。
+
+- 每次运行有独立心跳调度器，续租使用独立连接、短事务和 `lock_timeout`；另一运行的行锁不会堵住唯一心跳线程。
+- 检查点遇到锁阻塞时有界重试；必要时无锁读取任务确认 status、fencing、租约期限和取消标记。摘要心跳也有界，写后再次确认；最终确认后直接放行，不再做可能阻塞的数据库写。
+- `RunResultWriter` 在同一短事务锁任务、校验运行态与 fencing、写消息并关联最终答案。取消、终态或接管后的旧 worker 不能补写迟到答案。
+- `RunTerminalWriter` 仲裁终态。取消请求跨过心跳/租约期限仍按 CANCELLED 处理；不能误标成重启中断。
+
+已发出的外部调用不能撤销，也可能已经计费。检查点和结果提交守卫控制的是后续执行与落库，不提供 exactly-once。任务行上真正未提交的取消请求还没有成为其他事务可见的事实。
+
+游客运行时只注册 `KnowledgeTool`、`getDate`、`directAnswer`、`terminate` 四工具，检索再次校验允许的知识库。公开助手中的遗留可选数据库工具字段需通过正常配置 API 清理，不开放数据库查询能力。
+
+## 5. 文档导入与索引发布
+
+```text
+POST /api/documents/upload（multipart）
+→ 权限与文件校验，保存 Markdown 原文件
+→ 短事务登记 document 与 exobrain_ingestion_job，返回 documentId / jobId
+→ IngestionWorker 领取，解析正文、调用绑定的 Embedding、构建候选 revision
+→ IngestionPublisher 校验租约/fencing 与旧活动 revision，原子切换活动索引
+```
+
+新库使用 `body-v1`：按章节与正文长度切块，向量输入包含章节路径与正文；保存 `documentId`、`sourceHash`、行号范围和索引 revision。未重建的旧库保留标题向量策略，不混用候选与活动版本。候选失败保留旧活动索引；同库并发导入可能发生 `INDEX_CONFLICT`，发布资料逐份串行导入。
+
+`RetrievalService` 在 SQL 中限定获准知识库及其活动 revision，用 pgvector L2 距离取 top K，返回 `RetrievalEnvelope`（OK / NO_MATCH / UNAVAILABLE、片段、来源与距离）。向量维度为 1024；阈值默认关闭。数据库规划器决定是否使用 ivfflat 索引，不能仅凭存在索引就声称查询一定走索引。
+
+## 6. 回答、引用与界面恢复
+
+`CitationRegistry` 只登记本轮真实完成的知识检索；模型选择 citationId，来源字段由服务端补全。原文预览校验规范化正文 SHA-256，只有 hash 与行范围均有效才高亮；旧记录缺位置或原文已变更时给出可读降级。引用有效不等于结论正确。
+
+运行摘要和真实事件记录排队、模型、重试、工具、检索与落库时间。前端以服务端消息关联和 `metadata.runId` 归组，不按相邻位置猜运行；空工具消息不作为答案开头。来源与过程默认紧凑，长回答可展开；上滚、选择文字或阅读来源时保持阅读位置。
+
+SSE 提供阶段与消息通知，不是逐字正文流式。`AI_DONE` 触发状态核对，数据库终态才结束等待；旧 runId 的事件不改变新运行。断线、重连、页面恢复可见及活动轮询都会核对运行/历史，断线本身不代表任务结束。接口失败与“确实没有记录”分开，已读到的答案不会因后续读失败被清空。
+
+## 7. 删除与生命周期
+
+删除知识库或文档时在数据库事务内解除相关引用并登记 `exobrain_storage_cleanup`。提交后清理原文件，临时失败保留队列重试；资源一旦删除，其 API 立即不可读，不等文件物理删除。删除知识库不删除既有会话消息。存储路径按规范 UUID 限定，拒绝路径越界和符号链接。
+
+公开 v2 切换时，助手的 `allowedKbs` 只指向新库；`public-kb-ids` 保留旧库与新库，使旧会话引用继续可读。精选必须由真实运行审核后发布，不能上传合成测试答案充当实际能力。
+
+## 8. 恢复边界与验证范围
+
+| 状态 | 恢复行为 |
+| --- | --- |
+| QUEUED | 重启后仍可领取执行 |
+| RUNNING 且租约有效 | 心跳续租；前端可刷新恢复状态 |
+| 已运行但租约过期、结果未知 | 标记 INTERRUPTED，不自动重放外部调用 |
+| cancel_requested 后过期 | 标记 CANCELLED / CANCELLED_BY_USER |
+| 导入任务失败 | 按固定错误分类有界重试，旧活动索引不受失败候选影响 |
+
+真实 PostgreSQL、并发 HTTP、浏览器丢响应、SSE TCP 断开、行锁、取消、旧事件与阅读恢复已在隔离环境验证，详见 UX-06。多主机部署、网络分区、真手机软键盘与多模型效果/成本对照仍缺验证。没有实现逐字正文流式、`Last-Event-ID` 事件续传、自动模型降级、混合检索/重排、PDF/Word 解析、任意执行位置的断点续跑和 exactly-once。
+
+## 9. 模型目录与密钥
+
+LLM / Embedding 由 `exobrain_model` 目录管理，API Key 使用 AES-GCM 与仓库外持久密钥加密。运行按已启用模型构建客户端；模型不存在或被停用时明确拒绝，不静默回退。知识库固定 Embedding 绑定与维度；更换向量空间需新建绑定和库并重新导入。
+
+## 10. 代码与检查入口
+
+| 关注点 | 目录或入口 |
+| --- | --- |
+| 授权、公开访问 | `auth/**`、`demo/**`、`deploy/nginx.conf` |
+| 运行提交、租约、结果守卫 | `runs/**` |
+| 摘要、事件与读取 | `execution/**` |
+| 导入与活动 revision | `ingestion/**`、`retrieval/**` |
+| 发送与恢复 | `ui/src/components/views/AgentChatView.tsx` |
+| 阅读关联、响应校验 | `agentChatView/chatTurns.ts`、`ui/src/api/runResponses.ts` |
+| 原文定位 | `ui/src/components/modals/DocumentPreviewDrawer.tsx` |
+| 本地与 CI | `scripts/check.ps1`、`scripts/check.sh`、`.github/workflows/ci.yml` |
+
+统一检查包含后端单元、真实 PostgreSQL、前端 lint、状态回归和双构建。真实模型/Embedding 的内容测量另行执行，缺凭据或未执行的项目如实标记，不算通过。

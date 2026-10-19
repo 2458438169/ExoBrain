@@ -165,7 +165,8 @@ public class RunExecutor {
                         job.sessionId(), job.agentId());
             }
             sse.send(job.sessionId(), SseMessage.builder().type(SseMessage.Type.AI_DONE)
-                    .payload(SseMessage.Payload.builder().done(true).statusText(statusText).build()).build());
+                    .payload(SseMessage.Payload.builder().done(true).statusText(statusText).build())
+                    .metadata(SseMessage.Metadata.builder().runId(job.runId()).build()).build());
         } catch (RuntimeException ignored) {
             // 已撤销的会话不再收到任何迟到事件。
         }

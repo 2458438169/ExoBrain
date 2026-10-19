@@ -1,10 +1,13 @@
 package com.kama.jchatmind.runs;
 
 import com.kama.jchatmind.demo.DemoVisitor;
+import com.kama.jchatmind.demo.DemoException;
 import com.kama.jchatmind.model.common.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,5 +34,10 @@ public class RunControlController {
     public ApiResponse<RunControlService.View> cancelDemoRun(@PathVariable String runId,
             HttpServletRequest request, HttpServletResponse response) {
         return ApiResponse.success(control.cancelForDemo(visitors.owner(request, response), runId));
+    }
+
+    @ExceptionHandler(DemoException.class)
+    public ResponseEntity<ApiResponse<Void>> demoError(DemoException error) {
+        return ResponseEntity.status(error.getStatus()).body(ApiResponse.error(error.getStatus(), error.getMessage()));
     }
 }

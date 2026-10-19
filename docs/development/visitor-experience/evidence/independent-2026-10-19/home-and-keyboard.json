@@ -1,0 +1,64 @@
+{
+  "evidence": {
+    "sizes": [
+      {
+        "pageWidth": 320,
+        "viewport": 320,
+        "rect": {
+          "x": 16,
+          "y": 298,
+          "width": 288,
+          "height": 93.20001220703125
+        },
+        "entryWithinViewport": true
+      },
+      {
+        "pageWidth": 390,
+        "viewport": 390,
+        "rect": {
+          "x": 16,
+          "y": 298,
+          "width": 358.3999938964844,
+          "height": 73.20001220703125
+        },
+        "entryWithinViewport": true
+      },
+      {
+        "pageWidth": 768,
+        "viewport": 768,
+        "rect": {
+          "x": 352,
+          "y": 273,
+          "width": 384,
+          "height": 77.20001220703125
+        },
+        "entryWithinViewport": true
+      },
+      {
+        "pageWidth": 1366,
+        "viewport": 1366,
+        "rect": {
+          "x": 507.20001220703125,
+          "y": 235.5,
+          "width": 672.0000610351562,
+          "height": 77.20001220703125
+        },
+        "entryWithinViewport": true
+      }
+    ],
+    "focus": {
+      "focused": true,
+      "outline": "dashed",
+      "outlineWidth": "1.6px"
+    },
+    "tabTarget": "直接发送推荐问题：看一条有原文出处的回答",
+    "multiline": "第一行\nA",
+    "landscape": {
+      "draft": "第一行\nA",
+      "senderEnabled": true
+    },
+    "physicalSoftKeyboard": "NOT_RUN: desktop Chromium viewport resizing does not exercise a real phone IME"
+  },
+  "originalFile": "home-and-keyboard.json",
+  "originalSha256": "5865be918190b9b8dd3974a63eca4087a1aecadb383088e104684f07bb444646"
+}

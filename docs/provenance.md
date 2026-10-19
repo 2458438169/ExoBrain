@@ -43,14 +43,17 @@
 | 删除与持久文件清理 | 删除不留下可检索索引；文件清理写入 `exobrain_storage_cleanup` 并在提交后执行，失败持久重试 | `service/StorageCleanupService.java`、`service/impl/KnowledgeBaseFacadeServiceImpl.java`、`deploy/migrations/20261016-storage-cleanup.sql` |
 | 解析器并发隔离 | 移除单例中的请求正文状态，每次解析独立（任务 01） | `service/impl/MarkdownParserServiceImpl.java`、`docs/development/deliveries/01.md` |
 | 可重复检查与 CI | 统一检查脚本（`scripts/check.sh` / `scripts/check.ps1`）、测试分类 profile、GitHub Actions 无凭据工作流 | `scripts/**`、`.github/workflows/ci.yml`、`jchatmind/pom.xml` |
+| 正文索引与可核验引用 | 正文切块、活动 revision 原子发布、结构化来源、本轮引用登记与原文哈希/行号核验 | `retrieval/**`、`execution/**`、`ui/src/components/modals/DocumentPreviewDrawer.tsx` |
+| 运行追踪与持久任务 | 运行摘要和事件、导入与对话队列、租约/fencing、幂等提交、取消和中断语义 | `execution/**`、`ingestion/**`、`runs/**`、任务 03–07 交付记录 |
+| 首次访客与阅读恢复 | 推荐问题一键提交、同键重试、实际运行状态核对、独立来源入口、按运行关联组织消息、长回答阅读定位 | `ui/src/components/views/AgentChatView.tsx`、`agentChatView/**`、访客体验 UX-01–06 交付记录 |
 
-### 计划中但**尚未实现**的能力
+### 仍未实现或未验证的边界
 
-`docs/development/tasks/` 的 03–07 目前是待实施方案，不属于现有能力：正文切块与索引版本化（03）、可核验引用与点击定位（04）、执行追踪与真实耗时用量（05）、持久化文档导入（06）、持久化对话任务与恢复（07）。它们落地前，公开说明中不得出现“引用已核验”“任务可恢复”“自动模型降级”等描述；[架构文档](architecture.md) 第 5–8 节列出了当前边界。
+正文索引、引用、追踪和持久任务已经实现，具体验证范围见 [任务 03–07 交付记录](development/deliveries/) 与 [UX-06 独立验收](development/visitor-experience/deliveries/UX-06.md)。仍未实现的包括逐字正文流式、自动模型降级、PDF/Word 解析、混合检索/重排、任意外部调用的 exactly-once。跨主机多实例、网络分区与真实多模型效果/成本对比仍缺验证；短答提示词的同模型对照不能替代多模型比较。
 
 ## 4. 资料、语料与示例
 
-- 公开示例资料 `docs/public-demo/01_exobrain_overview.md`、`02_rag_principles.md`、`03_java_backend_faq.md` 为本项目自写内容，基于本仓库源码与官方技术资料整理，用于公开知识库与体验问答；`99_test_questions.md` 与 `agent-system-prompt.md` 仅供维护复核，不入库。
+- v1 三份公开资料为本项目自写内容并保持冻结；新版 [v2-2026-10-19](public-demo/v2-2026-10-19/manifest.json) 的产品导览、工程案例与能力归属用于新的演示索引。只有 manifest 列出的正文入库，提示词、问题清单、验收报告不入库。
 - `evaluation/` 下的冻结语料、题集与运行脚本、评测报告由任务 02 产出，属本项目自建评测资产，不来自上游。
-- 开发过程文档（`docs/development/**`）是本项目的任务书、契约与交付记录，属于工程过程资料，不是产品能力声明；其中的“待实现”条目未上线。
+- 开发过程文档（`docs/development/**`）保留历史任务书与实际交付。判断当前状态时，以后续交付的提交、环境与验证证据为准，不把历史的“待实现”文字当成当前结论。
 - 仓库不包含生产凭据、私有语料或第三方受版权保护的资料；模型 API Key、数据库口令与密钥文件均位于仓库之外。

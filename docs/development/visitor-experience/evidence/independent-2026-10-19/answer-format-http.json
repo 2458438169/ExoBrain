@@ -1,0 +1,49 @@
+{
+  "evidence": {
+    "passed": true,
+    "checks": {
+      "failed": true,
+      "safeErrorCode": true,
+      "noAnswerAssociation": true,
+      "zeroStoredAnswers": true,
+      "noAnswerInHttpHistory": true,
+      "questionRetained": true
+    },
+    "summary": {
+      "runId": "db6e77cc-0e45-4a8b-8cb2-68450d7391c9",
+      "schemaVersion": 1,
+      "sessionId": "a5082ccc-1b36-442d-a7b6-4602772ec398",
+      "triggeringMessageId": "a71480eb-ffbb-4b26-b319-d338bf2029a8",
+      "answerMessageId": null,
+      "agentId": "afcf9e1a-c307-426f-9965-5cc5dfac013c",
+      "agentName": "合成验收助手 u1",
+      "agentConfigHash": "1b949dff37905a4a4a2b7610bb232177d31d8dfa3ec1d30a87a8508db2376c2d",
+      "modelCatalogId": "review-llm",
+      "modelName": "review-llm",
+      "status": "FAILED",
+      "interrupted": false,
+      "submittedAt": "2026-10-19T15:06:27.265586Z",
+      "startedAt": "2026-10-19T15:06:27.293726Z",
+      "finishedAt": "2026-10-19T15:06:27.846272Z",
+      "durationMs": 548,
+      "queueDurationMs": 28,
+      "inputTokens": 20,
+      "outputTokens": 10,
+      "totalTokens": 30,
+      "errorCode": "INVALID_ANSWER_FORMAT",
+      "traceIncomplete": false,
+      "heartbeatAt": "2026-10-19T15:06:27.845773Z"
+    },
+    "database": {
+      "id": "db6e77cc-0e45-4a8b-8cb2-68450d7391c9",
+      "status": "FAILED",
+      "error_code": "INVALID_ANSWER_FORMAT",
+      "answer_message_id": null,
+      "answers": 0
+    },
+    "sessionId": "a5082ccc-1b36-442d-a7b6-4602772ec398",
+    "injection": "synthetic provider HTTP tool answer; real nginx, Java and PG"
+  },
+  "originalFile": "answer-format-http.json",
+  "originalSha256": "cc28fbe13bb0ff2499170e6a892fe74950dedc534ab638d73b8678d33d950ca0"
+}

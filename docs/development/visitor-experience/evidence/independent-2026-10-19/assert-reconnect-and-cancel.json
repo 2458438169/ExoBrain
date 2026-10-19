@@ -1,0 +1,68 @@
+{
+  "evidence": {
+    "before": {
+      "sessionId": "98fc43ca-5914-497c-9a54-28eb2fad8fa8",
+      "runs": [
+        {
+          "runId": "c4140201-f0be-42de-88ef-5a991d5029c3",
+          "status": "RUNNING",
+          "interrupted": false,
+          "agentName": "合成验收助手 public",
+          "modelName": "review-llm",
+          "submittedAt": "2026-10-19T13:19:18.370960Z",
+          "startedAt": "2026-10-19T13:19:18.403881Z",
+          "finishedAt": null,
+          "durationMs": null,
+          "queueDurationMs": 32,
+          "inputTokens": null,
+          "outputTokens": null,
+          "totalTokens": null,
+          "errorCode": null,
+          "traceIncomplete": false,
+          "triggeringMessageId": "28a9ecb5-bb25-4a12-8491-25d261206c7a",
+          "answerMessageId": null
+        }
+      ],
+      "waited": 24,
+      "draft": "下一条草稿应当保留",
+      "cancelEnabled": true
+    },
+    "pending": "已等待 30 秒 · 仍在处理中，可停止或稍后回来查看",
+    "after": {
+      "runs": [
+        {
+          "runId": "c4140201-f0be-42de-88ef-5a991d5029c3",
+          "status": "CANCELLED",
+          "interrupted": false,
+          "agentName": "合成验收助手 public",
+          "modelName": "review-llm",
+          "submittedAt": "2026-10-19T13:19:18.370960Z",
+          "startedAt": "2026-10-19T13:19:18.403881Z",
+          "finishedAt": "2026-10-19T13:19:58.806638Z",
+          "durationMs": 40400,
+          "queueDurationMs": 32,
+          "inputTokens": 20,
+          "outputTokens": 10,
+          "totalTokens": 30,
+          "errorCode": "CANCELLED_BY_USER",
+          "traceIncomplete": false,
+          "triggeringMessageId": "28a9ecb5-bb25-4a12-8491-25d261206c7a",
+          "answerMessageId": null
+        }
+      ],
+      "messages": [
+        {
+          "id": "28a9ecb5-bb25-4a12-8491-25d261206c7a",
+          "sessionId": "98fc43ca-5914-497c-9a54-28eb2fad8fa8",
+          "role": "user",
+          "content": "请用一句话和最多三个要点说明 ExoBrain 是做什么的、访客可以亲自体验哪些能力。只依据公开资料回答，并注明来源文档。",
+          "metadata": null
+        }
+      ]
+    },
+    "draftAfter": "下一条草稿应当保留",
+    "sendEnabled": true
+  },
+  "originalFile": "assert-reconnect-and-cancel.json",
+  "originalSha256": "9af5833e49f48dd925e9379e609c2b7735dcd384718a9238b33119b42fb62aae"
+}

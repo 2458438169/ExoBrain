@@ -1,0 +1,69 @@
+{
+  "evidence": {
+    "results": [
+      {
+        "id": "html404",
+        "alertVisible": true,
+        "errors": [],
+        "answerPresent": true,
+        "falseMissing": false,
+        "mainPresent": true,
+        "retryVisible": true,
+        "passed": true
+      },
+      {
+        "id": "json404",
+        "alertVisible": true,
+        "errors": [],
+        "answerPresent": true,
+        "falseMissing": false,
+        "mainPresent": true,
+        "retryVisible": true,
+        "passed": true
+      },
+      {
+        "id": "http500",
+        "alertVisible": true,
+        "errors": [],
+        "answerPresent": true,
+        "falseMissing": false,
+        "mainPresent": true,
+        "retryVisible": true,
+        "passed": true
+      },
+      {
+        "id": "offline",
+        "alertVisible": true,
+        "errors": [],
+        "answerPresent": true,
+        "falseMissing": false,
+        "mainPresent": true,
+        "retryVisible": true,
+        "passed": true
+      },
+      {
+        "id": "invalidEnvelope",
+        "alertVisible": true,
+        "errors": [],
+        "answerPresent": true,
+        "falseMissing": false,
+        "mainPresent": true,
+        "retryVisible": true,
+        "passed": true
+      },
+      {
+        "id": "invalidRunEntry",
+        "alertVisible": true,
+        "errors": [],
+        "answerPresent": true,
+        "falseMissing": false,
+        "mainPresent": true,
+        "retryVisible": true,
+        "passed": true
+      }
+    ],
+    "passed": true
+  },
+  "originalFile": "run-read-errors-repaired.json",
+  "originalSha256": "05e09024a3a796a4103c65ff39ab9e5d7bf2cbf9acdba4a67ad58a0b4ad62e55"
+}

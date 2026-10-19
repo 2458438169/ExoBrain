@@ -1,0 +1,83 @@
+{
+  "scope": "owned isolated nginx -> fault proxy -> Java -> PostgreSQL; synthetic HTTP for fault cases; real providers for measurements",
+  "baseline": "2d5e96d36a3d6a566a35770eb7f00fbaca3517c1",
+  "redaction": "explicit file allowlist; authentication values removed; private runtime and full logs excluded",
+  "originalEvidence": [
+    {
+      "file": "gateway-ownership.json",
+      "sourceSha256": "9695a5dbbc49317dea2bdfb2caa1c44ed368e4ac7508072f9727513445a6fe02"
+    },
+    {
+      "file": "repaired-response-loss-retry.json",
+      "sourceSha256": "2f8449900158329764e46d39589543af27a27bf9cd837b3732c07fc5eae0e50c"
+    },
+    {
+      "file": "after-response-loss-reconnect.json",
+      "sourceSha256": "7eab704710de910dd65a489a9f5c5947bdef1519a36f1de142171e60156abb66"
+    },
+    {
+      "file": "assert-reconnect-and-cancel.json",
+      "sourceSha256": "9af5833e49f48dd925e9379e609c2b7735dcd384718a9238b33119b42fb62aae"
+    },
+    {
+      "file": "terminal-replays-repaired.json",
+      "sourceSha256": "58e0cd6e53e5afa5a83f2a62b620991c33665294791952a3de2be301beaa1a09"
+    },
+    {
+      "file": "run-read-errors-repaired.json",
+      "sourceSha256": "05e09024a3a796a4103c65ff39ab9e5d7bf2cbf9acdba4a67ad58a0b4ad62e55"
+    },
+    {
+      "file": "long-read-and-old-events-repaired.json",
+      "sourceSha256": "1eea47c58099fa0171792e5a5229448f76272ae02e67ad0f8e57b88b7da17792"
+    },
+    {
+      "file": "source-and-showcase-verified.json",
+      "sourceSha256": "5a3c8236a6f4ff788bca2805b3f809a43551131556b1cc6e2f58137d62b7d835"
+    },
+    {
+      "file": "stale-read-and-switch-verified.json",
+      "sourceSha256": "493a8248336c8f10cda4d1121f909bffadc653061abe4719d1c767ae81fff8af"
+    },
+    {
+      "file": "home-and-keyboard.json",
+      "sourceSha256": "5865be918190b9b8dd3974a63eca4087a1aecadb383088e104684f07bb444646"
+    },
+    {
+      "file": "legacy-history.json",
+      "sourceSha256": "ee1ba40694771c2d61fa8ae2fc44c81194b3795ca72c5671df3dea27e5611322"
+    },
+    {
+      "file": "account-flow-verified.json",
+      "sourceSha256": "b8b43f3d7fefe05a2882f0976fa817ed16527dabad07b742a8e87ab600342d56"
+    },
+    {
+      "file": "queued-cancel-http.json",
+      "sourceSha256": "56017bff743ed831cc611eb983b8edd8e1ca25f3938daff446958aae38e532b7"
+    },
+    {
+      "file": "candidate-index-failure.json",
+      "sourceSha256": "6ad6193e1fa01ceda0314fb3ab77bd89ce169aaf24a0fca54522e236ca94dbef"
+    },
+    {
+      "file": "gateway-release-script.json",
+      "sourceSha256": "d16a1a9577700778ea4deda79a2b1b9eb946f067ef618d327c55239c5453ccd4"
+    },
+    {
+      "file": "real-sources-focus.json",
+      "sourceSha256": "e6108758b7a1af7b25e9d3199e99383ffb8e71a53c3e0cf3af7bad9ae68865ad"
+    },
+    {
+      "file": "drawer-answer.json",
+      "sourceSha256": "0e96d7cfac6468d7f4685c4479335358189cd66e370e4ef5dd20cde30771b883"
+    },
+    {
+      "file": "answer-format-http.json",
+      "sourceSha256": "cc28fbe13bb0ff2499170e6a892fe74950dedc534ab638d73b8678d33d950ca0"
+    },
+    {
+      "file": "answer-format-visible.json",
+      "sourceSha256": "95b4ac53f6935b9d2d8e830b2c0bd0015e8bf0d1976e6f18280c9a085bead56d"
+    }
+  ]
+}

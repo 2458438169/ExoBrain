@@ -1,0 +1,48 @@
+{
+  "evidence": {
+    "passed": true,
+    "checks": [
+      {
+        "name": "bash syntax",
+        "passed": true
+      },
+      {
+        "name": "check produces diff without modifying site",
+        "passed": true
+      },
+      {
+        "name": "apply accepts candidate with actual nginx -t",
+        "passed": true
+      },
+      {
+        "name": "updated map replaces older map instead of duplicating",
+        "passed": true
+      },
+      {
+        "name": "second apply is idempotent",
+        "passed": true
+      },
+      {
+        "name": "candidate syntax failure never writes the site",
+        "passed": true
+      },
+      {
+        "name": "live syntax failure restores exact previous bytes",
+        "passed": true
+      },
+      {
+        "name": "reload failure restores previous file and retries reload",
+        "passed": true
+      },
+      {
+        "name": "deployment without cancel map gains exactly one map and guard",
+        "passed": true
+      }
+    ],
+    "realNginxSyntax": true,
+    "faults": "live-syntax and reload failures are explicitly injected command wrappers",
+    "candidateSha256": "211a4ebd75dbea3456f79a6cb60643b21e0bc9c857ecbf9bb965788bd05b4a20"
+  },
+  "originalFile": "gateway-release-script.json",
+  "originalSha256": "d16a1a9577700778ea4deda79a2b1b9eb946f067ef618d327c55239c5453ccd4"
+}

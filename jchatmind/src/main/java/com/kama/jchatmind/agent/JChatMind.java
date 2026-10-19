@@ -636,6 +636,8 @@ public class JChatMind {
         }
 
         if (StringUtils.hasText(answerText)) {
+            // Check both delivery channels before marking success or persisting any answer.
+            AnswerFormatGuard.verify(answerText);
             this.userAnswerProduced = true;
         }
 

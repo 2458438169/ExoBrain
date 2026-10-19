@@ -1,7 +1,7 @@
 # Deployment entrypoint scripts must stay executable by Linux shells after a Windows checkout.
 /deploy/*.sh text eol=lf
 # Check scripts are executed by Linux shells and by Git Bash on Windows.
-/scripts/*.sh text eol=lf
+/scripts/**/*.sh text eol=lf
 # Frozen evaluation assets are hashed byte-for-byte (manifest / freeze.json). A checkout or
 # `git archive` with core.autocrlf=true used to rewrite them to CRLF, which broke validate.py
 # and the offline evaluation tests. Pin LF so the exported bytes always match the frozen hashes.

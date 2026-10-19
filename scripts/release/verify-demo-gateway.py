@@ -52,6 +52,8 @@ def record(name, expected, status, body, extra=""):
             parsed = json.loads(body)
         except ValueError:
             parsed = None
+    if status == 200 and (not isinstance(parsed, dict) or parsed.get("code") != 200):
+        ok = False
     note = extra
     if not ok and body.lstrip().startswith("<"):
         note = (note + " (HTML response)").strip()
@@ -74,6 +76,7 @@ def main():
     cookie_header = headers.get("Set-Cookie") or headers.get("set-cookie") or ""
     cookie = cookie_header.split(";", 1)[0] if cookie_header.startswith("exobrain_demo=") else None
     if cookie is None:
+        record("visitor cookie issued", True, False, "")
         print("no visitor cookie was issued; the remaining checks cannot run")
         return report()
     agent_id = None
@@ -81,8 +84,10 @@ def main():
         agent_id = agent.get("id")
         break
     if not agent_id:
+        record("public agent available", True, False, "")
         print("no public agent published")
         return report()
+    allowed_kbs = set(agent.get("allowedKbs") or [])
 
     time.sleep(1)
     status, body, _ = call(base, "POST", "/api/demo/chat-sessions",
@@ -99,7 +104,10 @@ def main():
     status, body, _ = call(base, "GET", "/api/demo/knowledge-bases", cookie=cookie)
     record("GET /api/demo/knowledge-bases", 200, status, body)
     kbs = ((json.loads(body) if body.strip().startswith("{") else {}).get("data") or {}).get("knowledgeBases") or []
-    kb_id = kbs[0].get("id") if kbs else None
+    # Historical public KBs remain readable after a cutover. Verify ingestion on
+    # a KB the current assistant actually retrieves from, not the first old KB.
+    kb_id = next((kb.get("id") for kb in kbs if kb.get("id") in allowed_kbs), None)
+    record("current assistant has a published knowledge base", True, bool(kb_id), "")
 
     document_id = None
     if kb_id:
@@ -114,15 +122,17 @@ def main():
         record("GET /api/demo/documents/{id}/ingestion (import status)", 200, status, body)
         status, body, _ = call(base, "GET", "/api/demo/documents/%s/content" % document_id, cookie=cookie)
         record("GET /api/demo/documents/{id}/content (citation source)", 200, status, body)
+    else:
+        record("current assistant has a readable document", True, False, "")
 
     # 未发布路径必须仍然 fail closed（404），且不是把整段前缀放开。
     status, body, _ = call(base, "GET", "/api/demo/admin/models", cookie=cookie)
     record("GET /api/demo/admin/models (unpublished, must stay closed)", 404, status, body)
 
-    # 取消路径：先确认 GET 被拒（网关 405 / 兜底 403），再由 POST 真正登记取消请求。
+    # GET must be rejected by the candidate gateway, not by an older backend fallback.
     fake_run = str(uuid.uuid4())
     status, body, _ = call(base, "GET", "/api/demo/runs/%s/cancel" % fake_run, cookie=cookie)
-    record("GET  /api/demo/runs/{id}/cancel (must not write)", (403, 404, 405), status, body)
+    record("GET  /api/demo/runs/{id}/cancel (must not write)", 405, status, body)
     idempotency = "gateway-verify-%d" % int(time.time())
     time.sleep(1)
     status, body, _ = call(base, "POST", "/api/demo/chat-messages",
@@ -136,10 +146,29 @@ def main():
         detail = record("GET /api/demo/runs/{id} (run detail)", 200, status, body)
         ids = ((detail or {}).get("data") or {}).get("summary") or {}
         record("run detail carries triggering/answer message ids for its owner",
-               True, bool(ids.get("triggeringMessageId")) or ids.get("status") in ("QUEUED", "RUNNING"),
+               True, ids.get("triggeringMessageId") == sent["data"].get("chatMessageId")
+               and bool(ids.get("triggeringMessageId")) and "answerMessageId" in ids,
                json.dumps(ids, ensure_ascii=False)[:240])
         status, body, _ = call(base, "POST", "/api/demo/runs/%s/cancel" % run_id, cookie=cookie)
-        record("POST /api/demo/runs/{id}/cancel (own running run)", 200, status, body)
+        cancellation = record("POST /api/demo/runs/{id}/cancel (own running run)", 200, status, body)
+        cancel_data = (cancellation or {}).get("data") or {}
+        record("cancel response confirms request or an existing terminal state", True,
+               cancel_data.get("cancelRequested") is True or cancel_data.get("status") in
+               ("SUCCEEDED", "FAILED", "CANCELLED", "INTERRUPTED"), "")
+
+        deadline = time.monotonic() + 60
+        current = {}
+        while time.monotonic() < deadline:
+            time.sleep(1)
+            current_status, current_body, _ = call(base, "GET", "/api/demo/runs/%s" % run_id, cookie=cookie)
+            if current_status == 200:
+                current = json.loads(current_body).get("data", {}).get("summary", {})
+                if current.get("status") in ("SUCCEEDED", "FAILED", "CANCELLED", "INTERRUPTED"):
+                    break
+        record("cancelled run reaches a confirmed terminal state", True,
+               current.get("status") in ("SUCCEEDED", "FAILED", "CANCELLED", "INTERRUPTED"), "")
+        if cancel_data.get("cancelRequested") is True:
+            record("accepted cancellation is eventually CANCELLED", "CANCELLED", current.get("status"), "")
 
     if not args.keep_session:
         status, body, _ = call(base, "DELETE", "/api/demo/chat-sessions/%s" % session_id, cookie=cookie)

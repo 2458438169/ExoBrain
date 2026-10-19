@@ -45,12 +45,15 @@ def must(pattern, text, what):
         sys.exit("cannot extract %s from the repository template" % what)
     return found.group(0)
 
-map_block = must(r'^# 游客取消是唯一的写操作.*?^\}\n', template, "the cancel-method map")
+map_block = must(r'^# 游客取消.*?^\}\n', template, "the cancel-method map")
 guard = must(r'^        if \(\$exobrain_demo_cancel_method = 1\) \{.*?^\s*\}\n', template, "the 405 guard")
 allow = must(r'^        if \(\$uri !~ "\^/api/demo/.*?\) \{\n', template, "the demo allowlist")
 
-# 1) 取消方法 map：缺失则插到 server { 之前（与 limit_req_zone 同为 http 级指令）。
-if "exobrain_demo_cancel_method" not in site:
+# 1) Replace an older map too; reapplying a corrected template must converge.
+site, maps_replaced = re.subn(
+    r'^(?:# 游客取消[^\n]*\n)?map[^\n]*\$exobrain_demo_cancel_method \{.*?^\}\n',
+    map_block, site, count=1, flags=re.MULTILINE | re.DOTALL)
+if not maps_replaced:
     marker = re.search(r"^server \{", site, re.MULTILINE)
     if not marker:
         sys.exit("cannot find the server block")
@@ -115,7 +118,12 @@ fi
 echo "installed: $SITE"
 
 if [ "$RELOAD" = "1" ]; then
-    systemctl reload nginx
+    if ! systemctl reload nginx; then
+        cp -p "$BACKUP" "$SITE"
+        nginx -t && systemctl reload nginx
+        echo "reload failed; restored the previous site configuration" >&2
+        exit 1
+    fi
     echo "reloaded nginx"
 fi
 echo "rollback: cp -p $BACKUP $SITE && nginx -t && systemctl reload nginx"

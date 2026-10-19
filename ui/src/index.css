@@ -211,8 +211,29 @@ summary:focus-visible,
 }
 
 /* Ant Design X Bubble：气泡更圆润 */
+.ant-bubble .ant-bubble-body {
+  min-width: 0;
+  max-width: 100%;
+}
+
 .ant-bubble .ant-bubble-content {
   border-radius: 16px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.answer-markdown {
+  overflow-wrap: anywhere;
+}
+
+.answer-markdown pre,
+.answer-markdown table {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.answer-markdown table {
+  display: block;
 }
 
 /* 隐藏滚动条但保持滚动功能 */

@@ -1,0 +1,21 @@
+{
+  "evidence": {
+    "sessionId": "41f90c4c-73ba-4b8b-a480-a04a678da421",
+    "before": {
+      "chatScroll": 0,
+      "sourceScroll": 0,
+      "sourceText": "探针间隔为 37 秒，重试上限为 4 次。",
+      "dialogOpen": true
+    },
+    "after": {
+      "chatScroll": 0,
+      "sourceScroll": 0,
+      "sourceText": "探针间隔为 37 秒，重试上限为 4 次。",
+      "dialogOpen": true
+    },
+    "answerCount": 2,
+    "newAnswerNoticeWorked": true
+  },
+  "originalFile": "drawer-answer.json",
+  "originalSha256": "0e96d7cfac6468d7f4685c4479335358189cd66e370e4ef5dd20cde30771b883"
+}

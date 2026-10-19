@@ -1,0 +1,312 @@
+{
+  "evidence": {
+    "checks": [
+      {
+        "name": "G01 public catalog is JSON",
+        "passed": true,
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "name": "G01 owner run list has one actual run",
+        "passed": true,
+        "expected": [
+          "01dfab25-431f-4a6f-a8b3-c4bd9b3bb5fb"
+        ],
+        "actual": [
+          "01dfab25-431f-4a6f-a8b3-c4bd9b3bb5fb"
+        ]
+      },
+      {
+        "name": "G01 owner trigger matches database",
+        "passed": true,
+        "expected": "8198882f-ab6b-4517-ab46-4b97b4fdd14b",
+        "actual": "8198882f-ab6b-4517-ab46-4b97b4fdd14b"
+      },
+      {
+        "name": "G01 owner answer matches database",
+        "passed": true,
+        "expected": "4b065f98-c924-4983-bb52-8a81ef22dd25",
+        "actual": "4b065f98-c924-4983-bb52-8a81ef22dd25"
+      },
+      {
+        "name": "G01 events came from the recorded execution",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "name": "G02 other visitor denied /api/demo/chat-sessions/e7bb9726-1a39-4a62-be86-8a7ac8f01aaa/runs",
+        "passed": true,
+        "expected": 404,
+        "actual": 404
+      },
+      {
+        "name": "G02 denied response contains no owner IDs",
+        "passed": true,
+        "expected": false,
+        "actual": false
+      },
+      {
+        "name": "G02 other visitor denied /api/demo/runs/01dfab25-431f-4a6f-a8b3-c4bd9b3bb5fb",
+        "passed": true,
+        "expected": 404,
+        "actual": 404
+      },
+      {
+        "name": "G02 denied response contains no owner IDs",
+        "passed": true,
+        "expected": false,
+        "actual": false
+      },
+      {
+        "name": "G02 other visitor denied /api/demo/chat-messages/session/e7bb9726-1a39-4a62-be86-8a7ac8f01aaa",
+        "passed": true,
+        "expected": 404,
+        "actual": 404
+      },
+      {
+        "name": "G02 denied response contains no owner IDs",
+        "passed": true,
+        "expected": false,
+        "actual": false
+      },
+      {
+        "name": "G02 other visitor cannot cancel",
+        "passed": true,
+        "expected": 404,
+        "actual": 404
+      },
+      {
+        "name": "G03 GET /api/demo/admin/models",
+        "passed": true,
+        "expected": 404,
+        "actual": 404
+      },
+      {
+        "name": "G03 GET /api/demo/runs/01dfab25-431f-4a6f-a8b3-c4bd9b3bb5fb;x=1",
+        "passed": true,
+        "expected": 400,
+        "actual": 400
+      },
+      {
+        "name": "G03 GET /api/demo/runs/01dfab25-431f-4a6f-a8b3-c4bd9b3bb5fb%253btest",
+        "passed": true,
+        "expected": 400,
+        "actual": 400
+      },
+      {
+        "name": "G03 POST /api/demo/documents/bbf29149-acde-4852-b2d5-392ea902ffd0/ingestion/retry",
+        "passed": true,
+        "expected": 404,
+        "actual": 404
+      },
+      {
+        "name": "G03 GET /api/runs/7d50ad6b-6282-4944-9aec-3a5dd157b5fd",
+        "passed": true,
+        "expected": 401,
+        "actual": 401
+      },
+      {
+        "name": "G05 public content",
+        "passed": true,
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "name": "G05 public content is JSON",
+        "passed": true,
+        "expected": false,
+        "actual": false
+      },
+      {
+        "name": "G05 public ingestion",
+        "passed": true,
+        "expected": 200,
+        "actual": 200
+      },
+      {
+        "name": "G05 public ingestion is JSON",
+        "passed": true,
+        "expected": false,
+        "actual": false
+      },
+      {
+        "name": "G05 private content",
+        "passed": true,
+        "expected": 404,
+        "actual": 404
+      },
+      {
+        "name": "G05 private content is JSON",
+        "passed": true,
+        "expected": false,
+        "actual": false
+      },
+      {
+        "name": "G05 private ingestion",
+        "passed": true,
+        "expected": 404,
+        "actual": 404
+      },
+      {
+        "name": "G05 private ingestion is JSON",
+        "passed": true,
+        "expected": false,
+        "actual": false
+      },
+      {
+        "name": "G05 missing content",
+        "passed": true,
+        "expected": 404,
+        "actual": 404
+      },
+      {
+        "name": "G05 missing content is JSON",
+        "passed": true,
+        "expected": false,
+        "actual": false
+      },
+      {
+        "name": "G05 missing ingestion",
+        "passed": true,
+        "expected": 404,
+        "actual": 404
+      },
+      {
+        "name": "G05 missing ingestion is JSON",
+        "passed": true,
+        "expected": false,
+        "actual": false
+      },
+      {
+        "name": "G04 GET cancel rejected by nginx",
+        "passed": true,
+        "expected": 405,
+        "actual": 405
+      },
+      {
+        "name": "G04 HEAD cancel rejected by nginx",
+        "passed": true,
+        "expected": 405,
+        "actual": 405
+      },
+      {
+        "name": "G04 PUT cancel rejected by nginx",
+        "passed": true,
+        "expected": 405,
+        "actual": 405
+      },
+      {
+        "name": "G04 PATCH cancel rejected by nginx",
+        "passed": true,
+        "expected": 405,
+        "actual": 405
+      },
+      {
+        "name": "G04 DELETE cancel rejected by nginx",
+        "passed": true,
+        "expected": 405,
+        "actual": 405
+      },
+      {
+        "name": "G04 OPTIONS cancel rejected by nginx",
+        "passed": true,
+        "expected": 405,
+        "actual": 405
+      },
+      {
+        "name": "G04 PROPFIND cancel rejected by nginx",
+        "passed": true,
+        "expected": 405,
+        "actual": 405
+      },
+      {
+        "name": "G04 rejected methods did not register cancellation",
+        "passed": true,
+        "expected": false,
+        "actual": false
+      },
+      {
+        "name": "G04 different visitor cannot cancel the running job",
+        "passed": true,
+        "expected": 404,
+        "actual": 404
+      },
+      {
+        "name": "G02 rejected visitor did not set cancel_requested",
+        "passed": true,
+        "expected": false,
+        "actual": false
+      },
+      {
+        "name": "G04 POST cancellation is registered",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "name": "G04 database records own cancellation",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "name": "S07 delayed model ends CANCELLED",
+        "passed": true,
+        "expected": "CANCELLED",
+        "actual": "CANCELLED"
+      },
+      {
+        "name": "S07 no late answer association",
+        "passed": true,
+        "expected": null,
+        "actual": null
+      },
+      {
+        "name": "S07 no repeated worker execution",
+        "passed": true,
+        "expected": 1,
+        "actual": 1
+      },
+      {
+        "name": "G02 showcase list strips associations",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "name": "G02 showcase detail strips associations",
+        "passed": true,
+        "expected": true,
+        "actual": true
+      },
+      {
+        "name": "G02 showcase cannot be cancelled by reader",
+        "passed": true,
+        "expected": 403,
+        "actual": 403
+      },
+      {
+        "name": "G03 private account run hidden in public projection",
+        "passed": true,
+        "expected": 404,
+        "actual": 404
+      }
+    ],
+    "passed": true,
+    "cancelledRun": {
+      "run_id": "df0f53e4-07f6-4675-8cab-cbb3e0920dec",
+      "triggering_message_id": "3501a097-01f1-42f9-80c3-f8ea459525fd",
+      "answer_message_id": null,
+      "status": "CANCELLED",
+      "cancel_requested": true,
+      "attempts": 1
+    },
+    "gatewayPort": 19103,
+    "backend": "real jar + PostgreSQL",
+    "model": "synthetic HTTP transport only"
+  },
+  "originalFile": "gateway-ownership.json",
+  "originalSha256": "9695a5dbbc49317dea2bdfb2caa1c44ed368e4ac7508072f9727513445a6fe02"
+}

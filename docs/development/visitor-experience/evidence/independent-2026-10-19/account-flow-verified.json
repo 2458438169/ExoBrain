@@ -1,0 +1,51 @@
+{
+  "evidence": {
+    "before": {
+      "agents": [
+        {
+          "id": "6753651b-d33e-4ba7-b106-04118c689621",
+          "name": "合成验收助手 public"
+        },
+        {
+          "id": "afcf9e1a-c307-426f-9965-5cc5dfac013c",
+          "name": "合成验收助手 u1"
+        }
+      ]
+    },
+    "after": {
+      "sid": "03a74349-232a-4c24-af2d-9b596043020a",
+      "runs": [
+        {
+          "runId": "2a512455-3c31-454d-b8bd-6c40a8ae1be6",
+          "schemaVersion": 1,
+          "sessionId": "03a74349-232a-4c24-af2d-9b596043020a",
+          "triggeringMessageId": "37937ab1-1877-46ef-bfc1-eb38a985f772",
+          "answerMessageId": null,
+          "agentId": "afcf9e1a-c307-426f-9965-5cc5dfac013c",
+          "agentName": "合成验收助手 u1",
+          "agentConfigHash": "1b949dff37905a4a4a2b7610bb232177d31d8dfa3ec1d30a87a8508db2376c2d",
+          "modelCatalogId": "review-llm",
+          "modelName": "review-llm",
+          "status": "CANCELLED",
+          "interrupted": false,
+          "submittedAt": "2026-10-19T14:09:50.609114Z",
+          "startedAt": "2026-10-19T14:09:50.629876Z",
+          "finishedAt": "2026-10-19T14:09:50.706180Z",
+          "durationMs": 75,
+          "queueDurationMs": 20,
+          "inputTokens": null,
+          "outputTokens": null,
+          "totalTokens": null,
+          "errorCode": "CANCELLED_BY_USER",
+          "traceIncomplete": false,
+          "heartbeatAt": "2026-10-19T14:09:50.706104Z"
+        }
+      ],
+      "privateInDemo": 404
+    },
+    "draft": "账号草稿仍可编辑",
+    "canSend": true
+  },
+  "originalFile": "account-flow-verified.json",
+  "originalSha256": "b8b43f3d7fefe05a2882f0976fa817ed16527dabad07b742a8e87ab600342d56"
+}

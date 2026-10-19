@@ -144,6 +144,12 @@ class AuthExecutionReauthorizationTest {
         verify(messages, never()).createChatMessage(any(ChatMessageDTO.class));
         verify(sse, org.mockito.Mockito.atLeastOnce()).send(eq(SESSION), org.mockito.ArgumentMatchers.argThat(
                 message -> message.getType() == SseMessage.Type.AI_DONE));
+        var emitted = org.mockito.ArgumentCaptor.forClass(SseMessage.class);
+        verify(sse, org.mockito.Mockito.atLeastOnce()).send(eq(SESSION), emitted.capture());
+        assertTrue(emitted.getAllValues().stream().filter(message -> message.getType() == SseMessage.Type.AI_DONE)
+                .allMatch(message -> message.getMetadata() != null
+                        && job().runId().equals(message.getMetadata().getRunId())),
+                "Every completion, including the executor failure path, must identify its run");
         verify(terminal).finish(eq(job().id()), eq(0L), eq(job().runId()), eq(RunStatus.FAILED),
                 any(), any(), eq("EXECUTION_FAILED"), eq(false));
     }

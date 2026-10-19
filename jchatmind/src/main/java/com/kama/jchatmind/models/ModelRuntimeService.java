@@ -12,6 +12,8 @@ import org.springframework.ai.deepseek.api.DeepSeekApi;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.openai.api.OpenAiApi;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.client.ClientHttpResponse;
@@ -33,6 +35,7 @@ import java.util.Map;
 /** Builds real provider clients from catalog snapshots; there is no static-provider fallback. */
 @Service
 public class ModelRuntimeService {
+    private static final Logger log = LoggerFactory.getLogger(ModelRuntimeService.class);
     private final ModelSecretCipher cipher;
     private final ModelSettings settings;
     private final WebClient.Builder webClientBuilder;
@@ -160,7 +163,11 @@ public class ModelRuntimeService {
         @Override
         public boolean hasError(ClientHttpResponse response) throws IOException { return response.getStatusCode().isError(); }
         @Override
-        public void handleError(URI url, HttpMethod method, ClientHttpResponse response) { throw llmUnavailable(); }
+        public void handleError(URI url, HttpMethod method, ClientHttpResponse response) throws IOException {
+            // Keep only the status: provider bodies, URLs and headers may contain credentials.
+            log.warn("Language model HTTP request failed: status={}", response.getStatusCode().value());
+            throw llmUnavailable();
+        }
     };
 
     private record SafeChatModel(ChatModel delegate, Duration timeout) implements ChatModel {

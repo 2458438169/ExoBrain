@@ -1,0 +1,126 @@
+{
+  "review": "manual; claims checked against cited public text and source behavior",
+  "candidateRelease": [
+    {
+      "id": "Q01",
+      "runId": "1b0fbe0a-743b-4d93-9325-dd04ae7cb26a",
+      "status": "PASS",
+      "note": "用途、过程与公开范围有来源；297 字。",
+      "answerChars": 297,
+      "sourceCount": 2
+    },
+    {
+      "id": "Q02",
+      "runId": "2e140f0b-fa15-41bd-b8d3-add617c52ec7",
+      "status": "PASS",
+      "note": "区分有效来源与结论正确；307 字，原文定位通过。",
+      "answerChars": 307,
+      "sourceCount": 3
+    },
+    {
+      "id": "Q03",
+      "runId": "cffe7b0d-8e86-41a1-9ed3-b1b08cc366e6",
+      "status": "PASS_WITH_NOTE",
+      "note": "继承/新增有依据；556 字，未达到 200–350 字短答目标。",
+      "answerChars": 556,
+      "sourceCount": 3
+    },
+    {
+      "id": "Q04",
+      "runId": "bef8f62d-d7e6-4f7b-9709-c72e98c00dcd",
+      "status": "PASS",
+      "note": "限定同身份/会话/幂等键；明确不保证外部调用 exactly-once。",
+      "answerChars": 437,
+      "sourceCount": 2
+    },
+    {
+      "id": "Q05",
+      "runId": "ed898271-67a6-42a0-a1d2-3b80be180ecc",
+      "status": "FAIL",
+      "note": "裸工具参数残片混入正文且零引用。保留坏样本；新增格式守卫及独立新意图复验。",
+      "answerChars": 488,
+      "sourceCount": 0
+    },
+    {
+      "id": "Q06",
+      "runId": "cff0e6a9-2c3e-4a7e-8683-ea6274cff0d7",
+      "status": "PASS",
+      "note": "区分 QUEUED、RUNNING、取消过期与结果未知不重放。",
+      "answerChars": 424,
+      "sourceCount": 1
+    },
+    {
+      "id": "Q07",
+      "runId": "eb584d28-e3d9-4513-ab22-86ac0bacd61a",
+      "status": "PASS",
+      "note": "没有捏造客户量或节省成本数字。",
+      "answerChars": 239,
+      "sourceCount": 1
+    },
+    {
+      "id": "Q08",
+      "runId": "e57fc506-5e51-445c-bf1e-18757fdbfb50",
+      "status": "PASS",
+      "note": "管理员也不能跨所有者读取私有资源。",
+      "answerChars": 221,
+      "sourceCount": 2
+    },
+    {
+      "id": "Q09",
+      "runId": "717c9708-4461-4530-83b2-b4f90de4fdd6",
+      "status": "PASS_WITH_NOTE",
+      "note": "核心核对路径正确；“每句回答下面”表述过宽，实际为每轮答复的来源区。",
+      "answerChars": 254,
+      "sourceCount": 3
+    },
+    {
+      "id": "Q10",
+      "runId": "821ab645-118c-4712-80cd-35cd44b28426",
+      "status": "PASS",
+      "note": "说明状态 SSE 与最终答复交付，不宣称正文逐字流式。",
+      "answerChars": 229,
+      "sourceCount": 3
+    },
+    {
+      "id": "Q11",
+      "runId": "b298fcaf-ce0d-4825-8bc9-fc244c529a47",
+      "status": "PASS",
+      "note": "明确来源有效不能替代事实核验。",
+      "answerChars": 214,
+      "sourceCount": 3
+    },
+    {
+      "id": "Q12",
+      "runId": "24a48315-847b-41fb-93c5-16941c3a64e2",
+      "status": "PASS",
+      "note": "JChatMind、MIT、上游版权及继承边界与仓库相符。",
+      "answerChars": 497,
+      "sourceCount": 3
+    }
+  ],
+  "usableOriginalAnswers": 11,
+  "originalAttempts": 12,
+  "usableAnswersFirstVisible": {
+    "n": 11,
+    "p50Ms": 6145,
+    "p95Ms": 7598.300000011921
+  },
+  "recheck": {
+    "id": "Q05",
+    "status": "PASS",
+    "evidence": "q05-format-recheck.json",
+    "newIntent": true,
+    "replacesOriginalSample": false
+  },
+  "notRun": [
+    "physical mobile soft keyboard",
+    "multi-host/network partition",
+    "multi-model effect/cost comparison"
+  ],
+  "limitations": [
+    "finite sequential samples, not randomized A/B or SLA",
+    "provider failures retained; old HTTP status not recorded",
+    "no generic guarantee against all malformed or incorrect model output",
+    "Q03 length target remains unmet"
+  ]
+}

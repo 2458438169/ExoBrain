@@ -1,6 +1,7 @@
 package com.kama.jchatmind.execution;
 
 import com.kama.jchatmind.auth.AuthException;
+import com.kama.jchatmind.agent.InvalidAnswerFormatException;
 import com.kama.jchatmind.mapper.AgentMapper;
 import com.kama.jchatmind.mapper.ChatMessageMapper;
 import com.kama.jchatmind.model.entity.Agent;
@@ -143,6 +144,9 @@ public class RunLifecycleService {
     /** 安全错误分类：只保留固定码，不回传堆栈或服务商原文。 */
     public static String classify(Throwable error) {
         for (Throwable cause = error; cause != null; cause = cause.getCause()) {
+            if (cause instanceof InvalidAnswerFormatException) {
+                return "INVALID_ANSWER_FORMAT";
+            }
             if (cause instanceof AuthException) {
                 return "AUTHORIZATION_REVOKED";
             }

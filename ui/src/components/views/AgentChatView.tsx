@@ -76,42 +76,103 @@ function SessionChatView({ sessionId, agentCatalog }: { sessionId: string; agent
   const [loading, setLoading] = useState(true);
   const [connected, setConnected] = useState(false);
   const [connectionFailed, setConnectionFailed] = useState(false);
-  const [waiting, setWaiting] = useState(false);
-  const [status, setStatus] = useState<{ type: SseMessageType; text: string } | null>(null);
+  const [waiting, renderWaiting] = useState(false);
+  const [status, setStatus] = useState<{ type: SseMessageType; text: string; fromSummary?: boolean } | null>(null);
   const [completionNotice, setCompletionNotice] = useState("");
   // 已知 runId 才能调用真实取消接口；取消请求登记 ≠ 终态。
-  const [activeRunId, setActiveRunId] = useState<string | null>(null);
+  const [activeRunId, renderActiveRunId] = useState<string | null>(null);
   const [cancelRequested, setCancelRequested] = useState(false);
+  const [waitStartedAt, setWaitStartedAt] = useState<number | null>(null);
+  const [runRevision, setRunRevision] = useState(0);
   const waitingRef = useRef(false);
-
+  const activeRunRef = useRef<string | null>(null);
+  const generationRef = useRef(0);
+  const terminalRunsRef = useRef(new Set<string>());
+  const mountedRef = useRef(true);
   useEffect(() => {
-    waitingRef.current = waiting;
-  }, [waiting]);
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; };
+  }, []);
+  const setWaiting = useCallback((value: boolean) => {
+    waitingRef.current = value;
+    renderWaiting(value);
+  }, []);
+  const setActiveRunId = useCallback((value: string | null) => {
+    activeRunRef.current = value;
+    renderActiveRunId(value);
+  }, []);
 
   const refreshMessages = useCallback(async () => {
     const response = await getChatMessagesBySessionId(sessionId);
+    if (!mountedRef.current) return;
     setMessages((current) => mergeSnapshot(current, response.chatMessages));
   }, [sessionId]);
 
   const pendingIntent = useRef<SendIntent | null>(null);
   const inFlightIntent = useRef<{ intent: SendIntent; promise: Promise<CreateChatMessageResponse> } | null>(null);
 
+  // SSE is only a notification. In particular AI_DONE may precede the terminal transaction.
+  const finishRun = useCallback((runId: string, runStatus: string, notice?: string) => {
+    if (!mountedRef.current || (activeRunRef.current && activeRunRef.current !== runId)) return;
+    terminalRunsRef.current.add(runId);
+    setWaiting(false);
+    setActiveRunId(null);
+    setCancelRequested(false);
+    setWaitStartedAt(null);
+    setStatus(null);
+    setRunRevision((value) => value + 1);
+    setCompletionNotice(notice ?? (runStatus === "CANCELLED" ? "本次运行已取消。"
+      : runStatus === "SUCCEEDED" ? "" : "本次运行已结束，可在问题下查看状态。"));
+    void refreshMessages().catch((error) => showRequestError(error, "聊天记录刷新失败"));
+  }, [refreshMessages, setActiveRunId, setWaiting]);
+
+  const confirmActiveRun = useCallback(async () => {
+    const runId = activeRunRef.current;
+    const generation = generationRef.current;
+    if (!runId) return;
+    const detail = await getRun(runId);
+    if (!mountedRef.current || generation !== generationRef.current || activeRunRef.current !== runId) return;
+    if (isTerminalRunStatus(detail.summary.status)) {
+      finishRun(runId, detail.summary.status);
+    } else {
+      // An early SSE phase can precede the submission response. Refresh a summary
+      // placeholder from the actual run, without replacing a later model/tool event.
+      setStatus((previous) => previous && !previous.fromSummary ? previous : {
+        type: "AI_EXECUTING", fromSummary: true,
+        text: detail.summary.status === "QUEUED" ? "任务已受理，正在等待处理" : "正在执行；刷新页面不会中断它",
+      });
+    }
+  }, [finishRun]);
+
+  const reconcileRuns = useCallback(async () => {
+    const generation = generationRef.current;
+    const response = await listSessionRuns(sessionId);
+    if (!mountedRef.current || generation !== generationRef.current) return;
+    // An unacknowledged submission still needs its same-key retry; do not consume its draft.
+    if (pendingIntent.current && !activeRunRef.current) return;
+    const known = response.runs.find((run) => run.runId === activeRunRef.current);
+    if (known && isTerminalRunStatus(known.status)) {
+      finishRun(known.runId, known.status);
+      return;
+    }
+    const running = response.runs.find((run) => run.status === "QUEUED" || run.status === "RUNNING");
+    if (!running || terminalRunsRef.current.has(running.runId)) return;
+    setActiveRunId(running.runId);
+    setWaiting(true);
+    setWaitStartedAt((previous) => previous ?? (Date.parse(running.submittedAt) || Date.now()));
+    setStatus((previous) => previous && !previous.fromSummary ? previous : { type: "AI_EXECUTING", fromSummary: true, text: running.status === "QUEUED"
+      ? "任务已受理，正在等待处理" : "正在执行；刷新页面不会中断它" });
+  }, [finishRun, sessionId, setActiveRunId, setWaiting]);
+
   // R2-02：把提交响应里的运行状态落实成界面状态。终态重放不会再发 AI_DONE，
   // 因此必须在这里恢复输入框并给出完成提示；仍在排队/执行则保持等待，由 SSE 与运行轮询收尾。
   const settleSubmission = useCallback((response: CreateChatMessageResponse) => {
     if (!isTerminalRunStatus(response?.runStatus)) return;
-    setWaiting(false);
-    setStatus(null);
-    setActiveRunId(null);
-    setCancelRequested(false);
-    if (response.idempotentReplay) {
-      setCompletionNotice(response.runStatus === "SUCCEEDED"
-        ? "该问题此前已提交并完成，这次没有重复执行"
-        : "该问题此前已结束，没有新的答复");
-    } else if (response.runStatus !== "SUCCEEDED") {
-      setCompletionNotice("本次运行已结束，没有产出答复");
-    }
-  }, []);
+    if (response.runId) finishRun(response.runId, response.runStatus!, response.idempotentReplay
+      ? response.runStatus === "SUCCEEDED" ? "该问题此前已提交并完成，这次没有重复执行"
+        : "该问题此前已结束，没有新的答复"
+      : undefined);
+  }, [finishRun]);
 
   /**
    * 唯一的发送协调器：首页推荐、示例页「亲自试一试」、手动发送、相关追问都只会走到这里。
@@ -131,6 +192,7 @@ function SessionChatView({ sessionId, agentCatalog }: { sessionId: string; agent
     if (inFlightIntent.current && sameIntent(inFlightIntent.current.intent, sessionId, agentId, trimmed)) {
       return inFlightIntent.current.promise;
     }
+    generationRef.current += 1;
     pendingIntent.current = intent;
     const promise = createChatMessage({
       agentId,
@@ -139,6 +201,7 @@ function SessionChatView({ sessionId, agentCatalog }: { sessionId: string; agent
       content: trimmed,
       idempotencyKey: intent.key,
     }).then((response) => {
+      if (!mountedRef.current) return response;
       pendingIntent.current = null;
       if (initialMessage.current) {
         // 任何一次「确认受理」都意味着本会话已经有了一条被接受的用户消息：
@@ -148,6 +211,12 @@ function SessionChatView({ sessionId, agentCatalog }: { sessionId: string; agent
       }
       setActiveRunId(response.runId ?? null);
       setCancelRequested(false);
+      setRunRevision((value) => value + 1);
+      if (!isTerminalRunStatus(response.runStatus)) {
+        setWaiting(true);
+        setStatus((previous) => previous ?? { type: "AI_EXECUTING", fromSummary: true, text: response.runStatus === "QUEUED"
+          ? "任务已受理，正在等待处理" : "正在执行" });
+      }
       settleSubmission(response);
       return response;
     }).finally(() => {
@@ -155,7 +224,7 @@ function SessionChatView({ sessionId, agentCatalog }: { sessionId: string; agent
     });
     inFlightIntent.current = { intent, promise };
     return promise;
-  }, [sessionId, settleSubmission]);
+  }, [sessionId, settleSubmission, setActiveRunId, setWaiting]);
 
   useEffect(() => {
     let active = true;
@@ -175,38 +244,33 @@ function SessionChatView({ sessionId, agentCatalog }: { sessionId: string; agent
   // 刷新/重连后的状态恢复：已经受理的运行从服务器恢复，不自动重发。
   // 只读取运行摘要，用它把「活动状态 + 可取消的 runId」还原出来。
   useEffect(() => {
-    let active = true;
-    void listSessionRuns(sessionId).then((response) => {
-      if (!active) return;
-      const running = (response?.runs ?? []).find(
-        (run) => run.status === "QUEUED" || run.status === "RUNNING",
-      );
-      if (!running) return;
-      setWaiting(true);
-      setActiveRunId(running.runId);
-      setStatus({
-        type: "AI_EXECUTING",
-        text: running.status === "QUEUED" ? "任务已受理，正在等待处理" : "正在执行；刷新页面不会中断它",
-      });
-    }).catch(() => {
-      // 读取失败时不虚报运行状态：历史区会显示读取失败与重试。
-    });
-    return () => { active = false; };
-  }, [sessionId]);
+    void reconcileRuns().catch(() => { /* The history panel exposes read failures and retry. */ });
+  }, [reconcileRuns]);
 
   useEffect(() => {
     let active = true;
-    const es = new EventSource(`${SSE_BASE_URL}/connect/${encodeURIComponent(sessionId)}`);
-    es.onerror = () => {
-      if (!active) return;
-      setConnected(false);
-      setConnectionFailed(true);
-      setWaiting(false);
-      setStatus(null);
-    };
+    let es: EventSource | null = null;
+    let retryTimer: number | undefined;
+    let retryDelay = 1000;
 
-    es.addEventListener("message", (event) => {
+    const connect = () => {
       if (!active) return;
+      const source = new EventSource(`${SSE_BASE_URL}/connect/${encodeURIComponent(sessionId)}`);
+      es = source;
+      source.onerror = () => {
+        if (!active || es !== source) return;
+        setConnected(false);
+        setConnectionFailed(true);
+        // HTTP 502/503 can leave native EventSource CLOSED. Own the retry instead of
+        // displaying "retrying" forever; an interrupted transport never ends the run.
+        source.close();
+        es = null;
+        retryTimer = window.setTimeout(connect, retryDelay);
+        retryDelay = Math.min(retryDelay * 2, 15000);
+      };
+
+    source.addEventListener("message", (event) => {
+      if (!active || es !== source) return;
       let update: SseMessage;
       try {
         update = JSON.parse(event.data) as SseMessage;
@@ -214,6 +278,7 @@ function SessionChatView({ sessionId, agentCatalog }: { sessionId: string; agent
         return;
       }
       if (!update.payload) return;
+      const eventRunId = update.metadata?.runId;
       if (update.type === "AI_GENERATED_CONTENT") {
         const incoming = update.payload.message;
         if (!incoming || incoming.sessionId !== sessionId) return;
@@ -221,30 +286,27 @@ function SessionChatView({ sessionId, agentCatalog }: { sessionId: string; agent
           ? current.map((message) => message.id === incoming.id ? incoming : message)
           : [...current, incoming]);
       } else if (["AI_PLANNING", "AI_THINKING", "AI_EXECUTING"].includes(update.type)) {
-        // P02：没有正在等待的本轮运行时，迟到的旧事件不能把界面重新变成「生成中」。
-        if (!waitingRef.current) return;
-        setWaiting(true);
+        if (!eventRunId || eventRunId !== activeRunRef.current || terminalRunsRef.current.has(eventRunId)) return;
         setStatus({ type: update.type, text: update.payload.statusText });
       } else if (update.type === "AI_DONE") {
-        setWaiting(false);
-        setStatus(null);
-        setActiveRunId(null);
-        setCancelRequested(false);
-        setCompletionNotice(update.payload.statusText || "");
-        void refreshMessages().catch((error) => showRequestError(error, "聊天记录刷新失败"));
+        if (eventRunId && eventRunId !== activeRunRef.current) return;
+        void confirmActiveRun().catch(() => { /* Periodic reconciliation continues. */ });
       }
     });
 
-    es.addEventListener("init", () => {
-      if (!active) return;
+    source.addEventListener("init", () => {
+      if (!active || es !== source) return;
+      retryDelay = 1000;
       setConnected(true);
       setConnectionFailed(false);
       // Reconcile history after reconnection, including any messages received while offline.
       void refreshMessages().catch((error) => showRequestError(error, "聊天记录刷新失败"));
+      void reconcileRuns().catch(() => { /* Preserve the last confirmed state. */ });
       const first = initialMessage.current;
       if (!first || initialSent.current) return;
       initialSent.current = true;
       setWaiting(true);
+      setWaitStartedAt((previous) => previous ?? Date.now());
       navigate(`/chat/${sessionId}`, { replace: true, state: null });
       void sendIntent(first.agentId, first.content).then(async () => {
         if (!active) return;
@@ -256,16 +318,20 @@ function SessionChatView({ sessionId, agentCatalog }: { sessionId: string; agent
         // 注意这里只回退“已发送”标记，不清空 initialMessage：重连还要靠它拿到同一份内容与同一个键。
         initialSent.current = false;
         setWaiting(false);
+        setWaitStartedAt(null);
         setStatus(null);
         showRequestError(error, "发送消息失败，请重试");
       });
     });
+    };
+    connect();
 
     return () => {
       active = false;
-      es.close();
+      window.clearTimeout(retryTimer);
+      es?.close();
     };
-  }, [sessionId, navigate, refreshMessages, sendIntent]);
+  }, [sessionId, navigate, refreshMessages, sendIntent, confirmActiveRun, reconcileRuns, setWaiting]);
 
   /**
    * 停止按钮：只有拿到 runId 才能调用真实取消接口。
@@ -279,61 +345,56 @@ function SessionChatView({ sessionId, agentCatalog }: { sessionId: string; agent
     if (cancelRequested) return;
     try {
       const result = await cancelRun(activeRunId);
+      if (!mountedRef.current || activeRunRef.current !== result.runId) return;
       setCompletionNotice(result.message);
       if (isTerminalRunStatus(result.status)) {
         // 运行已经在终态：以服务端状态收尾，不显示「正在取消」。
-        setWaiting(false);
-        setStatus(null);
-        setActiveRunId(null);
-        setCancelRequested(false);
-        setCompletionNotice(result.message || "运行已经结束。");
+        finishRun(result.runId, result.status, result.message || "运行已经结束。");
         return;
       }
-      setCancelRequested(true);
+      setCancelRequested(result.cancelRequested);
       setStatus({ type: "AI_EXECUTING", text: "已登记停止请求，等待运行状态确认" });
     } catch (error) {
+      if (!mountedRef.current || activeRunRef.current !== activeRunId) return;
       setCancelRequested(false);
       showRequestError(error, "取消请求失败，运行仍在继续");
     }
-  }, [activeRunId, cancelRequested]);
+  }, [activeRunId, cancelRequested, finishRun]);
 
-  // 取消请求登记后按真实运行状态收敛；不停留在「正在取消」。
+  // All active runs reconcile even if SSE misses completion, the tab was hidden or
+  // the backend restarted. Only a server-confirmed terminal state enables a new send.
   useEffect(() => {
-    if (!cancelRequested || !activeRunId) return;
-    let active = true;
-    const timer = window.setInterval(() => {
-      void getRun(activeRunId).then((detail) => {
-        if (!active || !detail?.summary) return;
-        if (isTerminalRunStatus(detail.summary.status)) {
-          setWaiting(false);
-          setStatus(null);
-          setActiveRunId(null);
-          setCancelRequested(false);
-          setCompletionNotice(detail.summary.status === "CANCELLED"
-            ? "本次运行已取消。"
-            : "本次运行已结束。");
-        }
-      }).catch(() => {
-        // 读取失败不会假装已经停止；继续按原状态显示。
-      });
-    }, 3000);
-    return () => { active = false; window.clearInterval(timer); };
-  }, [cancelRequested, activeRunId]);
+    if (!activeRunId) return;
+    const refresh = () => {
+      if (document.visibilityState === "visible") void confirmActiveRun().catch(() => { /* Retry next tick. */ });
+    };
+    const timer = window.setInterval(refresh, 3000);
+    document.addEventListener("visibilitychange", refresh);
+    return () => {
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", refresh);
+    };
+  }, [activeRunId, confirmActiveRun]);
 
   /** 手动发送与相关追问共用同一条路径；草稿只在确认受理后清空。 */
   const handleSendMessage = async (content: string): Promise<boolean> => {
-    if (!content.trim() || !session?.agentId || !connected || waiting) return false;
+    if (!content.trim() || !session?.agentId || !connected || waitingRef.current) return false;
     setWaiting(true);
+    setWaitStartedAt(Date.now());
     setCancelRequested(false);
     setStatus(null);
     setActiveRunId(null);
     setCompletionNotice("");
     try {
       await sendIntent(session.agentId, content);
+      if (!mountedRef.current) return true;
+      setDraft((current) => current.trim() === content.trim() ? "" : current);
       void refreshMessages().catch((error) => showRequestError(error, "聊天记录刷新失败"));
       return true;
     } catch (error) {
+      if (!mountedRef.current) return false;
       setWaiting(false);
+      setWaitStartedAt(null);
       setStatus(null);
       showRequestError(error, "发送消息失败，请重试");
       return false;
@@ -366,6 +427,8 @@ function SessionChatView({ sessionId, agentCatalog }: { sessionId: string; agent
       <AgentChatHistory
         messages={messages}
         sessionId={sessionId}
+        refreshVersion={runRevision}
+        waitStartedAt={waitStartedAt}
         displayAgentStatus={waiting}
         agentStatusText={status?.text || "正在生成回答…"}
         agentStatusType={status?.type}

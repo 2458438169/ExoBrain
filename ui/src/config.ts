@@ -21,19 +21,19 @@ export const DEMO_PROMPTS: readonly DemoPrompt[] = [
     title: "30 秒了解这个项目",
     description: "一句话加三个要点，说明能做什么",
     prompt:
-      "请用一句话和最多三个要点说明 ExoBrain 是做什么的、访客可以亲自体验哪些能力。只依据公开资料回答，并注明来源文档。",
+      "用一句话和三个要点说明 ExoBrain 能做什么，并指出我可以亲自体验的能力。",
   },
   {
     title: "看一条有原文出处的回答",
     description: "回答带可核对的原文位置",
     prompt:
-      "请针对 ExoBrain 如何让我核对一个回答的依据给出回答，并注明引用的来源文档与段落，让我可以打开原文核对。",
+      "这个项目如何让我核对答案的依据？请说明引用和原文的关系。",
   },
   {
     title: "作者新增了哪些能力",
     description: "区分上游已有与本仓库新增",
     prompt:
-      "请区分上游项目已有的能力与作者在本仓库新增的能力，选出三个有公开资料证据的改进，并注明来源文档。",
+      "在上游 JChatMind 的基础上，这个仓库新增了哪些能力？请区分继承和新增。",
   },
 ] as const;
 
@@ -42,6 +42,6 @@ export const DEMO_PROMPTS: readonly DemoPrompt[] = [
  * 只有点击才会发送，不会随着答案自动提交。
  */
 export const FOLLOW_UP_PROMPTS: readonly string[] = [
-  "这些结论的原文在哪个文档里？可以指出我可以核对的段落吗？",
-  "作者新增的能力有公开证据吗？分别对应哪份资料？",
+  "重复点击发送会不会跑两次？",
+  "点了取消之后模型又返回了，会发生什么？",
 ] as const;

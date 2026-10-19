@@ -1,0 +1,75 @@
+{
+  "evidence": {
+    "submissions": [
+      {
+        "body": {
+          "agentId": "6753651b-d33e-4ba7-b106-04118c689621",
+          "sessionId": "70780a79-b208-4df5-8e52-936d90d125b2",
+          "role": "user",
+          "content": "用一句话和三个要点说明 ExoBrain 能做什么，并指出我可以亲自体验的能力。",
+          "idempotencyKey": "05647377-7703-4679-a864-54afbab2344f"
+        },
+        "http": 200,
+        "accepted": {
+          "chatMessageId": "1896a76e-137f-413c-b756-e2071a0df192",
+          "runId": "7f6e508d-70e7-4302-a9f6-655a0dbc6ef6",
+          "runStatus": "QUEUED",
+          "idempotentReplay": false
+        }
+      },
+      {
+        "body": {
+          "agentId": "6753651b-d33e-4ba7-b106-04118c689621",
+          "sessionId": "70780a79-b208-4df5-8e52-936d90d125b2",
+          "role": "user",
+          "content": "用一句话和三个要点说明 ExoBrain 能做什么，并指出我可以亲自体验的能力。",
+          "idempotencyKey": "05647377-7703-4679-a864-54afbab2344f"
+        },
+        "http": 200,
+        "accepted": {
+          "chatMessageId": "1896a76e-137f-413c-b756-e2071a0df192",
+          "runId": "7f6e508d-70e7-4302-a9f6-655a0dbc6ef6",
+          "runStatus": "SUCCEEDED",
+          "idempotentReplay": true
+        }
+      }
+    ],
+    "result": {
+      "sid": "70780a79-b208-4df5-8e52-936d90d125b2",
+      "runs": [
+        {
+          "runId": "7f6e508d-70e7-4302-a9f6-655a0dbc6ef6",
+          "status": "SUCCEEDED",
+          "interrupted": false,
+          "agentName": "合成验收助手 public",
+          "modelName": "review-llm",
+          "submittedAt": "2026-10-19T13:36:54.691146Z",
+          "startedAt": "2026-10-19T13:36:54.711392Z",
+          "finishedAt": "2026-10-19T13:36:59.161095Z",
+          "durationMs": 4448,
+          "queueDurationMs": 20,
+          "inputTokens": 40,
+          "outputTokens": 20,
+          "totalTokens": 60,
+          "errorCode": null,
+          "traceIncomplete": false,
+          "triggeringMessageId": "1896a76e-137f-413c-b756-e2071a0df192",
+          "answerMessageId": "0502273a-d916-4112-9ba2-935893a669b2"
+        }
+      ],
+      "userMessages": [
+        {
+          "id": "1896a76e-137f-413c-b756-e2071a0df192",
+          "sessionId": "70780a79-b208-4df5-8e52-936d90d125b2",
+          "role": "user",
+          "content": "用一句话和三个要点说明 ExoBrain 能做什么，并指出我可以亲自体验的能力。",
+          "metadata": null
+        }
+      ],
+      "draft": "响应等待期间编辑的新草稿"
+    },
+    "transport": "owned fault proxy really stopped for 5 seconds, closing SSE TCP"
+  },
+  "originalFile": "after-response-loss-reconnect.json",
+  "originalSha256": "7eab704710de910dd65a489a9f5c5947bdef1519a36f1de142171e60156abb66"
+}

@@ -1,0 +1,50 @@
+{
+  "evidence": {
+    "results": [
+      {
+        "id": "D04 changed source",
+        "noFalseHighlight": true,
+        "currentTextVisible": true
+      },
+      {
+        "id": "D04 missing position",
+        "noFalseHighlight": true,
+        "wholeDocumentVisible": true
+      },
+      {
+        "id": "R05 readonly showcase",
+        "writesBeforeStarting": 0,
+        "toolDisclosures": 1,
+        "inputCount": 0,
+        "cancelCount": 0,
+        "own": {
+          "id": "a5521625-c342-4fbd-8d8c-f07efa47d733",
+          "runs": [
+            {
+              "runId": "031d6d62-5534-4427-8252-de8ef3cde424",
+              "status": "SUCCEEDED",
+              "interrupted": false,
+              "agentName": "合成验收助手 public",
+              "modelName": "review-llm",
+              "submittedAt": "2026-10-19T14:01:13.206095Z",
+              "startedAt": "2026-10-19T14:01:13.220971Z",
+              "finishedAt": "2026-10-19T14:01:13.579059Z",
+              "durationMs": 356,
+              "queueDurationMs": 14,
+              "inputTokens": 40,
+              "outputTokens": 20,
+              "totalTokens": 60,
+              "errorCode": null,
+              "traceIncomplete": false,
+              "triggeringMessageId": "9b915036-081c-46a7-bad0-bf9c8e6d8b4d",
+              "answerMessageId": "90565c9d-4f80-4d35-a76f-161c1f1890aa"
+            }
+          ]
+        },
+        "writesAfterStarting": 2
+      }
+    ]
+  },
+  "originalFile": "source-and-showcase-verified.json",
+  "originalSha256": "5a3c8236a6f4ff788bca2805b3f809a43551131556b1cc6e2f58137d62b7d835"
+}

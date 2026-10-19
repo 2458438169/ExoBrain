@@ -80,7 +80,10 @@ export interface SseMessagePayload {
 }
 
 export interface SseMessageMetadata {
-  chatMessageId: string;
+  chatMessageId?: string;
+  runId?: string;
+  eventId?: string;
+  sequence?: number;
 }
 
 export interface SseMessage {

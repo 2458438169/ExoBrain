@@ -1,0 +1,56 @@
+{
+  "evidence": {
+    "passed": true,
+    "before": {
+      "run_id": "d810465c-ffcd-427f-be27-9a0c6926a2e8",
+      "triggering_message_id": "d58907e7-5762-4ae2-bd24-445420c3d9e5",
+      "answer_message_id": null,
+      "status": "QUEUED",
+      "cancel_requested": false,
+      "attempts": 0
+    },
+    "reply": {
+      "runId": "d810465c-ffcd-427f-be27-9a0c6926a2e8",
+      "status": "CANCELLED",
+      "cancelRequested": false,
+      "message": "已取消排队中的回答"
+    },
+    "after": {
+      "run_id": "d810465c-ffcd-427f-be27-9a0c6926a2e8",
+      "triggering_message_id": "d58907e7-5762-4ae2-bd24-445420c3d9e5",
+      "answer_message_id": null,
+      "status": "CANCELLED",
+      "cancel_requested": false,
+      "attempts": 0
+    },
+    "final": [
+      {
+        "run_id": "8943c1b6-d217-4067-8c38-98d6c9629c0f",
+        "triggering_message_id": "29d63e5c-e650-4b43-9026-175fd22b4923",
+        "answer_message_id": null,
+        "status": "CANCELLED",
+        "cancel_requested": true,
+        "attempts": 1
+      },
+      {
+        "run_id": "6388305f-b39e-4b25-8110-a3cb3e97d405",
+        "triggering_message_id": "60ba47e4-18c0-4582-97e3-ab372a58500a",
+        "answer_message_id": null,
+        "status": "CANCELLED",
+        "cancel_requested": true,
+        "attempts": 1
+      },
+      {
+        "run_id": "d810465c-ffcd-427f-be27-9a0c6926a2e8",
+        "triggering_message_id": "d58907e7-5762-4ae2-bd24-445420c3d9e5",
+        "answer_message_id": null,
+        "status": "CANCELLED",
+        "cancel_requested": false,
+        "attempts": 0
+      }
+    ],
+    "queuedModelWasNeverCalled": true
+  },
+  "originalFile": "queued-cancel-http.json",
+  "originalSha256": "56017bff743ed831cc611eb983b8edd8e1ca25f3938daff446958aae38e532b7"
+}

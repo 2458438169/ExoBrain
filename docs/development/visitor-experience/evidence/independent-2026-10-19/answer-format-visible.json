@@ -1,0 +1,11 @@
+{
+  "evidence": {
+    "passed": true,
+    "answerCount": 0,
+    "inputEnabled": true,
+    "status": "FAILED",
+    "errorCode": "INVALID_ANSWER_FORMAT"
+  },
+  "originalFile": "answer-format-visible.json",
+  "originalSha256": "95b4ac53f6935b9d2d8e830b2c0bd0015e8bf0d1976e6f18280c9a085bead56d"
+}

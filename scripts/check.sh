@@ -152,8 +152,9 @@ step_postgres_it() {
 }
 
 step_frontend_lint() {
-    ensure_ui_dependencies
-    npm_ui run lint
+    ensure_ui_dependencies || return 1
+    npm_ui run lint || return 1
+    npm_ui run test:state
 }
 
 step_frontend_build() {

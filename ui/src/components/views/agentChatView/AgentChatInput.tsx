@@ -55,11 +55,14 @@ const AgentChatInput: React.FC<AgentChatInputProps> = ({
         onChange={onChange}
         onSubmit={async () => {
           if (!canSend) return;
-          if (await onSend(value.trim())) onChange("");
+          await onSend(value.trim());
         }}
         loading={waiting}
         onCancel={waiting ? onCancel : undefined}
         disabled={disabled}
+        suffix={(_, { components: { SendButton, LoadingButton } }) => waiting
+          ? <LoadingButton aria-label={cancelling ? "正在取消回答" : "停止本次回答"} disabled={!cancellable || cancelling} />
+          : <SendButton aria-label="发送问题" disabled={!canSend} />}
         autoSize={{ minRows: 1, maxRows: 6 }}
         placeholder={
           waiting

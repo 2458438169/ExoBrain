@@ -1,0 +1,145 @@
+{
+  "quantile": "nearest rank ceil(p*n), successful/valid measurements only; failures separately retained",
+  "variants": [
+    {
+      "variant": "previous",
+      "attempts": 12,
+      "succeeded": 4,
+      "failed": 8,
+      "timeouts": 0,
+      "timings": {
+        "feedback": {
+          "n": 12,
+          "p50Ms": 6.2,
+          "p95Ms": 9
+        },
+        "accepted": {
+          "n": 12,
+          "p50Ms": 113.2,
+          "p95Ms": 162.2
+        },
+        "firstAnswer": {
+          "n": 4,
+          "p50Ms": 8234.2,
+          "p95Ms": 10795.6
+        },
+        "finalAnswer": {
+          "n": 4,
+          "p50Ms": 8330.6,
+          "p95Ms": 10905.6
+        }
+      },
+      "answerCharsP50": 739,
+      "answerCharsP95": 1688,
+      "citedSources": 16,
+      "allSourceHashesMatch": true,
+      "allIntentsSingleUserMessage": true,
+      "retryEvents": 0
+    },
+    {
+      "variant": "candidate",
+      "attempts": 12,
+      "succeeded": 7,
+      "failed": 5,
+      "timeouts": 0,
+      "timings": {
+        "feedback": {
+          "n": 12,
+          "p50Ms": 5.2,
+          "p95Ms": 9.4
+        },
+        "accepted": {
+          "n": 12,
+          "p50Ms": 108.3,
+          "p95Ms": 137.4
+        },
+        "firstAnswer": {
+          "n": 7,
+          "p50Ms": 6365.8,
+          "p95Ms": 6999.9
+        },
+        "finalAnswer": {
+          "n": 7,
+          "p50Ms": 6467.2,
+          "p95Ms": 7124.2
+        }
+      },
+      "answerCharsP50": 385,
+      "answerCharsP95": 644,
+      "citedSources": 19,
+      "allSourceHashesMatch": true,
+      "allIntentsSingleUserMessage": true,
+      "retryEvents": 0
+    },
+    {
+      "variant": "candidate-final",
+      "attempts": 12,
+      "succeeded": 12,
+      "failed": 0,
+      "timeouts": 0,
+      "timings": {
+        "feedback": {
+          "n": 12,
+          "p50Ms": 5.3,
+          "p95Ms": 11.1
+        },
+        "accepted": {
+          "n": 12,
+          "p50Ms": 119.8,
+          "p95Ms": 150
+        },
+        "firstAnswer": {
+          "n": 12,
+          "p50Ms": 6242.3,
+          "p95Ms": 9273.6
+        },
+        "finalAnswer": {
+          "n": 11,
+          "p50Ms": 6350.8,
+          "p95Ms": 9383.3
+        }
+      },
+      "answerCharsP50": 327,
+      "answerCharsP95": 550,
+      "citedSources": 29,
+      "allSourceHashesMatch": true,
+      "allIntentsSingleUserMessage": true,
+      "retryEvents": 0
+    },
+    {
+      "variant": "candidate-release",
+      "attempts": 12,
+      "succeeded": 12,
+      "failed": 0,
+      "timeouts": 0,
+      "timings": {
+        "feedback": {
+          "n": 12,
+          "p50Ms": 5.6,
+          "p95Ms": 7.9
+        },
+        "accepted": {
+          "n": 12,
+          "p50Ms": 136.4,
+          "p95Ms": 203.8
+        },
+        "firstAnswer": {
+          "n": 12,
+          "p50Ms": 6077,
+          "p95Ms": 7598.3
+        },
+        "finalAnswer": {
+          "n": 12,
+          "p50Ms": 6191.9,
+          "p95Ms": 7719
+        }
+      },
+      "answerCharsP50": 297,
+      "answerCharsP95": 556,
+      "citedSources": 26,
+      "allSourceHashesMatch": true,
+      "allIntentsSingleUserMessage": true,
+      "retryEvents": 0
+    }
+  ]
+}

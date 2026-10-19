@@ -180,7 +180,7 @@ export default function EmptyAgentChatView({
               </div>
 
               <p className="mt-2 text-xs leading-5 text-slate-500">
-                点击问题会立即发送，不需要再点一次确认。也可以直接在下面输入自己的问题。
+                从推荐问题开始，或在下方输入你想了解的内容。
               </p>
 
               <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1">
@@ -223,6 +223,9 @@ export default function EmptyAgentChatView({
               loadingAgents ? "正在连接助手…" : agentReady ? "输入你的问题…" : "助手暂时不可用"
             }
             onChange={setMessage}
+            suffix={(_, { components: { SendButton, LoadingButton } }) => busy
+              ? <LoadingButton aria-label="正在创建会话" disabled />
+              : <SendButton aria-label="发送问题" disabled={!agentReady || !message.trim()} />}
           />
           <p className="mt-1.5 text-center text-xs leading-5 text-slate-400">
             {IS_PUBLIC_DEMO ? "回答会标注来源；工具调用与执行过程可展开查看。" : "Enter 发送，Shift + Enter 换行。"}

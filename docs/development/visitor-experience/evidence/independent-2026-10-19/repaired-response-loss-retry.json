@@ -1,0 +1,189 @@
+{
+  "evidence": {
+    "sessions": 1,
+    "submissions": [
+      {
+        "body": {
+          "agentId": "6753651b-d33e-4ba7-b106-04118c689621",
+          "sessionId": "70780a79-b208-4df5-8e52-936d90d125b2",
+          "role": "user",
+          "content": "用一句话和三个要点说明 ExoBrain 能做什么，并指出我可以亲自体验的能力。",
+          "idempotencyKey": "05647377-7703-4679-a864-54afbab2344f"
+        },
+        "http": 200,
+        "accepted": {
+          "chatMessageId": "1896a76e-137f-413c-b756-e2071a0df192",
+          "runId": "7f6e508d-70e7-4302-a9f6-655a0dbc6ef6",
+          "runStatus": "QUEUED",
+          "idempotentReplay": false
+        }
+      },
+      {
+        "body": {
+          "agentId": "6753651b-d33e-4ba7-b106-04118c689621",
+          "sessionId": "70780a79-b208-4df5-8e52-936d90d125b2",
+          "role": "user",
+          "content": "用一句话和三个要点说明 ExoBrain 能做什么，并指出我可以亲自体验的能力。",
+          "idempotencyKey": "05647377-7703-4679-a864-54afbab2344f"
+        },
+        "http": 200,
+        "accepted": {
+          "chatMessageId": "1896a76e-137f-413c-b756-e2071a0df192",
+          "runId": "7f6e508d-70e7-4302-a9f6-655a0dbc6ef6",
+          "runStatus": "SUCCEEDED",
+          "idempotentReplay": true
+        }
+      }
+    ],
+    "lostDraft": "用一句话和三个要点说明 ExoBrain 能做什么，并指出我可以亲自体验的能力。",
+    "afterDraft": "响应等待期间编辑的新草稿",
+    "snapshot": {
+      "sid": "70780a79-b208-4df5-8e52-936d90d125b2",
+      "runs": [
+        {
+          "runId": "7f6e508d-70e7-4302-a9f6-655a0dbc6ef6",
+          "status": "SUCCEEDED",
+          "interrupted": false,
+          "agentName": "合成验收助手 public",
+          "modelName": "review-llm",
+          "submittedAt": "2026-10-19T13:36:54.691146Z",
+          "startedAt": "2026-10-19T13:36:54.711392Z",
+          "finishedAt": "2026-10-19T13:36:59.161095Z",
+          "durationMs": 4448,
+          "queueDurationMs": 20,
+          "inputTokens": 40,
+          "outputTokens": 20,
+          "totalTokens": 60,
+          "errorCode": null,
+          "traceIncomplete": false,
+          "triggeringMessageId": "1896a76e-137f-413c-b756-e2071a0df192",
+          "answerMessageId": "0502273a-d916-4112-9ba2-935893a669b2"
+        }
+      ],
+      "messages": [
+        {
+          "id": "1896a76e-137f-413c-b756-e2071a0df192",
+          "sessionId": "70780a79-b208-4df5-8e52-936d90d125b2",
+          "role": "user",
+          "content": "用一句话和三个要点说明 ExoBrain 能做什么，并指出我可以亲自体验的能力。",
+          "metadata": null
+        },
+        {
+          "id": "6f32e046-f356-40d6-b047-e0dbc9bd9618",
+          "sessionId": "70780a79-b208-4df5-8e52-936d90d125b2",
+          "role": "assistant",
+          "content": "",
+          "metadata": {
+            "toolResponse": null,
+            "toolCalls": [
+              {
+                "id": "tool-repaired-s03-02-1",
+                "type": "function",
+                "name": "KnowledgeTool",
+                "arguments": "{\"kbsId\": \"db85b9eb-489e-46af-9563-ed4a17267f88\", \"query\": \"合成验收协议参数探针间隔\"}"
+              }
+            ],
+            "citations": null,
+            "runId": "7f6e508d-70e7-4302-a9f6-655a0dbc6ef6"
+          }
+        },
+        {
+          "id": "936b6b9b-b5d2-4cc8-bbed-e0151c13eee3",
+          "sessionId": "70780a79-b208-4df5-8e52-936d90d125b2",
+          "role": "tool",
+          "content": "{\"schemaVersion\":1,\"retrievalId\":\"7f0e5840-1506-420c-a6d6-baab29c8a72f\",\"status\":\"OK\",\"hits\":[{\"citationId\":\"7f0e5840-1506-420c-a6d6-baab29c8a72f:1\",\"chunkId\":\"42c12de8-86ae-48d8-a417-38e42681b3e8\",\"kbId\":\"db85b9eb-489e-46af-9563-ed4a17267f88\",\"rank\":1,\"content\":\"探针间隔为 37 秒，重试上限为 4 次。\",\"source\":{\"documentId\":\"bbf29149-acde-4852-b2d5-392ea902ffd0\",\"documentName\":\"review-public-a.md\",\"headingPath\":[\"合成协议参数\"],\"sourceHash\":\"5e664f90ee77f319d6c3dd0c0f5ac325da73cc78e5b80839811d15f33cbd5cf9\",\"startLine\":3,\"endLine\":3},\"indexVersion\":\"body-v1\",\"indexRevision\":\"ba6f352e-b873-4518-a706-507eeea0a310\",\"metric\":\"l2\",\"distance\":0.0}]}",
+          "metadata": {
+            "toolResponse": {
+              "id": "tool-repaired-s03-02-1",
+              "name": "KnowledgeTool",
+              "responseData": "{\"schemaVersion\":1,\"retrievalId\":\"7f0e5840-1506-420c-a6d6-baab29c8a72f\",\"status\":\"OK\",\"hits\":[{\"citationId\":\"7f0e5840-1506-420c-a6d6-baab29c8a72f:1\",\"chunkId\":\"42c12de8-86ae-48d8-a417-38e42681b3e8\",\"kbId\":\"db85b9eb-489e-46af-9563-ed4a17267f88\",\"rank\":1,\"content\":\"探针间隔为 37 秒，重试上限为 4 次。\",\"source\":{\"documentId\":\"bbf29149-acde-4852-b2d5-392ea902ffd0\",\"documentName\":\"review-public-a.md\",\"headingPath\":[\"合成协议参数\"],\"sourceHash\":\"5e664f90ee77f319d6c3dd0c0f5ac325da73cc78e5b80839811d15f33cbd5cf9\",\"startLine\":3,\"endLine\":3},\"indexVersion\":\"body-v1\",\"indexRevision\":\"ba6f352e-b873-4518-a706-507eeea0a310\",\"metric\":\"l2\",\"distance\":0.0}]}"
+            },
+            "toolCalls": null,
+            "citations": null,
+            "runId": "7f6e508d-70e7-4302-a9f6-655a0dbc6ef6"
+          }
+        },
+        {
+          "id": "0502273a-d916-4112-9ba2-935893a669b2",
+          "sessionId": "70780a79-b208-4df5-8e52-936d90d125b2",
+          "role": "assistant",
+          "content": "合成验收资料记录：探针间隔为 37 秒，重试上限为 4 次。",
+          "metadata": {
+            "toolResponse": null,
+            "toolCalls": [
+              {
+                "id": "tool-repaired-s03-02-2",
+                "type": "function",
+                "name": "directAnswer",
+                "arguments": "{\"answer\": \"合成验收资料记录：探针间隔为 37 秒，重试上限为 4 次。\", \"citationIds\": [\"7f0e5840-1506-420c-a6d6-baab29c8a72f:1\"]}"
+              }
+            ],
+            "citations": [
+              {
+                "label": 1,
+                "citationId": "7f0e5840-1506-420c-a6d6-baab29c8a72f:1",
+                "retrievalId": "7f0e5840-1506-420c-a6d6-baab29c8a72f",
+                "kbId": "db85b9eb-489e-46af-9563-ed4a17267f88",
+                "chunkId": "42c12de8-86ae-48d8-a417-38e42681b3e8",
+                "source": {
+                  "documentId": "bbf29149-acde-4852-b2d5-392ea902ffd0",
+                  "documentName": "review-public-a.md",
+                  "headingPath": [
+                    "合成协议参数"
+                  ],
+                  "sourceHash": "5e664f90ee77f319d6c3dd0c0f5ac325da73cc78e5b80839811d15f33cbd5cf9",
+                  "startLine": 3,
+                  "endLine": 3
+                },
+                "indexVersion": "body-v1",
+                "indexRevision": "ba6f352e-b873-4518-a706-507eeea0a310",
+                "excerpt": "探针间隔为 37 秒，重试上限为 4 次。"
+              }
+            ],
+            "runId": "7f6e508d-70e7-4302-a9f6-655a0dbc6ef6"
+          }
+        },
+        {
+          "id": "e2f171d0-15c0-4cb2-9df8-50a9bff73728",
+          "sessionId": "70780a79-b208-4df5-8e52-936d90d125b2",
+          "role": "tool",
+          "content": "\"答复已交付\"",
+          "metadata": {
+            "toolResponse": {
+              "id": "tool-repaired-s03-02-2",
+              "name": "directAnswer",
+              "responseData": "\"答复已交付\""
+            },
+            "toolCalls": null,
+            "citations": null,
+            "runId": "7f6e508d-70e7-4302-a9f6-655a0dbc6ef6"
+          }
+        }
+      ],
+      "processes": 1,
+      "answerAnchors": 1
+    },
+    "terminalBeforeRetry": {
+      "runId": "7f6e508d-70e7-4302-a9f6-655a0dbc6ef6",
+      "status": "SUCCEEDED",
+      "interrupted": false,
+      "agentName": "合成验收助手 public",
+      "modelName": "review-llm",
+      "submittedAt": "2026-10-19T13:36:54.691146Z",
+      "startedAt": "2026-10-19T13:36:54.711392Z",
+      "finishedAt": "2026-10-19T13:36:59.161095Z",
+      "durationMs": 4448,
+      "queueDurationMs": 20,
+      "inputTokens": 40,
+      "outputTokens": 20,
+      "totalTokens": 60,
+      "errorCode": null,
+      "traceIncomplete": false,
+      "triggeringMessageId": "1896a76e-137f-413c-b756-e2071a0df192",
+      "answerMessageId": "0502273a-d916-4112-9ba2-935893a669b2"
+    },
+    "canSend": true
+  },
+  "originalFile": "repaired-response-loss-retry.json",
+  "originalSha256": "2f8449900158329764e46d39589543af27a27bf9cd837b3732c07fc5eae0e50c"
+}

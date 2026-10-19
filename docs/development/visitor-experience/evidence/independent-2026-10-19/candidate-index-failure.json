@@ -1,0 +1,61 @@
+{
+  "evidence": {
+    "passed": true,
+    "candidateKnowledgeBaseId": "fa2f7e64-300d-4c34-acd4-27b3aef30036",
+    "job": {
+      "jobId": "e7d8444d-11fd-4c9c-992b-ce4bd7059256",
+      "documentId": "e4e4f61b-19a4-416f-9995-e586d23be860",
+      "kbId": "fa2f7e64-300d-4c34-acd4-27b3aef30036",
+      "status": "FAILED",
+      "attempts": 3,
+      "maxAttempts": 3,
+      "chunksDone": 0,
+      "chunksTotal": 1,
+      "errorCode": "EMBEDDING_UNAVAILABLE",
+      "errorMessage": "向量服务暂不可用，稍后会重试",
+      "retryable": true,
+      "nextAttemptAt": "2026-10-19T14:01:10.424369Z",
+      "finishedAt": "2026-10-19T14:01:10.586994Z",
+      "indexRevisionId": null
+    },
+    "states": [
+      {
+        "status": "QUEUED",
+        "attempts": 0,
+        "errorCode": null
+      },
+      {
+        "status": "RETRY_WAIT",
+        "attempts": 1,
+        "errorCode": "EMBEDDING_UNAVAILABLE"
+      },
+      {
+        "status": "RETRY_WAIT",
+        "attempts": 2,
+        "errorCode": "EMBEDDING_UNAVAILABLE"
+      },
+      {
+        "status": "FAILED",
+        "attempts": 3,
+        "errorCode": "EMBEDDING_UNAVAILABLE"
+      }
+    ],
+    "oldIndexBefore": {
+      "kb_id": "db85b9eb-489e-46af-9563-ed4a17267f88",
+      "active_revision_id": "ba6f352e-b873-4518-a706-507eeea0a310",
+      "active_index_version": "body-v1",
+      "updated_at": "2026-10-19T13:00:04.765066+00:00"
+    },
+    "oldIndexAfter": {
+      "kb_id": "db85b9eb-489e-46af-9563-ed4a17267f88",
+      "active_revision_id": "ba6f352e-b873-4518-a706-507eeea0a310",
+      "active_index_version": "body-v1",
+      "updated_at": "2026-10-19T13:00:04.765066+00:00"
+    },
+    "oldSourceHashMatches": true,
+    "fault": "Connection refused at an unused local embedding port",
+    "candidateState": null
+  },
+  "originalFile": "candidate-index-failure.json",
+  "originalSha256": "6ad6193e1fa01ceda0314fb3ab77bd89ce169aaf24a0fca54522e236ca94dbef"
+}

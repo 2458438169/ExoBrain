@@ -18,8 +18,8 @@
     {
       "file": "02_engineering_cases.md",
       "title": "ExoBrain 工程案例",
-      "sha256": "4034f42eb82d473b1f3935e82a3d50c4dfcd2ec73e1efd44316561cfa6d74c31",
-      "bytes": 5238,
+      "sha256": "f888dcc55c989e9e810ce03d8461615819cd391a08d25b2cdfb2586fab6a5c1e",
+      "bytes": 6221,
       "answers": [
         "重复点击发送会不会跑两次",
         "取消后模型迟到返回会怎样",
@@ -29,8 +29,8 @@
     {
       "file": "03_contribution_map.md",
       "title": "ExoBrain 能力归属",
-      "sha256": "f9832e859e3e6c52a0a15842cccf2f5b9f86fc23d340d77172a49239e44b9c1f",
-      "bytes": 4857,
+      "sha256": "a6008c717a3e03feb24ef3bde4af81c8d470582ebc3e5b35b6aa66d2e07e38fa",
+      "bytes": 5036,
       "answers": [
         "基于什么项目、保留了哪些能力",
         "本仓库新增了什么",
@@ -40,8 +40,8 @@
   ],
   "prompt": {
     "file": "agent-system-prompt.md",
-    "sha256": "d75bc97531e158c8a14f1ab6771d427e3d08d8bab8c4dff98b101738cf1d3323",
-    "bytes": 1608,
+    "sha256": "34be88edc2963dc43398ffa51aecde4deef6d5f942461cb39538fa67ac9068b3",
+    "bytes": 1840,
     "note": "对话助手的系统提示词，只写入助手配置，不上传到知识库。"
   },
   "excludedFromUpload": [

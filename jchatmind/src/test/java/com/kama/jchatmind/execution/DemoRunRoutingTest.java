@@ -9,6 +9,8 @@ import com.kama.jchatmind.runs.RunControlController;
 import com.kama.jchatmind.runs.RunControlService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -74,6 +76,20 @@ class DemoRunRoutingTest {
                 .thenReturn(new RunViews.RunList(List.of()));
         MockMvc mvc = MockMvcBuilders.standaloneSetup(new ExecutionController(query)).build();
         mvc.perform(get("/api/chat-sessions/" + SESSION + "/runs")).andExpect(status().isOk());
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {403, 404})
+    @DisplayName("游客取消拒绝保留 HTTP 状态，不能被全局异常处理改成 200/500")
+    void cancellationDenialRetainsItsHttpStatus(int denialStatus) throws Exception {
+        RunControlService control = mock(RunControlService.class);
+        when(control.cancelForDemo(any(), anyString())).thenThrow(new DemoException(denialStatus, "执行记录不可访问"));
+        MockMvc mvc = MockMvcBuilders.standaloneSetup(new RunControlController(control, new DemoVisitor()))
+                .setControllerAdvice(new com.kama.jchatmind.exception.GlobalExceptionHandler()).build();
+        mvc.perform(post("/api/demo/runs/" + RUN + "/cancel"))
+                .andExpect(status().is(denialStatus))
+                .andExpect(jsonPath("$.code").value(denialStatus))
+                .andExpect(jsonPath("$.data").isEmpty());
     }
 
     private static DemoController demoController() {

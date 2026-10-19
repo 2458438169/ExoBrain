@@ -1,5 +1,7 @@
 # ExoBrain 优化任务台账
 
+2026-10-19 访客体验 UX-01–06 的最新独立验收与发布状态见 [UX-06](../visitor-experience/deliveries/UX-06.md)，真实内容/首答测量见 [UX-05](../visitor-experience/deliveries/UX-05.md)。下文是既有 01–08 与 R1–R5 的历史记录，旧测试数量、端点故障和“未发布”不能替代最新回执。
+
 由主 Agent 维护。子 Agent 交付先进入“待审查”，主 Agent 核对 diff、接口与真实测试证据后才标记“验收通过”。
 
 ## 0. 工作环境与起点

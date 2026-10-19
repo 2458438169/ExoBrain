@@ -1,5 +1,7 @@
 # ExoBrain 优化验收汇报
 
+最新增量：2026-10-19 的 UX-01–06 已完成独立本地集成验收。当前检查、真实问答、未完成项与实际发布回执统一见 [UX-06](../visitor-experience/deliveries/UX-06.md) / [UX-05](../visitor-experience/deliveries/UX-05.md)。下文保留历史批次，不用旧结论覆盖新证据。
+
 - 汇报日期：2026-10-18（Asia/Shanghai）
 - 交付负责人：主 Agent（子 Agent 承担实现，主 Agent 负责拆分、审查、集成、验收与发布）
 - 依据文档：`docs/development/orchestrator.md`、`README.md`、`contracts.md`、`tasks/01–08`

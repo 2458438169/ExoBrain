@@ -240,7 +240,8 @@ function CitationNotice({
 }
 
 export default function DocumentPreviewDrawer({ document, citation = null, onClose }: DocumentPreviewDrawerProps) {
-  const [mode, setMode] = useState<"preview" | "source">("preview");
+  const [mode, setMode] = useState<"preview" | "source">(() =>
+    citation?.sourceHash && citation.startLine != null && citation.endLine != null ? "source" : "preview");
   const [attempt, setAttempt] = useState(0);
   const [result, setResult] = useState<PreviewResult | null>(null);
   const highlightRef = useRef<HTMLElement | null>(null);
