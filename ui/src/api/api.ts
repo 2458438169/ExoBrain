@@ -183,10 +183,21 @@ export interface CreateChatMessageRequest {
   role: MessageType;
   content: string;
   metadata?: MetaData;
+  /**
+   * 07 / F02：一次「发送意图」的稳定幂等键。网络重试必须复用同一个值；
+   * 服务端以 (actor, session, key) 去重，返回原来的 message/run 并标记 idempotentReplay。
+   */
+  idempotencyKey?: string;
 }
 
 export interface CreateChatMessageResponse {
   chatMessageId: string;
+  /** 07：本次提交对应的运行；幂等重放时与原提交相同。 */
+  runId?: string;
+  /** QUEUED / RUNNING / SUCCEEDED / FAILED / CANCELLED / INTERRUPTED */
+  runStatus?: string;
+  /** 本次响应是否为幂等重放（没有再次执行、没有再次调用模型）。 */
+  idempotentReplay?: boolean;
 }
 
 export interface UpdateChatMessageRequest {

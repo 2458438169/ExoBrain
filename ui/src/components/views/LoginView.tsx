@@ -23,14 +23,16 @@ export default function LoginView() {
   };
 
   return (
-    <main className="flex min-h-dvh items-center justify-center bg-slate-50 px-5 py-10">
+    <main className="flex min-h-dvh items-center justify-center px-5 py-10">
       <div className="w-full max-w-md">
-        <div className="mb-7 flex items-center justify-center gap-3">
-          <ExoBrainLogo className="h-11 w-11" />
-          <span className="text-2xl font-semibold tracking-tight text-slate-900">ExoBrain</span>
+        <div className="mb-7 flex items-center justify-center gap-3 animate-pop-in">
+          <ExoBrainLogo className="h-11 w-11 rounded-2xl shadow-doodle" />
+          <span className="text-2xl font-bold tracking-tight text-ink">ExoBrain</span>
         </div>
-        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8" aria-labelledby="account-login-title">
-          <Typography.Title level={2} id="account-login-title" className="mb-2! text-2xl!">账号登录</Typography.Title>
+        <section className="doodle-card p-6 sm:p-8 animate-pop-in" style={{ animationDelay: "60ms" }} aria-labelledby="account-login-title">
+          <Typography.Title level={2} id="account-login-title" className="mb-2! text-2xl!">
+            账号登录 <span className="doodle-squiggle">✎</span>
+          </Typography.Title>
           <p className="mb-7 text-sm leading-6 text-slate-500">登录后使用你的助手、知识库和聊天记录。</p>
           {error && <Alert type="error" showIcon title={error} className="mb-5!" />}
           <Form layout="vertical" onFinish={submit} requiredMark={false} autoComplete="on">

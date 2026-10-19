@@ -1,13 +1,76 @@
 import { useCallback, useEffect, useState } from "react";
 import { Alert, Button, Checkbox, Form, Input, InputNumber, Modal, Popconfirm, Radio, Select, Space, Switch, Table, Tag, Typography } from "antd";
 import type { TableColumnsType } from "antd";
-import { DeleteOutlined, EditOutlined, ExperimentOutlined, PlusOutlined, ReloadOutlined } from "@ant-design/icons";
-import { createAdminModel, deleteAdminModel, getAdminModels, testAdminModel, updateAdminModel, type AdminModel, type ModelKind, type ModelProtocol, type ModelRequest, type ModelTestResult } from "../../api/models.ts";
+import { DeleteOutlined, EditOutlined, ExperimentOutlined, PlusOutlined, ReloadOutlined, SwapOutlined } from "@ant-design/icons";
+import { createAdminModel, deleteAdminModel, getAdminModels, getModelBindings, rebindKnowledgeBases, testAdminModel, updateAdminModel, type AdminModel, type KnowledgeBaseBinding, type ModelKind, type ModelProtocol, type ModelRequest, type ModelTestResult } from "../../api/models.ts";
 import { notify } from "../../api/feedback.ts";
 
 const errorText = (error: unknown) => error instanceof Error ? error.message : "操作失败，请稍后重试";
 const protocolLabels: Record<ModelProtocol, string> = { openai: "OpenAI 兼容", deepseek: "DeepSeek", zhipuai: "智谱 AI", ollama: "Ollama" };
 
+/**
+ * 迁移已有知识库到另一个向量模型。
+ *
+ * 只改绑定关系、不重建向量，因此必须先确认新旧模型是同一向量空间（同一模型改名/别名）。
+ * 换模型或供应商时旧向量与新查询向量不可比，必须重新导入资料——后端也会拒绝没有确认的请求。
+ */
+function KnowledgeBaseMigration({ model, models, onClose, onDone }: { model: AdminModel; models: AdminModel[]; onClose: () => void; onDone: () => Promise<void> }) {
+  const [bindings, setBindings] = useState<KnowledgeBaseBinding[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState<string[]>([]);
+  const [confirmed, setConfirmed] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const modelName = useCallback((id: string) => models.find((item) => item.id === id)?.name ?? id, [models]);
+  useEffect(() => {
+    let active = true;
+    void getModelBindings().then((response) => {
+      if (!active) return;
+      const pending = response.bindings.filter((binding) => binding.modelId !== model.id);
+      setBindings(pending);
+      setSelected(pending.map((binding) => binding.knowledgeBaseId));
+    }).catch((failure) => { if (active) setError(errorText(failure)); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [model.id]);
+  const submit = async () => {
+    setSaving(true);
+    setError("");
+    try {
+      const result = await rebindKnowledgeBases(model.id, { vectorSpaceUnchanged: confirmed, knowledgeBaseIds: selected });
+      notify.success(`已把 ${result.rebound} 个知识库迁移到 ${model.name}`);
+      await onDone();
+      onClose();
+    } catch (failure) { setError(errorText(failure)); }
+    finally { setSaving(false); }
+  };
+  return (
+    <Modal open title={`把知识库迁移到 ${model.name}`} onCancel={onClose} okText="迁移" cancelText="取消" confirmLoading={saving} okButtonProps={{ disabled: !confirmed || selected.length === 0 }} onOk={() => void submit()}>
+      <div className="space-y-3 text-sm">
+        <Alert type="warning" showIcon title="迁移只改绑定关系，不会重建已有向量。" description="只有在目标模型与当前模型属于同一向量空间（同一模型改名或别名）时才可以迁移；换了模型或供应商必须重新导入资料。" />
+        <div className="text-xs leading-6 text-slate-500">
+          <div>目标模型：{model.name}（{model.model}）</div>
+          <div>服务地址：{model.baseUrl}</div>
+        </div>
+        <div>
+          <div className="mb-1 font-medium">当前绑定在其它模型上的知识库（{bindings.length}）</div>
+          {loading ? <div className="text-xs text-slate-500">加载中…</div> : bindings.length === 0 ? <div className="text-xs text-slate-500">没有需要迁移的知识库。</div> : (
+            <Checkbox.Group value={selected} onChange={(values) => setSelected(values as string[])} className="flex! flex-col! gap-1!">
+              {bindings.map((binding) => (
+                <Checkbox key={binding.knowledgeBaseId} value={binding.knowledgeBaseId}>
+                  <span className="break-all">{binding.name}</span>
+                  <span className="ml-2 text-xs text-slate-500">当前：{modelName(binding.modelId)}</span>
+                </Checkbox>
+              ))}
+            </Checkbox.Group>
+          )}
+        </div>
+        <Checkbox checked={confirmed} onChange={(event) => setConfirmed(event.target.checked)}>我确认新旧模型属于同一向量空间（仅改名/别名），不需要重新导入资料</Checkbox>
+        {error && <Alert type="error" showIcon title={error} />}
+      </div>
+    </Modal>
+  );
+}
 function ModelEditor({ model, onClose, onSaved }: { model: AdminModel | null; onClose: () => void; onSaved: () => Promise<void> }) {
   const [form] = Form.useForm<ModelRequest>();
   const [saving, setSaving] = useState(false);
@@ -77,6 +140,7 @@ export default function ModelsManagementView() {
   const [kind, setKind] = useState<ModelKind>("LLM");
   const [editor, setEditor] = useState<{ model: AdminModel | null } | null>(null);
   const [testing, setTesting] = useState<string | null>(null);
+  const [migration, setMigration] = useState<AdminModel | null>(null);
   const [testResult, setTestResult] = useState<{ name: string; result: ModelTestResult } | null>(null);
   const load = useCallback(async () => {
     setLoading(true);
@@ -99,12 +163,16 @@ export default function ModelsManagementView() {
     catch (failure) { setError(errorText(failure)); }
     finally { setTesting(null); }
   };
+  const openMigration = (model: AdminModel) => {
+    setError("");
+    setMigration(model);
+  };
   const columns: TableColumnsType<AdminModel> = [
     { title: "模型", key: "name", render: (_, model) => <div className="min-w-0"><div className="font-medium text-slate-900">{model.name}{model.defaultModel && <Tag color="geekblue" className="ml-2!">默认</Tag>}</div><div className="mt-1 break-all text-xs text-slate-500">{model.model}</div></div> },
     { title: "接口", dataIndex: "protocol", width: 125, responsive: ["md"], render: (protocol: ModelProtocol) => protocolLabels[protocol] || protocol },
     { title: "状态", key: "enabled", width: 90, render: (_, model) => <Tag color={model.enabled ? "success" : "default"}>{model.enabled ? "启用" : "停用"}</Tag> },
     { title: "密钥", key: "apiKeyConfigured", width: 105, responsive: ["lg"], render: (_, model) => <span className="text-xs text-slate-500">{model.apiKeyConfigured ? "已配置" : model.protocol === "ollama" ? "未配置（可选）" : "未配置"}</span> },
-    { title: "操作", key: "action", width: 210, render: (_, model) => <Space size={0} wrap><Button type="link" size="small" icon={<ExperimentOutlined />} loading={testing === model.id} disabled={testing !== null && testing !== model.id} onClick={() => void test(model)} aria-label={`测试模型 ${model.name}`}>测试</Button><Button type="link" size="small" icon={<EditOutlined />} onClick={() => setEditor({ model })} aria-label={`编辑模型 ${model.name}`}>编辑</Button><Popconfirm title="删除这个模型？" description="正在使用的模型需解除关联后才能删除。" onConfirm={() => remove(model)} okText="删除" cancelText="取消" okButtonProps={{ danger: true }}><Button type="text" danger size="small" icon={<DeleteOutlined />} aria-label={`删除模型 ${model.name}`}>删除</Button></Popconfirm></Space> },
+    { title: "操作", key: "action", width: 280, render: (_, model) => <Space size={0} wrap><Button type="link" size="small" icon={<ExperimentOutlined />} loading={testing === model.id} disabled={testing !== null && testing !== model.id} onClick={() => void test(model)} aria-label={`测试模型 ${model.name}`}>测试</Button>{model.kind === "EMBEDDING" && <Button type="link" size="small" icon={<SwapOutlined />} disabled={!model.enabled} onClick={() => openMigration(model)} aria-label={`迁移知识库到 ${model.name}`}>迁移知识库</Button>}<Button type="link" size="small" icon={<EditOutlined />} onClick={() => setEditor({ model })} aria-label={`编辑模型 ${model.name}`}>编辑</Button><Popconfirm title="删除这个模型？" description="正在使用的模型需解除关联后才能删除。" onConfirm={() => remove(model)} okText="删除" cancelText="取消" okButtonProps={{ danger: true }}><Button type="text" danger size="small" icon={<DeleteOutlined />} aria-label={`删除模型 ${model.name}`}>删除</Button></Popconfirm></Space> },
   ];
   return (
     <section className="h-full min-w-0 overflow-y-auto bg-slate-50/60 p-5 sm:p-8" aria-label="系统模型管理">
@@ -116,6 +184,7 @@ export default function ModelsManagementView() {
         {testResult && <Alert type={testResult.result.success ? "success" : "error"} showIcon title={`${testResult.name}：${testResult.result.message}`} description={<span>{testResult.result.latencyMs !== undefined && `耗时 ${testResult.result.latencyMs} ms`}{testResult.result.dimensions !== undefined && ` · ${testResult.result.dimensions} 维`}</span>} closable onClose={() => setTestResult(null)} className="mb-4!" />}
         <div className="overflow-hidden rounded-xl border border-slate-200 bg-white"><Table rowKey="id" columns={columns} dataSource={models.filter((model) => model.kind === kind)} loading={loading} scroll={{ x: 500 }} pagination={{ pageSize: 10, showTotal: (total) => `共 ${total} 个模型` }} locale={{ emptyText: "暂无模型，点击添加模型开始配置" }} /></div>
         {editor && <ModelEditor model={editor.model} onClose={() => setEditor(null)} onSaved={load} />}
+        {migration && <KnowledgeBaseMigration model={migration} models={models} onClose={() => setMigration(null)} onDone={load} />}
       </div>
     </section>
   );

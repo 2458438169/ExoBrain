@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Alert, Button, Dropdown, Form, Input, Modal, Tag } from "antd";
 import { DownOutlined, LockOutlined, LogoutOutlined, UserOutlined } from "@ant-design/icons";
 import { changePassword } from "../api/accounts.ts";
@@ -56,7 +56,7 @@ export default function AccountMenu() {
     finally { setLoggingOut(false); }
   };
   return (
-    <div className="shrink-0 border-t border-slate-200 py-3">
+    <div className="shrink-0 border-t-2 border-dashed border-sketch py-3">
       <Dropdown trigger={["click"]} placement="topLeft" menu={{ items: [
         { key: "password", label: "修改密码", icon: <LockOutlined />, onClick: () => setPasswordOpen(true) },
         { key: "guest", label: <a href="/">游客免登录体验</a> },

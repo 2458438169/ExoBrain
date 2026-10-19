@@ -5,7 +5,7 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-  return <div className="flex h-dvh min-h-0 flex-col overflow-hidden bg-white md:flex-row">{children}</div>;
+  return <div className="flex h-dvh min-h-0 flex-col overflow-hidden md:flex-row">{children}</div>;
 };
 
 export default Layout;

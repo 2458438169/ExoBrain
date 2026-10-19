@@ -1,4 +1,4 @@
-import { Routes, Route, Link } from "react-router-dom";
+﻿import { Routes, Route, Link } from "react-router-dom";
 import { useState, type ReactNode } from "react";
 import { Button, Drawer, Result } from "antd";
 import { MenuOutlined } from "@ant-design/icons";
@@ -27,9 +27,9 @@ export default function JChatMindLayout() {
     <Layout>
       <div className="flex h-14 shrink-0 items-center gap-3 border-b border-slate-200 px-4 md:hidden">
         <Button type="text" icon={<MenuOutlined />} aria-label="打开导航菜单" onClick={() => setMenuOpen(true)} />
-        <ExoBrainLogo className="h-7 w-7" />
-        <span className="min-w-0 flex-1 text-lg font-semibold text-slate-900">ExoBrain</span>
-        {IS_PUBLIC_DEMO ? <Button type="link" href="/admin/" size="small">账号登录</Button> : <span className="text-xs text-indigo-600">{account?.user?.role === "ADMIN" ? "管理员" : "账号工作区"}</span>}
+        <ExoBrainLogo className="h-7 w-7 rounded-lg" />
+        <span className="min-w-0 flex-1 text-lg font-bold text-ink">ExoBrain</span>
+        {IS_PUBLIC_DEMO ? <Button type="link" href="/admin/" size="small">账号登录</Button> : <span className="rounded-full bg-sketch px-2 py-0.5 text-xs font-semibold text-pencil">{account?.user?.role === "ADMIN" ? "管理员" : "账号工作区"}</span>}
       </div>
       <Drawer open={menuOpen} onClose={() => setMenuOpen(false)} placement="left" title="导航" size={320} styles={{ body: { padding: 0 } }} destroyOnHidden>
         <SideMenu onNavigate={() => setMenuOpen(false)} />

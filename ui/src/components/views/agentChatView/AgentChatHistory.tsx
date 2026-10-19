@@ -1,11 +1,14 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { Bubble } from "@ant-design/x";
 import XMarkdown from "@ant-design/x-markdown";
 import {
-  ToolOutlined,
+  DownOutlined,
   FileSearchOutlined,
+  ReloadOutlined,
   RobotOutlined,
+  ToolOutlined,
 } from "@ant-design/icons";
+import { Button } from "antd";
 import type {
   AnswerCitation,
   ChatMessageVO,
@@ -31,6 +34,13 @@ interface AgentChatHistoryProps {
   displayAgentStatus?: boolean;
   agentStatusText?: string;
   agentStatusType?: SseMessageType;
+  /** 相关追问：只有点击才发起新的运行，不随答案自动提交。 */
+  onAskFollowUp?: (content: string) => void | Promise<boolean>;
+  followUpPrompts?: readonly string[];
+  /** 当前是否已有一轮在等待答复；等待期间追问不可点。 */
+  busy?: boolean;
+  /** 取消请求已登记但终态未确认时的活动状态文字。 */
+  cancelling?: boolean;
 }
 
 const TOOL_LABELS: Record<string, string> = {
@@ -39,6 +49,11 @@ const TOOL_LABELS: Record<string, string> = {
   directAnswer: "生成回答",
   terminate: "结束任务",
 };
+
+/** 超过这个字符数的回答默认折叠，保留完整 Markdown，只是把容器高度收起来。 */
+const LONG_ANSWER_THRESHOLD = 1200;
+/** 判定「用户还在跟随本轮」的底部容差。 */
+const FOLLOW_THRESHOLD = 24;
 
 function formatToolData(value: string | null | undefined): string {
   if (!value) return "无内容";
@@ -49,32 +64,10 @@ function formatToolData(value: string | null | undefined): string {
   }
 }
 
-const ToolCallDisplay: React.FC<{ toolCall: ToolCall }> = ({ toolCall }) => (
-  <details className="w-full rounded-lg border border-indigo-100 bg-indigo-50/50 text-xs">
-    <summary className="cursor-pointer px-3 py-2 leading-6 text-indigo-700">
-      <ToolOutlined className="mx-1.5" />
-      <span className="font-medium">工具调用 · {TOOL_LABELS[toolCall.name] || toolCall.name}</span>
-      {TOOL_LABELS[toolCall.name] && <span className="ml-2 font-mono text-indigo-500">{toolCall.name}</span>}
-    </summary>
-    <div className="border-t border-indigo-100 px-3 py-2">
-      <p className="mb-1 text-indigo-500">调用参数</p>
-      <pre className="max-h-64 overflow-auto whitespace-pre-wrap break-words leading-6 text-slate-600">{formatToolData(toolCall.arguments)}</pre>
-    </div>
-  </details>
-);
-
-const ToolResponseDisplay: React.FC<{ toolResponse: ToolResponse }> = ({ toolResponse }) => (
-  <details className="my-1.5 w-full rounded-lg border border-slate-200 bg-slate-50 text-xs">
-    <summary className="cursor-pointer px-3 py-2 leading-6 text-slate-600">
-      <FileSearchOutlined className="mx-1.5 text-teal-600" />
-      <span className="font-medium">工具结果 · {TOOL_LABELS[toolResponse.name] || toolResponse.name}</span>
-      {TOOL_LABELS[toolResponse.name] && <span className="ml-2 font-mono text-slate-400">{toolResponse.name}</span>}
-    </summary>
-    <div className="border-t border-slate-200 px-3 py-2">
-      <pre className="max-h-80 overflow-auto whitespace-pre-wrap break-words leading-6 text-slate-600">{formatToolData(toolResponse.responseData)}</pre>
-    </div>
-  </details>
-);
+function messageRunId(message: ChatMessageVO | undefined): string | undefined {
+  const metadata = message?.metadata as ChatMessageMetadataWithRun | undefined;
+  return metadata?.runId ?? undefined;
+}
 
 function citationKey(citation: AnswerCitation, index: number): string {
   return `${citation.label}:${citation.citationId ?? citation.source.documentId}:${index}`;
@@ -85,76 +78,18 @@ function citationHeading(citation: AnswerCitation): string {
   return headingPath.filter(Boolean).join(" › ");
 }
 
-function messageRunId(message: ChatMessageVO): string | undefined {
-  const metadata = message.metadata as ChatMessageMetadataWithRun | undefined;
-  return metadata?.runId ?? undefined;
-}
-
-function citationRange(citation: AnswerCitation): string {
+function citationPosition(citation: AnswerCitation): string {
   const { startLine, endLine } = citation.source;
   return startLine != null && endLine != null ? `第 ${startLine}–${endLine} 行` : "整份文档（无精确位置）";
 }
 
-/**
- * 只渲染服务端校验过的结构化引用（answer metadata 里的 citations）。
- * 模型正文里的 [1] 或任意 Markdown 链接不在这里，也不会变成可点击来源；
- * 技术细节默认折叠，主阅读区只显示编号、文档名、章节与节选。
- */
-const CitationList: React.FC<{
-  citations: AnswerCitation[];
-  onOpen: (citation: AnswerCitation) => void;
-}> = ({ citations, onOpen }) => (
-  <section
-    className="mt-2 rounded-lg border border-teal-100 bg-teal-50/40 text-xs"
-    aria-label="回答来源"
-  >
-    <div className="flex flex-wrap items-center gap-x-1.5 px-3 pt-2 text-teal-700">
-      <FileSearchOutlined />
-      <span className="font-medium">来源</span>
-      <span className="text-teal-700/70">（已由服务端校验，点击查看原文）</span>
-    </div>
-    <ul className="flex flex-col gap-1.5 px-3 py-2">
-      {citations.map((citation, index) => (
-        <li key={citationKey(citation, index)} className="min-w-0">
-          <button
-            type="button"
-            onClick={() => onOpen(citation)}
-            aria-label={`打开来源 ${citation.label}：${citation.source.documentName}`}
-            className="flex w-full min-w-0 flex-wrap items-baseline gap-x-2 gap-y-0.5 rounded px-1 py-0.5 text-left hover:bg-teal-100/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-teal-500"
-          >
-            <span className="font-mono font-medium text-teal-700">[{citation.label}]</span>
-            <span className="min-w-0 max-w-full flex-1 truncate font-medium text-slate-700">
-              {citation.source.documentName}
-            </span>
-            {citationHeading(citation) && (
-              <span className="w-full min-w-0 truncate text-slate-500 sm:w-auto">{citationHeading(citation)}</span>
-            )}
-            <span className="text-slate-400">查看原文</span>
-          </button>
-          <p className="mt-0.5 break-words px-1 leading-5 text-slate-600">{citation.excerpt}</p>
-          <details className="px-1 text-slate-500">
-            <summary className="cursor-pointer leading-6">技术细节</summary>
-            <dl className="mt-1 grid grid-cols-1 gap-x-3 gap-y-0.5 pb-1 sm:grid-cols-2">
-              <div className="min-w-0"><dt className="inline text-slate-400">位置：</dt><dd className="inline break-all">{citationRange(citation)}</dd></div>
-              <div className="min-w-0"><dt className="inline text-slate-400">引用 ID：</dt><dd className="inline break-all">{citation.citationId ?? "未公开"}</dd></div>
-              <div className="min-w-0"><dt className="inline text-slate-400">片段：</dt><dd className="inline break-all">{citation.chunkId ?? "未公开"}</dd></div>
-              <div className="min-w-0"><dt className="inline text-slate-400">索引：</dt><dd className="inline break-all">{[citation.indexVersion, citation.indexRevision].filter(Boolean).join(" / ") || "未公开"}</dd></div>
-              <div className="min-w-0"><dt className="inline text-slate-400">来源哈希：</dt><dd className="inline break-all">{citation.source.sourceHash ? citation.source.sourceHash.slice(0, 16) : "无（旧版索引）"}</dd></div>
-            </dl>
-          </details>
-        </li>
-      ))}
-    </ul>
-  </section>
-);
-
 const RUN_STATUS_LABELS: Record<RunStatus, string> = {
   QUEUED: "排队中",
   RUNNING: "执行中",
-  SUCCEEDED: "成功",
+  SUCCEEDED: "已完成",
   FAILED: "失败",
   CANCELLED: "已取消",
-  INTERRUPTED: "状态未知（可能已中断）",
+  INTERRUPTED: "已中断",
 };
 
 const RUN_STATUS_CLASSES: Record<RunStatus, string> = {
@@ -190,7 +125,7 @@ const RUN_ERROR_LABELS: Record<string, string> = {
   EXECUTION_FAILED: "执行失败",
 };
 
-/** 只格式化服务端记录的耗时；未知就是“未记录”，不用浏览器计时补齐。 */
+/** 只格式化服务端记录的耗时；未知就是「未记录」，不用浏览器计时补齐。 */
 function formatDuration(ms: number | null | undefined): string {
   if (ms == null) return "未记录";
   if (ms < 1000) return `${ms} ms`;
@@ -225,78 +160,376 @@ function runEventDetail(event: RunEventView): string {
   return RUN_EVENT_LABELS[event.type];
 }
 
+function runFailureDetail(run: RunSummaryView): string {
+  const status: RunStatus = run.interrupted ? "INTERRUPTED" : run.status;
+  switch (status) {
+    case "QUEUED":
+      return "任务已受理，正在等待执行。";
+    case "RUNNING":
+      return "正在执行；刷新页面不会中断它。";
+    case "CANCELLED":
+      return "本次运行在产出答复前被取消。";
+    case "INTERRUPTED":
+      return "本次运行在产出答复前中断（进程重启或崩溃），系统不会自动重放；可以重新提问。";
+    case "FAILED":
+      return run.errorCode
+        ? `本次运行失败（${RUN_ERROR_LABELS[run.errorCode] ?? run.errorCode}），没有产出答复。`
+        : "本次运行失败，没有产出答复；可以重新提问。";
+    default:
+      return "本次运行没有产出答复。";
+  }
+}
+
 /**
- * 服务端运行记录：默认只显示结果、助手/模型名称与耗时（执行与排队分别显示）；
- * 展开后才读取并按顺序展示真实时间线。没有记录时显示“此记录未保存执行详情”，不补造。
+ * 一轮问答的阅读单元：问题 → 活动状态或最终答案 → 紧凑来源 → 可展开执行过程。
+ * 归组只依据服务端关联（答案消息 ID / 触发消息 ID）与核对过的 metadata.runId，
+ * 不按相邻位置或时间猜测配对。
  */
-const RunTrace: React.FC<{ run: RunSummaryView; sessionId?: string }> = ({ run, sessionId }) => {
-  const [events, setEvents] = useState<RunEventView[] | null>(null);
-  const [detailUnavailable, setDetailUnavailable] = useState(false);
+interface ChatTurn {
+  key: string;
+  question?: ChatMessageVO;
+  answers: ChatMessageVO[];
+  tools: ChatMessageVO[];
+  systems: ChatMessageVO[];
+}
 
-  const load = useCallback(() => {
-    if (!sessionId || events || detailUnavailable) return;
-    void getRun(run.runId)
-      .then((detail) => setEvents(detail.events ?? []))
-      .catch(() => setDetailUnavailable(true));
-  }, [sessionId, run.runId, events, detailUnavailable]);
+function buildTurns(messages: ChatMessageVO[]): ChatTurn[] {
+  const turns: ChatTurn[] = [];
+  let current: ChatTurn | null = null;
+  for (const message of messages) {
+    if (message.role === "user") {
+      current = { key: `turn-${message.id}`, question: message, answers: [], tools: [], systems: [] };
+      turns.push(current);
+      continue;
+    }
+    if (!current) {
+      current = { key: `turn-pre-${message.id}`, answers: [], tools: [], systems: [] };
+      turns.push(current);
+    }
+    if (message.role === "assistant") current.answers.push(message);
+    else if (message.role === "tool") current.tools.push(message);
+    else current.systems.push(message);
+  }
+  return turns;
+}
 
-  const usage = formatUsage(run);
+interface CitationGroup {
+  key: string;
+  documentId: string;
+  documentName: string;
+  sourceHash: string;
+  citations: AnswerCitation[];
+}
+
+/** 按 documentId + sourceHash 分组：同名文档的不同版本不合并。 */
+function groupCitations(citations: AnswerCitation[]): CitationGroup[] {
+  const groups = new Map<string, CitationGroup>();
+  for (const citation of citations) {
+    const sourceHash = citation.source.sourceHash ?? "";
+    const key = `${citation.source.documentId}|${sourceHash}`;
+    const existing = groups.get(key);
+    if (existing) {
+      existing.citations.push(citation);
+      continue;
+    }
+    groups.set(key, {
+      key,
+      documentId: citation.source.documentId,
+      documentName: citation.source.documentName,
+      sourceHash,
+      citations: [citation],
+    });
+  }
+  return [...groups.values()];
+}
+
+/**
+ * 紧凑来源入口：默认只显示「来源：文档名 · 共 N 处引用」，展开后保留每一处不同的证据与位置。
+ * 来源只来自服务端核验后写入的 metadata.citations；正文里的 [1] 或 Markdown 链接不会出现在这里。
+ */
+const CitationEntry: React.FC<{
+  citations: AnswerCitation[];
+  onOpen: (citation: AnswerCitation) => void;
+}> = ({ citations, onOpen }) => {
+  const [expanded, setExpanded] = useState(false);
+  const groups = useMemo(() => groupCitations(citations), [citations]);
+  const documentNames = useMemo(() => {
+    const names: string[] = [];
+    for (const group of groups) {
+      if (!names.includes(group.documentName)) names.push(group.documentName);
+    }
+    return names;
+  }, [groups]);
+  const label = documentNames.slice(0, 3).join(" · ") + (documentNames.length > 3 ? ` 等 ${documentNames.length} 篇` : "");
+  const panelId = `citations-${useId()}`;
+
   return (
-    <details
-      className="mt-2 rounded-lg border border-slate-200 bg-slate-50/70 text-xs"
-      onToggle={(event) => {
-        if ((event.target as HTMLDetailsElement).open) load();
-      }}
-    >
-      <summary className="flex cursor-pointer flex-wrap items-center gap-x-2 gap-y-0.5 px-3 py-2 leading-6 text-slate-600">
-        <RobotOutlined className="text-slate-400" />
-        <span className="font-medium text-slate-700">{run.agentName || "助手（未记录）"}</span>
-        {run.modelName && <span className="font-mono text-slate-500">{run.modelName}</span>}
-        <span>执行 {formatDuration(run.durationMs)}</span>
-        {run.queueDurationMs != null && run.queueDurationMs >= 1000 && (
-          <span className="text-slate-400">排队 {formatDuration(run.queueDurationMs)}</span>
-        )}
-        <span className={RUN_STATUS_CLASSES[run.status]}>{RUN_STATUS_LABELS[run.status]}</span>
-        {run.traceIncomplete && <span className="text-amber-600">执行详情不完整</span>}
-        <span className="text-slate-400">展开时间线</span>
-      </summary>
-      <div className="border-t border-slate-200 px-3 py-2">
-        {run.errorCode && (
-          <p className="mb-1 text-amber-700">失败原因：{RUN_ERROR_LABELS[run.errorCode] ?? run.errorCode}</p>
-        )}
-        {usage && <p className="mb-1 text-slate-400">{usage}</p>}
-        {!sessionId || detailUnavailable ? (
-          <p className="text-slate-400">无法读取本次执行的时间线</p>
-        ) : events == null ? (
-          <p className="text-slate-400">正在读取执行时间线…</p>
-        ) : events.length === 0 ? (
-          <p className="text-slate-400">这次执行没有记录到事件</p>
-        ) : (
-          <ol className="flex flex-col gap-1">
-            {events.map((event) => (
-              <li key={`${event.sequence}-${event.type}`} className="flex flex-wrap items-baseline gap-x-2">
-                <span className="font-mono text-slate-400">#{event.sequence}</span>
-                <span className="text-slate-700">{runEventDetail(event)}</span>
-                <span className="text-slate-400">{formatDuration(event.durationMs)}</span>
-                <span className={event.status === "SUCCEEDED" ? "text-teal-700" : "text-rose-700"}>
-                  {event.status === "SUCCEEDED" ? "成功" : event.status === "FAILED" ? "失败" : "已取消"}
-                </span>
+    <section className="mt-3 min-w-0 max-w-full rounded-xl border border-teal-100 bg-teal-50/50 text-xs" aria-label="回答来源">
+      <button
+        type="button"
+        aria-expanded={expanded}
+        aria-controls={panelId}
+        onClick={() => setExpanded((value) => !value)}
+        className="flex min-h-11 w-full min-w-0 flex-wrap items-center gap-x-2 gap-y-0.5 rounded-xl px-3 py-2 text-left hover:bg-teal-100/60"
+      >
+        <FileSearchOutlined className="shrink-0 text-teal-700" />
+        <span className="min-w-0 flex-1 break-words font-medium text-teal-800">来源：{label}</span>
+        <span className="shrink-0 text-teal-700/80">共 {citations.length} 处引用</span>
+        <span className="flex shrink-0 items-center gap-1 font-semibold text-teal-800">
+          {expanded ? "收起来源" : "查看全部依据"}
+          <DownOutlined className={expanded ? "rotate-180 transition-transform duration-200" : "transition-transform duration-200"} />
+        </span>
+      </button>
+      {expanded && (
+        <div id={panelId} className="border-t border-teal-100 px-3 py-2">
+          <ul className="flex flex-col gap-3">
+            {groups.map((group) => (
+              <li key={group.key} className="min-w-0">
+                <p className="mb-1 break-words font-semibold text-slate-700">
+                  {group.documentName}
+                  <span className="ml-2 font-normal text-slate-400">本条文档 {group.citations.length} 处片段</span>
+                </p>
+                <ul className="flex flex-col gap-2">
+                  {group.citations.map((citation, index) => (
+                    <li key={citationKey(citation, index)} className="min-w-0">
+                      <button
+                        type="button"
+                        onClick={() => onOpen(citation)}
+                        aria-label={`打开来源 ${citation.label}：${citation.source.documentName}`}
+                        className="flex w-full min-w-0 flex-wrap items-baseline gap-x-2 gap-y-0.5 rounded-lg border border-transparent px-1.5 py-1 text-left hover:border-teal-200 hover:bg-teal-100/60"
+                      >
+                        <span className="font-mono font-medium text-teal-700">[{citation.label}]</span>
+                        <span className="text-slate-600">{citationPosition(citation)}</span>
+                        {citationHeading(citation) && (
+                          <span className="min-w-0 break-words text-slate-500">{citationHeading(citation)}</span>
+                        )}
+                        <span className="ml-auto shrink-0 font-semibold text-teal-700">查看原文</span>
+                      </button>
+                      <p className="mt-0.5 break-words px-1.5 leading-5 text-slate-600">{citation.excerpt}</p>
+                      <p className="mt-0.5 break-words px-1.5 font-mono text-[11px] text-slate-400">
+                        哈希 {citation.source.sourceHash ? citation.source.sourceHash.slice(0, 16) : "无（旧版索引）"}
+                        {citation.chunkId ? ` · 片段 ${citation.chunkId}` : ""}
+                        {citation.indexVersion || citation.indexRevision
+                          ? ` · 索引 ${[citation.indexVersion, citation.indexRevision].filter(Boolean).join(" / ")}`
+                          : ""}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
               </li>
             ))}
-          </ol>
+          </ul>
+        </div>
+      )}
+    </section>
+  );
+};
+
+/**
+ * 超长回答的阅读容器：默认限制高度但保留完整 Markdown，展开后不截断。
+ * 不复制、不摘要，不用「短答」伪装；展开状态通过 aria-expanded/aria-controls 暴露。
+ */
+const AnswerBody: React.FC<{ messageId: string; content: string }> = ({ messageId, content }) => {
+  const [expanded, setExpanded] = useState(false);
+  const collapsible = content.length > LONG_ANSWER_THRESHOLD;
+  const panelId = `answer-body-${messageId}`;
+  return (
+    <div className="min-w-0">
+      <div
+        id={panelId}
+        className={collapsible && !expanded
+          ? "relative max-h-[60vh] min-w-0 overflow-hidden after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-16 after:bg-gradient-to-t after:from-white after:to-transparent"
+          : "min-w-0"}
+      >
+        <XMarkdown streaming={{ enableAnimation: false, hasNextChunk: false }}>{content}</XMarkdown>
+      </div>
+      {collapsible && (
+        <button
+          type="button"
+          aria-expanded={expanded}
+          aria-controls={panelId}
+          onClick={() => setExpanded((value) => !value)}
+          className="mt-1 inline-flex min-h-9 items-center gap-1 rounded-lg px-1 text-xs font-semibold text-sketch0 hover:underline"
+        >
+          <DownOutlined className={expanded ? "rotate-180 transition-transform duration-200" : "transition-transform duration-200"} />
+          {expanded ? "收起回答" : `展开完整回答（共 ${content.length} 字）`}
+        </button>
+      )}
+    </div>
+  );
+};
+
+/** 运行详情时间线：自己维护 loading / ready / error，失败可重试，重试不清空已有内容。 */
+const RunTimeline: React.FC<{ runId: string }> = ({ runId }) => {
+  const [attempt, setAttempt] = useState(0);
+  const [events, setEvents] = useState<RunEventView[] | null>(null);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    void getRun(runId).then((detail) => {
+      if (!active) return;
+      if (!detail || !Array.isArray(detail.events)) {
+        setFailed(true);
+        return;
+      }
+      setEvents(detail.events);
+      setFailed(false);
+    }).catch(() => {
+      if (active) setFailed(true);
+    });
+    return () => { active = false; };
+  }, [runId, attempt]);
+
+  if (failed && events == null) {
+    return (
+      <p className="flex flex-wrap items-center gap-2 text-slate-500">
+        执行过程暂时无法读取。
+        <Button size="small" type="link" icon={<ReloadOutlined />} onClick={() => setAttempt((value) => value + 1)}>
+          重试
+        </Button>
+      </p>
+    );
+  }
+  if (events == null) return <p className="text-slate-400">正在读取执行过程…</p>;
+  if (events.length === 0) return <p className="text-slate-400">这次执行没有记录到步骤。</p>;
+  return (
+    <ol className="flex flex-col gap-1">
+      {events.map((event) => (
+        <li key={`${event.sequence}-${event.type}`} className="flex flex-wrap items-baseline gap-x-2">
+          <span className="font-mono text-slate-400">#{event.sequence}</span>
+          <span className="text-slate-700">{runEventDetail(event)}</span>
+          <span className="text-slate-400">{formatDuration(event.durationMs)}</span>
+          <span className={event.status === "SUCCEEDED" ? "text-teal-700" : "text-rose-700"}>
+            {event.status === "SUCCEEDED" ? "成功" : event.status === "FAILED" ? "失败" : "已取消"}
+          </span>
+        </li>
+      ))}
+    </ol>
+  );
+};
+
+/**
+ * 一轮的执行过程：工具调用与工具结果合并到同一处，摘要只显示状态与真实耗时。
+ * 展开后才读取服务端时间线；没有运行记录时如实说明，不补造步骤。
+ */
+const ProcessDisclosure: React.FC<{
+  run?: RunSummaryView;
+  sessionId?: string;
+  toolCalls: ToolCall[];
+  toolResponses: ToolResponse[];
+}> = ({ run, sessionId, toolCalls, toolResponses }) => {
+  const [opened, setOpened] = useState(false);
+  const status: RunStatus | undefined = run ? (run.interrupted ? "INTERRUPTED" : run.status) : undefined;
+  const toolCount = toolCalls.length + toolResponses.length;
+  const canLoadTimeline = !!run && !!sessionId;
+
+  return (
+    <details
+      className="mt-2 min-w-0 rounded-xl border border-slate-200 bg-slate-50/70 text-xs"
+      onToggle={(event) => {
+        if ((event.target as HTMLDetailsElement).open) setOpened(true);
+      }}
+    >
+      <summary className="flex min-h-11 cursor-pointer flex-wrap items-center gap-x-2 gap-y-0.5 px-3 py-2 leading-6">
+        <RobotOutlined className="shrink-0 text-slate-400" />
+        <span className="font-medium text-slate-700">执行过程</span>
+        {status && <span className={RUN_STATUS_CLASSES[status]}>{RUN_STATUS_LABELS[status]}</span>}
+        {run && <span className="text-slate-500">执行 {formatDuration(run.durationMs)}</span>}
+        {run?.queueDurationMs != null && run.queueDurationMs >= 1000 && (
+          <span className="text-slate-400">排队 {formatDuration(run.queueDurationMs)}</span>
         )}
-        {run.traceIncomplete && (
-          <p className="mt-1 text-amber-700">部分事件未能保存，时间线可能不完整。</p>
+        {toolCount > 0 && <span className="text-slate-400">{toolCalls.length} 次工具调用</span>}
+        {run?.modelName && <span className="font-mono text-slate-400">{run.modelName}</span>}
+        {run?.traceIncomplete && <span className="text-amber-600">执行详情不完整</span>}
+        <span className="ml-auto shrink-0 text-slate-400">查看过程</span>
+      </summary>
+      <div className="flex flex-col gap-2 border-t border-slate-200 px-3 py-2">
+        {opened && run && <RunTimeline runId={run.runId} />}
+        {opened && run && !canLoadTimeline && <p className="text-slate-400">当前页面没有读取执行过程所需的信息。</p>}
+        {opened && run && formatUsage(run) && <p className="text-slate-400">{formatUsage(run)}</p>}
+        {toolCalls.length > 0 && (
+          <div className="flex flex-col gap-1.5">
+            <p className="font-medium text-slate-600">工具调用</p>
+            {toolCalls.map((toolCall) => (
+              <details key={toolCall.id} className="min-w-0 rounded-lg border border-dashed border-sketch bg-white/70">
+                <summary className="flex min-h-9 cursor-pointer items-center gap-1.5 px-2 py-1 leading-6 text-slate-600">
+                  <ToolOutlined className="shrink-0 text-sketch0" />
+                  <span className="font-medium">{TOOL_LABELS[toolCall.name] || toolCall.name}</span>
+                  <span className="font-mono text-slate-400">{toolCall.name}</span>
+                </summary>
+                <pre className="max-h-64 overflow-auto whitespace-pre-wrap break-words border-t border-dashed border-sketch px-2 py-1.5 leading-6 text-slate-600">
+                  {formatToolData(toolCall.arguments)}
+                </pre>
+              </details>
+            ))}
+          </div>
         )}
+        {toolResponses.length > 0 && (
+          <div className="flex flex-col gap-1.5">
+            <p className="font-medium text-slate-600">工具结果</p>
+            {toolResponses.map((toolResponse) => (
+              <details key={toolResponse.id} className="min-w-0 rounded-lg border border-dashed border-sketch bg-white/70">
+                <summary className="flex min-h-9 cursor-pointer items-center gap-1.5 px-2 py-1 leading-6 text-slate-600">
+                  <FileSearchOutlined className="shrink-0 text-sketch0" />
+                  <span className="font-medium">{TOOL_LABELS[toolResponse.name] || toolResponse.name}</span>
+                  <span className="font-mono text-slate-400">{toolResponse.name}</span>
+                </summary>
+                <pre className="max-h-80 overflow-auto whitespace-pre-wrap break-words border-t border-dashed border-sketch px-2 py-1.5 leading-6 text-slate-600">
+                  {formatToolData(toolResponse.responseData)}
+                </pre>
+              </details>
+            ))}
+          </div>
+        )}
+        {!run && <p className="text-slate-400">这次执行没有保存时间线记录。</p>}
       </div>
     </details>
   );
 };
 
-/** 没有运行记录（旧消息）时只给一句说明，不用当前配置或浏览器计时补齐。 */
-const MissingRunTrace: React.FC = () => (
-  <p className="mt-2 text-xs text-slate-400">此记录未保存执行详情</p>
+/**
+ * 没有 assistant 消息的终态运行也必须可见。提交前取消、首次模型调用失败、运行中进程崩溃
+ * 都可能不产生 assistant 消息，状态只能来自持久化的运行记录。
+ */
+const RunOutcomeNotice: React.FC<{ run: RunSummaryView }> = ({ run }) => {
+  const status: RunStatus = run.interrupted ? "INTERRUPTED" : run.status;
+  return (
+    <div className="mt-1 min-w-0 rounded-xl border border-dashed border-amber-200 bg-amber-50/70 px-3 py-2 text-xs">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="font-medium text-slate-700">本次回答</span>
+        <span className={RUN_STATUS_CLASSES[status] ?? "text-slate-600"}>{RUN_STATUS_LABELS[status] ?? status}</span>
+        {run.errorCode && <span className="font-mono text-slate-400">{run.errorCode}</span>}
+        {typeof run.durationMs === "number" && run.durationMs > 0 && (
+          <span className="text-slate-400">耗时 {(run.durationMs / 1000).toFixed(1)} s</span>
+        )}
+      </div>
+      <p className="mt-1 leading-5 text-slate-600">{runFailureDetail(run)}</p>
+    </div>
+  );
+};
+
+/** 读取状态提示：失败时给重试，不把故障解释成「没有记录」。 */
+const RunLoadNotice: React.FC<{
+  message: string;
+  onRetry: () => void;
+  stale?: boolean;
+}> = ({ message, onRetry, stale }) => (
+  <div
+    role={stale ? "status" : "alert"}
+    className={stale
+      ? "mb-3 flex flex-wrap items-center gap-2 rounded-xl border border-dashed border-amber-200 bg-amber-50/60 px-3 py-2 text-xs text-slate-600"
+      : "mb-3 flex flex-wrap items-center gap-2 rounded-xl border border-dashed border-rose-200 bg-rose-50/60 px-3 py-2 text-xs text-slate-700"}
+  >
+    <span className="min-w-0 flex-1">
+      {stale ? `执行记录尚未更新：${message}` : `执行记录暂时无法读取：${message}`}
+    </span>
+    <Button size="small" icon={<ReloadOutlined />} onClick={onRetry}>
+      重试
+    </Button>
+  </div>
 );
+
 const AgentChatHistory: React.FC<AgentChatHistoryProps> = ({
   messages,
   sessionId,
@@ -304,246 +537,378 @@ const AgentChatHistory: React.FC<AgentChatHistoryProps> = ({
   displayAgentStatus = false,
   agentStatusText = "",
   agentStatusType,
+  onAskFollowUp,
+  followUpPrompts = [],
+  busy = false,
+  cancelling = false,
 }) => {
-  // 滚动容器引用
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  // 是否允许自动滚动（用户是否接近底部）
-  const [isNearBottom, setIsNearBottom] = useState(true);
-  // 当前打开的引用来源；关闭抽屉即清理请求与状态
+  const followRef = useRef(true);
+  const suppressScrollRef = useRef(0);
+  const seenAnswerIdsRef = useRef<Set<string>>(new Set());
+  const didInitialPositionRef = useRef(false);
+  const requestSeqRef = useRef(0);
+  const hadSuccessfulReadRef = useRef(false);
+
+  const [newAnswerId, setNewAnswerId] = useState<string | null>(null);
   const [citedSource, setCitedSource] = useState<AnswerCitation | null>(null);
-  // 容错阈值（像素）
-  const SCROLL_THRESHOLD = 20;
-  // 上一次消息数量，用于检测新消息
-  const prevMessagesLengthRef = useRef(messages.length);
+  // 打开引用预览前记录触发元素：抽屉关闭（含 Esc）后焦点必须回到它。
+  const previewTriggerRef = useRef<HTMLElement | null>(null);
+  const openCitation = useCallback((citation: AnswerCitation) => {
+    previewTriggerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    setCitedSource(citation);
+  }, []);
+  const closeCitation = useCallback(() => {
+    setCitedSource(null);
+    const trigger = previewTriggerRef.current;
+    previewTriggerRef.current = null;
+    window.setTimeout(() => trigger?.focus?.(), 60);
+  }, []);
+
+  // 数据与请求状态分开保存：失败不清空已取得的运行记录。
   const [runs, setRuns] = useState<RunSummaryView[]>([]);
-  const [runsLoadedFor, setRunsLoadedFor] = useState<string | null>(null);
+  const [runLoad, setRunLoad] = useState<"idle" | "loading" | "ready" | "error">(sessionId ? "loading" : "idle");
+  const [runError, setRunError] = useState("");
+  const [runStale, setRunStale] = useState(false);
+
+  // 初始状态已经按 sessionId 决定（聊天页对整个会话子树做了 key 重挂载），
+  // 所以这里不需要「切换会话时同步清空」的 effect：新会话用的是全新的 state。
+  const loadRuns = useCallback(async () => {
+    if (!sessionId) return;
+    const seq = ++requestSeqRef.current;
+    const targetSession = sessionId;
+    try {
+      const response = await listSessionRuns(targetSession);
+      // 切换会话后旧请求返回：丢弃，不更新当前视图。
+      if (seq !== requestSeqRef.current || targetSession !== sessionId) return;
+      const nextRuns = Array.isArray(response?.runs) ? response.runs : [];
+      hadSuccessfulReadRef.current = true;
+      setRuns(nextRuns);
+      setRunLoad("ready");
+      setRunError("");
+      setRunStale(false);
+    } catch (error) {
+      if (seq !== requestSeqRef.current || targetSession !== sessionId) return;
+      const message = error instanceof Error && error.message ? error.message : "暂时无法读取执行记录";
+      setRunError(message);
+      if (hadSuccessfulReadRef.current) {
+        setRunLoad("ready");
+        setRunStale(true);
+      } else {
+        setRunLoad("error");
+      }
+    }
+  }, [sessionId]);
+
+  const retryRuns = useCallback(() => {
+    setRunLoad((previous) => (previous === "ready" ? previous : "loading"));
+    setRunError("");
+    void loadRuns();
+  }, [loadRuns]);
 
   useEffect(() => {
     if (!sessionId) return;
-    let active = true;
-    void listSessionRuns(sessionId)
-      .then((response) => {
-        if (!active) return;
-        setRuns(response.runs ?? []);
-        setRunsLoadedFor(sessionId);
-      })
-      .catch(() => {
-        if (!active) return;
-        setRuns([]);
-        setRunsLoadedFor(sessionId);
-      });
-    return () => { active = false; };
-  }, [sessionId, messages.length]);
+    // 放进定时器回调里触发：读取本身是异步的，失败也不会同步改状态。
+    const timer = window.setTimeout(() => { void loadRuns(); }, 0);
+    return () => window.clearTimeout(timer);
+  }, [loadRuns, messages.length, sessionId]);
 
-  const runsLoaded = sessionId != null && runsLoadedFor === sessionId;
+  // 轮询只用于可见页面里的活动运行；终态停止。
+  const hasActiveRun = runs.some((run) => run.status === "QUEUED" || run.status === "RUNNING");
+  useEffect(() => {
+    if (!sessionId || !hasActiveRun) return;
+    const timer = window.setInterval(() => {
+      if (document.visibilityState === "visible") void loadRuns();
+    }, 5000);
+    return () => window.clearInterval(timer);
+  }, [sessionId, hasActiveRun, loadRuns]);
 
-  const runByAnswer = new Map<string, RunSummaryView>();
-  const runById = new Map<string, RunSummaryView>();
-  for (const run of runs) {
-    runById.set(run.runId, run);
-    if (run.answerMessageId) runByAnswer.set(run.answerMessageId, run);
-  }
-  const runFor = (message: ChatMessageVO): RunSummaryView | undefined => {
-    const byAnswer = runByAnswer.get(message.id);
-    if (byAnswer) return byAnswer;
-    const runId = messageRunId(message);
-    return runId ? runById.get(runId) : undefined;
-  };
+  const runMaps = useMemo(() => {
+    const byAnswer = new Map<string, RunSummaryView>();
+    const byTrigger = new Map<string, RunSummaryView>();
+    const byId = new Map<string, RunSummaryView>();
+    for (const run of runs) {
+      byId.set(run.runId, run);
+      if (run.answerMessageId) byAnswer.set(run.answerMessageId, run);
+      if (run.triggeringMessageId) byTrigger.set(run.triggeringMessageId, run);
+    }
+    return { byAnswer, byTrigger, byId };
+  }, [runs]);
 
-  // 检查是否接近底部
-  const checkIfNearBottom = useCallback(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return false;
+  const runForTurn = useCallback((turn: ChatTurn): RunSummaryView | undefined => {
+    for (const answer of turn.answers) {
+      const byAnswer = runMaps.byAnswer.get(answer.id);
+      if (byAnswer) return byAnswer;
+      const runId = messageRunId(answer);
+      if (runId && runMaps.byId.has(runId)) return runMaps.byId.get(runId);
+    }
+    if (turn.question) {
+      const byTrigger = runMaps.byTrigger.get(turn.question.id);
+      if (byTrigger) return byTrigger;
+      const runId = messageRunId(turn.question);
+      if (runId && runMaps.byId.has(runId)) return runMaps.byId.get(runId);
+    }
+    return undefined;
+  }, [runMaps]);
 
-    const { scrollTop, clientHeight, scrollHeight } = container;
-    const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
-    return distanceFromBottom <= SCROLL_THRESHOLD;
+  const turns = useMemo(() => buildTurns(messages), [messages]);
+
+  const markProgrammaticScroll = useCallback(() => {
+    suppressScrollRef.current = performance.now() + 400;
   }, []);
 
-  // 滚动到底部
+  const scrollToElementTop = useCallback((element: HTMLElement | null) => {
+    const container = scrollContainerRef.current;
+    if (!container || !element) return;
+    markProgrammaticScroll();
+    const delta = element.getBoundingClientRect().top - container.getBoundingClientRect().top;
+    container.scrollTop = Math.max(0, container.scrollTop + delta - 12);
+  }, [markProgrammaticScroll]);
+
   const scrollToBottom = useCallback(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
+    markProgrammaticScroll();
+    container.scrollTop = container.scrollHeight;
+  }, [markProgrammaticScroll]);
 
-    // 使用 requestAnimationFrame 确保 DOM 更新完成后再滚动
-    requestAnimationFrame(() => {
-      if (container) {
-        container.scrollTop = container.scrollHeight;
-      }
-    });
+  const answerElement = useCallback((messageId: string): HTMLElement | null => {
+    const container = scrollContainerRef.current;
+    if (!container) return null;
+    return container.querySelector<HTMLElement>(`[data-answer-id="${messageId}"]`);
   }, []);
 
-  // 处理滚动事件，实时更新是否接近底部的状态
-  const handleScroll = useCallback(() => {
-    const nearBottom = checkIfNearBottom();
-    setIsNearBottom(nearBottom);
-  }, [checkIfNearBottom]);
-
-  // 监听滚动事件
+  // 用户滚动：上滚或选择文字时不再跟随本轮，回到接近底部时恢复跟随。
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
-
-    // 初始化时检查是否在底部（延迟执行以避免同步 setState）
-    const initTimer = setTimeout(() => {
-      setIsNearBottom(checkIfNearBottom());
-    }, 0);
-
-    container.addEventListener("scroll", handleScroll, { passive: true });
-
-    return () => {
-      clearTimeout(initTimer);
-      container.removeEventListener("scroll", handleScroll);
+    const onScroll = () => {
+      const distance = container.scrollHeight - container.scrollTop - container.clientHeight;
+      const nearBottom = distance <= FOLLOW_THRESHOLD;
+      if (performance.now() >= suppressScrollRef.current) {
+        followRef.current = nearBottom;
+      }
+      if (nearBottom) setNewAnswerId((previous) => (previous ? null : previous));
     };
-  }, [handleScroll, checkIfNearBottom]);
+    container.addEventListener("scroll", onScroll, { passive: true });
+    return () => container.removeEventListener("scroll", onScroll);
+  }, []);
 
-  // 监听消息变化，决定是否自动滚动
+  // 首屏：定位到最近一轮答案开头，不让展开的来源把答案挤出视野。
   useEffect(() => {
-    const hasNewMessage = messages.length > prevMessagesLengthRef.current;
-    prevMessagesLengthRef.current = messages.length;
-
-    // 如果有新消息且用户接近底部，则自动滚动
-    if (autoScroll && hasNewMessage && isNearBottom) {
-      scrollToBottom();
+    if (!autoScroll || didInitialPositionRef.current || messages.length === 0) return;
+    didInitialPositionRef.current = true;
+    const lastAnswer = [...messages].reverse().find((message) => message.role === "assistant");
+    for (const message of messages) {
+      if (message.role === "assistant") seenAnswerIdsRef.current.add(message.id);
     }
-  }, [messages, isNearBottom, scrollToBottom, autoScroll]);
+    const timer = requestAnimationFrame(() => {
+      if (lastAnswer) scrollToElementTop(answerElement(lastAnswer.id));
+      else scrollToBottom();
+    });
+    return () => cancelAnimationFrame(timer);
+  }, [answerElement, autoScroll, messages, scrollToBottom, scrollToElementTop]);
 
-  // 当 displayAgentStatus 变化时，如果用户接近底部，也自动滚动
+  // 新问题 / 新答案的阅读位置：用户仍在跟随时定位到答案开头，否则只给「查看新回答」。
   useEffect(() => {
-    if (autoScroll && displayAgentStatus && isNearBottom) {
-      scrollToBottom();
+    if (!autoScroll || messages.length === 0 || !didInitialPositionRef.current) return;
+    const last = messages[messages.length - 1];
+    if (!last) return;
+    if (last.role === "user") {
+      followRef.current = true;
+      const timer = requestAnimationFrame(() => {
+        setNewAnswerId(null);
+        scrollToBottom();
+      });
+      return () => cancelAnimationFrame(timer);
     }
-  }, [displayAgentStatus, isNearBottom, scrollToBottom, autoScroll]);
+    if (last.role !== "assistant") return;
+    if (seenAnswerIdsRef.current.has(last.id)) return;
+    seenAnswerIdsRef.current.add(last.id);
+    if (followRef.current) {
+      const timer = requestAnimationFrame(() => scrollToElementTop(answerElement(last.id)));
+      return () => cancelAnimationFrame(timer);
+    }
+    const timer = requestAnimationFrame(() => setNewAnswerId(last.id));
+    return () => cancelAnimationFrame(timer);
+  }, [answerElement, autoScroll, messages, scrollToBottom, scrollToElementTop]);
 
-  // 获取状态标签
-  const getStatusLabel = () => {
+  // 活动状态出现时，仍在跟随的访客能看到状态本身。
+  useEffect(() => {
+    if (!autoScroll || !displayAgentStatus || !followRef.current) return;
+    const timer = requestAnimationFrame(scrollToBottom);
+    return () => cancelAnimationFrame(timer);
+  }, [autoScroll, displayAgentStatus, scrollToBottom]);
+
+  const jumpToNewAnswer = useCallback(() => {
+    if (!newAnswerId) return;
+    followRef.current = true;
+    scrollToElementTop(answerElement(newAnswerId));
+    setNewAnswerId(null);
+  }, [answerElement, newAnswerId, scrollToElementTop]);
+
+  const statusLabel = (() => {
+    if (cancelling) return "正在取消";
     switch (agentStatusType) {
       case "AI_PLANNING":
-        return "规划中";
+        return "正在进行";
       case "AI_THINKING":
-        return "思考中";
+        return "正在分析问题";
       case "AI_EXECUTING":
-        return "执行中";
+        return "正在执行操作";
       default:
-        return "处理中";
+        return "正在处理";
     }
-  };
+  })();
+
+  const lastTurn = turns[turns.length - 1];
+  const showFollowUps = !!onAskFollowUp && !!lastTurn && lastTurn.answers.length > 0 &&
+    !displayAgentStatus && followUpPrompts.length > 0;
 
   return (
-    <div 
-      ref={scrollContainerRef}
-      className="min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-8 lg:px-12"
-    >
-      {messages.map((message) => {
-        const citations = message.metadata?.citations ?? [];
-        const run = message.role === "assistant" ? runFor(message) : undefined;
-        return (
-          <div className="mb-4" key={message.id}>
-            {/* Assistant 消息 */}
-            {message.role === "assistant" && (
-              <Bubble
-                content={
-                  <div className="w-full min-w-0">
-                    {/* 工具调用展示 */}
-                    {message.metadata?.toolCalls &&
-                      message.metadata.toolCalls.length > 0 && (
-                        <div className="mb-2 flex flex-wrap gap-2">
-                          {message.metadata.toolCalls.map((toolCall) => (
-                            <ToolCallDisplay key={toolCall.id} toolCall={toolCall} />
-                          ))}
+    <div className="relative flex min-h-0 min-w-0 flex-1 flex-col">
+      <div
+        ref={scrollContainerRef}
+        className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-4 py-4 sm:px-8 sm:py-5 lg:px-12"
+      >
+        {sessionId && runLoad === "error" && (
+          <RunLoadNotice message={runError || "暂时无法读取执行记录"} onRetry={retryRuns} />
+        )}
+        {sessionId && runLoad === "ready" && runStale && (
+          <RunLoadNotice message={runError || "网络或服务暂时不可用"} onRetry={retryRuns} stale />
+        )}
+
+        {turns.map((turn, turnIndex) => {
+          const run = runForTurn(turn);
+          const declaredRunId = messageRunId(turn.answers[0]) ?? messageRunId(turn.question);
+          const answerlessRun = run && !run.answerMessageId && turn.answers.length === 0 ? run : undefined;
+          const toolCalls = turn.answers.flatMap((answer) => answer.metadata?.toolCalls ?? []);
+          const toolResponses = turn.tools
+            .map((message) => message.metadata?.toolResponse)
+            .filter((response): response is ToolResponse => !!response);
+          const busyRunStatus: RunStatus | null =
+            run && (run.status === "QUEUED" || run.status === "RUNNING") ? run.status : null;
+          const showProcess = !!run || toolCalls.length > 0 || toolResponses.length > 0;
+          const runConfirmedMissing = !!sessionId && runLoad === "ready" && !runStale && !run;
+          const missingAssociatedRun = !!sessionId && runLoad === "ready" && !run && !!declaredRunId;
+
+          return (
+            <div key={turn.key} className="mb-5 min-w-0">
+              {turn.systems.map((message) => (
+                <div key={message.id} className="mb-2 flex justify-center">
+                  <div className="flex items-center gap-1 rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-600">
+                    <RobotOutlined />
+                    <span className="break-words">{message.content}</span>
+                  </div>
+                </div>
+              ))}
+
+              {turn.question && (
+                <div className="flex flex-col items-end gap-1">
+                  <Bubble content={<span className="block min-w-0 break-words">{turn.question.content}</span>} placement="end" />
+                  {answerlessRun && <div className="w-full max-w-3xl"><RunOutcomeNotice run={answerlessRun} /></div>}
+                  {missingAssociatedRun && (
+                    <p className="text-xs text-amber-700">未能读取这条问题对应的执行记录。</p>
+                  )}
+                </div>
+              )}
+
+              {turn.answers.map((answer) => {
+                const citations = answer.metadata?.citations ?? [];
+                const answerRun = run;
+                const failedRun = answerRun && ["FAILED", "CANCELLED", "INTERRUPTED"].includes(
+                  answerRun.interrupted ? "INTERRUPTED" : answerRun.status,
+                ) ? answerRun : undefined;
+                return (
+                  <div key={answer.id} data-answer-id={answer.id} className="mt-2 min-w-0">
+                    <Bubble
+                      content={(
+                        <div className="w-full min-w-0 break-words [&_a]:break-all">
+                          {answer.content && <AnswerBody messageId={answer.id} content={answer.content} />}
+                          {citations.length > 0 && <CitationEntry citations={citations} onOpen={openCitation} />}
+                          {showProcess && (
+                            <ProcessDisclosure
+                              run={answerRun}
+                              sessionId={sessionId}
+                              toolCalls={toolCalls}
+                              toolResponses={toolResponses}
+                            />
+                          )}
+                          {failedRun && (
+                            <p className="mt-1 text-xs text-rose-700">
+                              {RUN_STATUS_LABELS[failedRun.interrupted ? "INTERRUPTED" : failedRun.status]}：
+                              {runFailureDetail(failedRun)}
+                            </p>
+                          )}
+                          {runConfirmedMissing && !showProcess && (
+                            <p className="mt-2 text-xs text-slate-400">这条历史消息没有执行记录</p>
+                          )}
                         </div>
                       )}
-                    {/* 消息内容 */}
-                    {message.content && (
-                      <div>
-                        <XMarkdown
-                          streaming={{ enableAnimation: false, hasNextChunk: false }}
-                        >
-                          {message.content}
-                        </XMarkdown>
-                      </div>
-                    )}
-                    {/* 回答来源：只有服务端校验过的结构化引用才会出现在这里 */}
-                    {citations.length > 0 && (
-                      <CitationList citations={citations} onOpen={setCitedSource} />
-                    )}
-                    {/* 05 执行详情：默认只有结果、助手/模型与耗时；展开后按数据库记录展示时间线 */}
-                    {run ? (
-                      <RunTrace run={run} sessionId={sessionId} />
-                    ) : (
-                      runsLoaded && messageRunId(message) ? <MissingRunTrace /> : null
-                    )}
+                      placement="start"
+                    />
                   </div>
-                }
-                placement="start"
-              />
-            )}
+                );
+              })}
 
-            {/* Tool 消息 - 简洁展示，不使用气泡 */}
-            {message.role === "tool" && message.metadata?.toolResponse && (
-              <div className="flex justify-start">
-                <div className="w-full max-w-3xl">
-                  <ToolResponseDisplay toolResponse={message.metadata.toolResponse} />
+              {/* 有运行记录但仍在执行、又没有答案消息时，把活动状态放在本轮下面 */}
+              {answerlessRun && busyRunStatus && !displayAgentStatus && (
+                <p className="mt-1 text-xs text-sky-700" role="status">
+                  本轮仍在{RUN_STATUS_LABELS[busyRunStatus]}，刷新页面不会中断它。
+                </p>
+              )}
+
+              {turnIndex === turns.length - 1 && showFollowUps && (
+                <div className="mt-3 flex flex-wrap gap-2" aria-label="相关追问">
+                  {followUpPrompts.slice(0, 2).map((prompt) => (
+                    <button
+                      key={prompt}
+                      type="button"
+                      disabled={busy}
+                      onClick={() => void onAskFollowUp?.(prompt)}
+                      className="min-h-11 max-w-full rounded-xl border border-dashed border-sketch bg-white/80 px-3 py-2 text-left text-xs font-semibold text-pencil transition-[background-color,border-color,transform] duration-150 ease-out hover:-translate-y-px hover:border-pencil/50 hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {prompt}
+                    </button>
+                  ))}
                 </div>
-              </div>
-            )}
+              )}
+            </div>
+          );
+        })}
 
-            {/* User 消息 */}
-            {message.role === "user" && (
-              <Bubble content={message.content} placement="end" />
-            )}
-
-            {/* System 消息 */}
-            {message.role === "system" && (
-              <div className="flex justify-center">
-                <div className="px-3 py-1 bg-gray-100 text-gray-600 text-xs rounded-full flex items-center gap-1">
-                  <RobotOutlined />
-                  <span>{message.content}</span>
-                </div>
-              </div>
-            )}
-          </div>
-        );
-      })}
-      {displayAgentStatus && (
-        <div className="mb-3">
-          <div
-            className="animate-pulse"
-            style={{
-              animation: "pulse 0.8s cubic-bezier(0.4, 0, 0.6, 1) infinite",
-              filter: "brightness(1.15)",
-            }}
-          >
+        {displayAgentStatus && (
+          <div className="mb-3" role="status" aria-live="polite">
             <Bubble
-              content={
-                <span className="flex items-center gap-2">
-                  <span
-                    className="font-semibold text-blue-600"
-                    style={{
-                      animation:
-                        "pulse 0.7s cubic-bezier(0.4, 0, 0.6, 1) infinite",
-                      textShadow:
-                        "0 0 10px rgba(37, 99, 235, 1), 0 0 20px rgba(37, 99, 235, 0.8), 0 0 30px rgba(37, 99, 235, 0.5)",
-                      filter: "brightness(1.3)",
-                    }}
-                  >
-                    ✨ {getStatusLabel()}
-                  </span>
-                  <span className="text-gray-400">·</span>
-                  <span className="text-gray-600">{agentStatusText}</span>
+              content={(
+                <span className="flex flex-wrap items-center gap-2">
+                  <span className="animate-pulse font-semibold text-sketch0">✨ {statusLabel}</span>
+                  {agentStatusText && <span className="break-words text-gray-600">{agentStatusText}</span>}
                 </span>
-              }
+              )}
               placement="start"
             />
           </div>
-        </div>
+        )}
+      </div>
+
+      {newAnswerId && (
+        <button
+          type="button"
+          onClick={jumpToNewAnswer}
+          className="absolute bottom-3 left-1/2 z-10 flex min-h-11 -translate-x-1/2 items-center gap-1.5 rounded-full border border-sketch bg-white px-4 py-2 text-xs font-semibold text-ink shadow-doodle transition-[transform,box-shadow] duration-150 ease-out hover:-translate-y-0.5"
+        >
+          有新回答到达
+          <DownOutlined />
+        </button>
       )}
+
       {/* 引用原文：使用当前构建的授权原文接口，关闭即清理请求 */}
       {citedSource && (
         <DocumentPreviewDrawer
           document={{ id: citedSource.source.documentId, filename: citedSource.source.documentName }}
           citation={citedSource.source}
-          onClose={() => setCitedSource(null)}
+          onClose={closeCitation}
         />
       )}
     </div>

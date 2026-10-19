@@ -35,6 +35,19 @@ export interface ModelRequest {
   dimensions?: number;
 }
 
+/** 一个知识库当前绑定的向量模型（管理页「迁移知识库」）。 */
+export interface KnowledgeBaseBinding {
+  knowledgeBaseId: string;
+  name: string;
+  modelId: string;
+}
+
+export interface RebindResult {
+  modelId: string;
+  rebound: number;
+  knowledgeBaseIds: string[];
+}
+
 export interface ModelTestResult {
   success: boolean;
   message: string;
@@ -52,3 +65,12 @@ export const deleteAdminModel = (id: string) =>
   del<void>(`/admin/models/${encodeURIComponent(id)}`, undefined, { silent: true });
 export const testAdminModel = (id: string) =>
   post<ModelTestResult>(`/admin/models/${encodeURIComponent(id)}/test`, undefined, { silent: true });
+
+export const getModelBindings = () =>
+  get<{ bindings: KnowledgeBaseBinding[] }>("/admin/model-bindings", undefined, { silent: true });
+
+/** 把已有知识库迁移到该向量模型；vectorSpaceUnchanged 必须在确认同一向量空间后显式为 true。 */
+export const rebindKnowledgeBases = (
+  id: string,
+  body: { vectorSpaceUnchanged: boolean; knowledgeBaseIds?: string[] },
+) => post<RebindResult>(`/admin/models/${encodeURIComponent(id)}/knowledge-bases`, body, { silent: true });

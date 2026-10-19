@@ -7,7 +7,7 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ children }) => {
   return (
     <div
-      className="hidden h-full shrink-0 border-r border-slate-200 bg-slate-50 md:block"
+      className="hidden h-full shrink-0 border-r-2 border-dashed border-sketch bg-paper/70 backdrop-blur-md md:block"
       style={{
         width: "320px",
       }}

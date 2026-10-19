@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+﻿import React, { useMemo } from "react";
 import { Button, Divider, Dropdown, Modal } from "antd";
 import type { MenuProps } from "antd";
 import {
@@ -89,9 +89,9 @@ const AgentTabContent: React.FC<AgentTabContentProps> = ({
         智能体助手
       </Button>
       <Divider /></>}
-      <div className="flex-1 overflow-y-auto bg-gray-50 rounded-lg p-1.5">
+      <div className="flex-1 overflow-y-auto bg-sketch/50 rounded-2xl p-1.5">
         {agents.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-gray-400">
+          <div className="flex flex-col items-center justify-center h-full text-sketch">
             <p className="text-sm">暂无智能体</p>
             {onCreateAgentClick && <p className="text-xs mt-1">点击上方按钮添加</p>}
           </div>
@@ -104,24 +104,24 @@ const AgentTabContent: React.FC<AgentTabContentProps> = ({
                 <div
                   key={agent.id}
                   onClick={() => onSelectAgent(agent.id)}
-                  className="w-full px-3 py-3 rounded-lg bg-white cursor-pointer transition-all hover:bg-gray-100 hover:shadow-sm group relative"
+                  className="group relative w-full cursor-pointer rounded-xl border border-transparent bg-white px-3 py-3 shadow-[2px_2px_0_0_rgba(43, 39, 36,0.08)] transition-[transform,box-shadow,border-color,background-color] duration-200 hover:-translate-y-0.5 hover:border-sketch hover:shadow-[3px_3px_0_0_rgba(43, 39, 36,0.16)]"
                 >
                   <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-yellow-200 to-orange-200 flex items-center justify-center shrink-0 text-lg mt-0.5">
+                    <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-sketch to-sketch flex items-center justify-center shrink-0 text-lg mt-0.5 transition-transform duration-200 group-hover:scale-110 group-hover:rotate-6">
                       {agent.emoji}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium text-gray-900 truncate">
+                      <div className="font-semibold text-ink truncate">
                         {agent.name}
                       </div>
-                      {agent.readOnly && <div className="mt-1 text-xs text-indigo-500">公开助手</div>}
+                      {agent.readOnly && <div className="mt-1 text-xs text-sketch0">公开助手</div>}
                       {agent.description && (
-                        <div className="text-xs text-gray-500 mt-1 line-clamp-1">
+                        <div className="text-xs text-slate-500 mt-1 line-clamp-1">
                           {agent.description}
                         </div>
                       )}
                       {agent.updatedAt && (
-                        <div className="text-xs text-gray-400 mt-1">
+                        <div className="text-xs text-slate-400 mt-1">
                           {formatDateTime(agent.updatedAt)}
                         </div>
                       )}

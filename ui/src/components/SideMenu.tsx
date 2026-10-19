@@ -105,15 +105,15 @@ const SideMenu: React.FC<SideMenuProps> = ({ onNavigate }) => {
 
   return (
     <div className="px-4 flex flex-col h-full">
-      <div className="min-h-20 w-full shrink-0 flex items-center border-b border-slate-200">
+      <div className="min-h-20 w-full shrink-0 flex items-center border-b-2 border-dashed border-sketch">
         <div className="flex items-center gap-2.5">
-          <button type="button" onClick={() => goTo("/")} className="flex cursor-pointer items-center gap-2.5 rounded-lg text-left" aria-label="ExoBrain 首页">
+          <button type="button" onClick={() => goTo("/")} className="flex cursor-pointer items-center gap-2.5 rounded-xl text-left transition-transform duration-200 hover:-translate-y-0.5" aria-label="ExoBrain 首页">
             <ExoBrainLogo />
-            <span className="text-xl font-semibold tracking-tight text-slate-900">ExoBrain</span>
+            <span className="text-xl font-bold tracking-tight text-ink">ExoBrain</span>
           </button>
           {IS_PUBLIC_DEMO && (
-            <span className="text-xs text-indigo-600 bg-indigo-50 rounded px-1.5 py-0.5">
-              公开演示
+            <span className="rounded-full bg-sketch px-2 py-0.5 text-xs font-semibold text-pencil">
+              公开演示 ✎
             </span>
           )}
         </div>
@@ -136,7 +136,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ onNavigate }) => {
           items={items}
         />
       </div>
-      {IS_PUBLIC_DEMO ? <div className="shrink-0 border-t border-slate-200 py-3"><Button block href="/admin/" icon={<LoginOutlined />}>账号登录</Button></div> : <AccountMenu />}
+      {IS_PUBLIC_DEMO ? <div className="shrink-0 doodle-divider pt-3 pb-3"><Button block href="/admin/" icon={<LoginOutlined />}>账号登录</Button></div> : <AccountMenu />}
       {!IS_PUBLIC_DEMO && <AddAgentModal
         open={isAddAgentModalOpen}
         onClose={toggleAddAgentModal}

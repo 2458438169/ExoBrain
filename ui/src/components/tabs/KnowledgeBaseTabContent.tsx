@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+﻿import React, { useMemo } from "react";
 import { Button, Divider } from "antd";
 import { PlusOutlined, BookOutlined, LockOutlined, GlobalOutlined } from "@ant-design/icons";
 import type { KnowledgeBase } from "../../types";
@@ -42,9 +42,9 @@ const KnowledgeBaseTabContent: React.FC<KnowledgeBaseTabContentProps> = ({
         新建知识库
       </Button>
       <Divider /></>}
-      <div className="flex-1 overflow-y-scroll rounded-lg">
+      <div className="flex-1 overflow-y-scroll rounded-2xl">
         {knowledgeBases.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-gray-400">
+          <div className="flex flex-col items-center justify-center h-full text-pencil/40">
             <BookOutlined className="text-4xl mb-2" />
             <p className="text-sm">暂无知识库</p>
             <p className="text-xs mt-1">
@@ -65,17 +65,17 @@ const KnowledgeBaseTabContent: React.FC<KnowledgeBaseTabContentProps> = ({
               <button type="button" aria-label={`打开知识库 ${kb.name}`}
                 key={kb.knowledgeBaseId}
                 onClick={() => onSelectKnowledgeBase?.(kb.knowledgeBaseId)}
-                className="w-full text-left px-3 py-2.5 rounded-lg bg-white cursor-pointer transition-all hover:bg-gray-100 hover:shadow-sm"
+                className="group w-full text-left px-3 py-2.5 rounded-xl border border-transparent bg-white cursor-pointer shadow-[2px_2px_0_0_rgba(43, 39, 36,0.08)] transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-0.5 hover:border-sketch hover:shadow-[3px_3px_0_0_rgba(43, 39, 36,0.16)]"
               >
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-200 to-purple-200 flex items-center justify-center shrink-0 text-lg mt-0.5">
+                  <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-sketch to-sketch flex items-center justify-center shrink-0 text-lg mt-0.5 transition-transform duration-200 group-hover:scale-110 group-hover:rotate-6">
                     {kb.emoji}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-medium text-gray-900 truncate">
+                    <div className="font-semibold text-ink truncate">
                       {kb.name}
                     </div>
-                    <div className="mt-1 text-xs text-indigo-500">
+                    <div className="mt-1 text-xs text-sketch0">
                       {group.publicResource ? (kb.readOnly ? "公开资料 · 只读" : "公开资料 · 可管理") : "私有 · 仅当前账号"}
                     </div>
                     {kb.description && (

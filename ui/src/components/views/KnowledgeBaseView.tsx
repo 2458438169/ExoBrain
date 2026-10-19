@@ -136,6 +136,7 @@ const KnowledgeBaseContent: React.FC<{ knowledgeBaseId?: string }> = ({ knowledg
       title: "文件名",
       dataIndex: "filename",
       key: "filename",
+      width: 240,
       render: (text: string, record: DocumentWithIngestion) => (
         <div className="flex min-w-0 items-start gap-2">
           <FileOutlined className="mt-1 shrink-0 text-slate-400" />
@@ -157,14 +158,14 @@ const KnowledgeBaseContent: React.FC<{ knowledgeBaseId?: string }> = ({ knowledg
       dataIndex: "filetype",
       key: "filetype",
       width: 100,
-      responsive: ["sm"],
+      responsive: ["lg"],
     },
     {
       title: "大小",
       dataIndex: "size",
       key: "size",
       width: 100,
-      responsive: ["sm"],
+      responsive: ["lg"],
       render: (size: number) => formatFileSize(size),
     },
     {
@@ -393,6 +394,7 @@ const KnowledgeBaseContent: React.FC<{ knowledgeBaseId?: string }> = ({ knowledg
                 dataSource={documents}
                 rowKey="id"
                 tableLayout="fixed"
+                scroll={{ x: 600 }}
                 pagination={{
                   pageSize: 10,
                   // showSizeChanger: true,
