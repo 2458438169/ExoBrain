@@ -160,3 +160,36 @@ Embedding 端点 503，非代码问题）；`RunResultGuardIntegrationTest` 现 
 
 - 仍未完成：真实付费模型 / Embedding 对比（端点 503）、GitHub Actions 远端执行、验收方 R3 的 HTTP 故障注入脚本重跑。
 - 前端 20 个文件（含主题与他人改动）仍未提交，按用户要求先不提交。
+
+## 9. 生产：接入 SiliconFlow 向量模型（2026-10-19）
+
+中转站 `emrank.tech` 的 `/v1/embeddings` 持续 `503 completion_backlog`（本轮再探仍是 503），用户新增了
+SiliconFlow 的 `BAAI/bge-m3`。新条目当时是**按语言模型（LLM）登记的**，并且被设成了默认语言模型：
+`kind=LLM`、`dimensions=NULL`，`default_model=true`。这有两个后果：向量入口根本不走它（`embed()` 只接受
+`EMBEDDING`），同时默认语言模型指向了一个向量模型。两步修正：
+
+- **类型不能改**：`ModelCatalogService.update` 明确拒绝修改已有模型的 `kind`；API Key 的 AES-GCM AAD 就是
+  model id，所以按**同一 id** 删除 + 重建（沿用密文，无需明文）：`EMBEDDING` / `openai` /
+  `https://api.siliconflow.cn/v1` / `BAAI/bge-m3` / `dimensions=1024` / 启用 / 非默认。同一事务里把默认
+  语言模型还给 `deepseek-chat`。
+- **设为默认向量模型**（`PATCH /api/admin/models/siliconflow-bge-m3 {"defaultModel":true}`）：新建知识库
+  将绑定它。`ExoBrain 公开演示知识库` 仍绑 `bge-m3`（18 个既有向量来自中转站，不动）。
+- **`test` 知识库换绑**（`POST /api/admin/models/siliconflow-bge-m3/knowledge-bases`，
+  `vectorSpaceUnchanged=true`，`rebound=1`）：该库 0 chunk，不存在向量漂移。
+
+验证（全部为生产真实调用）：
+
+| 检查 | 结果 |
+| --- | --- |
+| `POST /api/admin/models/siliconflow-bge-m3/test`（管理员会话 + CSRF） | 200，`向量模型连接正常`，273 ms，`dimensions=1024` |
+| 同一接口测 `bge-m3`（对照，中转站） | 200 但 `success=false`，`向量服务暂不可用`（914 ms） |
+| `POST /api/documents/{id}/ingestion/retry`（document owner = demo，管理员身份 404 说明归属校验生效） | 2026-10-19 06:24:18Z 排队 → 06:24:20Z `SUCCEEDED`，attempts=1，`TEST.MD` 落 1 chunk / 1024 维，`index_version=body-v1`，活动 revision `cb5e9496-…` |
+| 真实运行（新建一次性助手只挂 `test`，提问后跟踪 `exobrain_run`） | `SUCCEEDED`，8.66 s/2404 tokens；事件 `MODEL_CALL → TOOL_CALL(KnowledgeTool) → RETRIEVAL(OK) → MODEL_CALL → PERSIST_MESSAGE`；答复引用 `TEST.MD` 第 1 行、`excerpt="111"`、`indexRevision=cb5e9496-…` |
+
+- 备份：`backups/pre-siliconflow-20261019-142138/`（`exobrain_model.csv`、`exobrain_kb_embedding.csv`、`agent.csv`）。
+- 回滚：把三张 CSV 的对应行写回（`siliconflow-bge-m3` 恢复为 LLM 行 / `bge-m3` 恢复默认 /
+  `test` 换回 `bge-m3`），`TEST.MD` 的 1 个 chunk 可删或重新导入。
+- 验证用的临时助手与会话已删除（3 个助手、2 个会话），生产仍是 2 个助手、2 个知识库。
+- **顺带发现（未改代码）**：`POST /api/agents` 缺 `chatOptions` 返回 500（`IllegalArgumentException:
+  Chat options cannot be null`），`POST /api/chat-messages` 传 `role: "USER"` 这类大小写错误也返回 500
+  （`HttpMessageNotReadableException` 无人处理）。两处都应该是 400。
