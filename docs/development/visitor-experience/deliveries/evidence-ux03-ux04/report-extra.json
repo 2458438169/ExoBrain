@@ -1,0 +1,22 @@
+[
+  {
+    "id": "R05-showcase-readonly",
+    "ok": true,
+    "detail": "{\"readOnlyTag\":true,\"hasSender\":false,\"hasCancel\":false,\"hasFollowUps\":false,\"hasCitationToggle\":true,\"noRunFetch\":true}"
+  },
+  {
+    "id": "R05-showcase-no-run",
+    "ok": true,
+    "detail": "{\"chatPosts\":0,\"sessionsCreated\":0}"
+  },
+  {
+    "id": "UX03-showcase-start-sends",
+    "ok": true,
+    "detail": "{\"sessionsCreated\":1,\"chatPosts\":1,\"keys\":[\"a4265a49-6611-4aae-b06c-4b55b31978e1\"]}"
+  },
+  {
+    "id": "UX03-followup-sends",
+    "ok": true,
+    "detail": "{\"chatPosts\":2,\"keys\":[\"a4265a49-6611-4aae-b06c-4b55b31978e1\",\"b915f5ff-6a16-42b1-a5ee-161de5316137\"]}"
+  }
+]

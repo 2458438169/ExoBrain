@@ -28,8 +28,8 @@ public class DemoRunService {
     }
 
     public RunViews.PublicRunList list(String visitorOwner, String sessionId) {
-        requireVisible(visitorOwner, sessionId);
-        return query.listPublic(sessionId);
+        String id = requireVisible(visitorOwner, sessionId);
+        return query.listPublic(id, isOwner(visitorOwner, id));
     }
 
     public RunViews.PublicDetail find(String visitorOwner, String runId) {
@@ -37,22 +37,38 @@ public class DemoRunService {
         if (run.origin() != RunOrigin.DEMO) {
             throw missing();
         }
-        requireVisible(visitorOwner, run.sessionId());
-        return query.detailPublic(run);
+        String sessionId = requireVisible(visitorOwner, run.sessionId());
+        return query.detailPublic(run, isOwner(visitorOwner, sessionId));
     }
 
-    private void requireVisible(String visitorOwner, String sessionId) {
+    /**
+     * 确认可以读这个会话，返回规范化后的会话 ID。
+     *
+     * <p>两种允许：访客自己的会话（Cookie 哈希匹配），或已发布到
+     * {@code app.demo.showcase-session-ids} 的公开精选。其余一律 404，不区分“不存在”与“无权访问”。</p>
+     */
+    private String requireVisible(String visitorOwner, String sessionId) {
         String id = canonicalId(sessionId);
         if (id == null || visitorOwner == null) {
             throw missing();
         }
-        if (sessions.find(id, access.agentId(), visitorOwner) != null) {
-            return;
+        if (isOwner(visitorOwner, id)) {
+            return id;
         }
         if (access.isShowcase(id) && sessions.findShowcase(id, access.agentId()) != null) {
-            return;
+            return id;
         }
         throw missing();
+    }
+
+    /**
+     * 当前访客是否就是这个会话的所有者。
+     *
+     * <p>只有所有者才拿到触发/答案消息关联：刷新后把没有答案的失败、取消、中断运行挂回原问题需要它，
+     * 而公开只读示例不能因此获得别人的会话结构。</p>
+     */
+    private boolean isOwner(String visitorOwner, String sessionId) {
+        return visitorOwner != null && sessions.find(sessionId, access.agentId(), visitorOwner) != null;
     }
 
     private static String canonicalId(String id) {

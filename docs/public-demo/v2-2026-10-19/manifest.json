@@ -1,0 +1,72 @@
+{
+  "version": "v2-2026-10-19",
+  "verifiedAt": "2026-10-19",
+  "supersedes": "v1-2026-10-14 (docs/public-demo/*.md, frozen evaluation corpus kept byte-identical)",
+  "purpose": "简历访客体验用的新版公开资料。只上传本清单列出的正文文档。",
+  "documents": [
+    {
+      "file": "01_product_guide.md",
+      "title": "ExoBrain 产品导览",
+      "sha256": "177e48ad96039972de8455c24f541a29d26f74832a729ebd6139f9941a891f38",
+      "bytes": 3154,
+      "answers": [
+        "这个项目能做什么",
+        "我在这里能亲自体验什么",
+        "哪些能力有边界"
+      ]
+    },
+    {
+      "file": "02_engineering_cases.md",
+      "title": "ExoBrain 工程案例",
+      "sha256": "4034f42eb82d473b1f3935e82a3d50c4dfcd2ec73e1efd44316561cfa6d74c31",
+      "bytes": 5238,
+      "answers": [
+        "重复点击发送会不会跑两次",
+        "取消后模型迟到返回会怎样",
+        "一个任务的行锁为什么影响别的任务"
+      ]
+    },
+    {
+      "file": "03_contribution_map.md",
+      "title": "ExoBrain 能力归属",
+      "sha256": "f9832e859e3e6c52a0a15842cccf2f5b9f86fc23d340d77172a49239e44b9c1f",
+      "bytes": 4857,
+      "answers": [
+        "基于什么项目、保留了哪些能力",
+        "本仓库新增了什么",
+        "哪些已实现但未验证、哪些还没做"
+      ]
+    }
+  ],
+  "prompt": {
+    "file": "agent-system-prompt.md",
+    "sha256": "d75bc97531e158c8a14f1ab6771d427e3d08d8bab8c4dff98b101738cf1d3323",
+    "bytes": 1608,
+    "note": "对话助手的系统提示词，只写入助手配置，不上传到知识库。"
+  },
+  "excludedFromUpload": [
+    "agent-system-prompt.md",
+    "manifest.json",
+    "docs/public-demo/99_test_questions.md",
+    "docs/development/**",
+    "evaluation/**"
+  ],
+  "recommendedQuestions": [
+    {
+      "label": "30 秒了解这个项目",
+      "question": "用一句话和三个要点说明 ExoBrain 能做什么，并指出我可以亲自体验的能力。"
+    },
+    {
+      "label": "看一条有原文出处的回答",
+      "question": "这个项目如何让我核对答案的依据？请说明引用和原文的关系。"
+    },
+    {
+      "label": "作者新增了哪些能力",
+      "question": "在上游 JChatMind 的基础上，这个仓库新增了哪些能力？请区分继承和新增。"
+    }
+  ],
+  "followUps": [
+    "重复点击发送会不会跑两次？",
+    "点了取消之后模型又返回了，会发生什么？"
+  ]
+}

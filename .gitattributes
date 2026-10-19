@@ -8,3 +8,5 @@
 /evaluation/corpus/** text eol=lf
 /evaluation/datasets/** text eol=lf
 /docs/public-demo/*.md text eol=lf
+/docs/public-demo/v2-2026-10-19/** text eol=lf
+/docs/public-demo/README.md text eol=lf

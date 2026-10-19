@@ -1,0 +1,157 @@
+[
+  {
+    "id": "M01-home-320",
+    "ok": true,
+    "detail": "{\"noOverflow\":true,\"primaryVisible\":true,\"primaryBottom\":392,\"firstRowVisible\":true,\"rowBottom\":444,\"viewport\":844}"
+  },
+  {
+    "id": "M01-home-390",
+    "ok": true,
+    "detail": "{\"noOverflow\":true,\"primaryVisible\":true,\"primaryBottom\":372,\"firstRowVisible\":true,\"rowBottom\":424,\"viewport\":844}"
+  },
+  {
+    "id": "M01-home-768",
+    "ok": true,
+    "detail": "{\"noOverflow\":true,\"primaryVisible\":true,\"primaryBottom\":351,\"firstRowVisible\":true,\"rowBottom\":403,\"viewport\":900}"
+  },
+  {
+    "id": "M01-home-1366",
+    "ok": true,
+    "detail": "{\"noOverflow\":true,\"primaryVisible\":true,\"primaryBottom\":314,\"firstRowVisible\":true,\"rowBottom\":366,\"viewport\":900}"
+  },
+  {
+    "id": "S01/S02-one-intent",
+    "ok": true,
+    "detail": "{\"sessionsCreated\":1,\"chatPosts\":1,\"keys\":[\"2edda838-4386-44a2-bae1-7da971433ad5\"]}"
+  },
+  {
+    "id": "UX03-input-states",
+    "ok": true,
+    "detail": "{\"stopButtons\":1,\"totalButtons\":1,\"textareaReadOnly\":false,\"textareaDisabled\":false,\"hint\":\"✨ 正在执行操作正在检索资料\"}"
+  },
+  {
+    "id": "R01-compact-citations",
+    "ok": true,
+    "detail": "{\"hasToggle\":true,\"text\":\"来源：架构说明.md · 使用指南.md共 6 处引用查看全部依据\",\"answers\":1,\"expandedCitations\":0,\"processSummary\":\"执行过程已完成执行 7.8 s1 次工具调用demo-model查看过程\",\"longAnswerButton\":\"展开完整回答（共 2346 字）\"}"
+  },
+  {
+    "id": "R01-process-summary",
+    "ok": true,
+    "detail": "执行过程已完成执行 7.8 s1 次工具调用demo-model查看过程"
+  },
+  {
+    "id": "R01-long-answer",
+    "ok": true,
+    "detail": "展开完整回答（共 2346 字）"
+  },
+  {
+    "id": "R01-expanded-citations",
+    "ok": true,
+    "detail": "{\"citationButtons\":6,\"groups\":[\"架构说明.md本条文档 4 处片段\",\"回答生成前先检索公开知识库，命中的片段按来源哈希登记。\",\"哈希 abc123hashvalue0 · 片段 chunk-1 · 索引 v2 / r3\"],\"hasOldIndexNote\":true}"
+  },
+  {
+    "id": "R01-process-expanded",
+    "ok": true,
+    "detail": "{\"events\":5,\"toolSections\":[\"用量 1200 / 260（共 1460） tokens\",\"工具调用\",\"工具结果\"],\"open\":true}"
+  },
+  {
+    "id": "R01-long-answer-expanded",
+    "ok": true,
+    "detail": "{\"before\":{\"height\":506,\"clientHeight\":506,\"scrollHeight\":2257},\"after\":{\"height\":2257,\"clipped\":false,\"hasCollapse\":true}}"
+  },
+  {
+    "id": "R03-html404",
+    "ok": true,
+    "detail": "{\"hasBanner\":true,\"misreported\":false,\"hasRetry\":true,\"answerVisible\":true}"
+  },
+  {
+    "id": "R03-json404",
+    "ok": true,
+    "detail": "{\"hasBanner\":true,\"misreported\":false,\"hasRetry\":true,\"answerVisible\":true}"
+  },
+  {
+    "id": "R03-500",
+    "ok": true,
+    "detail": "{\"hasBanner\":true,\"misreported\":false,\"hasRetry\":true,\"answerVisible\":true}"
+  },
+  {
+    "id": "R03-network",
+    "ok": true,
+    "detail": "{\"hasBanner\":true,\"misreported\":false,\"hasRetry\":true,\"answerVisible\":true}"
+  },
+  {
+    "id": "R04-empty-run-list",
+    "ok": true,
+    "detail": "{\"count\":1,\"head\":\"ExoBrain\\n账号登录\\n请用一句话说明这个项目\\n我的体验记录\\n已连接\\nAgent：公开资料助手\\n（旧历史）这个项目用什么数据库？\\n旧回答\\n\\n这条历史消息来自还没有运行记录的时期。\\n\\n这条历史消息没有执行记录\\n\\n这些结论的原文在哪个文档里？可以指出我可以核对的段落吗？\\n作者新增的能力有公开证据吗？分别对应哪份资料？\\n\\nEnter 发送 · Shift + Enter 换行\\n\\n历史仅对当前浏览器可见；回答会标注来源，执行过程可展开查看。\\n\\n请求失败（HTTP 404）\"}"
+  },
+  {
+    "id": "R03-runid-without-record",
+    "ok": true,
+    "detail": "ExoBrain\n账号登录\n请用一句话说明这个项目\n我的体验记录\n已连接\nAgent：公开资料助手\n请用一句话说明这个项目，并给出三个要点。\n\n未能读取这条问题对应的执行记录。\n\n一句话结论\n\nExoBrain 是一个把「检索公开资料 → 形成有出处的回答 → 核对原文」串起来的 Agent 工作台。\n\n三个要点\n检索优先：每次回答先检索公开知识库，引用由服务端校验后写入消息 metadata。\n"
+  },
+  {
+    "id": "R03-stale-keeps-data",
+    "ok": true,
+    "detail": "{\"stale\":true,\"answerVisible\":true,\"process\":true}"
+  },
+  {
+    "id": "R01-answer-start-visible",
+    "ok": true,
+    "detail": "{\"offsetFromTop\":70,\"answerHeight\":708,\"containerHeight\":554,\"nearBottom\":false}"
+  },
+  {
+    "id": "P01-activity-state",
+    "ok": true,
+    "detail": "ExoBrain\n账号登录\n请用一句话说明这个项目\n我的体验记录\n已连接\nAgent：公开资料助手\n请用一句话说明这个项目，并给出三个要点。\n✨ 正在执行操作\n正在检索资料\n\n正在执行 · 可以随时停止\n\n历史仅对当前浏览器可见；回答会标注来源，执行过程可展开查看。\n\n请求失败（HTTP 404）"
+  },
+  {
+    "id": "R02-new-answer-chip",
+    "ok": true,
+    "detail": "{\"hasChip\":true,\"scrollTop\":0,\"offsetFromTop\":786,\"scrollBefore\":0}"
+  },
+  {
+    "id": "R02-jump-to-new-answer",
+    "ok": true,
+    "detail": "{\"offsetFromTop\":282}"
+  },
+  {
+    "id": "UX03-cancel-calls-api",
+    "ok": true,
+    "detail": "{\"cancelCalls\":1,\"buttons\":[{\"cls\":\"ant-btn css-var-_r_0_ ant-btn-circle ant-btn-text ant-btn-color-primary ant-btn-variant-text ant-btn-icon-only ant-sender-actions-btn ant-sender-actions-btn-loading-button\",\"label\":null,\"title\":\"Stop loading\"}],\"cancelling\":true}"
+  },
+  {
+    "id": "UX03-cancel-not-terminal",
+    "ok": true,
+    "detail": "公开资料助手\n请用一句话说明这个项目，并给出三个要点。\n✨ 正在取消\n已登记停止请求，等待运行状态确认\n\n已请求停止：后续检查点不再发起新的工具调用；已经发出的外部请求无法撤回\n\n正在取消：停止请求已登记，终态以运行状态为准\n\n历史仅对当前浏览器可见；回答会标注来源，执行过程可展开查看。\n\n请求失败（HTTP 404）"
+  },
+  {
+    "id": "UX03-cancel-terminal-converges",
+    "ok": true,
+    "detail": "ExoBrain\n账号登录\n请用一句话说明这个项目\n我的体验记录\n已连接\nAgent：公开资料助手\n请用一句话说明这个项目，并给出三个要点。\n\n本次运行已结束。\n\nEnter 发送 · Shift + Enter 换行\n\n历史仅对当前浏览器可见；回答会标注来源，执行过程可展开查看。"
+  },
+  {
+    "id": "P02-late-event-ignored",
+    "ok": true,
+    "detail": "{\"before\":false,\"after\":false}"
+  },
+  {
+    "id": "M03-keyboard-expand",
+    "ok": true,
+    "detail": "{\"focusRing\":{\"outlineStyle\":\"dashed\",\"outlineWidth\":\"2px\",\"tag\":\"BUTTON\",\"text\":\"来源：架构说明.md ·\"},\"expandedByKeyboard\":true}"
+  },
+  {
+    "id": "M03-drawer-keyboard",
+    "ok": true,
+    "detail": "{\"open\":true,\"title\":\"引用来源架构说明.md\",\"body\":\" 预览 源码只读文档已更新，原引用位置不可核验下面显示的是文档的当前版本，未对原引用范围做高亮。第 1 行：公开资料演示内容。\\n第 2 行：公开资料演示内容。\\n\"}"
+  },
+  {
+    "id": "M03-focus-returns",
+    "ok": true,
+    "detail": "{\"drawerOpen\":false,\"activeLabel\":\"打开来源 1：架构说明.md\",\"activeTag\":\"BUTTON\"}"
+  },
+  {
+    "id": "M03-reduced-motion",
+    "ok": true,
+    "detail": "{\"transitionDuration\":\"1e-05s\",\"animationDuration\":\"1e-05s\"}"
+  }
+]

@@ -112,6 +112,23 @@ public class DocumentFacadeServiceImpl implements DocumentFacadeService {
     }
 
     @Override
+    public void requireReadableDocument(String documentId, Predicate<String> mayReadKb) {
+        Objects.requireNonNull(mayReadKb, "A document access policy is required");
+        String id;
+        try {
+            id = UUID.fromString(documentId).toString();
+            if (!id.equalsIgnoreCase(documentId)) throw DocumentContentException.notFound();
+        } catch (IllegalArgumentException | NullPointerException invalidId) {
+            throw DocumentContentException.notFound();
+        }
+        Document document = documentMapper.selectById(id);
+        // 与读取原文同一条策略：授权的是查到的这条记录，不是请求里的字符串。
+        if (document == null || !id.equalsIgnoreCase(document.getId()) || !mayReadKb.test(document.getKbId())) {
+            throw DocumentContentException.notFound();
+        }
+    }
+
+    @Override
     public GetDocumentContentResponse getDocumentContent(String documentId, Predicate<String> mayReadKb) {
         Objects.requireNonNull(mayReadKb, "A document access policy is required");
         String id;

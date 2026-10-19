@@ -42,11 +42,18 @@ public final class RunViews {
                               Integer retryAttempt, String toolName, String detail) {
     }
 
+    /**
+     * 游客/公开精选的运行摘要（字段白名单）。
+     *
+     * <p>{@code triggeringMessageId} 与 {@code answerMessageId} 只在<b>访客自己的会话</b>上有值：刷新后要把
+     * 没有答案的失败/取消/中断运行挂回它原来的问题，只能依赖服务端关联。公开只读示例仍为 {@code null}，
+     * 不能凭这两个字段推断别人的会话结构。</p>
+     */
     public record PublicSummary(String runId, String status, boolean interrupted, String agentName,
                                 String modelName, String submittedAt, String startedAt, String finishedAt,
                                 Long durationMs, Long queueDurationMs, Integer inputTokens,
                                 Integer outputTokens, Integer totalTokens, String errorCode,
-                                boolean traceIncomplete) {
+                                boolean traceIncomplete, String triggeringMessageId, String answerMessageId) {
     }
 
     public record PublicDetail(PublicSummary summary, List<PublicEvent> events) {

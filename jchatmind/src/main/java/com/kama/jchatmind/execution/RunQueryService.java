@@ -58,15 +58,19 @@ public class RunQueryService {
         return new RunViews.Detail(summary, events);
     }
 
-    RunViews.PublicRunList listPublic(String sessionId) {
+    /**
+     * @param ownerView 当前访客是否就是该会话的所有者。只有所有者才会拿到触发/答案消息关联；
+     *                  公开只读示例继续使用没有内部标识的受限投影。
+     */
+    RunViews.PublicRunList listPublic(String sessionId, boolean ownerView) {
         Instant now = Instant.now();
         List<RunViews.PublicSummary> views = runs.findBySessionId(sessionId, RunOrigin.DEMO).stream()
-                .map(run -> publicSummary(run, now)).toList();
+                .map(run -> publicSummary(run, now, ownerView)).toList();
         return new RunViews.PublicRunList(views);
     }
 
-    RunViews.PublicDetail detailPublic(RunSummary run) {
-        RunViews.PublicSummary summary = publicSummary(run, Instant.now());
+    RunViews.PublicDetail detailPublic(RunSummary run, boolean ownerView) {
+        RunViews.PublicSummary summary = publicSummary(run, Instant.now(), ownerView);
         List<RunViews.PublicEvent> events = runs.findEvents(run.runId()).stream()
                 .map(RunQueryService::publicEvent).toList();
         return new RunViews.PublicDetail(summary, events);
@@ -91,14 +95,16 @@ public class RunQueryService {
                 run.totalTokens(), run.errorCode(), run.traceIncomplete(), RunViews.iso(run.heartbeatAt()));
     }
 
-    RunViews.PublicSummary publicSummary(RunSummary run, Instant now) {
+    RunViews.PublicSummary publicSummary(RunSummary run, Instant now, boolean ownerView) {
         boolean interrupted = interrupted(run, now);
         return new RunViews.PublicSummary(run.runId(),
                 interrupted ? RunStatus.INTERRUPTED.name() : run.status().name(), interrupted,
                 run.agentNameAtStart(), run.modelNameAtStart(), RunViews.iso(run.submittedAt()),
                 RunViews.iso(run.startedAt()), RunViews.iso(run.finishedAt()), run.durationMs(),
                 run.queueDurationMs(), run.inputTokens(), run.outputTokens(), run.totalTokens(),
-                run.errorCode(), run.traceIncomplete());
+                run.errorCode(), run.traceIncomplete(),
+                ownerView ? run.triggeringMessageId() : null,
+                ownerView ? run.answerMessageId() : null);
     }
 
     /**

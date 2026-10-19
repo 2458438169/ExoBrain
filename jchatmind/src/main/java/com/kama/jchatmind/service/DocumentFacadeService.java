@@ -19,6 +19,15 @@ public interface DocumentFacadeService {
     /** Evaluate the server-side KB policy on the loaded document before accessing its file. */
     GetDocumentContentResponse getDocumentContent(String documentId, Predicate<String> mayReadKb);
 
+
+    /**
+     * 只判定「这条文档是否允许当前访问者读取」，不读文件。
+     *
+     * <p>导入状态这类元数据读取也要用同一条 KB 策略：游客能看公开文档的导入状态，看不到私有文档。</p>
+     *
+     * @throws com.kama.jchatmind.exception.DocumentContentException 文档不存在或不允许读取（按 404 处理）
+     */
+    void requireReadableDocument(String documentId, Predicate<String> mayReadKb);
     CreateDocumentResponse createDocument(CreateDocumentRequest request);
 
     CreateDocumentResponse uploadDocument(String kbId, MultipartFile file);
