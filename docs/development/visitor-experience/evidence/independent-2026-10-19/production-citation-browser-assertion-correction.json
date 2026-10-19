@@ -1,0 +1,29 @@
+{
+  "kind": "acceptance-harness-expectation-correction",
+  "productCodeChangedForThisCorrection": false,
+  "previousExpectation": {
+    "nonOwnerWrite": 403,
+    "showcaseCancel": 403
+  },
+  "observedAndCorrectExpectation": {
+    "nonOwnerWrite": 404,
+    "showcaseCancel": 403
+  },
+  "originalFailedLogSha256": "54d1c93da0377d7f6e122d9627208c6cce526ef63fb09c033069c3aa1ab38a42",
+  "codeEvidence": {
+    "file": "jchatmind/src/main/java/com/kama/jchatmind/demo/DemoChatService.java",
+    "commit": "6774aeee73b4d2218d1d5a67b6c61ef836394867",
+    "ownerCheckLine": 94,
+    "editableCheckLine": 95,
+    "queueSubmissionLine": 104,
+    "reason": "send checks session ownership first; a different visitor receives missing() / HTTP 404 before the read-only or queue submission path."
+  },
+  "addedAssertion": "Each attempted write/cancel leaves exactly the original SUCCEEDED run.",
+  "rerun": {
+    "file": "production-citation-showcases-browser-final.json",
+    "passed": true,
+    "rawSha256": "7a49be84796374e38503ec04fc3527df70913aec454307f5b745db5985594287"
+  },
+  "browserScriptSha256": "7a6ad533ce6bf8422ffb8a67d5a4cb5dea54f3f965e3bbaf04bf432a8ce75e10",
+  "failedLogRetainedLocally": true
+}

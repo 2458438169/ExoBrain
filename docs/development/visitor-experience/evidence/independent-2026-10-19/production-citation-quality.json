@@ -1,0 +1,59 @@
+{
+  "release": "20261020-ux-6774aee",
+  "productionAttempts": 4,
+  "runtimeSucceeded": 4,
+  "contentAccepted": 3,
+  "reviews": [
+    {
+      "evidence": "production-citation-Q01-attempt1.json",
+      "sessionId": "676c6f77-ec66-44d9-8431-48bf7117f63d",
+      "runId": "6c2ed4f8-cc55-426f-8c01-c613653ea38f",
+      "runtimeStatus": "SUCCEEDED",
+      "contentVerdict": "PASS_WITH_LENGTH_NOTE",
+      "selectedForShowcase": true,
+      "note": "产品能力 [1]、可体验路径 [2]、游客范围 [3] 分别与所指行范围相符；392 字，超短答目标。",
+      "answerSha256": "f4a2013d3678bbb60ce0414fc5c6f0eb4823a8599427a2e759355f49d7103bc9",
+      "answerChars": 392,
+      "firstAnswerMs": 13252.399999976158
+    },
+    {
+      "evidence": "production-citation-Q02-attempt1.json",
+      "sessionId": "5db5929e-1cd5-411d-b4f2-517855b7257d",
+      "runId": "d5a00dea-b59c-46b7-bd1c-c75669361eef",
+      "runtimeStatus": "SUCCEEDED",
+      "contentVerdict": "FAIL",
+      "selectedForShowcase": false,
+      "note": "第 1 点把本轮登记与索引版本等精确字段归到产品导览 [2]，该段未支持这些细节。保留原答案，不发布精选。",
+      "answerSha256": "d82aec6e3d87bf4a5f47e221539f9419231066443f7964c1ffe2ea0a90dc922d",
+      "answerChars": 303,
+      "firstAnswerMs": 12321.599999964237
+    },
+    {
+      "evidence": "production-citation-Q02-attempt2.json",
+      "sessionId": "d1b413ce-4012-4b04-b55c-d4dec62cc577",
+      "runId": "5e6cfb28-5910-41b1-857d-752a5b95e5ab",
+      "runtimeStatus": "SUCCEEDED",
+      "contentVerdict": "PASS_WITH_LENGTH_NOTE",
+      "selectedForShowcase": true,
+      "note": "预览入口 [2]、本轮引用登记及索引字段 [3]、事实核验边界 [4]、测试核对 [1] 均有对应原文；396 字。",
+      "answerSha256": "d8453e400d81a32b4d4ed451bf052f531d7484d21f473354642128e040969879",
+      "answerChars": 396,
+      "firstAnswerMs": 8811.200000047684
+    },
+    {
+      "evidence": "production-citation-Q03-attempt1.json",
+      "sessionId": "a2a33cb1-155c-4582-925f-d7d006f1a5d4",
+      "runId": "0499ff00-dc32-441f-84d5-0dfa26f56e41",
+      "runtimeStatus": "SUCCEEDED",
+      "contentVerdict": "PASS_WITH_LENGTH_NOTE",
+      "selectedForShowcase": true,
+      "note": "继承 [1]、索引/引用/评测 [3]、运行与权限/模型/CI [3][2] 与具体行范围相符；607 字，偏长。",
+      "answerSha256": "5b0910fabcf13b40bcb2db58751aa04a9eabda157f439a256bb16323b581f6c6",
+      "answerChars": 607,
+      "firstAnswerMs": 12926
+    }
+  ],
+  "originalAnswersChanged": false,
+  "selectionNote": "Curated examples; neither random quality rate nor latency SLA. Failed review retained.",
+  "lengthTargetMet": false
+}

@@ -1,0 +1,17 @@
+{
+  "runId": 39283518802,
+  "totals": {
+    "unit": {
+      "tests": 291,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "postgres-it": {
+      "tests": 63,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    }
+  }
+}

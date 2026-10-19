@@ -160,7 +160,90 @@
     {
       "file": "citation-contract-measurements.json",
       "originalSha256": "86dbbcf1eb014b0d1529d44bdf5568e5550945f5d50505550e26c820b601e876"
+    },
+    {
+      "file": "production-citation-deployment-result.json",
+      "originalSha256": "18eb73b01ad2e20d5a388f74bdeeb8e9265ed209ba699a37ce6fccff43297d1d"
+    },
+    {
+      "file": "production-citation-http-after.json",
+      "originalSha256": "f5468a5206a561e5e2f9e36a5115c814a947af4196796fd4b3fda968eaed282a"
+    },
+    {
+      "file": "production-citation-candidate-index.json",
+      "originalSha256": "fd82950fd4be8edfedbe1b23296472c90a72f0f0bff8d9a51630645bba4eec67"
+    },
+    {
+      "file": "production-citation-release-ready.json",
+      "originalSha256": "1f93f665f10501b962673075686debafc4e73dc91483f8336b3c14953ca6c6b9"
+    },
+    {
+      "file": "production-citation-showcase-release.json",
+      "originalSha256": "2fb08044cf4a83029a1d61eb5428f5ad1589d54ff0f661a7438592a7deb94bc2"
+    },
+    {
+      "file": "production-citation-final.json",
+      "originalSha256": "71aaab7010a8fae0df10410b57583d78ae73ccede5d439a07de9500bb4a02c7c"
+    },
+    {
+      "file": "production-citation-quality.json",
+      "originalSha256": "8af4058595e728d4689c63f105e915184e2e53fa1fdf9ef96406020dd4c90b9b"
+    },
+    {
+      "file": "production-citation-Q01-attempt1.json",
+      "originalSha256": "f53197848f35125acc296d3ab8f93b7ad8aa6154a7097d01c4a77ba5d7e99ae9"
+    },
+    {
+      "file": "production-citation-Q02-attempt1.json",
+      "originalSha256": "1183fa68fc2d8325d41aad46d59b61a32dccc22ee96357438fc38b845197c1bd"
+    },
+    {
+      "file": "production-citation-Q02-attempt2.json",
+      "originalSha256": "5a92069d19297aa2bba18e9b4596b90a884e62c42cd1dd34de98ae6e6c7dd705"
+    },
+    {
+      "file": "production-citation-Q03-attempt1.json",
+      "originalSha256": "7c031c38da457e74b6c0bd674246112a90bd17467d276acf4a6160b000d95418"
+    },
+    {
+      "file": "production-citation-showcases-browser-final.json",
+      "originalSha256": "7a49be84796374e38503ec04fc3527df70913aec454307f5b745db5985594287"
+    },
+    {
+      "file": "production-citation-browser-assertion-correction.json",
+      "originalSha256": "79cd332a131a52e602fd7a638d33594d7fe8dce6e1f5ab48744d886692e4c35e"
+    },
+    {
+      "file": "ci-6774aee.json",
+      "originalSha256": "7fec9e7fcddce773c10e6f205f3a0bd4ee53e9df3ebeff81307294e91144b444"
+    },
+    {
+      "file": "ci-39283518802-tests.json",
+      "originalSha256": "11a47b8f36d5c7709c503efa1d0fea0550bce915013c1dfd05a0e09d3dcc553c"
+    },
+    {
+      "file": "acceptance-cleanup.json",
+      "originalSha256": "12bb25ec2d2f972d1bc11ce7123c962754eb50b1ddcb0a5ff914337a8d5cd77c"
     }
   ],
-  "qualityCorrection": "Initial 11/12 verdict superseded by exact-range review: 6/12. A new fixed 12-question batch has 9 usable answers; failures retained."
+  "qualityCorrection": "Initial 11/12 verdict superseded by exact-range review: 6/12. A new fixed 12-question batch has 9 usable answers; failures retained.",
+  "productionRelease": {
+    "date": "2026-10-20",
+    "commit": "6774aeee73b4d2218d1d5a67b6c61ef836394867",
+    "release": "20261020-ux-6774aee",
+    "ciRunId": 39283518802,
+    "ciConclusion": "success",
+    "productionHttpChecks": 20,
+    "curatedShowcasesPublished": 3,
+    "sourcesOpenedInFinalBrowserCheck": 10,
+    "productionAttempts": 4,
+    "runtimeSucceeded": 4,
+    "contentAccepted": 3,
+    "oldShowcaseUrlsRetained": 3,
+    "originalAnswersModified": false,
+    "functionalAcceptance": "passed",
+    "allContentAndLatencyTargetsMet": false,
+    "nextWork": "UX-07/08 remain unimplemented; see ../../follow-up.md"
+  },
+  "finalBrowserCheck": "The initial 403 expectation for non-owner showcase writes was corrected to the implemented 404 ownership response. Original failure hash and unchanged-run rerun evidence retained."
 }

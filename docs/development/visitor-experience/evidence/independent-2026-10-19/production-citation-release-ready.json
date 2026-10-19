@@ -1,0 +1,209 @@
+{
+  "inspectedAt": "2026-10-19T15:56:46.444143+00:00",
+  "root": "/opt/exobrain",
+  "app": {
+    "containerId": "232131028dfe341b6ab9134d7dc732cbdc4dd7b3f3ea6fdd4d2cd5ddd5b4b83f",
+    "image": "exobrain:20261019-ux-e105f0c",
+    "imageId": "sha256:97734ffe8417406fcd27309a8fcc89f64e1b4999a464b87047003892805fa241",
+    "running": true,
+    "health": "healthy",
+    "startedAt": "2026-10-19T15:26:29.58515792Z",
+    "memoryLimit": 536870912,
+    "mounts": [
+      {
+        "type": "bind",
+        "name": null,
+        "destination": "/run/secrets/models-encryption-key"
+      },
+      {
+        "type": "bind",
+        "name": null,
+        "destination": "/run/secrets/application-prod.yaml"
+      },
+      {
+        "type": "volume",
+        "name": "exobrain_documents",
+        "destination": "/app/data/documents"
+      },
+      {
+        "type": "bind",
+        "name": null,
+        "destination": "[REDACTED]"
+      }
+    ],
+    "labels": {
+      "com.docker.compose.project": "exobrain",
+      "com.docker.compose.service": "app",
+      "org.opencontainers.image.revision": "e105f0c488b65b4a82c2b43b327c59e4c4a23bb3"
+    }
+  },
+  "postgres": {
+    "containerId": "3b00ebc547a4ff93ef47ec1d20afd10dc4eca4dd4bd3757de036fbbddf9c266b",
+    "image": "pgvector/pgvector:pg17",
+    "imageId": "sha256:ac08538c6f8b9904c33c8224c5e5706dbe760aca29db1d096972b4052c22a75d",
+    "running": true,
+    "health": "healthy",
+    "startedAt": "2026-10-14T04:45:58.168362565Z",
+    "memoryLimit": 201326592,
+    "mounts": [
+      {
+        "type": "bind",
+        "name": null,
+        "destination": "/docker-entrypoint-initdb.d/10-schema.sql"
+      },
+      {
+        "type": "bind",
+        "name": null,
+        "destination": "/docker-entrypoint-initdb.d/20-users.sh"
+      },
+      {
+        "type": "volume",
+        "name": "exobrain_pgdata",
+        "destination": "/var/lib/postgresql/data"
+      },
+      {
+        "type": "bind",
+        "name": null,
+        "destination": "/run/secrets/db-password"
+      },
+      {
+        "type": "bind",
+        "name": null,
+        "destination": "/run/secrets/app-db-password"
+      }
+    ],
+    "labels": {
+      "com.docker.compose.project": "exobrain",
+      "com.docker.compose.service": "postgres",
+      "org.opencontainers.image.revision": null
+    }
+  },
+  "composeAppImage": "exobrain:20261019-ux-e105f0c",
+  "composeSha256": "a821591ed6b110dc74d188bf395a60625644c07ede5101adbbc93075e16a137c",
+  "publicOrigin": "https://exobrain.sharmoon.cc.cd",
+  "runtimeSettings": {
+    "APP_AUTH_PUBLIC_ORIGIN": "https://exobrain.sharmoon.cc.cd",
+    "SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE": "5",
+    "SPRING_PROFILES_ACTIVE": "prod",
+    "TZ": "Asia/Shanghai"
+  },
+  "productionJarSha256": "52054792ba726e63c352aceb4549d74d492eddbe2d3b9fa76b61bb17b8cf20b9",
+  "frontend": "/opt/exobrain/releases/20261019-ux-e105f0c",
+  "frontendIndexSha256": {
+    "ui": "15ce50d047452068a609cb094224c0cc0537645c032348e185143dd955fb5cb4",
+    "admin": "12e493ad5589557cbedc1d9191bfc4f2d4c45b246fd7f0d7c45590b1f7918f87"
+  },
+  "gatewayConfigSha256": "4f5d8db3188312d7255084d57c62e99f91f6f0a275693f555213369ff0177ddd",
+  "imagePlatform": {
+    "os": "linux",
+    "architecture": "amd64",
+    "user": "10001:10001"
+  },
+  "database": {
+    "database": "exobrain",
+    "serverVersion": "17.11 (Debian 17.11-1.pgdg12+2)",
+    "activeRunJobs": 0,
+    "activeIngestionJobs": 0,
+    "runCount": 10,
+    "documentCount": 6,
+    "modelCount": 4,
+    "knowledgeBaseCount": 2,
+    "runColumns": [
+      "agent_config_hash",
+      "agent_id",
+      "agent_name_at_start",
+      "answer_message_id",
+      "duration_ms",
+      "error_code",
+      "finished_at",
+      "heartbeat_at",
+      "id",
+      "input_tokens",
+      "model_catalog_id",
+      "model_name_at_start",
+      "origin",
+      "output_tokens",
+      "queue_duration_ms",
+      "schema_version",
+      "session_id",
+      "started_at",
+      "status",
+      "submitted_at",
+      "total_tokens",
+      "trace_incomplete",
+      "triggering_message_id"
+    ],
+    "queueColumns": [
+      "actor_auth_version",
+      "actor_scope",
+      "actor_session_hash",
+      "actor_user_id",
+      "agent_id",
+      "attempts",
+      "cancel_requested",
+      "created_at",
+      "demo_owner",
+      "error_code",
+      "fencing_token",
+      "finished_at",
+      "history_snapshot",
+      "id",
+      "idempotency_key",
+      "lease_expires_at",
+      "lease_owner",
+      "max_attempts",
+      "origin",
+      "request_digest",
+      "run_id",
+      "session_id",
+      "started_at",
+      "status",
+      "triggering_message_id",
+      "updated_at",
+      "user_input"
+    ]
+  },
+  "memoryKiB": {
+    "MemTotal": 1647536,
+    "MemAvailable": 580220,
+    "SwapTotal": 2097148,
+    "SwapFree": 2097148
+  },
+  "diskFreeBytes": 18794680320,
+  "loadAverage": [
+    0.16357421875,
+    0.107421875,
+    0.0927734375
+  ],
+  "nginxActive": true,
+  "cloudflaredActive": true,
+  "applicationConfigFormat": "yaml",
+  "appConfigSha256": "2101210f2bedf321ade4eb1fb8b8096bc72f6b00f091186a86b003db74106cef",
+  "demo": {
+    "enabled": null,
+    "agent-id": "4aea38f8-ef61-4b91-97ec-e4b309f4e218",
+    "public-kb-ids": [
+      "2ad5d74f-b2ef-4ad1-8c1a-4c5bdbcfa3eb",
+      "ff9fc2f9-880c-4ec1-9516-22d068536f00"
+    ],
+    "showcase-session-ids": [
+      "1f1e995e-dab4-43f1-8347-cf57da407e05",
+      "795cc4af-3d20-4720-b897-d140d15745a8",
+      "ca728ff0-3079-4a15-8688-f3ecb509e687"
+    ]
+  },
+  "publicAgent": {
+    "id": "4aea38f8-ef61-4b91-97ec-e4b309f4e218",
+    "model": "deepseek-chat",
+    "allowed_kbs": [
+      "ff9fc2f9-880c-4ec1-9516-22d068536f00"
+    ],
+    "allowed_tools": [],
+    "chat_options": {
+      "topP": 1.0,
+      "temperature": 0.2,
+      "messageLength": 16
+    },
+    "promptSha256": "34be88edc2963dc43398ffa51aecde4deef6d5f942461cb39538fa67ac9068b3"
+  }
+}

@@ -29,13 +29,13 @@
 
 ## 公开示例资料
 
-当前候选资料为 [v2-2026-10-19](docs/public-demo/v2-2026-10-19/manifest.json)，围绕首次访客的三个问题组织：
+当前公开演示使用 [v2-2026-10-19](docs/public-demo/v2-2026-10-19/manifest.json)，围绕首次访客的三个问题组织：
 
 - [产品导览：能做什么、如何体验](docs/public-demo/v2-2026-10-19/01_product_guide.md)
 - [工程案例：幂等、取消与租约](docs/public-demo/v2-2026-10-19/02_engineering_cases.md)
 - [能力归属：继承、新增与边界](docs/public-demo/v2-2026-10-19/03_contribution_map.md)
 
-只有 manifest 中列出的三份正文用于索引。提示词、测试清单、验收报告与 manifest 本身不上传知识库。原三份 v1 资料及冻结语料保持字节不变，旧会话的来源继续可读。线上实际切换版本、真实样例和验证证据见 [UX-06 交付记录](docs/development/visitor-experience/deliveries/UX-06.md)。
+只有 manifest 中列出的三份正文用于索引。提示词、测试清单、验收报告与 manifest 本身不上传知识库。原三份 v1 资料及冻结语料保持字节不变，旧会话的来源继续可读。2026-10-20 已上线 `6774aee`，三条经逐段审核的真实问答已加入[只读示例](https://exobrain.sharmoon.cc.cd/showcase)。实时回答仍有错引、偏长与等待较久的样本；实际发布、完整样本和后续目标见 [UX-06 交付记录](docs/development/visitor-experience/deliveries/UX-06.md)。
 
 在知识库的文档列表点击 Markdown 文件名或“预览”入口，可以打开只读内容并切换“预览 / 源码”。支持 UTF-8 编码的 `.md`、`.markdown` 文件，扩展名不区分大小写，原文件最大 **2 MiB（2,097,152 字节）**。源码视图显示文件原文；索引方式见下一条。
 

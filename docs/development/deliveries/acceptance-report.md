@@ -1,8 +1,8 @@
 # ExoBrain 优化验收汇报
 
-最新增量：2026-10-19 的 UX-01–06 已完成独立本地集成验收。当前检查、真实问答、未完成项与实际发布回执统一见 [UX-06](../visitor-experience/deliveries/UX-06.md) / [UX-05](../visitor-experience/deliveries/UX-05.md)。下文保留历史批次，不用旧结论覆盖新证据。
+最新增量：2026-10-20，UX-01–06 与引用编号修复已以 `6774aee` 推送上线。代码 CI 成功，生产冒烟 20/20；三条经逐段审核的真实精选已发布，最终浏览器复核通过。功能链路通过，短答、延迟与语义质量未全部达标；本机最新固定题组内容可用 9/12，生产 4 次问答中 3 条内容接受。检查与发布回执见 [UX-06](../visitor-experience/deliveries/UX-06.md)，内容与首答见 [UX-05](../visitor-experience/deliveries/UX-05.md)，后续实施见 [UX-07/08](../visitor-experience/follow-up.md)。下文保留历史批次，不用旧结论覆盖新证据。
 
-- 汇报日期：2026-10-18（Asia/Shanghai）
+- 历史主批次汇报日期：2026-10-18（Asia/Shanghai；最新增量见上方）
 - 交付负责人：主 Agent（子 Agent 承担实现，主 Agent 负责拆分、审查、集成、验收与发布）
 - 依据文档：`docs/development/orchestrator.md`、`README.md`、`contracts.md`、`tasks/01–08`
 - 代码基线 → 交付：`68f71d3` → `85e68b1`（`exobrain/main`，快进，无强推）

@@ -1,0 +1,333 @@
+{
+  "sample": {
+    "label": "作者新增了哪些能力",
+    "question": "在上游 JChatMind 的基础上，这个仓库新增了哪些能力？请区分继承和新增。",
+    "id": "Q03",
+    "variant": "production-20261020-ux-6774aee",
+    "first": false,
+    "resume": false,
+    "skipSources": false
+  },
+  "sessionId": "a2a33cb1-155c-4582-925f-d7d006f1a5d4",
+  "status": "SUCCEEDED",
+  "timings": {
+    "start": 1188.199999988079,
+    "feedback": 3.599999964237213,
+    "accepted": 737.5999999642372,
+    "firstAnswer": 12926,
+    "finalAnswer": 13157.800000011921,
+    "runId": "0499ff00-dc32-441f-84d5-0dfa26f56e41",
+    "terminalAt": 13084.800000011921,
+    "acceptedResponse": {
+      "http": 200,
+      "code": 200,
+      "data": {
+        "chatMessageId": "c4eafa17-03e0-4687-a681-e7250dfc64c7",
+        "runId": "0499ff00-dc32-441f-84d5-0dfa26f56e41",
+        "runStatus": "QUEUED",
+        "idempotentReplay": false
+      },
+      "message": "success"
+    },
+    "summary": {
+      "runId": "0499ff00-dc32-441f-84d5-0dfa26f56e41",
+      "status": "SUCCEEDED",
+      "interrupted": false,
+      "agentName": "ExoBrain 演示助手",
+      "modelName": "DeepSeek-V4.1-Flash",
+      "submittedAt": "2026-10-19T16:24:53.078183Z",
+      "startedAt": "2026-10-19T16:24:53.088386Z",
+      "finishedAt": "2026-10-19T16:25:05.261769Z",
+      "durationMs": 12172,
+      "queueDurationMs": 10,
+      "inputTokens": 11991,
+      "outputTokens": 736,
+      "totalTokens": 12904,
+      "errorCode": null,
+      "traceIncomplete": false,
+      "triggeringMessageId": "c4eafa17-03e0-4687-a681-e7250dfc64c7",
+      "answerMessageId": "1c158d59-e104-4898-ab52-2896b8cd6d6f"
+    }
+  },
+  "summary": {
+    "runId": "0499ff00-dc32-441f-84d5-0dfa26f56e41",
+    "status": "SUCCEEDED",
+    "interrupted": false,
+    "agentName": "ExoBrain 演示助手",
+    "modelName": "DeepSeek-V4.1-Flash",
+    "submittedAt": "2026-10-19T16:24:53.078183Z",
+    "startedAt": "2026-10-19T16:24:53.088386Z",
+    "finishedAt": "2026-10-19T16:25:05.261769Z",
+    "durationMs": 12172,
+    "queueDurationMs": 10,
+    "inputTokens": 11991,
+    "outputTokens": 736,
+    "totalTokens": 12904,
+    "errorCode": null,
+    "traceIncomplete": false,
+    "triggeringMessageId": "c4eafa17-03e0-4687-a681-e7250dfc64c7",
+    "answerMessageId": "1c158d59-e104-4898-ab52-2896b8cd6d6f"
+  },
+  "events": [
+    {
+      "sequence": 1,
+      "type": "MODEL_CALL",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T16:24:53.112590Z",
+      "durationMs": 4254,
+      "retryAttempt": 1,
+      "toolName": null,
+      "detail": null
+    },
+    {
+      "sequence": 2,
+      "type": "PERSIST_MESSAGE",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T16:24:57.372661Z",
+      "durationMs": 2,
+      "retryAttempt": null,
+      "toolName": null,
+      "detail": null
+    },
+    {
+      "sequence": 3,
+      "type": "TOOL_CALL",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T16:24:57.530752Z",
+      "durationMs": 239,
+      "retryAttempt": null,
+      "toolName": "KnowledgeTool",
+      "detail": null
+    },
+    {
+      "sequence": 4,
+      "type": "TOOL_CALL",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T16:24:57.630218Z",
+      "durationMs": 141,
+      "retryAttempt": null,
+      "toolName": "KnowledgeTool",
+      "detail": null
+    },
+    {
+      "sequence": 5,
+      "type": "RETRIEVAL",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T16:24:57.772660Z",
+      "durationMs": 0,
+      "retryAttempt": null,
+      "toolName": null,
+      "detail": "OK"
+    },
+    {
+      "sequence": 6,
+      "type": "RETRIEVAL",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T16:24:57.776263Z",
+      "durationMs": 0,
+      "retryAttempt": null,
+      "toolName": null,
+      "detail": "OK"
+    },
+    {
+      "sequence": 7,
+      "type": "PERSIST_MESSAGE",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T16:24:57.781217Z",
+      "durationMs": 2,
+      "retryAttempt": null,
+      "toolName": null,
+      "detail": null
+    },
+    {
+      "sequence": 8,
+      "type": "PERSIST_MESSAGE",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T16:24:57.787804Z",
+      "durationMs": 2,
+      "retryAttempt": null,
+      "toolName": null,
+      "detail": null
+    },
+    {
+      "sequence": 9,
+      "type": "MODEL_CALL",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T16:24:57.803673Z",
+      "durationMs": 2438,
+      "retryAttempt": 1,
+      "toolName": null,
+      "detail": null
+    },
+    {
+      "sequence": 10,
+      "type": "PERSIST_MESSAGE",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T16:25:00.247809Z",
+      "durationMs": 1,
+      "retryAttempt": null,
+      "toolName": null,
+      "detail": null
+    },
+    {
+      "sequence": 11,
+      "type": "TOOL_CALL",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T16:25:00.258821Z",
+      "durationMs": 129,
+      "retryAttempt": null,
+      "toolName": "KnowledgeTool",
+      "detail": null
+    },
+    {
+      "sequence": 12,
+      "type": "RETRIEVAL",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T16:25:00.389404Z",
+      "durationMs": 0,
+      "retryAttempt": null,
+      "toolName": null,
+      "detail": "OK"
+    },
+    {
+      "sequence": 13,
+      "type": "PERSIST_MESSAGE",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T16:25:00.394005Z",
+      "durationMs": 1,
+      "retryAttempt": null,
+      "toolName": null,
+      "detail": null
+    },
+    {
+      "sequence": 14,
+      "type": "MODEL_CALL",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T16:25:00.403084Z",
+      "durationMs": 4816,
+      "retryAttempt": 1,
+      "toolName": null,
+      "detail": null
+    },
+    {
+      "sequence": 15,
+      "type": "PERSIST_MESSAGE",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T16:25:05.231156Z",
+      "durationMs": 2,
+      "retryAttempt": null,
+      "toolName": null,
+      "detail": null
+    },
+    {
+      "sequence": 16,
+      "type": "TOOL_CALL",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T16:25:05.245855Z",
+      "durationMs": 2,
+      "retryAttempt": null,
+      "toolName": "directAnswer",
+      "detail": null
+    },
+    {
+      "sequence": 17,
+      "type": "PERSIST_MESSAGE",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T16:25:05.252918Z",
+      "durationMs": 1,
+      "retryAttempt": null,
+      "toolName": null,
+      "detail": null
+    }
+  ],
+  "answer": "一句话结论：本仓库在 JChatMind 的 Agent 骨架上补齐了「可追溯、可隔离、可评测」三类工程能力[3][2]。\n\n**继承（上游已有，保留）**：Agent 主循环（判断→调工具→读结果→再判断）、按助手配置装配工具与知识库范围、会话/消息/知识库/文档/片段持久化、SSE 状态推送，以及基础 Markdown 解析与向量检索链路；技术栈仍是 Java + Spring Boot + Spring AI + React + PostgreSQL/pgvector[1]。\n\n**新增（本仓库实现并通过检查）**：\n- 检索与可追溯：正文级索引与结构化来源（documentId、sourceHash、行号、索引版本）、只登记本轮真实检索结果的可核验引用、离线评测题集与冻结资产（Hit@3/Recall@3/MRR@3）[3]。\n- 运行与管控：运行追踪（每轮模型/工具/检索/落库事件与耗时用量）、持久化导入队列（重试、固定错误码）、持久化对话任务（租约、fencing、幂等键，取消与迟到写入有明确语义）、资源按所有者隔离、模型目录与密钥加密、统一 CI 与检查脚本[3][2]。\n\n边界说明：资料里写的是「已实现并通过检查」，验证程度按能力项不同（多为集成测试或演练，远端 CI 结果另行标注）；另外「区分继承和新增」的口径来自本仓库的能力归属文档，不代表上游对你的具体改法背书[3][2]。",
+  "answerChars": 607,
+  "sourceCount": 3,
+  "sources": [
+    {
+      "label": 1,
+      "source": {
+        "documentId": "651f8308-e976-4e1a-8372-1b077735686f",
+        "documentName": "03_contribution_map.md",
+        "headingPath": [
+          "ExoBrain 能力归属（2026-10-19 版）",
+          "ExoBrain 基于什么项目，保留了哪些能力"
+        ],
+        "sourceHash": "a6008c717a3e03feb24ef3bde4af81c8d470582ebc3e5b35b6aa66d2e07e38fa",
+        "startLine": 9,
+        "endLine": 18
+      },
+      "http": 200,
+      "hashMatches": true,
+      "rangeValid": true,
+      "citedText": "上游是 JChatMind：一个 Java + Spring Boot + Spring AI 的 AI Agent 示例项目，前端为 React，数据库为\nPostgreSQL 加 pgvector 向量扩展。本项目保留了这些核心能力：\n\n- Agent 主循环：模型判断下一步 → 执行工具 → 读取工具结果 → 继续判断，直到交付答复或终止。\n- 工具装配：助手配置里声明可用工具与知识库范围，运行时按配置装载。\n- 会话与消息持久化：会话、消息、知识库、文档、片段都有独立数据表。\n- SSE 状态推送：执行状态与回答通过 SSE 推送到页面。\n- 基础 Markdown 解析与向量检索链路。\n\n源码依据：上游 `README.md` 与本仓库的数据表建表脚本、Agent 工厂与消息服务。"
+    },
+    {
+      "label": 2,
+      "source": {
+        "documentId": "651f8308-e976-4e1a-8372-1b077735686f",
+        "documentName": "03_contribution_map.md",
+        "headingPath": [
+          "ExoBrain 能力归属（2026-10-19 版）",
+          "本仓库新增了什么"
+        ],
+        "sourceHash": "a6008c717a3e03feb24ef3bde4af81c8d470582ebc3e5b35b6aa66d2e07e38fa",
+        "startLine": 31,
+        "endLine": 33
+      },
+      "http": 200,
+      "hashMatches": true,
+      "rangeValid": true,
+      "citedText": "| 资源隔离 | 知识库、助手、会话按所有者隔离；管理员也不获得他人私有资源的读取权 | 访问控制与资源仓库 | 账号/管理员矩阵、游客矩阵 |\n| 模型目录与密钥加密 | 模型配置存库、密钥加密保存、向量模型可与知识库绑定并受换绑守卫 | 模型目录、密钥服务、换绑接口 | 接口测试与生产热修实操 |\n| CI 与检查脚本 | 单元、集成、前端构建、冻结评测的统一入口 | `.github/`、`scripts/` | 本机脚本输出（远端 CI 结果另行标注） |"
+    },
+    {
+      "label": 3,
+      "source": {
+        "documentId": "651f8308-e976-4e1a-8372-1b077735686f",
+        "documentName": "03_contribution_map.md",
+        "headingPath": [
+          "ExoBrain 能力归属（2026-10-19 版）",
+          "本仓库新增了什么"
+        ],
+        "sourceHash": "a6008c717a3e03feb24ef3bde4af81c8d470582ebc3e5b35b6aa66d2e07e38fa",
+        "startLine": 22,
+        "endLine": 31
+      },
+      "http": 200,
+      "hashMatches": true,
+      "rangeValid": true,
+      "citedText": "| 能力 | 一句话说明 | 主要依据 | 验证范围 |\n| --- | --- | --- | --- |\n| Markdown 解析隔离 | 每份文档独立解析状态，避免并发导入时共享可变状态互相污染 | 解析服务与并发用例 | 单元测试（含并发场景） |\n| 检索评测与冻结资产 | 题集、语料清单、冻结哈希与评测脚本，指标为 Hit@3 / Recall@3 / MRR@3 | `evaluation/` 目录、评测说明 | 离线脚本与 pytest、真实 Embedding 一次基线 |\n| 正文级索引与结构化来源 | 片段按正文切分，来源带 `documentId`、`sourceHash`、`startLine`、`endLine` 与索引版本 | 索引服务、迁移脚本、检索工具 | 真实 PostgreSQL 集成测试与真实上传导入 |\n| 可核验引用 | 引用只登记本轮真实完成的检索结果，写入消息 `metadata.citations`，界面按行定位原文 | 引用登记与前端引用卡片 | 浏览器实测行号与语料逐字符比对 |\n| 运行追踪 | 每轮问答有运行摘要与事件（模型、工具、检索、落库），含真实耗时与用量 | 运行表、事件表、读取接口 | 真实运行与集成测试 |\n| 持久化导入队列 | 上传即入队，支持失败重试与固定错误码，导入状态可查询 | 导入任务表与执行器 | 集成测试含故障注入 |\n| 持久化对话任务 | 任务表 + 租约 + fencing + 幂等键；取消、中断与迟到写入都有明确语义 | 任务表、租约、结果写入 | 真实 PostgreSQL 与并发/重启演练 |\n| 资源隔离 | 知识库、助手、会话按所有者隔离；管理员也不获得他人私有资源的读取权 | 访问控制与资源仓库 | 账号/管理员矩阵、游客矩阵 |"
+    }
+  ],
+  "clickedSources": [
+    {
+      "citationId": "e7608f7f-c42f-4b29-83f2-cc63fa2d50dd:2",
+      "documentId": "651f8308-e976-4e1a-8372-1b077735686f",
+      "view": {
+        "text": "上游是 JChatMind：一个 Java + Spring Boot + Spring AI 的 AI Agent 示例项目，前端为 React，数据库为\nPostgreSQL 加 pgvector 向量扩展。本项目保留了这些核心能力：\n\n- Agent 主循环：模型判断下一步 → 执行工具 → 读取工具结果 → 继续判断，直到交付答复或终止。\n- 工具装配：助手配置里声明可用工具与知识库范围，运行时按配置装载。\n- 会话与消息持久化：会话、消息、知识库、文档、片段都有独立数据表。\n- SSE 状态推送：执行状态与回答通过 SSE 推送到页面。\n- 基础 Markdown 解析与向量检索链路。\n\n源码依据：上游 `README.md` 与本仓库的数据表建表脚本、Agent 工厂与消息服务。",
+        "visible": true
+      }
+    },
+    {
+      "citationId": "08ad7a58-2915-482e-a964-2d1c394a4674:1",
+      "documentId": "651f8308-e976-4e1a-8372-1b077735686f",
+      "view": {
+        "text": "| 资源隔离 | 知识库、助手、会话按所有者隔离；管理员也不获得他人私有资源的读取权 | 访问控制与资源仓库 | 账号/管理员矩阵、游客矩阵 |\n| 模型目录与密钥加密 | 模型配置存库、密钥加密保存、向量模型可与知识库绑定并受换绑守卫 | 模型目录、密钥服务、换绑接口 | 接口测试与生产热修实操 |\n| CI 与检查脚本 | 单元、集成、前端构建、冻结评测的统一入口 | `.github/`、`scripts/` | 本机脚本输出（远端 CI 结果另行标注） |",
+        "visible": true
+      }
+    },
+    {
+      "citationId": "08ad7a58-2915-482e-a964-2d1c394a4674:2",
+      "documentId": "651f8308-e976-4e1a-8372-1b077735686f",
+      "view": {
+        "text": "| 能力 | 一句话说明 | 主要依据 | 验证范围 |\n| --- | --- | --- | --- |\n| Markdown 解析隔离 | 每份文档独立解析状态，避免并发导入时共享可变状态互相污染 | 解析服务与并发用例 | 单元测试（含并发场景） |\n| 检索评测与冻结资产 | 题集、语料清单、冻结哈希与评测脚本，指标为 Hit@3 / Recall@3 / MRR@3 | `evaluation/` 目录、评测说明 | 离线脚本与 pytest、真实 Embedding 一次基线 |\n| 正文级索引与结构化来源 | 片段按正文切分，来源带 `documentId`、`sourceHash`、`startLine`、`endLine` 与索引版本 | 索引服务、迁移脚本、检索工具 | 真实 PostgreSQL 集成测试与真实上传导入 |\n| 可核验引用 | 引用只登记本轮真实完成的检索结果，写入消息 `metadata.citations`，界面按行定位原文 | 引用登记与前端引用卡片 | 浏览器实测行号与语料逐字符比对 |\n| 运行追踪 | 每轮问答有运行摘要与事件（模型、工具、检索、落库），含真实耗时与用量 | 运行表、事件表、读取接口 | 真实运行与集成测试 |\n| 持久化导入队列 | 上传即入队，支持失败重试与固定错误码，导入状态可查询 | 导入任务表与执行器 | 集成测试含故障注入 |\n| 持久化对话任务 | 任务表 + 租约 + fencing + 幂等键；取消、中断与迟到写入都有明确语义 | 任务表、租约、结果写入 | 真实 PostgreSQL 与并发/重启演练 |\n| 资源隔离 | 知识库、助手、会话按所有者隔离；管理员也不获得他人私有资源的读取权 | 访问控制与资源仓库 | 账号/管理员矩阵、游客矩阵 |",
+        "visible": true
+      }
+    }
+  ],
+  "retryEvents": 0,
+  "modelDurationMs": 11508,
+  "retrievalDurationMs": 0,
+  "oneIntent": true,
+  "readFailures": []
+}

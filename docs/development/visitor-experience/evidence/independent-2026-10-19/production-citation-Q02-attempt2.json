@@ -1,0 +1,301 @@
+{
+  "sample": {
+    "label": "看一条有原文出处的回答",
+    "question": "这个项目如何让我核对答案的依据？请说明引用和原文的关系。",
+    "id": "Q02",
+    "variant": "production-20261020-ux-6774aee",
+    "first": false,
+    "resume": false,
+    "skipSources": false
+  },
+  "sessionId": "d1b413ce-4012-4b04-b55c-d4dec62cc577",
+  "status": "SUCCEEDED",
+  "timings": {
+    "start": 915.3999999761581,
+    "feedback": 3.300000011920929,
+    "accepted": 1004.8000000119209,
+    "firstAnswer": 8811.200000047684,
+    "finalAnswer": 9225,
+    "runId": "5e6cfb28-5910-41b1-857d-752a5b95e5ab",
+    "terminalAt": 8953.700000047684,
+    "acceptedResponse": {
+      "http": 200,
+      "code": 200,
+      "data": {
+        "chatMessageId": "f9dfe4ed-e046-48c0-be29-de5deec3f576",
+        "runId": "5e6cfb28-5910-41b1-857d-752a5b95e5ab",
+        "runStatus": "QUEUED",
+        "idempotentReplay": false
+      },
+      "message": "success"
+    },
+    "summary": {
+      "runId": "5e6cfb28-5910-41b1-857d-752a5b95e5ab",
+      "status": "SUCCEEDED",
+      "interrupted": false,
+      "agentName": "ExoBrain 演示助手",
+      "modelName": "DeepSeek-V4.1-Flash",
+      "submittedAt": "2026-10-19T16:27:08.557465Z",
+      "startedAt": "2026-10-19T16:27:08.568325Z",
+      "finishedAt": "2026-10-19T16:27:16.060906Z",
+      "durationMs": 7492,
+      "queueDurationMs": 10,
+      "inputTokens": 6016,
+      "outputTokens": 571,
+      "totalTokens": 6705,
+      "errorCode": null,
+      "traceIncomplete": false,
+      "triggeringMessageId": "f9dfe4ed-e046-48c0-be29-de5deec3f576",
+      "answerMessageId": "af7a481a-de0c-4c1c-923c-375e41bdeea5"
+    }
+  },
+  "summary": {
+    "runId": "5e6cfb28-5910-41b1-857d-752a5b95e5ab",
+    "status": "SUCCEEDED",
+    "interrupted": false,
+    "agentName": "ExoBrain 演示助手",
+    "modelName": "DeepSeek-V4.1-Flash",
+    "submittedAt": "2026-10-19T16:27:08.557465Z",
+    "startedAt": "2026-10-19T16:27:08.568325Z",
+    "finishedAt": "2026-10-19T16:27:16.060906Z",
+    "durationMs": 7492,
+    "queueDurationMs": 10,
+    "inputTokens": 6016,
+    "outputTokens": 571,
+    "totalTokens": 6705,
+    "errorCode": null,
+    "traceIncomplete": false,
+    "triggeringMessageId": "f9dfe4ed-e046-48c0-be29-de5deec3f576",
+    "answerMessageId": "af7a481a-de0c-4c1c-923c-375e41bdeea5"
+  },
+  "events": [
+    {
+      "sequence": 1,
+      "type": "MODEL_CALL",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T16:27:08.604543Z",
+      "durationMs": 2750,
+      "retryAttempt": 1,
+      "toolName": null,
+      "detail": null
+    },
+    {
+      "sequence": 2,
+      "type": "PERSIST_MESSAGE",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T16:27:11.363097Z",
+      "durationMs": 1,
+      "retryAttempt": null,
+      "toolName": null,
+      "detail": null
+    },
+    {
+      "sequence": 3,
+      "type": "TOOL_CALL",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T16:27:11.524258Z",
+      "durationMs": 224,
+      "retryAttempt": null,
+      "toolName": "KnowledgeTool",
+      "detail": null
+    },
+    {
+      "sequence": 4,
+      "type": "TOOL_CALL",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T16:27:11.601645Z",
+      "durationMs": 148,
+      "retryAttempt": null,
+      "toolName": "KnowledgeTool",
+      "detail": null
+    },
+    {
+      "sequence": 5,
+      "type": "RETRIEVAL",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T16:27:11.750955Z",
+      "durationMs": 0,
+      "retryAttempt": null,
+      "toolName": null,
+      "detail": "OK"
+    },
+    {
+      "sequence": 6,
+      "type": "RETRIEVAL",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T16:27:11.752290Z",
+      "durationMs": 0,
+      "retryAttempt": null,
+      "toolName": null,
+      "detail": "OK"
+    },
+    {
+      "sequence": 7,
+      "type": "PERSIST_MESSAGE",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T16:27:11.757925Z",
+      "durationMs": 2,
+      "retryAttempt": null,
+      "toolName": null,
+      "detail": null
+    },
+    {
+      "sequence": 8,
+      "type": "PERSIST_MESSAGE",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T16:27:11.764391Z",
+      "durationMs": 2,
+      "retryAttempt": null,
+      "toolName": null,
+      "detail": null
+    },
+    {
+      "sequence": 9,
+      "type": "MODEL_CALL",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T16:27:11.775400Z",
+      "durationMs": 4241,
+      "retryAttempt": 1,
+      "toolName": null,
+      "detail": null
+    },
+    {
+      "sequence": 10,
+      "type": "PERSIST_MESSAGE",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T16:27:16.028145Z",
+      "durationMs": 2,
+      "retryAttempt": null,
+      "toolName": null,
+      "detail": null
+    },
+    {
+      "sequence": 11,
+      "type": "TOOL_CALL",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T16:27:16.041665Z",
+      "durationMs": 3,
+      "retryAttempt": null,
+      "toolName": "directAnswer",
+      "detail": null
+    },
+    {
+      "sequence": 12,
+      "type": "PERSIST_MESSAGE",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T16:27:16.051231Z",
+      "durationMs": 1,
+      "retryAttempt": null,
+      "toolName": null,
+      "detail": null
+    }
+  ],
+  "answer": "结论：答案下方会挂出可点开的来源，点开即看到被引用的那一小段原文，你能据此逐条核对。\n\n- **怎么核对**：回答是「一句结论 + 几条要点」，下面挂来源；点开来源可看到原文对应段落，界面按行定位原文[2]。引用只登记本轮真实完成的检索结果，写入消息 `metadata.citations`[3]。\n- **切片带什么**：片段按正文切分，来源带 `documentId`、`sourceHash`、`startLine`、`endLine` 与索引版本，这些字段就是「引用 ↔ 原文位置」的对应关系[3]。\n- **引用和原文的关系**：引用是把答案里的一句话绑定到某份文档的具体行范围，仅说明「这条来源被服务端校验过」，不代表模型组织的结论一定正确，仍需你人工判断[4]。\n\n想进一步验证，可对照「主要依据」的源码位置、对应测试与运行记录，并区分单元、集成与真实浏览器/生产证据[1]。",
+  "answerChars": 396,
+  "sourceCount": 4,
+  "sources": [
+    {
+      "label": 1,
+      "source": {
+        "documentId": "651f8308-e976-4e1a-8372-1b077735686f",
+        "documentName": "03_contribution_map.md",
+        "headingPath": [
+          "ExoBrain 能力归属（2026-10-19 版）",
+          "怎么核对这些说法"
+        ],
+        "sourceHash": "a6008c717a3e03feb24ef3bde4af81c8d470582ebc3e5b35b6aa66d2e07e38fa",
+        "startLine": 52,
+        "endLine": 54
+      },
+      "http": 200,
+      "hashMatches": true,
+      "rangeValid": true,
+      "citedText": "- 想看能力是否存在：对照上表「主要依据」的源码位置与当前仓库提交。\n- 想看是否验证过：看对应的测试文件与运行记录，注意区分单元、集成与真实浏览器/生产证据。\n- 想看边界：直接问「现在还做不到什么」，回答应当复述上两节的边界，而不是把计划中的能力当作已完成。"
+    },
+    {
+      "label": 2,
+      "source": {
+        "documentId": "78f6ebe5-9685-420b-a408-80b7f8b672ff",
+        "documentName": "01_product_guide.md",
+        "headingPath": [
+          "ExoBrain 产品导览（2026-10-19 版）",
+          "三条可以亲自体验的路径"
+        ],
+        "sourceHash": "177e48ad96039972de8455c24f541a29d26f74832a729ebd6139f9941a891f38",
+        "startLine": 19,
+        "endLine": 23
+      },
+      "http": 200,
+      "hashMatches": true,
+      "rangeValid": true,
+      "citedText": "| 体验路径 | 你会看到什么 | 依据 |\n| --- | --- | --- |\n| 直接提问 | 一句结论 + 几条要点，下面挂来源；点开来源可看到原文对应段落 | 公开知识库检索、引用投影、原文预览 |\n| 查看执行过程 | 展开「查看过程」可看到这一轮的模型、检索、工具与落库步骤及其耗时 | 运行摘要与事件表 |\n| 核对边界 | 问实现细节、工程取舍或「有什么做不到」，回答会明确说明边界而不是编造 | 本文档与《工程案例》《能力归属》 |"
+    },
+    {
+      "label": 3,
+      "source": {
+        "documentId": "651f8308-e976-4e1a-8372-1b077735686f",
+        "documentName": "03_contribution_map.md",
+        "headingPath": [
+          "ExoBrain 能力归属（2026-10-19 版）",
+          "本仓库新增了什么"
+        ],
+        "sourceHash": "a6008c717a3e03feb24ef3bde4af81c8d470582ebc3e5b35b6aa66d2e07e38fa",
+        "startLine": 22,
+        "endLine": 31
+      },
+      "http": 200,
+      "hashMatches": true,
+      "rangeValid": true,
+      "citedText": "| 能力 | 一句话说明 | 主要依据 | 验证范围 |\n| --- | --- | --- | --- |\n| Markdown 解析隔离 | 每份文档独立解析状态，避免并发导入时共享可变状态互相污染 | 解析服务与并发用例 | 单元测试（含并发场景） |\n| 检索评测与冻结资产 | 题集、语料清单、冻结哈希与评测脚本，指标为 Hit@3 / Recall@3 / MRR@3 | `evaluation/` 目录、评测说明 | 离线脚本与 pytest、真实 Embedding 一次基线 |\n| 正文级索引与结构化来源 | 片段按正文切分，来源带 `documentId`、`sourceHash`、`startLine`、`endLine` 与索引版本 | 索引服务、迁移脚本、检索工具 | 真实 PostgreSQL 集成测试与真实上传导入 |\n| 可核验引用 | 引用只登记本轮真实完成的检索结果，写入消息 `metadata.citations`，界面按行定位原文 | 引用登记与前端引用卡片 | 浏览器实测行号与语料逐字符比对 |\n| 运行追踪 | 每轮问答有运行摘要与事件（模型、工具、检索、落库），含真实耗时与用量 | 运行表、事件表、读取接口 | 真实运行与集成测试 |\n| 持久化导入队列 | 上传即入队，支持失败重试与固定错误码，导入状态可查询 | 导入任务表与执行器 | 集成测试含故障注入 |\n| 持久化对话任务 | 任务表 + 租约 + fencing + 幂等键；取消、中断与迟到写入都有明确语义 | 任务表、租约、结果写入 | 真实 PostgreSQL 与并发/重启演练 |\n| 资源隔离 | 知识库、助手、会话按所有者隔离；管理员也不获得他人私有资源的读取权 | 访问控制与资源仓库 | 账号/管理员矩阵、游客矩阵 |"
+    },
+    {
+      "label": 4,
+      "source": {
+        "documentId": "78f6ebe5-9685-420b-a408-80b7f8b672ff",
+        "documentName": "01_product_guide.md",
+        "headingPath": [
+          "ExoBrain 产品导览（2026-10-19 版）",
+          "能解决的问题与不能解决的问题"
+        ],
+        "sourceHash": "177e48ad96039972de8455c24f541a29d26f74832a729ebd6139f9941a891f38",
+        "startLine": 27,
+        "endLine": 29
+      },
+      "http": 200,
+      "hashMatches": true,
+      "rangeValid": true,
+      "citedText": "能解决：需要从一批文档里快速得到有出处答案的问题，以及需要证明「答案来自哪一段原文」的场景。\n\n不能解决：需要实时联网数据的问题（检索范围只是已发布的知识库）、需要精确数值计算与外部系统写入的问题、以及把引用等同于事实核验的问题。引用只说明「这条来源被服务端校验过」，不代表模型组织的结论一定正确，仍需人工判断。"
+    }
+  ],
+  "clickedSources": [
+    {
+      "citationId": "286f8f91-6e93-4e94-8c4f-f6aa494b3671:3",
+      "documentId": "651f8308-e976-4e1a-8372-1b077735686f",
+      "view": {
+        "text": "- 想看能力是否存在：对照上表「主要依据」的源码位置与当前仓库提交。\n- 想看是否验证过：看对应的测试文件与运行记录，注意区分单元、集成与真实浏览器/生产证据。\n- 想看边界：直接问「现在还做不到什么」，回答应当复述上两节的边界，而不是把计划中的能力当作已完成。",
+        "visible": true
+      }
+    },
+    {
+      "citationId": "589ccb03-6c55-4cf3-bcfc-0f2abed85d36:1",
+      "documentId": "78f6ebe5-9685-420b-a408-80b7f8b672ff",
+      "view": {
+        "text": "| 体验路径 | 你会看到什么 | 依据 |\n| --- | --- | --- |\n| 直接提问 | 一句结论 + 几条要点，下面挂来源；点开来源可看到原文对应段落 | 公开知识库检索、引用投影、原文预览 |\n| 查看执行过程 | 展开「查看过程」可看到这一轮的模型、检索、工具与落库步骤及其耗时 | 运行摘要与事件表 |\n| 核对边界 | 问实现细节、工程取舍或「有什么做不到」，回答会明确说明边界而不是编造 | 本文档与《工程案例》《能力归属》 |",
+        "visible": true
+      }
+    },
+    {
+      "citationId": "589ccb03-6c55-4cf3-bcfc-0f2abed85d36:2",
+      "documentId": "651f8308-e976-4e1a-8372-1b077735686f",
+      "view": {
+        "text": "| 能力 | 一句话说明 | 主要依据 | 验证范围 |\n| --- | --- | --- | --- |\n| Markdown 解析隔离 | 每份文档独立解析状态，避免并发导入时共享可变状态互相污染 | 解析服务与并发用例 | 单元测试（含并发场景） |\n| 检索评测与冻结资产 | 题集、语料清单、冻结哈希与评测脚本，指标为 Hit@3 / Recall@3 / MRR@3 | `evaluation/` 目录、评测说明 | 离线脚本与 pytest、真实 Embedding 一次基线 |\n| 正文级索引与结构化来源 | 片段按正文切分，来源带 `documentId`、`sourceHash`、`startLine`、`endLine` 与索引版本 | 索引服务、迁移脚本、检索工具 | 真实 PostgreSQL 集成测试与真实上传导入 |\n| 可核验引用 | 引用只登记本轮真实完成的检索结果，写入消息 `metadata.citations`，界面按行定位原文 | 引用登记与前端引用卡片 | 浏览器实测行号与语料逐字符比对 |\n| 运行追踪 | 每轮问答有运行摘要与事件（模型、工具、检索、落库），含真实耗时与用量 | 运行表、事件表、读取接口 | 真实运行与集成测试 |\n| 持久化导入队列 | 上传即入队，支持失败重试与固定错误码，导入状态可查询 | 导入任务表与执行器 | 集成测试含故障注入 |\n| 持久化对话任务 | 任务表 + 租约 + fencing + 幂等键；取消、中断与迟到写入都有明确语义 | 任务表、租约、结果写入 | 真实 PostgreSQL 与并发/重启演练 |\n| 资源隔离 | 知识库、助手、会话按所有者隔离；管理员也不获得他人私有资源的读取权 | 访问控制与资源仓库 | 账号/管理员矩阵、游客矩阵 |",
+        "visible": true
+      }
+    }
+  ],
+  "retryEvents": 0,
+  "modelDurationMs": 6991,
+  "retrievalDurationMs": 0,
+  "oneIntent": true,
+  "readFailures": []
+}

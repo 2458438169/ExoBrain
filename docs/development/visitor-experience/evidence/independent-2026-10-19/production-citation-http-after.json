@@ -1,0 +1,131 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "backend health",
+      "expected": 200,
+      "actual": 200,
+      "passed": true
+    },
+    {
+      "name": "ui HTTP",
+      "expected": 200,
+      "actual": 200,
+      "passed": true
+    },
+    {
+      "name": "ui index fingerprint",
+      "expected": "15ce50d047452068a609cb094224c0cc0537645c032348e185143dd955fb5cb4",
+      "actual": "15ce50d047452068a609cb094224c0cc0537645c032348e185143dd955fb5cb4",
+      "passed": true
+    },
+    {
+      "name": "admin HTTP",
+      "expected": 200,
+      "actual": 200,
+      "passed": true
+    },
+    {
+      "name": "admin index fingerprint",
+      "expected": "12e493ad5589557cbedc1d9191bfc4f2d4c45b246fd7f0d7c45590b1f7918f87",
+      "actual": "12e493ad5589557cbedc1d9191bfc4f2d4c45b246fd7f0d7c45590b1f7918f87",
+      "passed": true
+    },
+    {
+      "name": "active assistant knowledge base",
+      "expected": [
+        "ff9fc2f9-880c-4ec1-9516-22d068536f00"
+      ],
+      "actual": [
+        "ff9fc2f9-880c-4ec1-9516-22d068536f00"
+      ],
+      "passed": true
+    },
+    {
+      "name": "source hash 01_product_guide.md",
+      "expected": "177e48ad96039972de8455c24f541a29d26f74832a729ebd6139f9941a891f38",
+      "actual": "177e48ad96039972de8455c24f541a29d26f74832a729ebd6139f9941a891f38",
+      "passed": true
+    },
+    {
+      "name": "ingestion 01_product_guide.md",
+      "expected": "SUCCEEDED",
+      "actual": "SUCCEEDED",
+      "passed": true
+    },
+    {
+      "name": "source hash 02_engineering_cases.md",
+      "expected": "f888dcc55c989e9e810ce03d8461615819cd391a08d25b2cdfb2586fab6a5c1e",
+      "actual": "f888dcc55c989e9e810ce03d8461615819cd391a08d25b2cdfb2586fab6a5c1e",
+      "passed": true
+    },
+    {
+      "name": "ingestion 02_engineering_cases.md",
+      "expected": "SUCCEEDED",
+      "actual": "SUCCEEDED",
+      "passed": true
+    },
+    {
+      "name": "source hash 03_contribution_map.md",
+      "expected": "a6008c717a3e03feb24ef3bde4af81c8d470582ebc3e5b35b6aa66d2e07e38fa",
+      "actual": "a6008c717a3e03feb24ef3bde4af81c8d470582ebc3e5b35b6aa66d2e07e38fa",
+      "passed": true
+    },
+    {
+      "name": "ingestion 03_contribution_map.md",
+      "expected": "SUCCEEDED",
+      "actual": "SUCCEEDED",
+      "passed": true
+    },
+    {
+      "name": "old showcase remains readable 1f1e995e-dab4-43f1-8347-cf57da407e05",
+      "expected": 200,
+      "actual": 200,
+      "passed": true
+    },
+    {
+      "name": "old showcase remains readable 795cc4af-3d20-4720-b897-d140d15745a8",
+      "expected": 200,
+      "actual": 200,
+      "passed": true
+    },
+    {
+      "name": "old showcase remains readable ca728ff0-3079-4a15-8688-f3ecb509e687",
+      "expected": 200,
+      "actual": 200,
+      "passed": true
+    },
+    {
+      "name": "GET cancellation method",
+      "expected": 405,
+      "actual": 405,
+      "passed": true
+    },
+    {
+      "name": "PROPFIND cancellation method",
+      "expected": 405,
+      "actual": 405,
+      "passed": true
+    },
+    {
+      "name": "unpublished management route",
+      "expected": 404,
+      "actual": 404,
+      "passed": true
+    },
+    {
+      "name": "owner runs endpoint",
+      "expected": [],
+      "actual": [],
+      "passed": true
+    },
+    {
+      "name": "other visitor cannot read own runs",
+      "expected": 404,
+      "actual": 404,
+      "passed": true
+    }
+  ],
+  "release": "20261020-ux-6774aee",
+  "commit": "6774aeee73b4d2218d1d5a67b6c61ef836394867"
+}

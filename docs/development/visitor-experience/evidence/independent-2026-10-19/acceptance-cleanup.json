@@ -1,0 +1,34 @@
+{
+  "finishedAt": "2026-10-19T16:47:04.194346+00:00",
+  "passed": true,
+  "steps": [
+    {
+      "name": "runtime",
+      "passed": true,
+      "exitCode": 0,
+      "logSha256": "30fa5ff2662f5a5ecbbf057f3ced10f82f5a78f949a9e13bd0a5278b695725d2"
+    },
+    {
+      "name": "browser-exobrain-ux-accept-1019",
+      "passed": true,
+      "exitCode": 0,
+      "logSha256": "002cc039726085319162e36bc25bff3f4431b8e5424264ef3e53d452db649990"
+    },
+    {
+      "name": "browser-exobrain-ux-account-1019",
+      "passed": true,
+      "exitCode": 0,
+      "logSha256": "9f6e58d59d1aa2860c5141a317a8603d786adf0cfa51dd3af6517897b89fafde"
+    }
+  ],
+  "ownedRuntimesStopped": true,
+  "ownedNginxRemoved": true,
+  "ownedPostgresAndAnonymousVolumeRemoved": true,
+  "browserSessionsClosed": [
+    "exobrain-ux-accept-1019",
+    "exobrain-ux-account-1019"
+  ],
+  "unrelatedCandidateContainerUnchanged": true,
+  "sourceEvidenceAndLogsRetained": true,
+  "productionModifiedDuringCleanup": false
+}
