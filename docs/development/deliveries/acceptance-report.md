@@ -159,3 +159,26 @@
 - 验收方 R3 使用的 HTTP + 合成模型服务故障注入脚本不在本仓库，本轮未重跑；R3-01 的结论以三条真实 PG 回归为准。
 - 真实付费模型 / Embedding 效果对比仍未执行（端点 503）；GitHub Actions 远端执行仍无结论。
 - 前端 20 个文件（主题，以及 R2-01/R2-02、F04、窄屏、知识库排版等修复）仍在工作区未提交（按用户要求）。
+
+## 11. 第四轮独立验收（2026-10-19，R4）与修复
+
+第四轮验收确认 **R3-01 的原始复现已通过**（租约 10 秒 + 行锁 16 秒 + 模型重试：两次复跑都只有 1 次模型请求，
+过期后 0 次），新增 1 个 P2，本轮已修复：
+
+| 编号 | 级别 | 问题 | 修复 | 验证 |
+| --- | --- | --- | --- | --- |
+| R4-01 | P2 | 无锁确认通过后同步 `touch()`（摘要心跳 UPDATE，无 `lock_timeout`）仍可被行锁拖过租约期限，返回后不再复查就放行下一次模型请求（两次实测超出期限 9.114683 s / 9.088870 s，无迟到答案落库） | `RunRepository.touchWithin(runId, lockTimeoutMs)` 走独立连接 + `SET LOCAL lock_timeout`，被挡住返回 0；检查点改为“无锁确认 → 有界摘要写 → 再确认 → 放行”，最终确认后不再有阻塞写；心跳线程的摘要刷新同样有界 | 两条真实 PG 回归：`summaryHeartbeatIsBoundedByItsLockTimeout`、`blockedCheckpointStopsWhenTheSummaryHeartbeatOutlivesTheLease`；`RunResultGuardIntegrationTest` **12/12** |
+
+### 11.1 本轮复跑
+
+- 后端单元 `-Punit`：**271，267 通过 / 4 跳过 / 0 失败**。
+- 真实 PostgreSQL `-Ppostgres-it`：**63 项，62 通过 / 0 失败 / 1 错误**；唯一错误仍是
+  `RetrievalIndexIntegrationTest.realEmbeddingAnswersBodyOnlyFacts`（该用例按 `emrank` 配置调用中转站
+  Embedding，返回 503；生产已改用 SiliconFlow，但测试配置项未改）。
+- 前端本轮未改动，`eslint` / 构建结果沿用 R2。
+
+### 11.2 仍未完成
+
+- 验收方 R4 的 HTTP + 合成模型服务故障注入脚本不在仓库内，本轮未重跑。
+- 真实付费模型 / Embedding 效果对比仍未执行（中转站 503；SiliconFlow 只做了连通与端到端链路验证）；GitHub Actions 远端执行仍无结论。
+- 前端 20 个文件仍在工作区未提交（按用户要求）。

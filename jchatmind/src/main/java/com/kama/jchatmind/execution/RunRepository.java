@@ -39,4 +39,14 @@ public interface RunRepository {
     int setAnswerMessageIdIfRunning(String runId, String answerMessageId);
 
     int touch(String runId);
+
+    /**
+     * 有界心跳更新：被行锁挡住时返回 0，而不是一直等下去。
+     *
+     * <p>{@link #touch} 会无超时地等行锁。检查点最后一步用它，等于把刚确认过的租约有效性重新交给一次可能
+     * 无限阻塞的写：摘要行一被锁，租约就可能在这条 {@code UPDATE} 里过期，返回后模型重试照样发出去（R4-01）。</p>
+     *
+     * @return 实际更新的行数；0 表示被行锁挡住、运行不存在或数据库不可用
+     */
+    int touchWithin(String runId, int lockTimeoutMs);
 }

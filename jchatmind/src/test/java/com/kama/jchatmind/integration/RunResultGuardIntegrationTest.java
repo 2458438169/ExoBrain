@@ -375,6 +375,164 @@ class RunResultGuardIntegrationTest {
         assertNull(answerMessageId(runId));
     }
 
+    // ------------------------------------------------------------------ R4-01
+
+    @Test
+    @DisplayName("a summary heartbeat behind a row lock gives up instead of waiting past its budget")
+    void summaryHeartbeatIsBoundedByItsLockTimeout() throws Exception {
+        assumeDatabase();
+        String sessionId = newSession();
+        String runId = newRun(sessionId);
+
+        CountDownLatch locked = new CountDownLatch(1);
+        Thread holder = holdRunRowLock(runId, locked, 4_000L);
+        try {
+            assertTrue(locked.await(5, java.util.concurrent.TimeUnit.SECONDS));
+            long start = System.nanoTime();
+            // 修复前的同步 touch() 会一直等这条行锁；有界版本最多等到 lock_timeout 就放弃。
+            assertEquals(0, runs.touchWithin(runId, 300));
+            long elapsedMs = (System.nanoTime() - start) / 1_000_000L;
+            assertTrue(elapsedMs < 3_000L, "bounded summary heartbeat waited too long: " + elapsedMs + "ms");
+        } finally {
+            holder.join(15_000L);
+        }
+        // 锁释放后同一调用能正常写入：放弃的只是这一拍，不是这条路径。
+        assertEquals(1, runs.touchWithin(runId, 2_000));
+        assertNotNull(heartbeatAt(runId));
+    }
+
+    @Test
+    @DisplayName("a blocked checkpoint stops when the summary heartbeat outlives the lease")
+    void blockedCheckpointStopsWhenTheSummaryHeartbeatOutlivesTheLease() throws Exception {
+        assumeDatabase();
+        String sessionId = newSession();
+        String runId = newRun(sessionId);
+        jobs.insert(demoJob(sessionId, runId, "owner-r4", "key-summary-blocked"));
+        RunQueueJob claimed = claimAndStart("worker-r4", runId);
+        // 3 秒租约 → 单次 lock_timeout 1 秒、确认预算 1 秒；两次续租都会被下面的行锁挡住，
+        // 无锁确认发生在约 3 秒处，租约此时还有效，摘要心跳再拖 3 秒就把它拖过期了。
+        assertEquals(1, jdbc.update("UPDATE exobrain_chat_run_job "
+                + "SET lease_expires_at = NOW() + INTERVAL '5 seconds' WHERE id = CAST(? AS uuid)", claimed.id()));
+
+        SlowSummaryHeartbeat slowRuns = new SlowSummaryHeartbeat(runs, 3_000L);
+        RunLease lease = new RunLease(claimed, jobs, terminalWriter, slowRuns, 3);
+        CountDownLatch locked = new CountDownLatch(1);
+        Thread holder = holdRowLock(claimed.id(), locked, 9_000L);
+        try {
+            assertTrue(locked.await(5, java.util.concurrent.TimeUnit.SECONDS));
+            // 修复前：确认 → touch() 被行锁拖住 → 返回后直接放行，下一次模型请求带着过期租约发出去。
+            assertThrows(RunLeaseLostException.class, lease::checkpoint);
+            // 摘要心跳确实执行过一次，说明停止点是它之后的那次复查，而不是干脆没走到这里。
+            assertEquals(1, slowRuns.touches());
+        } finally {
+            lease.close();
+            holder.join(20_000L);
+        }
+        assertEquals(0, count("SELECT count(*) FROM chat_message WHERE session_id = CAST(? AS uuid)", sessionId));
+        assertNull(answerMessageId(runId));
+    }
+
+    /** 在独立连接上锁住某一次运行的摘要行（{@code exobrain_run}）。 */
+    private static Thread holdRunRowLock(String runId, CountDownLatch locked, long holdMillis) {
+        Thread holder = new Thread(() -> {
+            try (java.sql.Connection connection = jdbc.getDataSource().getConnection()) {
+                connection.setAutoCommit(false);
+                try (java.sql.PreparedStatement statement = connection.prepareStatement(
+                        "SELECT id FROM exobrain_run WHERE id = CAST(? AS uuid) FOR UPDATE")) {
+                    statement.setString(1, runId);
+                    statement.executeQuery();
+                }
+                locked.countDown();
+                Thread.sleep(holdMillis);
+                connection.rollback();
+            } catch (Exception ignored) {
+                locked.countDown();
+            }
+        }, "summary-row-lock-holder");
+        holder.setDaemon(true);
+        holder.start();
+        return holder;
+    }
+
+    /**
+     * 把摘要心跳换成"被行锁挡住整段 lock_timeout 后放弃"的实现（返回 0）。
+     *
+     * <p>真实行锁只能挡住真实 UPDATE，等待时长由 {@code lock_timeout} 决定；这里固定睡满一段，
+     * 才能确定性地复现"确认已通过、心跳把它拖过租约期限"这个顺序。</p>
+     */
+    private static final class SlowSummaryHeartbeat implements RunRepository {
+        private final RunRepository delegate;
+        private final long delayMillis;
+        private final java.util.concurrent.atomic.AtomicInteger touches =
+                new java.util.concurrent.atomic.AtomicInteger();
+
+        SlowSummaryHeartbeat(RunRepository delegate, long delayMillis) {
+            this.delegate = delegate;
+            this.delayMillis = delayMillis;
+        }
+
+        int touches() {
+            return touches.get();
+        }
+
+        @Override
+        public void create(com.kama.jchatmind.execution.RunSummary summary) {
+            delegate.create(summary);
+        }
+
+        @Override
+        public com.kama.jchatmind.execution.RunSummary findById(String runId) {
+            return delegate.findById(runId);
+        }
+
+        @Override
+        public List<com.kama.jchatmind.execution.RunSummary> findBySessionId(String sessionId, RunOrigin origin) {
+            return delegate.findBySessionId(sessionId, origin);
+        }
+
+        @Override
+        public void appendEvent(com.kama.jchatmind.execution.RunEventRecord event) {
+            delegate.appendEvent(event);
+        }
+
+        @Override
+        public List<com.kama.jchatmind.execution.RunEventRecord> findEvents(String runId) {
+            return delegate.findEvents(runId);
+        }
+
+        @Override
+        public int complete(String runId, RunStatus target, Instant finishedAt, Long durationMs,
+                            com.kama.jchatmind.execution.TokenUsage usage, String errorCode,
+                            boolean traceIncomplete) {
+            return delegate.complete(runId, target, finishedAt, durationMs, usage, errorCode, traceIncomplete);
+        }
+
+        @Override
+        public int setAnswerMessageId(String runId, String answerMessageId) {
+            return delegate.setAnswerMessageId(runId, answerMessageId);
+        }
+
+        @Override
+        public int setAnswerMessageIdIfRunning(String runId, String answerMessageId) {
+            return delegate.setAnswerMessageIdIfRunning(runId, answerMessageId);
+        }
+
+        @Override
+        public int touch(String runId) {
+            return delegate.touch(runId);
+        }
+
+        @Override
+        public int touchWithin(String runId, int lockTimeoutMs) {
+            touches.incrementAndGet();
+            try {
+                Thread.sleep(delayMillis);
+            } catch (InterruptedException interrupted) {
+                Thread.currentThread().interrupt();
+            }
+            return 0;
+        }
+    }
     // ------------------------------------------------------------------ R2-04
 
     @Test
@@ -437,6 +595,13 @@ class RunResultGuardIntegrationTest {
         return holder;
     }
 
+
+    private static Instant heartbeatAt(String runId) {
+        java.sql.Timestamp value = jdbc.queryForObject(
+                "SELECT heartbeat_at FROM exobrain_run WHERE id = CAST(? AS uuid)",
+                java.sql.Timestamp.class, runId);
+        return value == null ? null : value.toInstant();
+    }
 
     private static Instant leaseExpiry(String jobId) {
         java.sql.Timestamp value = jdbc.queryForObject(

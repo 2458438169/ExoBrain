@@ -4,8 +4,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -145,6 +149,49 @@ public class JdbcRunRepository implements RunRepository {
         }
         return jdbc.update("UPDATE exobrain_run SET heartbeat_at = NOW() WHERE id = CAST(? AS uuid)",
                 UUID.fromString(runId).toString());
+    }
+
+    @Override
+    public int touchWithin(String runId, int lockTimeoutMs) {
+        if (!validId(runId)) {
+            return 0;
+        }
+        DataSource dataSource = jdbc.getDataSource();
+        if (dataSource == null) {
+            return touch(runId);
+        }
+        try (Connection connection = dataSource.getConnection()) {
+            boolean autoCommit = connection.getAutoCommit();
+            connection.setAutoCommit(false);
+            try {
+                try (Statement statement = connection.createStatement()) {
+                    statement.execute("SET LOCAL lock_timeout = " + Math.max(100, lockTimeoutMs));
+                }
+                int updated;
+                try (PreparedStatement statement = connection.prepareStatement(
+                        "UPDATE exobrain_run SET heartbeat_at = NOW() WHERE id = CAST(? AS uuid)")) {
+                    statement.setString(1, UUID.fromString(runId).toString());
+                    updated = statement.executeUpdate();
+                }
+                connection.commit();
+                return updated;
+            } catch (SQLException blocked) {
+                try {
+                    connection.rollback();
+                } catch (SQLException ignored) {
+                    // 回滚失败不影响判定：这一拍心跳本来就不写任何东西
+                }
+                return 0;
+            } finally {
+                try {
+                    connection.setAutoCommit(autoCommit);
+                } catch (SQLException ignored) {
+                    // 连接关闭时由驱动自行恢复
+                }
+            }
+        } catch (SQLException unavailable) {
+            return 0;
+        }
     }
 
     private static RunSummary mapRun(ResultSet rs, int row) throws SQLException {

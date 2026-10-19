@@ -109,7 +109,8 @@ public class RunLease {
             RunQueueRepository.RenewOutcome outcome = jobs.renewHeartbeat(
                     job.id(), job.fencingToken(), leaseSeconds, heartbeatLockTimeoutMs());
             if (outcome == RunQueueRepository.RenewOutcome.RENEWED) {
-                runs.touch(job.runId());
+                // 摘要心跳也用有界写：它被行锁挡住时不能拖住下一拍续租（R4-01 的同类窗口）。
+                refreshSummaryWithinBudget();
                 return;
             }
             if (outcome == RunQueueRepository.RenewOutcome.BLOCKED) {
@@ -157,20 +158,34 @@ public class RunLease {
         }
         if (outcome == RunQueueRepository.RenewOutcome.BLOCKED) {
             Confirmation confirmation = confirmByRead();
-            if (confirmation == Confirmation.CONFIRMED) {
-                log.warn("Run lease renewal stayed blocked by a row lock, but the lease is still valid: run={}",
-                        job.runId());
-                touch();
-                return;
-            }
             if (confirmation == Confirmation.CANCELLED) {
                 cancelled = true;
                 throw new RunCancelledException("本次运行已收到取消请求");
             }
-            leaseLost = true;
-            log.warn("Run lease could not be confirmed after a blocked checkpoint; the worker stops without "
-                    + "writing a result: run={}", job.runId());
-            throw new RunLeaseLostException("租约已丢失，本次执行不会写回结果");
+            if (confirmation != Confirmation.CONFIRMED) {
+                leaseLost = true;
+                log.warn("Run lease could not be confirmed after a blocked checkpoint; the worker stops without "
+                        + "writing a result: run={}", job.runId());
+                throw new RunLeaseLostException("租约已丢失，本次执行不会写回结果");
+            }
+            // 摘要心跳必须在<b>放行之前</b>做完，而且要有界：确认已经用掉了一部分租约，再执行一次无超时的
+            // UPDATE，等于把刚确认的有效性重新交给一次可能无限阻塞的写（R4-01）。写完之后再确认一次，
+            // 之后不再执行任何可能阻塞的数据库写入，直接放行这一步。
+            refreshSummaryWithinBudget();
+            Confirmation afterTouch = confirmByRead();
+            if (afterTouch == Confirmation.CANCELLED) {
+                cancelled = true;
+                throw new RunCancelledException("本次运行已收到取消请求");
+            }
+            if (afterTouch != Confirmation.CONFIRMED) {
+                leaseLost = true;
+                log.warn("Run lease expired while the summary heartbeat was being written; the worker stops "
+                        + "without writing a result: run={}", job.runId());
+                throw new RunLeaseLostException("租约已丢失，本次执行不会写回结果");
+            }
+            log.warn("Run lease renewal stayed blocked by a row lock, but the lease is still valid: run={}",
+                    job.runId());
+            return;
         }
         if (outcome == RunQueueRepository.RenewOutcome.LOST) {
             RunQueueJob current = jobs.findById(job.id()).orElse(null);
@@ -182,7 +197,9 @@ public class RunLease {
             log.warn("Run lease lost; the worker stops without writing a result: run={}", job.runId());
             throw new RunLeaseLostException("租约已丢失，本次执行不会写回结果");
         }
-        touch();
+        // RENEWED：租约刚被延长 {@code leaseSeconds}，而这次摘要写最多等 {@code leaseSeconds/3}（≤2 秒），
+        // 不可能跨过它。
+        refreshSummaryWithinBudget();
     }
 
     private RunQueueRepository.RenewOutcome renew() {
@@ -258,10 +275,20 @@ public class RunLease {
         return Confirmation.CONFIRMED;
     }
 
-    /** 05 的读取层用心跳判断“重启遗留的 RUNNING”；续租时同步刷新，失败不影响执行。 */
-    private void touch() {
+    /**
+     * 05 的读取层用心跳判断“重启遗留的 RUNNING”，所以续租时要同步刷新摘要。
+     *
+     * <p>这次刷新必须是<b>有界</b>写：普通的 {@code UPDATE exobrain_run SET heartbeat_at = NOW()} 会一直等行锁，
+     * 摘要行被锁住时检查点就会卡在这里，租约在等待中过期，返回后模型重试照样发出去（R4-01）。这里走独立连接 +
+     * {@code SET LOCAL lock_timeout}，最多等 {@code leaseSeconds/3}（≤2 秒）；被挡住就放弃这一拍——下一拍心跳
+     * 会再试，运行本身不靠这一次刷新存活。</p>
+     */
+    private void refreshSummaryWithinBudget() {
         try {
-            runs.touch(job.runId());
+            if (runs.touchWithin(job.runId(), heartbeatLockTimeoutMs()) > 0) {
+                return;
+            }
+            log.debug("Run summary heartbeat could not be refreshed within its lock budget: run={}", job.runId());
         } catch (RuntimeException failure) {
             log.warn("Run heartbeat could not be refreshed: run={}", job.runId());
         }

@@ -193,3 +193,18 @@ SiliconFlow 的 `BAAI/bge-m3`。新条目当时是**按语言模型（LLM）登�
 - **顺带发现（未改代码）**：`POST /api/agents` 缺 `chatOptions` 返回 500（`IllegalArgumentException:
   Chat options cannot be null`），`POST /api/chat-messages` 传 `role: "USER"` 这类大小写错误也返回 500
   （`HttpMessageNotReadableException` 无人处理）。两处都应该是 400。
+
+## 10. 第四轮独立验收（2026-10-19，R4）与修复
+
+第四轮验收结论：**R3-01 原始复现已通过**（两次复跑都只有 1 次模型请求、过期后 0 次），新增 1 个 P2。本轮已修复：
+
+| 编号 | 级别 | 问题 | 修复 |
+| --- | --- | --- | --- |
+| R4-01 | P2 | 无锁确认通过后仍调用同步 `touch()`（摘要心跳 UPDATE 无 `lock_timeout`），行锁一挡就跨过租约期限，返回后不复查直接放行（两次实测超出 9.114683 s / 9.088870 s，无迟到答案落库） | 新增 `RunRepository.touchWithin`（独立连接 + `SET LOCAL lock_timeout`，被挡返回 0）；检查点改为“无锁确认 → 有界摘要写 → 再确认 → 放行”，最终确认后不再有任何阻塞写；心跳线程的摘要刷新也改为有界 |
+
+验证：`RunResultGuardIntegrationTest` **10 → 12 项全过**（新增“摘要心跳被行锁挡住时按预算放弃”“摘要心跳把租约拖过期后检查点必须停止”两条，均为真实 PostgreSQL）；
+单元 `-Punit` **271（267 通过 / 4 跳过 / 0 失败）**；真实 PostgreSQL `-Ppostgres-it` **63 项，62 通过 / 0 失败 / 1 环境性错误**
+（仍是 `RetrievalIndexIntegrationTest.realEmbeddingAnswersBodyOnlyFacts` 撞中转站 503；生产已切 SiliconFlow，测试配置项未改）。
+
+- 仍未完成：验收方 R4 的 HTTP 故障注入脚本重跑、真实付费模型效果对比、GitHub Actions 远端执行。
+- 前端 20 个文件仍未提交，按用户要求先不提交。
