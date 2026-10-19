@@ -49,10 +49,11 @@ public class RunExecutor {
     private final SseService sse;
     private final RunQueueRepository jobs;
     private final RunRepository runs;
+    private final RunResultWriter resultWriter;
 
     public RunExecutor(JChatMindFactory factory, DemoExecutionService demoRuntime, RunAuthorization authorization,
                        ResourceAccess access, DemoAccessPolicy demo, SseService sse, RunQueueRepository jobs,
-                       RunRepository runs) {
+                       RunRepository runs, RunResultWriter resultWriter) {
         this.factory = factory;
         this.demoRuntime = demoRuntime;
         this.authorization = authorization;
@@ -61,6 +62,7 @@ public class RunExecutor {
         this.sse = sse;
         this.jobs = jobs;
         this.runs = runs;
+        this.resultWriter = resultWriter;
     }
 
     /** 执行一次已领取的运行；{@code lease} 由 worker 在领取后构造。 */
@@ -91,6 +93,9 @@ public class RunExecutor {
                             job.userInput(), job.historySnapshot(), accountGuard(job, lease))
                     : demoRuntime.runtime(job.agentId(), job.sessionId(), demoGuard(lease));
             runtime.attachRun(recorder);
+            // 07 / F01：消息落库、终态与答案关联都带运行态与 fencing 校验；模型调用不在这些事务里。
+            runtime.attachRunPersistence((message, finalAnswer) -> resultWriter.persistMessage(
+                    job.id(), lease.fencingToken(), job.runId(), message, finalAnswer));
             runtime.run();
             if (runtime.state() == AgentState.ERROR) {
                 lease.failed(recorder, "NO_ANSWER_PRODUCED");

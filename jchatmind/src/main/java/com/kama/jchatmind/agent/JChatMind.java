@@ -95,6 +95,9 @@ public class JChatMind {
 
     private ChatMessageFacadeService chatMessageFacadeService;
 
+    // 07：运行态守卫。非空时所有消息落库都经它校验运行状态与 fencing（见 RunResultWriter）。
+    private java.util.function.BiFunction<ChatMessageDTO, Boolean, String> guardedPersist;
+
     private Runnable runtimeGuard = () -> { throw new IllegalStateException("Runtime authorization is required"); };
     private String submittedUserInput;
 
@@ -212,12 +215,17 @@ public class JChatMind {
     // SystemMessage 不需要持久化
     // UserMessage 在每次用户发送问题之间就已经持久化过了
     private void saveMessage(Message message) {
-        saveMessage(message, List.of());
+        saveMessage(message, List.of(), false);
+    }
+
+    // finalAnswer 为 true 时，消息落库与 answer_message_id 关联在同一个短事务里完成。
+    private void saveMessage(Message message, List<AnswerCitation> citations) {
+        saveMessage(message, citations, false);
     }
 
     // citations 只在「本轮确实产生了面向用户的答复」时非空：内容由服务端从本次运行的来源登记补全，
     // 不是模型文本，也不从历史或客户端 metadata 继承。
-    private void saveMessage(Message message, List<AnswerCitation> citations) {
+    private void saveMessage(Message message, List<AnswerCitation> citations, boolean finalAnswer) {
         runtimeGuard.run();
         ChatMessageDTO.ChatMessageDTOBuilder builder = ChatMessageDTO.builder();
         if (message instanceof AssistantMessage assistantMessage) {
@@ -230,7 +238,7 @@ public class JChatMind {
                             .runId(this.runRecorder == null ? null : this.runRecorder.runId())
                             .build())
                     .build();
-            String messageId = persist(chatMessageDTO);
+            String messageId = persist(chatMessageDTO, finalAnswer);
             chatMessageDTO.setId(messageId);
             this.lastAssistantMessageId = messageId;
             pendingChatMessages.add(chatMessageDTO);
@@ -246,7 +254,7 @@ public class JChatMind {
                                 .runId(this.runRecorder == null ? null : this.runRecorder.runId())
                                 .build())
                         .build();
-                chatMessageDTO.setId(persist(chatMessageDTO));
+                chatMessageDTO.setId(persist(chatMessageDTO, false));
                 pendingChatMessages.add(chatMessageDTO);
             }
         } else {
@@ -255,16 +263,19 @@ public class JChatMind {
     }
 
     // 真实的消息落库边界：计时并记录 PERSIST_MESSAGE 事件。持久化失败保留已有事件、标记不完整，不伪造成功。
-    private String persist(ChatMessageDTO chatMessageDTO) {
+    // finalAnswer=true 时由守卫写入器把「消息 + answer_message_id」放进同一个短事务，并校验运行仍是 RUNNING。
+    private String persist(ChatMessageDTO chatMessageDTO, boolean finalAnswer) {
         RunRecorder recorder = this.runRecorder;
         long started = System.nanoTime();
         Instant startedAt = Instant.now();
         try {
-            CreateChatMessageResponse chatMessage = chatMessageFacadeService.createChatMessage(chatMessageDTO);
+            String messageId = this.guardedPersist != null
+                    ? this.guardedPersist.apply(chatMessageDTO, finalAnswer)
+                    : chatMessageFacadeService.createChatMessage(chatMessageDTO).getChatMessageId();
             if (recorder != null) {
                 recorder.persistedMessage(startedAt, recorder.elapsedMillis(started), RunEventStatus.SUCCEEDED, null);
             }
-            return chatMessage.getChatMessageId();
+            return messageId;
         } catch (RuntimeException failure) {
             if (recorder != null) {
                 recorder.persistedMessage(startedAt, recorder.elapsedMillis(started), RunEventStatus.FAILED,
@@ -628,9 +639,10 @@ public class JChatMind {
             this.userAnswerProduced = true;
         }
 
-        saveMessage(toPersist, citations);
-        // 最终答复与运行关联：只有本轮确实产出了面向用户的答复才写入 answerMessageId。
-        if (StringUtils.hasText(answerText) && this.runRecorder != null && this.lastAssistantMessageId != null) {
+        saveMessage(toPersist, citations, StringUtils.hasText(answerText));
+        // 最终答复与运行关联：守卫写入器已在同一个事务里写过 answer_message_id；没有守卫时才在这里补写。
+        if (StringUtils.hasText(answerText) && this.runRecorder != null && this.lastAssistantMessageId != null
+                && this.guardedPersist == null) {
             this.runRecorder.answerMessageId(this.lastAssistantMessageId);
         }
 
@@ -802,6 +814,14 @@ public class JChatMind {
     /** 05：绑定本次运行的记录器。未调用时行为与基线完全一致（不产生任何运行记录）。 */
     public void attachRun(RunRecorder recorder) {
         this.runRecorder = recorder;
+    }
+
+    /**
+     * 07：绑定带 fencing 的落库守卫。绑定后「消息落库 + 最终答复关联」在同一个短事务里校验运行状态；
+     * 未绑定（演示、单元测试、无运行上下文的调用）时退化为直接写消息。
+     */
+    public void attachRunPersistence(java.util.function.BiFunction<ChatMessageDTO, Boolean, String> guardedPersist) {
+        this.guardedPersist = guardedPersist;
     }
 
     /** 本次运行的最终状态（上层据此写入运行终态；ERROR 表示没有产出面向用户的答复）。 */

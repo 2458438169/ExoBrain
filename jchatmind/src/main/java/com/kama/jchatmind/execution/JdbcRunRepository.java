@@ -129,6 +129,16 @@ public class JdbcRunRepository implements RunRepository {
     }
 
     @Override
+    public int setAnswerMessageIdIfRunning(String runId, String answerMessageId) {
+        if (!validId(runId) || !validId(answerMessageId)) {
+            return 0;
+        }
+        return jdbc.update("UPDATE exobrain_run SET answer_message_id = CAST(? AS uuid) "
+                        + "WHERE id = CAST(? AS uuid) AND status = 'RUNNING' AND answer_message_id IS NULL",
+                UUID.fromString(answerMessageId).toString(), UUID.fromString(runId).toString());
+    }
+
+    @Override
     public int touch(String runId) {
         if (!validId(runId)) {
             return 0;

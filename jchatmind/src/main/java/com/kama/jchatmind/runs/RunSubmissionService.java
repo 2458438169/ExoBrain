@@ -109,7 +109,7 @@ public class RunSubmissionService {
      */
     public Submission replayAfterConflict(RunOrigin origin, String actorScope, String sessionId, String key,
                                           String digest) {
-        Optional<RunQueueJob> existing = jobs.findByIdempotencyKey(actorScope, normalizeKey(key), sessionId);
+        Optional<RunQueueJob> existing = jobs.findByIdempotencyKey(actorScope, sessionId, normalizeKey(key));
         if (existing.isPresent()) {
             return replay(existing.get(), digest);
         }

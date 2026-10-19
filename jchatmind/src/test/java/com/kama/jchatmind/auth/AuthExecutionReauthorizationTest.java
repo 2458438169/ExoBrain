@@ -15,6 +15,7 @@ import com.kama.jchatmind.execution.RunStatus;
 import com.kama.jchatmind.mapper.AgentMapper;
 import com.kama.jchatmind.mapper.ChatMessageMapper;
 import com.kama.jchatmind.mapper.ChatSessionMapper;
+import com.kama.jchatmind.runs.RunResultWriter;
 import com.kama.jchatmind.mapper.DocumentMapper;
 import com.kama.jchatmind.mapper.KnowledgeBaseMapper;
 import com.kama.jchatmind.message.SseMessage;
@@ -162,7 +163,11 @@ class AuthExecutionReauthorizationTest {
         demoProperties.setAgentId(AGENT);
         DemoAccessPolicy demo = new DemoAccessPolicy(demoProperties);
         DemoExecutionService demoRuntime = mock(DemoExecutionService.class);
-        return new RunExecutor(factory, demoRuntime, authorization, access, demo, sse, jobs, runs);
+        RunResultWriter resultWriter = mock(RunResultWriter.class);
+        when(resultWriter.persistMessage(anyString(), org.mockito.ArgumentMatchers.anyLong(), anyString(),
+                any(), org.mockito.ArgumentMatchers.anyBoolean()))
+                .thenAnswer(invocation -> "message-" + java.util.UUID.randomUUID());
+        return new RunExecutor(factory, demoRuntime, authorization, access, demo, sse, jobs, runs, resultWriter);
     }
 
     private RunLease lease(RunQueueJob job) {

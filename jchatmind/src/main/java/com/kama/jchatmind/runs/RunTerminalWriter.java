@@ -126,23 +126,33 @@ public class RunTerminalWriter {
                     || !job.leaseExpiresAt().isBefore(Instant.now())) {
                 continue;
             }
+            // 用户已经请求取消的任务不能记成“重启中断”：续租会刻意忽略 cancel_requested=true，
+            // 所以它的租约必然过期，但真正的原因是取消，终态必须是 CANCELLED。
+            boolean cancelRequested = job.cancelRequested();
+            RunStatus terminal = cancelRequested ? RunStatus.CANCELLED : RunStatus.INTERRUPTED;
+            String errorCode = cancelRequested ? "CANCELLED_BY_USER" : INTERRUPTED_BY_RESTART;
             RunSummary run = runs.findById(job.runId());
             Long durationMs = run == null || run.startedAt() == null ? null
                     : Math.max(0L, Duration.between(run.startedAt(), Instant.now()).toMillis());
-            int updated = runs.complete(job.runId(), RunStatus.INTERRUPTED, Instant.now(), durationMs,
-                    TokenUsage.UNKNOWN, INTERRUPTED_BY_RESTART, false);
+            int updated = runs.complete(job.runId(), terminal, Instant.now(), durationMs,
+                    TokenUsage.UNKNOWN, errorCode, false);
             if (updated == 0) {
                 // 运行在此期间已经进入别的终态；把任务行同步过去，不覆盖它。
                 String actual = jobs.runStatus(job.runId());
                 RunQueueStatus sync = actual == null ? RunQueueStatus.INTERRUPTED : RunQueueStatus.valueOf(actual);
                 jobs.markTerminal(job.id(), job.fencingToken(),
-                        sync.isTerminal() ? sync : RunQueueStatus.INTERRUPTED, INTERRUPTED_BY_RESTART);
+                        sync.isTerminal() ? sync : RunQueueStatus.INTERRUPTED, errorCode);
                 continue;
             }
-            jobs.markTerminal(job.id(), job.fencingToken(), RunQueueStatus.INTERRUPTED, INTERRUPTED_BY_RESTART);
+            jobs.markTerminal(job.id(), job.fencingToken(), RunQueueStatus.valueOf(terminal.name()), errorCode);
             interrupted++;
-            log.warn("Run lease expired; the run was marked INTERRUPTED and will not be replayed: run={} "
-                    + "attempts={}", job.runId(), job.attempts());
+            if (cancelRequested) {
+                log.info("Run was cancelled by the user before its lease expired; terminal state recorded as "
+                        + "CANCELLED: run={}", job.runId());
+            } else {
+                log.warn("Run lease expired; the run was marked INTERRUPTED and will not be replayed: run={} "
+                        + "attempts={}", job.runId(), job.attempts());
+            }
         }
         return interrupted;
     }

@@ -5,8 +5,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
@@ -150,6 +154,78 @@ public class RunQueueRepository {
                         + " WHERE id = CAST(? AS uuid) AND fencing_token = ? AND status = 'RUNNING'"
                         + " AND cancel_requested = FALSE AND lease_expires_at > NOW()",
                 Math.max(1, leaseSeconds), canonical(jobId), fencingToken) > 0;
+    }
+
+    /** 心跳续租的三种结局：续上了 / 被别的锁挡住（下一拍再试）/ 租约真的没了（取消、接管或终态）。 */
+    public enum RenewOutcome {
+        RENEWED,
+        BLOCKED,
+        LOST
+    }
+
+    private static final String RENEW_SQL = "UPDATE exobrain_chat_run_job SET"
+            + " lease_expires_at = NOW() + (? * INTERVAL '1 second'), updated_at = NOW()"
+            + " WHERE id = CAST(? AS uuid) AND fencing_token = ? AND status = 'RUNNING'"
+            + " AND cancel_requested = FALSE AND lease_expires_at > NOW()";
+
+    /**
+     * 心跳专用的续租：独立连接 + 独立事务 + {@code lock_timeout}。
+     *
+     * <p>普通 {@link #renew} 会一直等待行锁：如果同一个任务的行正被一条慢消息事务持有，这条 UPDATE 会挂住
+     * 调用它的线程。心跳因此单独走这里——被锁挡住就如实返回 {@link RenewOutcome#BLOCKED}，让下一拍重试，
+     * 而不是把运行判成“没有租约”。</p>
+     */
+    public RenewOutcome renewHeartbeat(String jobId, long fencingToken, int leaseSeconds, int lockTimeoutMs) {
+        DataSource dataSource = jdbc.getDataSource();
+        if (dataSource == null) {
+            return renew(jobId, fencingToken, leaseSeconds) ? RenewOutcome.RENEWED : RenewOutcome.LOST;
+        }
+        try (Connection connection = dataSource.getConnection()) {
+            boolean autoCommit = connection.getAutoCommit();
+            connection.setAutoCommit(false);
+            try {
+                try (Statement statement = connection.createStatement()) {
+                    statement.execute("SET LOCAL lock_timeout = " + Math.max(100, lockTimeoutMs));
+                }
+                int updated;
+                try (PreparedStatement statement = connection.prepareStatement(RENEW_SQL)) {
+                    statement.setInt(1, Math.max(1, leaseSeconds));
+                    statement.setString(2, canonical(jobId));
+                    statement.setLong(3, fencingToken);
+                    updated = statement.executeUpdate();
+                }
+                connection.commit();
+                return updated > 0 ? RenewOutcome.RENEWED : RenewOutcome.LOST;
+            } catch (SQLException failure) {
+                try {
+                    connection.rollback();
+                } catch (SQLException ignored) {
+                    // 回滚失败不影响判定：这一拍心跳本来就不写任何东西
+                }
+                if (blockedByLock(failure)) {
+                    return RenewOutcome.BLOCKED;
+                }
+                // 其它数据库错误也按“这一拍没续上”处理：下一拍重试，真正的租约丢失由状态变更体现。
+                return RenewOutcome.BLOCKED;
+            } finally {
+                try {
+                    connection.setAutoCommit(autoCommit);
+                } catch (SQLException ignored) {
+                    // 连接关闭时由驱动自行恢复
+                }
+            }
+        } catch (SQLException unavailable) {
+            return RenewOutcome.BLOCKED;
+        }
+    }
+
+    private static boolean blockedByLock(SQLException failure) {
+        String state = failure.getSQLState();
+        if ("55P03".equals(state) || "57014".equals(state)) {
+            return true;
+        }
+        String message = failure.getMessage();
+        return message != null && message.toLowerCase(java.util.Locale.ROOT).contains("lock timeout");
     }
 
     /** 运行中取消：只记录协作式停止请求；不会撤回已经发出的外部请求。 */

@@ -152,10 +152,14 @@ public class RunWorker {
 
     private void runNow(RunQueueJob job) {
         RunLease lease = new RunLease(job, jobs, terminalWriter, runs, settings.leaseSeconds());
+        // 心跳与步骤检查点解耦：长模型调用期间也要续租，否则仍活着的运行会被过期扫描误判为中断。
+        lease.startHeartbeat();
         try {
             executor.execute(job, lease);
         } catch (RuntimeException failure) {
             log.warn("对话任务执行异常: jobId={} cause={}", job.id(), failure.getClass().getSimpleName());
+        } finally {
+            lease.close();
         }
     }
 

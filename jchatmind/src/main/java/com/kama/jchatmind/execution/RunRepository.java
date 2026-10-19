@@ -32,5 +32,11 @@ public interface RunRepository {
 
     int setAnswerMessageId(String runId, String answerMessageId);
 
+    /**
+     * 只有运行仍是 RUNNING 时才挂上答案关联。返回 0 表示运行已进入终态（被中断/失败/取消）或关联已存在，
+     * 调用方必须回滚这次答案写入，不能留下“运行已中断 + 又有最终答案”的组合。
+     */
+    int setAnswerMessageIdIfRunning(String runId, String answerMessageId);
+
     int touch(String runId);
 }
