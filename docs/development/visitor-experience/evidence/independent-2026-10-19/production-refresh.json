@@ -1,0 +1,28 @@
+{
+  "passed": true,
+  "sid": "f9b24e7e-641b-41f2-9dae-efa08e599243",
+  "runId": "fb206ee1-442b-428c-9ed1-09303eb68d98",
+  "answerMessageId": "032afbde-6d8d-411b-9c87-20836f7c3676",
+  "status": "SUCCEEDED",
+  "eventCount": 12,
+  "writesAfterRefresh": 0,
+  "inputEnabled": true,
+  "assets": [
+    {
+      "path": "/assets/index-CC_NqiWi.css",
+      "http": 200,
+      "matches": true
+    },
+    {
+      "path": "/assets/index-no8jqHws.js",
+      "http": 200,
+      "matches": true
+    }
+  ],
+  "width": 390,
+  "scrollWidth": 390,
+  "connected": true,
+  "answerIds": [
+    "032afbde-6d8d-411b-9c87-20836f7c3676"
+  ]
+}

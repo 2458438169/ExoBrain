@@ -1,0 +1,41 @@
+{
+  "passed": true,
+  "submittedStatus": 200,
+  "runningBeforeCancel": "RUNNING",
+  "getStatus": 405,
+  "cancelReply": {
+    "code": 200,
+    "message": "success",
+    "data": {
+      "runId": "7685253c-4994-4a4d-92f5-1630cdb2aa03",
+      "status": "RUNNING",
+      "cancelRequested": true,
+      "message": "已请求停止：后续检查点不再发起新的工具调用；已经发出的外部请求无法撤回"
+    }
+  },
+  "data": {
+    "summary": {
+      "runId": "7685253c-4994-4a4d-92f5-1630cdb2aa03",
+      "status": "CANCELLED",
+      "interrupted": false,
+      "agentName": "ExoBrain 演示助手",
+      "modelName": "DeepSeek-V4.1-Flash",
+      "submittedAt": "2026-10-19T15:37:43.605997Z",
+      "startedAt": "2026-10-19T15:37:43.615990Z",
+      "finishedAt": "2026-10-19T15:37:48.658545Z",
+      "durationMs": 5042,
+      "queueDurationMs": 9,
+      "inputTokens": 1474,
+      "outputTokens": 181,
+      "totalTokens": 1714,
+      "errorCode": "CANCELLED_BY_USER",
+      "traceIncomplete": false,
+      "triggeringMessageId": "888c8f1e-a114-49e3-a74a-131922f1bcc7",
+      "answerMessageId": null
+    },
+    "sid": "3a9834a3-40f6-4408-85fd-f43ab1461106",
+    "assistantAnswers": 0
+  },
+  "draft": "取消后保留这条草稿",
+  "inputEnabled": true
+}

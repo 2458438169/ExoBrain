@@ -67,7 +67,7 @@ class JChatMindCitationTest {
         List<ChatMessageDTO> saved = new ArrayList<>();
         run(List.of(
                 knowledgeRound("call-k1", envelope),
-                answerRound("call-a1", "回答正文", "[\"ret-1:2\",\"ret-1:1\"]")),
+                answerRound("call-a1", "第二篇事实 [1]；第一篇事实 [2]。", "[\"ret-1:2\",\"ret-1:1\"]")),
                 saved, List.of(kb(KB)), envelope);
 
         ChatMessageDTO answer = answerIn(saved);
@@ -77,6 +77,8 @@ class JChatMindCitationTest {
         // 编号由服务端按 (检索序号, rank) 生成：模型给出的顺序（先 2 后 1）不影响编号。
         assertEquals(List.of(1, 2), citations.stream().map(AnswerCitation::label).toList());
         assertEquals(List.of("chunk-a", "chunk-b"), citations.stream().map(AnswerCitation::chunkId).toList());
+        assertEquals("第二篇事实 [2]；第一篇事实 [1]。", answer.getContent(),
+                "prose markers must follow the same permutation as the verified source labels");
 
         AnswerCitation first = citations.get(0);
         assertEquals("ret-1:1", first.citationId());
@@ -109,16 +111,99 @@ class JChatMindCitationTest {
     }
 
     @Test
+    void duplicateIdsAndSourceAliasesUseTheSameVerifiedLabel() throws Exception {
+        String envelope = envelope(RetrievalEnvelope.ok("ret-1", List.of(
+                hit("ret-1:1", "chunk-a", "同一片段", 1, 3, 5),
+                hit("ret-1:2", "chunk-a", "同一片段", 2, 3, 5))));
+        List<ChatMessageDTO> saved = new ArrayList<>();
+        run(List.of(knowledgeRound("call-k1", envelope),
+                answerRound("call-a1", "事实 [1]；另一提法 [2]；重复来源 [3]。",
+                        "[\"ret-1:2\",\"ret-1:1\",\"ret-1:2\"]")), saved, List.of(kb(KB)), envelope);
+        assertEquals(1, answerIn(saved).getMetadata().getCitations().size());
+        assertEquals("事实 [1]；另一提法 [1]；重复来源 [1]。", answerIn(saved).getContent());
+    }
+
+    @Test
+    void aReferencedUnknownIdCannotBorrowTheNextValidSourcesLabel() throws Exception {
+        String envelope = envelope(RetrievalEnvelope.ok("ret-1", List.of(
+                hit("ret-1:1", "chunk-a", "真实片段", 1, 3, 5))));
+        List<ChatMessageDTO> saved = new ArrayList<>();
+        RuntimeException error = assertThrows(RuntimeException.class, () -> run(List.of(
+                knowledgeRound("call-k1", envelope),
+                answerRound("call-a1", "未知来源的说法 [1]；真实来源 [2]。",
+                        "[\"other-run:1\",\"ret-1:1\"]")), saved, List.of(kb(KB)), envelope));
+        assertEquals("INVALID_ANSWER_FORMAT", RunLifecycleService.classify(error));
+        assertFalse(saved.stream().anyMatch(m -> m.getRole() == ChatMessageDTO.RoleType.ASSISTANT
+                && !m.getContent().isEmpty()), "an invalid reference must stop before answer persistence");
+    }
+
+    @Test
+    void anUnreferencedRejectedIdDoesNotShiftTheMeaningOfAValidMarker() throws Exception {
+        String envelope = envelope(RetrievalEnvelope.ok("ret-1", List.of(
+                hit("ret-1:1", "chunk-a", "真实片段", 1, 3, 5))));
+        List<ChatMessageDTO> saved = new ArrayList<>();
+        run(List.of(knowledgeRound("call-k1", envelope),
+                answerRound("call-a1", "真实片段支持这句话 [2]。", "[\"unknown:1\",\"ret-1:1\"]")),
+                saved, List.of(kb(KB)), envelope);
+        assertEquals("真实片段支持这句话 [1]。", answerIn(saved).getContent());
+        assertEquals("chunk-a", answerIn(saved).getMetadata().getCitations().getFirst().chunkId());
+    }
+
+    @Test
+    void aReferencedUnauthorizedSourceNeverProducesAnAnswer() throws Exception {
+        String envelope = envelope(RetrievalEnvelope.ok("ret-1", List.of(
+                hit("ret-1:1", "chunk-a", "越权来源", 1, 3, 5))));
+        List<ChatMessageDTO> saved = new ArrayList<>();
+        assertThrows(RuntimeException.class, () -> run(List.of(knowledgeRound("call-k1", envelope),
+                answerRound("call-a1", "说法 [1]", "[\"ret-1:1\"]")), saved, List.of(kb(OTHER_KB)), envelope));
+        assertFalse(saved.stream().anyMatch(m -> m.getRole() == ChatMessageDTO.RoleType.ASSISTANT
+                && !m.getContent().isEmpty()));
+    }
+
+    @Test
+    void unsupportedOrOutOfRangePositionsAreRejectedBeforePersistence() throws Exception {
+        String envelope = envelope(RetrievalEnvelope.ok("ret-1", List.of(
+                hit("ret-1:1", "chunk-a", "片段", 1, 3, 5))));
+        for (String marker : List.of("[2]", "[0]", "[1-3]", "[9999999999999999999999999]")) {
+            List<ChatMessageDTO> saved = new ArrayList<>();
+            RuntimeException error = assertThrows(RuntimeException.class, () -> run(List.of(
+                    knowledgeRound("call-k1", envelope), answerRound("call-a1", "说法 " + marker,
+                            "[\"ret-1:1\"]")), saved, List.of(kb(KB)), envelope));
+            assertEquals("INVALID_ANSWER_FORMAT", RunLifecycleService.classify(error));
+            assertFalse(saved.stream().anyMatch(m -> m.getRole() == ChatMessageDTO.RoleType.ASSISTANT
+                    && !m.getContent().isEmpty()));
+        }
+    }
+
+    @Test
+    void renumberingPreservesCodeLinksAndEscapedExamplesWithTheirOriginalOffsets() throws Exception {
+        String envelope = envelope(RetrievalEnvelope.ok("ret-1", List.of(
+                hit("ret-1:1", "chunk-a", "第一篇", 1, 3, 5),
+                hit("ret-1:2", "chunk-b", "第二篇", 2, 8, 9))));
+        String examples = "代码 `array[1]` 和 ``[2]``；转义 \\[1]；链接 [[1]](https://example.test/[2])。\r\n"
+                + "\r\n```java\r\narray[1]; // [99]\r\n```\r\n"
+                + "\r\n~~~text\r\n[2]\r\n~~~\r\n"
+                + "\r\n    array[1]; // indented code [99]\r\n\r\n"
+                + "[示例 [1]][example]\r\n\r\n[example]: https://example.test/[2]\r\n\r\n";
+        List<ChatMessageDTO> saved = new ArrayList<>();
+        run(List.of(knowledgeRound("call-k1", envelope),
+                answerRound("call-a1", examples + "第二篇 [1]；第一篇 [2]；合并 [1, 2]。",
+                        "[\"ret-1:2\",\"ret-1:1\"]")), saved, List.of(kb(KB)), envelope);
+        assertEquals(examples + "第二篇 [2]；第一篇 [1]；合并 [2][1]。", answerIn(saved).getContent());
+    }
+
+    @Test
     @DisplayName("an answer without citationIds still works (compatibility with the old directAnswer call)")
     void answerWithoutCitationIdsStillWorks() throws Exception {
         String envelope = envelope(RetrievalEnvelope.ok("ret-1", List.of(hit("ret-1:1", "chunk-a", "片段", 1, 1, 2))));
         List<ChatMessageDTO> saved = new ArrayList<>();
         run(List.of(
                 knowledgeRound("call-k1", envelope),
-                answerRound("call-a1", "普通答复", null)),
+                answerRound("call-a1", "普通答复，数组元素 array[1]，选项 [2]。", null)),
                 saved, List.of(kb(KB)), envelope);
 
         assertNull(answerIn(saved).getMetadata().getCitations());
+        assertEquals("普通答复，数组元素 array[1]，选项 [2]。", answerIn(saved).getContent());
         assertTrue(saved.stream().anyMatch(message -> message.getRole() == ChatMessageDTO.RoleType.TOOL
                         && message.getContent() != null && message.getContent().contains("答复已交付")),
                 "the directAnswer tool still completes a plain answer");

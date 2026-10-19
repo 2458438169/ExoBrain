@@ -1,0 +1,284 @@
+[
+  {
+    "runId": "09997691-b3ab-4fbc-98d6-84e2eda2e88c",
+    "sessionId": "301293a6-2be5-4933-8ed7-0350e674e99a",
+    "answer": "ExoBrain 是一个可核验的 RAG 问答项目：它检索公开资料、给出带原文出处的回答，并把一次回答的执行过程记录下来供核对 [1]。\n\n三个要点：\n1. 回答带出处：模型必须通过检索拿到资料片段才组织结论，每条来源都指向具体文档、行号范围与片段哈希 [1]。\n2. 过程可核对：每轮问答都有运行记录，含模型调用、工具调用、检索与落库的真实耗时和状态；失败、取消、中断都如实显示 [1]。\n3. 失败可恢复：重复点击发送不会重复执行，刷新页面不丢问题，重启时结果未知的任务不会被悄悄重放 [1]。\n\n你可以亲自体验三条路径 [2]：直接提问（一句结论 + 要点，来源可点开看原文）、展开「查看过程」看这一轮各步骤与耗时、以及询问实现细节或「有什么做不到」，回答会明确说边界而不是编造 [2]。游客模式无需登录，只能看到公开资料与自己的会话 [3]。",
+    "requestedCitationIds": [
+      [
+        "865495a3-c3f6-49f3-8e53-a424653b903d:2",
+        "51ba8f28-7e1a-49e5-bd64-05509d1d3f71:1",
+        "51ba8f28-7e1a-49e5-bd64-05509d1d3f71:3"
+      ]
+    ],
+    "labels": [
+      {
+        "label": 1,
+        "citationId": "865495a3-c3f6-49f3-8e53-a424653b903d:2",
+        "source": {
+          "endLine": 15,
+          "startLine": 9,
+          "documentId": "78f6ebe5-9685-420b-a408-80b7f8b672ff",
+          "sourceHash": "177e48ad96039972de8455c24f541a29d26f74832a729ebd6139f9941a891f38",
+          "headingPath": [
+            "ExoBrain 产品导览（2026-10-19 版）",
+            "用一句话和三个要点说明这个项目"
+          ],
+          "documentName": "01_product_guide.md"
+        }
+      },
+      {
+        "label": 2,
+        "citationId": "51ba8f28-7e1a-49e5-bd64-05509d1d3f71:1",
+        "source": {
+          "endLine": 23,
+          "startLine": 19,
+          "documentId": "78f6ebe5-9685-420b-a408-80b7f8b672ff",
+          "sourceHash": "177e48ad96039972de8455c24f541a29d26f74832a729ebd6139f9941a891f38",
+          "headingPath": [
+            "ExoBrain 产品导览（2026-10-19 版）",
+            "三条可以亲自体验的路径"
+          ],
+          "documentName": "01_product_guide.md"
+        }
+      },
+      {
+        "label": 3,
+        "citationId": "51ba8f28-7e1a-49e5-bd64-05509d1d3f71:3",
+        "source": {
+          "endLine": 36,
+          "startLine": 33,
+          "documentId": "78f6ebe5-9685-420b-a408-80b7f8b672ff",
+          "sourceHash": "177e48ad96039972de8455c24f541a29d26f74832a729ebd6139f9941a891f38",
+          "headingPath": [
+            "ExoBrain 产品导览（2026-10-19 版）",
+            "公开体验的边界"
+          ],
+          "documentName": "01_product_guide.md"
+        }
+      }
+    ]
+  },
+  {
+    "runId": "6a1a6bec-9cb6-4ca5-827b-9097dd871991",
+    "sessionId": "660bf61f-40d2-4ef1-b802-f7c409db9492",
+    "answer": "结论：每条引用都指向具体文档与行号，点开来源能看到那段原文，但引用只证明来源被校验过，不等于结论一定正确。\n\n主要可以这样核对：\n\n1. **引用指向原文**：回答里的每条来源都指向具体文档、行号范围与片段哈希，点开就能看到文档名、行号范围和原文本身。\n\n2. **事实来源与口径**：事实来自仓库源码、部署配置和真实运行记录，耗时与测试数量只引用真实输出并标注日期；「已实现 / 已部署 / 已验证」会尽量区分，不把其中一个说成全部。\n\n3. **怎么判断边界**：想看能力是否存在，对照源码位置与当前仓库提交；想看是否验证过，看测试文件与运行记录，区分单元、集成与真实生产证据；想看边界就直接问「现在还做不到什么」。\n\n关于引用与原文的关系：引用说明这条来源被服务端校验过，只代表来源存在，不代表模型组织的结论一定正确，仍需人工判断。",
+    "requestedCitationIds": [
+      [
+        "fc8a5d53-6af0-48d2-84d6-721a29384ac8:1",
+        "f79ad5ac-ada8-4aaf-ad95-ab174bb00680:2",
+        "f79ad5ac-ada8-4aaf-ad95-ab174bb00680:3",
+        "fc8a5d53-6af0-48d2-84d6-721a29384ac8:3"
+      ]
+    ],
+    "labels": [
+      {
+        "label": 1,
+        "citationId": "f79ad5ac-ada8-4aaf-ad95-ab174bb00680:2",
+        "source": {
+          "endLine": 42,
+          "startLine": 40,
+          "documentId": "78f6ebe5-9685-420b-a408-80b7f8b672ff",
+          "sourceHash": "177e48ad96039972de8455c24f541a29d26f74832a729ebd6139f9941a891f38",
+          "headingPath": [
+            "ExoBrain 产品导览（2026-10-19 版）",
+            "这一版资料的核对口径"
+          ],
+          "documentName": "01_product_guide.md"
+        }
+      },
+      {
+        "label": 2,
+        "citationId": "f79ad5ac-ada8-4aaf-ad95-ab174bb00680:3",
+        "source": {
+          "endLine": 54,
+          "startLine": 52,
+          "documentId": "651f8308-e976-4e1a-8372-1b077735686f",
+          "sourceHash": "a6008c717a3e03feb24ef3bde4af81c8d470582ebc3e5b35b6aa66d2e07e38fa",
+          "headingPath": [
+            "ExoBrain 能力归属（2026-10-19 版）",
+            "怎么核对这些说法"
+          ],
+          "documentName": "03_contribution_map.md"
+        }
+      },
+      {
+        "label": 3,
+        "citationId": "fc8a5d53-6af0-48d2-84d6-721a29384ac8:1",
+        "source": {
+          "endLine": 15,
+          "startLine": 9,
+          "documentId": "78f6ebe5-9685-420b-a408-80b7f8b672ff",
+          "sourceHash": "177e48ad96039972de8455c24f541a29d26f74832a729ebd6139f9941a891f38",
+          "headingPath": [
+            "ExoBrain 产品导览（2026-10-19 版）",
+            "用一句话和三个要点说明这个项目"
+          ],
+          "documentName": "01_product_guide.md"
+        }
+      },
+      {
+        "label": 4,
+        "citationId": "fc8a5d53-6af0-48d2-84d6-721a29384ac8:3",
+        "source": {
+          "endLine": 29,
+          "startLine": 27,
+          "documentId": "78f6ebe5-9685-420b-a408-80b7f8b672ff",
+          "sourceHash": "177e48ad96039972de8455c24f541a29d26f74832a729ebd6139f9941a891f38",
+          "headingPath": [
+            "ExoBrain 产品导览（2026-10-19 版）",
+            "能解决的问题与不能解决的问题"
+          ],
+          "documentName": "01_product_guide.md"
+        }
+      }
+    ]
+  },
+  {
+    "runId": "b2b067f3-56a6-4783-b8c1-4a73895d4b07",
+    "sessionId": "fffe763c-ed0f-423a-a0b4-3e8266046d0e",
+    "answer": "简单说：技术栈与 Agent 主链路沿用上游 JChatMind，新增集中在「工程可信度」与「多租户与模型管理」两块 [1][2]。\n\n- 继承（整条主链路保留）：Java + Spring Boot + Spring AI 的 Agent 主循环、按助手配置装配工具、会话与消息持久化、SSE 状态推送，以及基础 Markdown 解析与向量检索；同时保留 MIT 许可与上游版权声明 [1][2]。\n- 新增之一（运行可靠性与可核验性）：Markdown 解析按文档隔离、持久化导入队列与对话任务（含租约与幂等）、正文级索引与带行号的结构化来源、可核验引用、运行追踪，以及检索评测与冻结资产 [3]。\n- 新增之二（权限与模型运维）：知识库、助手、会话按所有者隔离（管理员也不越权读取他人私有资源），模型目录与密钥加密、向量模型换绑守卫，以及统一的 CI 与检查脚本 [3]。\n\n边界提醒：这些新增项资料标注的是「实现并通过本仓库检查」，其中 CI 只写了本机脚本输出，远端结果需另行标注 [2][3]。",
+    "requestedCitationIds": [
+      [
+        "9e5fc819-e72a-46b8-8203-60afc471c214:2",
+        "9e5fc819-e72a-46b8-8203-60afc471c214:1",
+        "77d6e16a-c72d-4eff-910e-5b64a9a58e58:3",
+        "77d6e16a-c72d-4eff-910e-5b64a9a58e58:2"
+      ]
+    ],
+    "labels": [
+      {
+        "label": 1,
+        "citationId": "9e5fc819-e72a-46b8-8203-60afc471c214:1",
+        "source": {
+          "endLine": 5,
+          "startLine": 3,
+          "documentId": "651f8308-e976-4e1a-8372-1b077735686f",
+          "sourceHash": "a6008c717a3e03feb24ef3bde4af81c8d470582ebc3e5b35b6aa66d2e07e38fa",
+          "headingPath": [
+            "ExoBrain 能力归属（2026-10-19 版）"
+          ],
+          "documentName": "03_contribution_map.md"
+        }
+      },
+      {
+        "label": 2,
+        "citationId": "9e5fc819-e72a-46b8-8203-60afc471c214:2",
+        "source": {
+          "endLine": 18,
+          "startLine": 9,
+          "documentId": "651f8308-e976-4e1a-8372-1b077735686f",
+          "sourceHash": "a6008c717a3e03feb24ef3bde4af81c8d470582ebc3e5b35b6aa66d2e07e38fa",
+          "headingPath": [
+            "ExoBrain 能力归属（2026-10-19 版）",
+            "ExoBrain 基于什么项目，保留了哪些能力"
+          ],
+          "documentName": "03_contribution_map.md"
+        }
+      },
+      {
+        "label": 3,
+        "citationId": "77d6e16a-c72d-4eff-910e-5b64a9a58e58:2",
+        "source": {
+          "endLine": 33,
+          "startLine": 31,
+          "documentId": "651f8308-e976-4e1a-8372-1b077735686f",
+          "sourceHash": "a6008c717a3e03feb24ef3bde4af81c8d470582ebc3e5b35b6aa66d2e07e38fa",
+          "headingPath": [
+            "ExoBrain 能力归属（2026-10-19 版）",
+            "本仓库新增了什么"
+          ],
+          "documentName": "03_contribution_map.md"
+        }
+      },
+      {
+        "label": 4,
+        "citationId": "77d6e16a-c72d-4eff-910e-5b64a9a58e58:3",
+        "source": {
+          "endLine": 31,
+          "startLine": 22,
+          "documentId": "651f8308-e976-4e1a-8372-1b077735686f",
+          "sourceHash": "a6008c717a3e03feb24ef3bde4af81c8d470582ebc3e5b35b6aa66d2e07e38fa",
+          "headingPath": [
+            "ExoBrain 能力归属（2026-10-19 版）",
+            "本仓库新增了什么"
+          ],
+          "documentName": "03_contribution_map.md"
+        }
+      }
+    ]
+  },
+  {
+    "runId": "fb206ee1-442b-428c-9ed1-09303eb68d98",
+    "sessionId": "f9b24e7e-641b-41f2-9dae-efa08e599243",
+    "answer": "结论：本仓库基于 JChatMind 继续开发，上游的 Agent 骨架与基础链路原样保留，新增集中在「检索与可信度」和「工程化与隔离」两类。\n\n继承（上游已有，本仓库保留）[1]：Java + Spring Boot + Spring AI 的 Agent 主循环（判断→执行工具→读结果→继续）、按配置装载工具与知识库范围、会话与消息持久化、SSE 状态推送，以及基础 Markdown 解析与向量检索链路；同时保留 MIT 许可与上游版权声明。\n\n新增第一类——检索与可信度[2]：正文级索引与结构化来源（片段带 documentId、sourceHash、行号范围与索引版本）、可核验引用（只登记本轮真实检索结果，界面按行定位原文）、检索评测与冻结资产（Hit@3 / Recall@3 / MRR@3）、每轮运行追踪，以及 Markdown 解析隔离。\n\n新增第二类——工程化与隔离[2][3]：资源按所有者隔离（管理员也不读他人私有资源）、模型目录与密钥加密（含向量模型换绑守卫）、持久化导入队列（失败重试、固定错误码）、持久化对话任务（租约 + fencing + 幂等键），以及 CI 与检查脚本统一入口。",
+    "requestedCitationIds": [
+      [
+        "3a0b1313-ba07-4c0c-a0f5-a5913861b35a:1",
+        "3a0b1313-ba07-4c0c-a0f5-a5913861b35a:2",
+        "531c394e-9358-48b6-800b-9f62f79b92b1:3",
+        "3a0b1313-ba07-4c0c-a0f5-a5913861b35a:3"
+      ]
+    ],
+    "labels": [
+      {
+        "label": 1,
+        "citationId": "3a0b1313-ba07-4c0c-a0f5-a5913861b35a:1",
+        "source": {
+          "endLine": 5,
+          "startLine": 3,
+          "documentId": "651f8308-e976-4e1a-8372-1b077735686f",
+          "sourceHash": "a6008c717a3e03feb24ef3bde4af81c8d470582ebc3e5b35b6aa66d2e07e38fa",
+          "headingPath": [
+            "ExoBrain 能力归属（2026-10-19 版）"
+          ],
+          "documentName": "03_contribution_map.md"
+        }
+      },
+      {
+        "label": 2,
+        "citationId": "3a0b1313-ba07-4c0c-a0f5-a5913861b35a:2",
+        "source": {
+          "endLine": 18,
+          "startLine": 9,
+          "documentId": "651f8308-e976-4e1a-8372-1b077735686f",
+          "sourceHash": "a6008c717a3e03feb24ef3bde4af81c8d470582ebc3e5b35b6aa66d2e07e38fa",
+          "headingPath": [
+            "ExoBrain 能力归属（2026-10-19 版）",
+            "ExoBrain 基于什么项目，保留了哪些能力"
+          ],
+          "documentName": "03_contribution_map.md"
+        }
+      },
+      {
+        "label": 3,
+        "citationId": "3a0b1313-ba07-4c0c-a0f5-a5913861b35a:3",
+        "source": {
+          "endLine": 33,
+          "startLine": 31,
+          "documentId": "651f8308-e976-4e1a-8372-1b077735686f",
+          "sourceHash": "a6008c717a3e03feb24ef3bde4af81c8d470582ebc3e5b35b6aa66d2e07e38fa",
+          "headingPath": [
+            "ExoBrain 能力归属（2026-10-19 版）",
+            "本仓库新增了什么"
+          ],
+          "documentName": "03_contribution_map.md"
+        }
+      },
+      {
+        "label": 4,
+        "citationId": "531c394e-9358-48b6-800b-9f62f79b92b1:3",
+        "source": {
+          "endLine": 31,
+          "startLine": 22,
+          "documentId": "651f8308-e976-4e1a-8372-1b077735686f",
+          "sourceHash": "a6008c717a3e03feb24ef3bde4af81c8d470582ebc3e5b35b6aa66d2e07e38fa",
+          "headingPath": [
+            "ExoBrain 能力归属（2026-10-19 版）",
+            "本仓库新增了什么"
+          ],
+          "documentName": "03_contribution_map.md"
+        }
+      }
+    ]
+  }
+]

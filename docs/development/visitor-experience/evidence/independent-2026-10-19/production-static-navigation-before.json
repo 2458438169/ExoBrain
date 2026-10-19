@@ -1,0 +1,77 @@
+{
+  "readyState": "complete",
+  "navigation": [
+    {
+      "responseStart": 2252.100000023842,
+      "domInteractive": 2277.5,
+      "domContentLoaded": 35205.60000002384,
+      "load": 35206
+    }
+  ],
+  "resources": [
+    {
+      "host": "exobrain.sharmoon.cc.cd",
+      "path": "/admin/assets/index-tFslHre9.js",
+      "kind": "script",
+      "duration": 32838.30000001192,
+      "encodedBytes": 460268,
+      "decodedBytes": 1449534,
+      "transferBytes": 460568
+    },
+    {
+      "host": "exobrain.sharmoon.cc.cd",
+      "path": "/admin/assets/index-CC_NqiWi.css",
+      "kind": "link",
+      "duration": 1383.300000011921,
+      "encodedBytes": 10234,
+      "decodedBytes": 44766,
+      "transferBytes": 10534
+    },
+    {
+      "host": "static.cloudflareinsights.com",
+      "path": "/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092",
+      "kind": "script",
+      "duration": 68.80000001192093,
+      "encodedBytes": 0,
+      "decodedBytes": 0,
+      "transferBytes": 0
+    },
+    {
+      "host": "exobrain.sharmoon.cc.cd",
+      "path": "/cdn-cgi/rum",
+      "kind": "xmlhttprequest",
+      "duration": 53.5,
+      "encodedBytes": 0,
+      "decodedBytes": 0,
+      "transferBytes": 300
+    },
+    {
+      "host": "exobrain.sharmoon.cc.cd",
+      "path": "/admin/api/auth/me",
+      "kind": "fetch",
+      "duration": 187.60000002384186,
+      "encodedBytes": 49,
+      "decodedBytes": 49,
+      "transferBytes": 349
+    },
+    {
+      "host": "exobrain.sharmoon.cc.cd",
+      "path": "/admin/exobrain.svg",
+      "kind": "other",
+      "duration": 470.39999997615814,
+      "encodedBytes": 496,
+      "decodedBytes": 1075,
+      "transferBytes": 796
+    },
+    {
+      "host": "exobrain.sharmoon.cc.cd",
+      "path": "/admin/exobrain.svg",
+      "kind": "img",
+      "duration": 186.10000002384186,
+      "encodedBytes": 496,
+      "decodedBytes": 1075,
+      "transferBytes": 0
+    }
+  ],
+  "fonts": "loaded"
+}

@@ -1,0 +1,21 @@
+{
+  "before": {
+    "tests": 1,
+    "failures": 1,
+    "case": "citationsComeFromTheRealRetrievalOfThisRun",
+    "logSha256": "a4e9ea6a9a7700d7bd93b4ae0c1616d3b1631c1dbd0333fbbd6003298e24f52e"
+  },
+  "after": {
+    "tests": 24,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "logSha256": "09d7698a7c0e322b1dbbab6f6e572ae74a8fc355ce2f1595a41f770f5c18894b"
+  },
+  "fullSuite": {
+    "tests": 291,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 4
+  }
+}

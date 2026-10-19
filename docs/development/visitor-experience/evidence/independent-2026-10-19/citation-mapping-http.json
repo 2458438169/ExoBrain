@@ -1,0 +1,141 @@
+{
+  "passed": true,
+  "reports": [
+    {
+      "kind": "reverse",
+      "summary": {
+        "runId": "11def310-c5fd-4682-bf59-81ef8ba3bac4",
+        "schemaVersion": 1,
+        "sessionId": "89c1fa2f-3890-41ab-b8f7-c3804777e1fe",
+        "triggeringMessageId": "faae5d8d-cd19-4496-a3a5-8f6145affb48",
+        "answerMessageId": "fac91eec-87f9-4428-bf8d-685397ee64b1",
+        "agentId": "afcf9e1a-c307-426f-9965-5cc5dfac013c",
+        "agentName": "合成验收助手 u1",
+        "agentConfigHash": "1b949dff37905a4a4a2b7610bb232177d31d8dfa3ec1d30a87a8508db2376c2d",
+        "modelCatalogId": "review-llm",
+        "modelName": "review-llm",
+        "status": "SUCCEEDED",
+        "interrupted": false,
+        "submittedAt": "2026-10-19T15:56:16.028569Z",
+        "startedAt": "2026-10-19T15:56:16.062523Z",
+        "finishedAt": "2026-10-19T15:56:17.344238Z",
+        "durationMs": 1277,
+        "queueDurationMs": 33,
+        "inputTokens": 40,
+        "outputTokens": 20,
+        "totalTokens": 60,
+        "errorCode": null,
+        "traceIncomplete": false,
+        "heartbeatAt": "2026-10-19T15:56:17.343434Z"
+      },
+      "database": {
+        "id": "11def310-c5fd-4682-bf59-81ef8ba3bac4",
+        "status": "SUCCEEDED",
+        "error_code": null,
+        "answer_message_id": "fac91eec-87f9-4428-bf8d-685397ee64b1",
+        "answers": 1
+      },
+      "sessionId": "89c1fa2f-3890-41ab-b8f7-c3804777e1fe",
+      "checks": {
+        "questionRetained": true,
+        "succeeded": true,
+        "oneAnswer": true,
+        "actuallyReordered": true,
+        "proseReordered": true,
+        "samePersistedAssociation": true
+      },
+      "answer": "第二个检索片段 [2]；第一个检索片段 [1]。",
+      "requestedCitationIds": [
+        "e0f5b7a9-807c-40cd-bbd4-9fa5e4c228b9:2",
+        "e0f5b7a9-807c-40cd-bbd4-9fa5e4c228b9:1"
+      ],
+      "citations": [
+        {
+          "label": 1,
+          "citationId": "e0f5b7a9-807c-40cd-bbd4-9fa5e4c228b9:1",
+          "retrievalId": "e0f5b7a9-807c-40cd-bbd4-9fa5e4c228b9",
+          "kbId": "099db03f-d176-4b92-96d7-669c14e4d3a0",
+          "chunkId": "a9966886-cc6a-4663-a3d3-8a4c617dc3f6",
+          "source": {
+            "documentId": "fad43774-b102-413d-bc3e-ad41dac136aa",
+            "documentName": "review-u1-a.md",
+            "headingPath": [
+              "合成协议参数"
+            ],
+            "sourceHash": "5e664f90ee77f319d6c3dd0c0f5ac325da73cc78e5b80839811d15f33cbd5cf9",
+            "startLine": 3,
+            "endLine": 3
+          },
+          "indexVersion": "body-v1",
+          "indexRevision": "927ff00b-a0b6-42e0-9747-ac56d49e8f62",
+          "excerpt": "探针间隔为 37 秒，重试上限为 4 次。"
+        },
+        {
+          "label": 2,
+          "citationId": "e0f5b7a9-807c-40cd-bbd4-9fa5e4c228b9:2",
+          "retrievalId": "e0f5b7a9-807c-40cd-bbd4-9fa5e4c228b9",
+          "kbId": "099db03f-d176-4b92-96d7-669c14e4d3a0",
+          "chunkId": "1cbafe31-85ab-4e69-a62d-d24b7e0dd45d",
+          "source": {
+            "documentId": "ab97b400-dffe-46e8-ae38-9077c88bfe27",
+            "documentName": "review-u1-b.md",
+            "headingPath": [
+              "合成来源第二份"
+            ],
+            "sourceHash": "04db4c8a9e9c38036acf0cf3cd0af40da6430aaa754becd93c5cc154fea38f0c",
+            "startLine": 3,
+            "endLine": 3
+          },
+          "indexVersion": "body-v1",
+          "indexRevision": "927ff00b-a0b6-42e0-9747-ac56d49e8f62",
+          "excerpt": "用于核对快速切换来源的第二份公开性质合成文本。"
+        }
+      ],
+      "passed": true
+    },
+    {
+      "kind": "unknown",
+      "summary": {
+        "runId": "225331a9-8684-4f91-b0bc-15c461a837c4",
+        "schemaVersion": 1,
+        "sessionId": "771bffba-6b23-4976-8ad9-457330f09234",
+        "triggeringMessageId": "70a44a9a-355c-4b56-b37b-bfd083eecfa0",
+        "answerMessageId": null,
+        "agentId": "afcf9e1a-c307-426f-9965-5cc5dfac013c",
+        "agentName": "合成验收助手 u1",
+        "agentConfigHash": "1b949dff37905a4a4a2b7610bb232177d31d8dfa3ec1d30a87a8508db2376c2d",
+        "modelCatalogId": "review-llm",
+        "modelName": "review-llm",
+        "status": "FAILED",
+        "interrupted": false,
+        "submittedAt": "2026-10-19T15:56:17.850778Z",
+        "startedAt": "2026-10-19T15:56:17.866134Z",
+        "finishedAt": "2026-10-19T15:56:18.319961Z",
+        "durationMs": 452,
+        "queueDurationMs": 15,
+        "inputTokens": 40,
+        "outputTokens": 20,
+        "totalTokens": 60,
+        "errorCode": "INVALID_ANSWER_FORMAT",
+        "traceIncomplete": false,
+        "heartbeatAt": "2026-10-19T15:56:18.319288Z"
+      },
+      "database": {
+        "id": "225331a9-8684-4f91-b0bc-15c461a837c4",
+        "status": "FAILED",
+        "error_code": "INVALID_ANSWER_FORMAT",
+        "answer_message_id": null,
+        "answers": 0
+      },
+      "sessionId": "771bffba-6b23-4976-8ad9-457330f09234",
+      "checks": {
+        "questionRetained": true,
+        "failed": true,
+        "safeErrorCode": true,
+        "noAnswerAssociation": true,
+        "zeroAnswers": true
+      },
+      "passed": true
+    }
+  ]
+}

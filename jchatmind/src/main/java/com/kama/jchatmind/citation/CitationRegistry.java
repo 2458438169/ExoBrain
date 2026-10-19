@@ -81,11 +81,13 @@ public final class CitationRegistry {
     public record Notice(NoticeReason reason, int count) {
     }
 
-    /** 校验结果：可直接持久化的引用（已编号）+ 安全的失败/合并统计。 */
-    public record Resolution(List<AnswerCitation> citations, List<Notice> notices) {
+    /** 校验结果；请求位置从 1 开始，映射只包含已授权且未超出上限的来源。 */
+    public record Resolution(List<AnswerCitation> citations, List<Notice> notices,
+                             Map<Integer, Integer> labelsByRequestIndex) {
         public Resolution {
             citations = List.copyOf(citations);
             notices = List.copyOf(notices);
+            labelsByRequestIndex = Map.copyOf(labelsByRequestIndex);
         }
     }
 
@@ -176,7 +178,9 @@ public final class CitationRegistry {
                 .thenComparingInt(RegisteredCitation::rank));
 
         Map<String, AnswerCitation> unique = new LinkedHashMap<>();
+        Map<String, RegisteredCitation> authorizedIds = new LinkedHashMap<>();
         for (RegisteredCitation registered : accepted) {
+            authorizedIds.put(registered.citationId(), registered);
             String key = sourceKey(registered);
             if (unique.containsKey(key)) {
                 notice(notices, NoticeReason.DUPLICATE_SOURCE);
@@ -198,10 +202,18 @@ public final class CitationRegistry {
                     excerpt(registered.content())));
         }
 
+        Map<Integer, Integer> labels = new LinkedHashMap<>();
+        if (requestedCitationIds != null) {
+            for (int i = 0; i < requestedCitationIds.size(); i++) {
+                RegisteredCitation registered = authorizedIds.get(requestedCitationIds.get(i));
+                AnswerCitation citation = registered == null ? null : unique.get(sourceKey(registered));
+                if (citation != null) labels.put(i + 1, citation.label());
+            }
+        }
         List<Notice> collected = notices.entrySet().stream()
                 .map(entry -> new Notice(entry.getKey(), entry.getValue()))
                 .toList();
-        return new Resolution(new ArrayList<>(unique.values()), collected);
+        return new Resolution(new ArrayList<>(unique.values()), collected, labels);
     }
 
     /**

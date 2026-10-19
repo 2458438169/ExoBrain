@@ -1,0 +1,434 @@
+{
+  "unit": {
+    "totals": {
+      "tests": 285,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 4
+    },
+    "suites": [
+      {
+        "name": "com.kama.jchatmind.agent.JChatMindCitationTest",
+        "tests": "10",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.agent.JChatMindFactoryTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.agent.RunTracingExecutionTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.agent.tools.DirectAnswerToolTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.agent.tools.test.ProductionToolsTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.auth.AccountResourceControllerTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.auth.AuthenticatedExecutionSessionTest",
+        "tests": "13",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.auth.AuthExecutionReauthorizationTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.auth.AuthFilterTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.auth.AuthServiceTest",
+        "tests": "9",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.auth.ChatSubmissionSnapshotTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.auth.LoginRateLimiterTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.auth.PasswordHasherTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.auth.ResourceAccessTest",
+        "tests": "12",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.auth.ScopedToolCallbackTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.citation.CitationRegistryTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.controller.DocumentContentControllerTest",
+        "tests": "12",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.converter.ChatMessageConverterCitationTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.demo.DemoCatalogServiceCitationTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.demo.DemoControllerTest",
+        "tests": "10",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.demo.DemoExecutionServiceTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.demo.DemoIngestionRoutingTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.demo.DemoKnowledgeToolTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.demo.DemoRateLimiterTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.execution.DemoRunAssociationTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.execution.DemoRunRoutingTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.execution.RunModelTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.ingestion.IngestionJobRunnerTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.ingestion.IngestionOrphanFileSweeperTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.ingestion.IngestionPathsTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.ingestion.IngestionRetryPolicyTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.models.ModelCatalogServiceTest",
+        "tests": "12",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.models.ModelControllerTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.models.ModelRuntimeServiceTest",
+        "tests": "11",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.models.ModelSecretCipherTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.retrieval.BodyChunkerTest",
+        "tests": "9",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.retrieval.ChunkBudgetTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.retrieval.IndexVersionPolicyTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.retrieval.RetrievalEnvelopeFixtureTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.retrieval.RetrievalEnvelopeTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.retrieval.RetrievalServiceImplTest",
+        "tests": "10",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.retrieval.SourceTextTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.service.impl.DocumentFacadeServiceImplTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.service.impl.DocumentStorageCleanupTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "1"
+      },
+      {
+        "name": "com.kama.jchatmind.service.impl.DocumentStorageServiceImplTest",
+        "tests": "13",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "3"
+      },
+      {
+        "name": "com.kama.jchatmind.service.impl.MarkdownParserConcurrencyTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.service.impl.MarkdownParserServiceImplTest",
+        "tests": "10",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.service.impl.RagServiceImplTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.service.impl.SseServiceImplTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.service.StorageCleanupServiceTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      }
+    ]
+  },
+  "postgres-it": {
+    "totals": {
+      "tests": 63,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "suites": [
+      {
+        "name": "com.kama.jchatmind.integration.IngestionJobIntegrationTest",
+        "tests": "14",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.integration.PostgresBaselineIntegrationTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.integration.RetrievalIndexIntegrationTest",
+        "tests": "13",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.integration.RunQueueIntegrationTest",
+        "tests": "13",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.integration.RunResultGuardIntegrationTest",
+        "tests": "12",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.kama.jchatmind.integration.RunTracingIntegrationTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      }
+    ]
+  },
+  "frontend": {
+    "exitCode": 0,
+    "stateTests": 10,
+    "configurations": [
+      "guest",
+      "account"
+    ],
+    "eslint": true,
+    "typescript": true
+  },
+  "frozenEvaluation": {
+    "validateExitCode": 0,
+    "pytestExitCode": 0,
+    "passed": 74
+  },
+  "gatewayFinal": {
+    "exitCode": 0,
+    "checks": 18,
+    "failed": 0
+  }
+}

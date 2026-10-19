@@ -1,0 +1,95 @@
+{
+  "readyState": "complete",
+  "navigation": [
+    {
+      "responseStart": 867,
+      "domInteractive": 879.1999999880791,
+      "domContentLoaded": 892.1000000238419,
+      "load": 892.6999999880791
+    }
+  ],
+  "resources": [
+    {
+      "host": "exobrain.sharmoon.cc.cd",
+      "path": "/admin/assets/index-tFslHre9.js",
+      "kind": "script",
+      "duration": 0,
+      "encodedBytes": 460268,
+      "decodedBytes": 1449534,
+      "transferBytes": 0
+    },
+    {
+      "host": "exobrain.sharmoon.cc.cd",
+      "path": "/admin/assets/index-CC_NqiWi.css",
+      "kind": "link",
+      "duration": 0,
+      "encodedBytes": 10234,
+      "decodedBytes": 44766,
+      "transferBytes": 0
+    },
+    {
+      "host": "static.cloudflareinsights.com",
+      "path": "/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092",
+      "kind": "script",
+      "duration": 0,
+      "encodedBytes": 0,
+      "decodedBytes": 0,
+      "transferBytes": 0
+    },
+    {
+      "host": "exobrain.sharmoon.cc.cd",
+      "path": "/cdn-cgi/rum",
+      "kind": "xmlhttprequest",
+      "duration": 58.19999998807907,
+      "encodedBytes": 0,
+      "decodedBytes": 0,
+      "transferBytes": 300
+    },
+    {
+      "host": "exobrain.sharmoon.cc.cd",
+      "path": "/admin/api/auth/me",
+      "kind": "fetch",
+      "duration": 263.10000002384186,
+      "encodedBytes": 49,
+      "decodedBytes": 49,
+      "transferBytes": 349
+    },
+    {
+      "host": "exobrain.sharmoon.cc.cd",
+      "path": "/admin/exobrain.svg",
+      "kind": "other",
+      "duration": 1,
+      "encodedBytes": 496,
+      "decodedBytes": 1075,
+      "transferBytes": 0
+    },
+    {
+      "host": "exobrain.sharmoon.cc.cd",
+      "path": "/admin/exobrain.svg",
+      "kind": "img",
+      "duration": 0.699999988079071,
+      "encodedBytes": 496,
+      "decodedBytes": 1075,
+      "transferBytes": 0
+    },
+    {
+      "host": "exobrain.sharmoon.cc.cd",
+      "path": "/admin/assets/index-CC_NqiWi.css",
+      "kind": "fetch",
+      "duration": 0.7000000476837158,
+      "encodedBytes": 10234,
+      "decodedBytes": 44766,
+      "transferBytes": 0
+    },
+    {
+      "host": "exobrain.sharmoon.cc.cd",
+      "path": "/admin/assets/index-tFslHre9.js",
+      "kind": "fetch",
+      "duration": 3.599999964237213,
+      "encodedBytes": 460268,
+      "decodedBytes": 1449534,
+      "transferBytes": 0
+    }
+  ],
+  "fonts": "loaded"
+}

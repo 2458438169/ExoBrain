@@ -1,0 +1,18 @@
+{
+  "passed": true,
+  "anonymousAccount": 401,
+  "otherVisitorRun": 404,
+  "otherVisitorCancel": 404,
+  "assets": [
+    {
+      "path": "/admin/assets/index-CC_NqiWi.css",
+      "http": 200,
+      "matches": true
+    },
+    {
+      "path": "/admin/assets/index-tFslHre9.js",
+      "http": 200,
+      "matches": true
+    }
+  ]
+}

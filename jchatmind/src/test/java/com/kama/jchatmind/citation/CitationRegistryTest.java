@@ -138,6 +138,8 @@ class CitationRegistryTest {
         assertEquals(List.of(1, 2, 3), forward.citations().stream().map(AnswerCitation::label).toList());
         assertEquals(forward.citations().stream().map(AnswerCitation::citationId).toList(),
                 reversed.citations().stream().map(AnswerCitation::citationId).toList());
+        assertEquals(java.util.Map.of(1, 1, 2, 2, 3, 2, 4, 3), forward.labelsByRequestIndex());
+        assertEquals(java.util.Map.of(1, 3, 2, 2, 3, 2, 4, 1), reversed.labelsByRequestIndex());
         assertTrue(forward.notices().stream().anyMatch(
                 notice -> notice.reason() == CitationRegistry.NoticeReason.DUPLICATE_SOURCE));
     }
@@ -187,6 +189,8 @@ class CitationRegistryTest {
         CitationRegistry.Resolution capped = many.resolve(
                 java.util.stream.IntStream.rangeClosed(1, 12).mapToObj(rank -> "ret-1:" + rank).toList(), KB::equals);
         assertEquals(CitationRegistry.MAX_CITATIONS, capped.citations().size());
+        assertEquals(CitationRegistry.MAX_CITATIONS, capped.labelsByRequestIndex().size());
+        assertFalse(capped.labelsByRequestIndex().containsKey(11));
         assertTrue(capped.notices().stream().anyMatch(
                 notice -> notice.reason() == CitationRegistry.NoticeReason.TOO_MANY_CITATIONS));
     }
@@ -202,6 +206,7 @@ class CitationRegistryTest {
                 java.util.Arrays.asList("ret-1:1", "ret-1:1", null, " "), KB::equals);
         assertEquals(1, resolution.citations().size());
         assertEquals(List.of(1), resolution.citations().stream().map(AnswerCitation::label).toList());
+        assertEquals(java.util.Map.of(1, 1, 2, 1), resolution.labelsByRequestIndex());
         assertTrue(resolution.notices().stream().anyMatch(
                 notice -> notice.reason() == CitationRegistry.NoticeReason.DUPLICATE_SOURCE));
         assertTrue(resolution.notices().stream().anyMatch(

@@ -1,0 +1,62 @@
+{
+  "status": "SUCCEEDED",
+  "release": "20261019-ux-e105f0c",
+  "commit": "e105f0c488b65b4a82c2b43b327c59e4c4a23bb3",
+  "image": "exobrain:20261019-ux-e105f0c",
+  "imageId": "sha256:97734ffe8417406fcd27309a8fcc89f64e1b4999a464b87047003892805fa241",
+  "jarSha256": "52054792ba726e63c352aceb4549d74d492eddbe2d3b9fa76b61bb17b8cf20b9",
+  "frontend": "/opt/exobrain/releases/20261019-ux-e105f0c",
+  "backup": {
+    "directory": "/opt/exobrain/backups/pre-20261019-ux-e105f0c-20261019-232624",
+    "databaseBytes": 367672,
+    "databaseSha256": "3aa9be4a34e6686e3cf58bdd47ff28522787c3a172193b55b4d91d196ff96223",
+    "documentsBytes": 13925,
+    "documentsSha256": "625e396e0cef6e70696923e954cabaf8e2545259a9499601bbf6557b0608bc9c",
+    "documentFiles": 6,
+    "persistentModelKeyIncluded": true,
+    "fullDumpReadable": true,
+    "applicationWritesPaused": true
+  },
+  "index": {
+    "active_revision_id": "e2825960-8731-4bff-a74f-3acd6ddf71e0",
+    "index_version": "body-v1",
+    "model_catalog_id": "siliconflow-bge-m3",
+    "model_name": "BAAI/bge-m3",
+    "status": "PUBLISHED",
+    "document_count": 3,
+    "chunk_count": 19,
+    "documents": [
+      {
+        "filename": "01_product_guide.md",
+        "active_chunks": 6,
+        "source_hash": "177e48ad96039972de8455c24f541a29d26f74832a729ebd6139f9941a891f38"
+      },
+      {
+        "filename": "02_engineering_cases.md",
+        "active_chunks": 6,
+        "source_hash": "f888dcc55c989e9e810ce03d8461615819cd391a08d25b2cdfb2586fab6a5c1e"
+      },
+      {
+        "filename": "03_contribution_map.md",
+        "active_chunks": 7,
+        "source_hash": "a6008c717a3e03feb24ef3bde4af81c8d470582ebc3e5b35b6aa66d2e07e38fa"
+      }
+    ]
+  },
+  "kbId": "ff9fc2f9-880c-4ec1-9516-22d068536f00",
+  "promptSha256": "34be88edc2963dc43398ffa51aecde4deef6d5f942461cb39538fa67ac9068b3",
+  "gatewaySha256": "4f5d8db3188312d7255084d57c62e99f91f6f0a275693f555213369ff0177ddd",
+  "httpChecks": 20,
+  "preservation": {
+    "documentFilesUnchanged": true,
+    "modelEncryptionKeyUnchanged": true,
+    "postgresContainerUnchanged": true,
+    "oldFrontendRetained": true,
+    "oldPublicKbsRetained": true
+  },
+  "legacyToolsRemoved": [
+    "dataBaseTool"
+  ],
+  "migrationsApplied": [],
+  "finishedAt": "2026-10-19T15:26:42.535603+00:00"
+}

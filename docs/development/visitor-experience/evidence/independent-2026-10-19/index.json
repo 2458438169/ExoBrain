@@ -79,5 +79,88 @@
       "file": "answer-format-visible.json",
       "sourceSha256": "95b4ac53f6935b9d2d8e830b2c0bd0015e8bf0d1976e6f18280c9a085bead56d"
     }
-  ]
+  ],
+  "additionalEvidence": [
+    {
+      "file": "citation-mapping-http.json",
+      "originalSha256": "e5f3808aa3dc0d8c508da6e658269e78ab1f6380a2e09e43aa288a295a299d9c"
+    },
+    {
+      "file": "citation-contract-quality.json",
+      "originalSha256": "2cf6066929f0130c26ec53cf30d5e9cc6bef48102558508ed8a3f762f79123c1"
+    },
+    {
+      "file": "production-citation-mapping-before.json",
+      "originalSha256": "3a21f2640ad5b3a21f96dd4b998a516b8cccab7100103bd0163bbe9a8adf7a4e"
+    },
+    {
+      "file": "ci-e105f0c.json",
+      "originalSha256": "8aab87117e321873253827a11e4d1a952cf5f164195564ca38dd7b9d8414eb69"
+    },
+    {
+      "file": "ci-39276819660-tests.json",
+      "originalSha256": "7668efdd388da8dd13e7d33f8210f973cdf2388f2b44972a814a6b54d6d1cd59"
+    },
+    {
+      "file": "git-fixture-portability.json",
+      "originalSha256": "986d6dfda82e374b71f8efa9a35821d8b9a09ced4450d59ed3a904ec369321d7"
+    },
+    {
+      "file": "production-deployment-result.json",
+      "originalSha256": "452166039dc09ea64feabc562743c05bedd6644315bbe5ebafded80a82bfb91e"
+    },
+    {
+      "file": "production-http-after.json",
+      "originalSha256": "30e3c43c7c884ebe47ced17a36650931686c3865519228488b5e6aed66717fc8"
+    },
+    {
+      "file": "production-http-attempt1.json",
+      "originalSha256": "753fe589afa4f736285fab82598a959e5ab3023f6dbc7ca1f6fd5bc813977960"
+    },
+    {
+      "file": "production-candidate-index.json",
+      "originalSha256": "fd82950fd4be8edfedbe1b23296472c90a72f0f0bff8d9a51630645bba4eec67"
+    },
+    {
+      "file": "production-Q01-attempt2.json",
+      "originalSha256": "0680843372306a0cf96cce4427b506fe48f1e6a775f5774523d4db36ffaf0a1b"
+    },
+    {
+      "file": "production-Q02-attempt1.json",
+      "originalSha256": "e65915b685a1a6e58c8939485ae942e57bbd2f241444f4dc9ba1b11edbd0a191"
+    },
+    {
+      "file": "production-Q03-attempt1.json",
+      "originalSha256": "a48275b114368fde5493cb5fff2df663a5ceaca87dc2b082a060d43c8eed80b4"
+    },
+    {
+      "file": "production-Q03-attempt2.json",
+      "originalSha256": "c3755321dffa5145dae7c890c511cd261b7a1ff68c5ead4e8fa4d09711b8b700"
+    },
+    {
+      "file": "production-refresh.json",
+      "originalSha256": "cbcbe839c7750482d432fd3d33a05010c9172a8b4fbd000e752d043352727501"
+    },
+    {
+      "file": "production-account-recheck.json",
+      "originalSha256": "13907e29d05a89124d0b51d51447c87ff5bda17c3c71f040fe5b0605685fea51"
+    },
+    {
+      "file": "production-cancel.json",
+      "originalSha256": "86ee0aec0ed58e51e706140c4ba915699b3d1ebc82e0553a46c19ca19113da0c"
+    },
+    {
+      "file": "production-static-navigation-before.json",
+      "originalSha256": "6e1426e011f97b48b23b2d39e82d2bd35af5a8d9c248f79d8001546e094e1b7b"
+    },
+    {
+      "file": "production-account-navigation-recheck.json",
+      "originalSha256": "8eb0d15f19a178087af9327da09d875c0314f4922e3f0f7554877bd591cd761e"
+    },
+    {
+      "file": "citation-contract-measurements.json",
+      "originalSha256": "86dbbcf1eb014b0d1529d44bdf5568e5550945f5d50505550e26c820b601e876"
+    }
+  ],
+  "qualityCorrection": "Initial 11/12 verdict superseded by exact-range review: 6/12. A new fixed 12-question batch has 9 usable answers; failures retained."
 }

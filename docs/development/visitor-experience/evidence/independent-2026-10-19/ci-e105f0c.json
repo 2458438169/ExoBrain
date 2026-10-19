@@ -1,0 +1,166 @@
+{
+  "commit": "e105f0c488b65b4a82c2b43b327c59e4c4a23bb3",
+  "runs": [
+    {
+      "id": 39276819660,
+      "name": "CI",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/2458438169/ExoBrain/actions/runs/39276819660",
+      "head_sha": "e105f0c488b65b4a82c2b43b327c59e4c4a23bb3",
+      "jobs": [
+        {
+          "name": "unit, real PostgreSQL, frontend",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1,
+              "started_at": "2026-10-19T15:18:37Z",
+              "completed_at": "2026-10-19T15:18:39Z"
+            },
+            {
+              "name": "Check out the repository",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2,
+              "started_at": "2026-10-19T15:18:39Z",
+              "completed_at": "2026-10-19T15:18:40Z"
+            },
+            {
+              "name": "Set up JDK 21 (Temurin) with the Maven cache",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3,
+              "started_at": "2026-10-19T15:18:40Z",
+              "completed_at": "2026-10-19T15:18:41Z"
+            },
+            {
+              "name": "Set up Node.js 22 with the npm cache",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4,
+              "started_at": "2026-10-19T15:18:41Z",
+              "completed_at": "2026-10-19T15:18:42Z"
+            },
+            {
+              "name": "Prepare the log directory",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5,
+              "started_at": "2026-10-19T15:18:42Z",
+              "completed_at": "2026-10-19T15:18:42Z"
+            },
+            {
+              "name": "Backend unit profile",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6,
+              "started_at": "2026-10-19T15:18:42Z",
+              "completed_at": "2026-10-19T15:19:44Z"
+            },
+            {
+              "name": "Start the PostgreSQL 17 service container",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7,
+              "started_at": "2026-10-19T15:19:44Z",
+              "completed_at": "2026-10-19T15:19:57Z"
+            },
+            {
+              "name": "Real PostgreSQL integration profile",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8,
+              "started_at": "2026-10-19T15:19:57Z",
+              "completed_at": "2026-10-19T15:20:51Z"
+            },
+            {
+              "name": "Install front-end dependencies",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9,
+              "started_at": "2026-10-19T15:20:51Z",
+              "completed_at": "2026-10-19T15:21:07Z"
+            },
+            {
+              "name": "Front-end lint",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10,
+              "started_at": "2026-10-19T15:21:07Z",
+              "completed_at": "2026-10-19T15:21:12Z"
+            },
+            {
+              "name": "Guest and account front-end builds",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11,
+              "started_at": "2026-10-19T15:21:12Z",
+              "completed_at": "2026-10-19T15:21:24Z"
+            },
+            {
+              "name": "Collect service container diagnostics",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 12,
+              "started_at": "2026-10-19T15:21:24Z",
+              "completed_at": "2026-10-19T15:21:24Z"
+            },
+            {
+              "name": "Upload test reports and check logs on failure",
+              "status": "completed",
+              "conclusion": "skipped",
+              "number": 13,
+              "started_at": "2026-10-19T15:21:24Z",
+              "completed_at": "2026-10-19T15:21:24Z"
+            },
+            {
+              "name": "Summarize the surefire results",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14,
+              "started_at": "2026-10-19T15:21:24Z",
+              "completed_at": "2026-10-19T15:21:24Z"
+            },
+            {
+              "name": "Post Set up Node.js 22 with the npm cache",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 26,
+              "started_at": "2026-10-19T15:21:24Z",
+              "completed_at": "2026-10-19T15:21:28Z"
+            },
+            {
+              "name": "Post Set up JDK 21 (Temurin) with the Maven cache",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 27,
+              "started_at": "2026-10-19T15:21:28Z",
+              "completed_at": "2026-10-19T15:21:31Z"
+            },
+            {
+              "name": "Post Check out the repository",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 28,
+              "started_at": "2026-10-19T15:21:31Z",
+              "completed_at": "2026-10-19T15:21:31Z"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 29,
+              "started_at": "2026-10-19T15:21:31Z",
+              "completed_at": "2026-10-19T15:21:31Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

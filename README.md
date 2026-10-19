@@ -56,8 +56,8 @@
 用户询问项目实现
 → think：选择 KnowledgeTool，提供获准知识库 ID 与查询文本
 → execute：检索并回填结构化片段（含文档、章节与行号范围），保存工具调用记录
-→ think：依据片段组织回答，调用 directAnswer(answer, citationIds)
-→ execute：完成答复工具调用；服务端校验 citationIds 属于本次运行的真实检索，再写入可点击的来源
+→ think：依据片段组织回答，调用 directAnswer(answer, citationIds)；服务端校验来源并同步分配正文与来源编号
+→ execute：完成答复工具调用；答案与可点击来源已经过校验并写入
 ```
 
 这是流程示意，不是固定调用次数或预先写好的测试结果。真实执行记录可在会话与公开精选页展开查看。源码中的 `CityTool` 返回固定城市、`WeatherTool` 返回模拟天气文本，不能用作实时定位或天气数据；它们在 `prod` profile 中关闭，也不在游客工具白名单内。`getDate` 则读取运行环境当前日期，线上时区为 `Asia/Shanghai`。

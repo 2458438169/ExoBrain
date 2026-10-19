@@ -1,0 +1,98 @@
+{
+  "kbId": "ff9fc2f9-880c-4ec1-9516-22d068536f00",
+  "documents": [
+    {
+      "id": "78f6ebe5-9685-420b-a408-80b7f8b672ff",
+      "filename": "01_product_guide.md",
+      "sha256": "177e48ad96039972de8455c24f541a29d26f74832a729ebd6139f9941a891f38",
+      "jobId": "28c86783-e6af-41f9-8891-3d3eebdb36a0",
+      "ingestion": {
+        "jobId": "28c86783-e6af-41f9-8891-3d3eebdb36a0",
+        "documentId": "78f6ebe5-9685-420b-a408-80b7f8b672ff",
+        "kbId": "ff9fc2f9-880c-4ec1-9516-22d068536f00",
+        "status": "SUCCEEDED",
+        "attempts": 1,
+        "maxAttempts": 3,
+        "chunksDone": 6,
+        "chunksTotal": 6,
+        "errorCode": null,
+        "errorMessage": null,
+        "retryable": false,
+        "nextAttemptAt": "2026-10-19T15:21:40.378888Z",
+        "finishedAt": "2026-10-19T15:21:41.700133Z",
+        "indexRevisionId": "871786a8-effc-4e2b-8d68-896f2c84b01f"
+      }
+    },
+    {
+      "id": "a5f428de-06dc-47b6-bfc1-9436f62ad3c5",
+      "filename": "02_engineering_cases.md",
+      "sha256": "f888dcc55c989e9e810ce03d8461615819cd391a08d25b2cdfb2586fab6a5c1e",
+      "jobId": "c8b08d1e-834c-4c13-956f-e8e3b9804ee9",
+      "ingestion": {
+        "jobId": "c8b08d1e-834c-4c13-956f-e8e3b9804ee9",
+        "documentId": "a5f428de-06dc-47b6-bfc1-9436f62ad3c5",
+        "kbId": "ff9fc2f9-880c-4ec1-9516-22d068536f00",
+        "status": "SUCCEEDED",
+        "attempts": 1,
+        "maxAttempts": 3,
+        "chunksDone": 12,
+        "chunksTotal": 12,
+        "errorCode": null,
+        "errorMessage": null,
+        "retryable": false,
+        "nextAttemptAt": "2026-10-19T15:21:42.435625Z",
+        "finishedAt": "2026-10-19T15:21:46.537048Z",
+        "indexRevisionId": "8851f6bf-c4d2-4f94-b1f6-af3e7e0b8aca"
+      }
+    },
+    {
+      "id": "651f8308-e976-4e1a-8372-1b077735686f",
+      "filename": "03_contribution_map.md",
+      "sha256": "a6008c717a3e03feb24ef3bde4af81c8d470582ebc3e5b35b6aa66d2e07e38fa",
+      "jobId": "dca951d1-4caa-4b1b-822c-52df68530a6b",
+      "ingestion": {
+        "jobId": "dca951d1-4caa-4b1b-822c-52df68530a6b",
+        "documentId": "651f8308-e976-4e1a-8372-1b077735686f",
+        "kbId": "ff9fc2f9-880c-4ec1-9516-22d068536f00",
+        "status": "SUCCEEDED",
+        "attempts": 1,
+        "maxAttempts": 3,
+        "chunksDone": 19,
+        "chunksTotal": 19,
+        "errorCode": null,
+        "errorMessage": null,
+        "retryable": false,
+        "nextAttemptAt": "2026-10-19T15:21:47.481344Z",
+        "finishedAt": "2026-10-19T15:21:51.648177Z",
+        "indexRevisionId": "e2825960-8731-4bff-a74f-3acd6ddf71e0"
+      }
+    }
+  ],
+  "index": {
+    "active_revision_id": "e2825960-8731-4bff-a74f-3acd6ddf71e0",
+    "index_version": "body-v1",
+    "model_catalog_id": "siliconflow-bge-m3",
+    "model_name": "BAAI/bge-m3",
+    "status": "PUBLISHED",
+    "document_count": 3,
+    "chunk_count": 19,
+    "documents": [
+      {
+        "filename": "01_product_guide.md",
+        "active_chunks": 6,
+        "source_hash": "177e48ad96039972de8455c24f541a29d26f74832a729ebd6139f9941a891f38"
+      },
+      {
+        "filename": "02_engineering_cases.md",
+        "active_chunks": 6,
+        "source_hash": "f888dcc55c989e9e810ce03d8461615819cd391a08d25b2cdfb2586fab6a5c1e"
+      },
+      {
+        "filename": "03_contribution_map.md",
+        "active_chunks": 7,
+        "source_hash": "a6008c717a3e03feb24ef3bde4af81c8d470582ebc3e5b35b6aa66d2e07e38fa"
+      }
+    ]
+  },
+  "publicSwitched": false
+}

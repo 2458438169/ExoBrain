@@ -22,6 +22,7 @@
 - `DirectAnswerTool` 增加可选 `citationIds`；只有 `answer` 的旧调用照常工作。`citationIds` 只表达“模型想引用哪几条”，形状无效时整段忽略。
 - 校验与补全 `resolve(requestedCitationIds, isSourceAuthorized)`：先 `runtimeGuard.run()` 重新确认身份/会话仍有效，再要求来源 KB 仍在本次运行的获准集合内，然后由服务端补全 `label / source / indexVersion / indexRevision / excerpt`。未知、跨运行、跨用户、未授权、重复来源、超限都只记录安全原因码与数量，不生成可点击引用。
 - 去重键是“同一 KB + 同一文档 + 同一来源范围”（有行号用 `sourceHash@start-end`，legacy 无位置时退化为 `chunkId`），因此同一章节被多次命中只出现一次，不同章节不会被合并。
+- 2026-10-20 补充正文编号契约：模型的 `[n]` 对应 `citationIds` 第 n 项（从 1 开始），不是检索 rank。登记表同时返回「输入位置 → 最终 label」映射，正文与来源排序、去重同步；同一来源的多个 id 映射到同一编号。正文实际引用了未知、越权、超限或越界位置时，在写答案前以 `INVALID_ANSWER_FORMAT` 失败，不能让它借用另一来源的编号。Markdown 代码、链接、转义例子及未提供引用参数的普通答案保持原样。该规则不判断语义是否正确，人工验收仍须核对具体片段能否支持旁边的说法。
 - 引用写进消息 metadata 的 `citations` 字段，仅在**确实产出面向用户答复**时非空；普通问候、工具失败、`NO_MATCH` 不产生引用，也不伪造工具事件。
 - `DemoCatalogService` 对公开精选做字段白名单：只暴露展示需要的字段，且来源必须仍在公开名单内；被撤下的资料不会通过引用节选重新公开。
 

@@ -1,0 +1,150 @@
+{
+  "batch": "citation-contract",
+  "date": "2026-10-20",
+  "attempts": 12,
+  "runtimeSucceeded": 11,
+  "usableAnswers": 9,
+  "review": [
+    {
+      "id": "Q01",
+      "runId": "a1e6caa5-9601-493e-bd55-16750ecf9b4e",
+      "runtimeStatus": "SUCCEEDED",
+      "contentVerdict": "PASS_WITH_NOTE",
+      "note": "正文编号对应产品和体验段落；405 字，仍超 200–350 字目标。",
+      "allDisplayedNumbersExist": true,
+      "sourceHashesAndRangesValid": true
+    },
+    {
+      "id": "Q02",
+      "runId": "77cae787-6f05-4f55-bebf-77c093d9a8d3",
+      "runtimeStatus": "FAILED",
+      "contentVerdict": "FAIL",
+      "note": "供应商工具参数残片被 INVALID_ANSWER_FORMAT 拦下；零正文，不把运行失败计为可用。",
+      "allDisplayedNumbersExist": true,
+      "sourceHashesAndRangesValid": true
+    },
+    {
+      "id": "Q03",
+      "runId": "a4237581-8f18-4cc0-a9a5-0eb58fef8899",
+      "runtimeStatus": "SUCCEEDED",
+      "contentVerdict": "FAIL",
+      "note": "新增第二组把检索评测归到 [2]，该片段只包含权限、模型目录和 CI；评测实际在 [3]。这是模型选错支撑片段，不是服务端重排失配。",
+      "allDisplayedNumbersExist": true,
+      "sourceHashesAndRangesValid": true
+    },
+    {
+      "id": "Q04",
+      "runId": "a43813d4-8481-4eec-b62a-f12ba411a341",
+      "runtimeStatus": "SUCCEEDED",
+      "contentVerdict": "PASS_WITH_NOTE",
+      "note": "幂等范围与编号正确；一次模型调用是资料中单次历史实验，不是普遍调用次数保证。",
+      "allDisplayedNumbersExist": true,
+      "sourceHashesAndRangesValid": true
+    },
+    {
+      "id": "Q05",
+      "runId": "ad7c1959-17dd-4fb9-a355-4e8a98e9a355",
+      "runtimeStatus": "SUCCEEDED",
+      "contentVerdict": "PASS",
+      "note": "取消、fencing、完成不可撤销与迟到写入的编号逐项对应。",
+      "allDisplayedNumbersExist": true,
+      "sourceHashesAndRangesValid": true
+    },
+    {
+      "id": "Q06",
+      "runId": "57fa239d-a41d-4da5-af7f-313edd61bd4e",
+      "runtimeStatus": "SUCCEEDED",
+      "contentVerdict": "PASS_WITH_NOTE",
+      "note": "重启和取消边界有对应来源；正文 9.192 s 出现，终态确认 40.594 s，保留观测异常。",
+      "allDisplayedNumbersExist": true,
+      "sourceHashesAndRangesValid": true
+    },
+    {
+      "id": "Q07",
+      "runId": "0af5fe8e-72b6-4123-b833-34735fd2c2ff",
+      "runtimeStatus": "SUCCEEDED",
+      "contentVerdict": "PASS",
+      "note": "不捏造客户量、成本；范围、历史指标和能力承诺的编号对应。",
+      "allDisplayedNumbersExist": true,
+      "sourceHashesAndRangesValid": true
+    },
+    {
+      "id": "Q08",
+      "runId": "6f53f122-9a41-49f0-8500-7be7430c50f2",
+      "runtimeStatus": "SUCCEEDED",
+      "contentVerdict": "PASS_WITH_NOTE",
+      "note": "管理员隔离的三个编号正确；复制/导出只是协作建议，不代表已经实现共享入口。",
+      "allDisplayedNumbersExist": true,
+      "sourceHashesAndRangesValid": true
+    },
+    {
+      "id": "Q09",
+      "runId": "8ff664c5-cb16-4d39-ac2d-b4aff0fd4a57",
+      "runtimeStatus": "SUCCEEDED",
+      "contentVerdict": "FAIL",
+      "note": "边界段落仍引用 [2]，其实际支持来源是 [3]。来源存在和 hash 正确不能替代语义核对。",
+      "allDisplayedNumbersExist": true,
+      "sourceHashesAndRangesValid": true
+    },
+    {
+      "id": "Q10",
+      "runId": "470662a2-489b-4fc0-a770-5eda7f86ebb2",
+      "runtimeStatus": "SUCCEEDED",
+      "contentVerdict": "PASS",
+      "note": "状态 SSE 与非逐字流式边界对应原文。",
+      "allDisplayedNumbersExist": true,
+      "sourceHashesAndRangesValid": true
+    },
+    {
+      "id": "Q11",
+      "runId": "2614292d-8c1e-4a7c-bd25-4823df60eaa8",
+      "runtimeStatus": "SUCCEEDED",
+      "contentVerdict": "PASS_WITH_NOTE",
+      "note": "来源有效与结论正确的编号已对应；已验证的文案应精确称已在线上验证。",
+      "allDisplayedNumbersExist": true,
+      "sourceHashesAndRangesValid": true
+    },
+    {
+      "id": "Q12",
+      "runId": "1a48c6f6-371c-4816-886d-c7aa9b36ab31",
+      "runtimeStatus": "SUCCEEDED",
+      "contentVerdict": "PASS_WITH_NOTE",
+      "note": "MIT、上游版权、技术栈和继承能力的编号正确；首答 21.266 s。",
+      "allDisplayedNumbersExist": true,
+      "sourceHashesAndRangesValid": true
+    }
+  ],
+  "successfulRunTimings": {
+    "firstAnswer": {
+      "n": 11,
+      "p50Ms": 9191.800000011921,
+      "p95Ms": 21265.80000001192
+    },
+    "finalAnswer": {
+      "n": 11,
+      "p50Ms": 10179.800000011921,
+      "p95Ms": 40594
+    }
+  },
+  "usableAnswerTimings": {
+    "firstAnswer": {
+      "n": 9,
+      "p50Ms": 9191.800000011921,
+      "p95Ms": 21265.80000001192
+    },
+    "finalAnswer": {
+      "n": 9,
+      "p50Ms": 10179.800000011921,
+      "p95Ms": 40594
+    }
+  },
+  "quantile": "nearest rank ceil(p*n); only observed values; failures retained separately",
+  "samplesSha256": "86dbbcf1eb014b0d1529d44bdf5568e5550945f5d50505550e26c820b601e876",
+  "toolContractSha256": "ce5b059df279c01fa0140d2deba0a00d2c33b694636f2e4feec5c3966fc7de62",
+  "limitations": [
+    "Not randomized A/B or an SLA",
+    "No semantic correctness guarantee from numbering validation",
+    "Q06 backend duration was 9.149 s; frontend terminal confirmation was 40.594 s; cause not established",
+    "No raw answer was rewritten; no failed attempt was replaced by a retry"
+  ]
+}

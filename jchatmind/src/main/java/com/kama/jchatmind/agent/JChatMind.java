@@ -385,9 +385,9 @@ public class JChatMind {
 
     // 服务端校验：id 必须属于本次运行已完成的检索，且来源仍在本次运行的获准 KB 范围内。
     // 校验失败只记录安全的原因码与数量，不生成可点击引用，也不读取任何文档正文。
-    private List<AnswerCitation> resolveCitations(List<String> requestedCitationIds) {
+    private CitationRegistry.Resolution resolveCitations(List<String> requestedCitationIds) {
         if (requestedCitationIds == null || requestedCitationIds.isEmpty()) {
-            return List.of();
+            return new CitationRegistry.Resolution(List.of(), List.of(), java.util.Map.of());
         }
         runtimeGuard.run();
         Set<String> allowedKbIds = new LinkedHashSet<>();
@@ -403,7 +403,7 @@ public class JChatMind {
         for (CitationRegistry.Notice notice : resolution.notices()) {
             log.warn("回答引用校验未通过: reason={} count={}", notice.reason(), notice.count());
         }
-        return resolution.citations();
+        return resolution;
     }
 
     // 上游（模型服务 / 中转站）过载时，会把「资源繁忙」这类提示当成**正常的 assistant.content**
@@ -620,7 +620,11 @@ public class JChatMind {
             // content 里可能混着思维链，一律丢弃 —— 这就是通道分离的意义。
             answerText = directAnswer.answer();
             // 引用在这里补全：只有本次运行登记过的真实检索命中、且来源仍在获准范围内才会生成。
-            citations = resolveCitations(directAnswer.citationIds());
+            CitationRegistry.Resolution resolution = resolveCitations(directAnswer.citationIds());
+            citations = resolution.citations();
+            if (!directAnswer.citationIds().isEmpty()) {
+                answerText = AnswerCitationFormatter.relabel(answerText, resolution.labelsByRequestIndex());
+            }
             toPersist = AssistantMessage.builder().content(answerText).toolCalls(toolCalls).build();
         } else if (StringUtils.hasText(output.getText())) {
             // 兜底：模型没走 directAnswer 通道，只能把 content 当答复。

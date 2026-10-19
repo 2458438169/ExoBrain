@@ -1,0 +1,283 @@
+{
+  "sample": {
+    "label": "30 秒了解这个项目",
+    "question": "用一句话和三个要点说明 ExoBrain 能做什么，并指出我可以亲自体验的能力。",
+    "id": "Q01",
+    "variant": "production-20261019-ux-e105f0c",
+    "first": false,
+    "resume": false,
+    "skipSources": false
+  },
+  "sessionId": "301293a6-2be5-4933-8ed7-0350e674e99a",
+  "status": "SUCCEEDED",
+  "timings": {
+    "start": 702.9000000357628,
+    "feedback": 5.5,
+    "accepted": 824.8999999761581,
+    "firstAnswer": 9461.899999976158,
+    "finalAnswer": 9612.5,
+    "runId": "09997691-b3ab-4fbc-98d6-84e2eda2e88c",
+    "terminalAt": 9493.5,
+    "acceptedResponse": {
+      "http": 200,
+      "code": 200,
+      "data": {
+        "chatMessageId": "24a591d4-b399-4d88-bcd6-751ae851ab83",
+        "runId": "09997691-b3ab-4fbc-98d6-84e2eda2e88c",
+        "runStatus": "QUEUED",
+        "idempotentReplay": false
+      },
+      "message": "success"
+    },
+    "summary": {
+      "runId": "09997691-b3ab-4fbc-98d6-84e2eda2e88c",
+      "status": "SUCCEEDED",
+      "interrupted": false,
+      "agentName": "ExoBrain 演示助手",
+      "modelName": "DeepSeek-V4.1-Flash",
+      "submittedAt": "2026-10-19T15:29:16.816765Z",
+      "startedAt": "2026-10-19T15:29:16.850911Z",
+      "finishedAt": "2026-10-19T15:29:25.290354Z",
+      "durationMs": 8436,
+      "queueDurationMs": 34,
+      "inputTokens": 5281,
+      "outputTokens": 535,
+      "totalTokens": 5816,
+      "errorCode": null,
+      "traceIncomplete": false,
+      "triggeringMessageId": "24a591d4-b399-4d88-bcd6-751ae851ab83",
+      "answerMessageId": "c12a2a84-75ae-4e15-a540-74f164c0dd90"
+    }
+  },
+  "summary": {
+    "runId": "09997691-b3ab-4fbc-98d6-84e2eda2e88c",
+    "status": "SUCCEEDED",
+    "interrupted": false,
+    "agentName": "ExoBrain 演示助手",
+    "modelName": "DeepSeek-V4.1-Flash",
+    "submittedAt": "2026-10-19T15:29:16.816765Z",
+    "startedAt": "2026-10-19T15:29:16.850911Z",
+    "finishedAt": "2026-10-19T15:29:25.290354Z",
+    "durationMs": 8436,
+    "queueDurationMs": 34,
+    "inputTokens": 5281,
+    "outputTokens": 535,
+    "totalTokens": 5816,
+    "errorCode": null,
+    "traceIncomplete": false,
+    "triggeringMessageId": "24a591d4-b399-4d88-bcd6-751ae851ab83",
+    "answerMessageId": "c12a2a84-75ae-4e15-a540-74f164c0dd90"
+  },
+  "events": [
+    {
+      "sequence": 1,
+      "type": "MODEL_CALL",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T15:29:17.086595Z",
+      "durationMs": 4076,
+      "retryAttempt": 1,
+      "toolName": null,
+      "detail": null
+    },
+    {
+      "sequence": 2,
+      "type": "PERSIST_MESSAGE",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T15:29:21.178531Z",
+      "durationMs": 7,
+      "retryAttempt": null,
+      "toolName": null,
+      "detail": null
+    },
+    {
+      "sequence": 3,
+      "type": "TOOL_CALL",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T15:29:21.381205Z",
+      "durationMs": 538,
+      "retryAttempt": null,
+      "toolName": "KnowledgeTool",
+      "detail": null
+    },
+    {
+      "sequence": 4,
+      "type": "TOOL_CALL",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T15:29:21.772368Z",
+      "durationMs": 149,
+      "retryAttempt": null,
+      "toolName": "KnowledgeTool",
+      "detail": null
+    },
+    {
+      "sequence": 5,
+      "type": "RETRIEVAL",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T15:29:21.924147Z",
+      "durationMs": 0,
+      "retryAttempt": null,
+      "toolName": null,
+      "detail": "OK"
+    },
+    {
+      "sequence": 6,
+      "type": "RETRIEVAL",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T15:29:21.926702Z",
+      "durationMs": 0,
+      "retryAttempt": null,
+      "toolName": null,
+      "detail": "OK"
+    },
+    {
+      "sequence": 7,
+      "type": "PERSIST_MESSAGE",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T15:29:21.935543Z",
+      "durationMs": 3,
+      "retryAttempt": null,
+      "toolName": null,
+      "detail": null
+    },
+    {
+      "sequence": 8,
+      "type": "PERSIST_MESSAGE",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T15:29:21.943816Z",
+      "durationMs": 3,
+      "retryAttempt": null,
+      "toolName": null,
+      "detail": null
+    },
+    {
+      "sequence": 9,
+      "type": "MODEL_CALL",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T15:29:21.961415Z",
+      "durationMs": 3269,
+      "retryAttempt": 1,
+      "toolName": null,
+      "detail": null
+    },
+    {
+      "sequence": 10,
+      "type": "PERSIST_MESSAGE",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T15:29:25.245114Z",
+      "durationMs": 7,
+      "retryAttempt": null,
+      "toolName": null,
+      "detail": null
+    },
+    {
+      "sequence": 11,
+      "type": "TOOL_CALL",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T15:29:25.265690Z",
+      "durationMs": 3,
+      "retryAttempt": null,
+      "toolName": "directAnswer",
+      "detail": null
+    },
+    {
+      "sequence": 12,
+      "type": "PERSIST_MESSAGE",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T15:29:25.274741Z",
+      "durationMs": 2,
+      "retryAttempt": null,
+      "toolName": null,
+      "detail": null
+    }
+  ],
+  "answer": "ExoBrain 是一个可核验的 RAG 问答项目：它检索公开资料、给出带原文出处的回答，并把一次回答的执行过程记录下来供核对 [1]。\n\n三个要点：\n1. 回答带出处：模型必须通过检索拿到资料片段才组织结论，每条来源都指向具体文档、行号范围与片段哈希 [1]。\n2. 过程可核对：每轮问答都有运行记录，含模型调用、工具调用、检索与落库的真实耗时和状态；失败、取消、中断都如实显示 [1]。\n3. 失败可恢复：重复点击发送不会重复执行，刷新页面不丢问题，重启时结果未知的任务不会被悄悄重放 [1]。\n\n你可以亲自体验三条路径 [2]：直接提问（一句结论 + 要点，来源可点开看原文）、展开「查看过程」看这一轮各步骤与耗时、以及询问实现细节或「有什么做不到」，回答会明确说边界而不是编造 [2]。游客模式无需登录，只能看到公开资料与自己的会话 [3]。",
+  "answerChars": 375,
+  "sourceCount": 3,
+  "sources": [
+    {
+      "label": 1,
+      "source": {
+        "documentId": "78f6ebe5-9685-420b-a408-80b7f8b672ff",
+        "documentName": "01_product_guide.md",
+        "headingPath": [
+          "ExoBrain 产品导览（2026-10-19 版）",
+          "用一句话和三个要点说明这个项目"
+        ],
+        "sourceHash": "177e48ad96039972de8455c24f541a29d26f74832a729ebd6139f9941a891f38",
+        "startLine": 9,
+        "endLine": 15
+      },
+      "http": 200,
+      "hashMatches": true,
+      "rangeValid": true,
+      "citedText": "ExoBrain 是一个可核验的 RAG 问答项目：它检索公开资料、给出带原文出处的回答，并把一次回答的执行过程记录下来供核对。\n\n三个要点：\n\n1. **回答带出处**：模型必须通过检索工具拿到资料片段才组织结论，回答里的每条来源都指向具体文档、行号范围与片段哈希。\n2. **过程可核对**：每轮问答都有运行记录，包含模型调用、工具调用、检索和消息落库的真实耗时与状态；失败、取消、中断都如实显示，不会伪装成成功。\n3. **失败可恢复**：重复点击发送不会重复执行，刷新页面不会丢问题，服务重启时结果未知的任务不会被悄悄重放。"
+    },
+    {
+      "label": 2,
+      "source": {
+        "documentId": "78f6ebe5-9685-420b-a408-80b7f8b672ff",
+        "documentName": "01_product_guide.md",
+        "headingPath": [
+          "ExoBrain 产品导览（2026-10-19 版）",
+          "三条可以亲自体验的路径"
+        ],
+        "sourceHash": "177e48ad96039972de8455c24f541a29d26f74832a729ebd6139f9941a891f38",
+        "startLine": 19,
+        "endLine": 23
+      },
+      "http": 200,
+      "hashMatches": true,
+      "rangeValid": true,
+      "citedText": "| 体验路径 | 你会看到什么 | 依据 |\n| --- | --- | --- |\n| 直接提问 | 一句结论 + 几条要点，下面挂来源；点开来源可看到原文对应段落 | 公开知识库检索、引用投影、原文预览 |\n| 查看执行过程 | 展开「查看过程」可看到这一轮的模型、检索、工具与落库步骤及其耗时 | 运行摘要与事件表 |\n| 核对边界 | 问实现细节、工程取舍或「有什么做不到」，回答会明确说明边界而不是编造 | 本文档与《工程案例》《能力归属》 |"
+    },
+    {
+      "label": 3,
+      "source": {
+        "documentId": "78f6ebe5-9685-420b-a408-80b7f8b672ff",
+        "documentName": "01_product_guide.md",
+        "headingPath": [
+          "ExoBrain 产品导览（2026-10-19 版）",
+          "公开体验的边界"
+        ],
+        "sourceHash": "177e48ad96039972de8455c24f541a29d26f74832a729ebd6139f9941a891f38",
+        "startLine": 33,
+        "endLine": 36
+      },
+      "http": 200,
+      "hashMatches": true,
+      "rangeValid": true,
+      "citedText": "- 游客模式不需要登录，只能看到公开资料与自己的会话；看不到任何其他访客或账号的数据。\n- 账号模式下管理员也不能读取其他用户私有知识库、助手与会话的运行记录。\n- 公开资料的范围由配置明确发布，未发布的路径在网关层就会被拒绝，而不是仅靠前端隐藏入口。\n- 游客可以取消自己正在执行的回答；公开只读示例不可取消、不可续写。"
+    }
+  ],
+  "clickedSources": [
+    {
+      "citationId": "865495a3-c3f6-49f3-8e53-a424653b903d:2",
+      "documentId": "78f6ebe5-9685-420b-a408-80b7f8b672ff",
+      "view": {
+        "text": "ExoBrain 是一个可核验的 RAG 问答项目：它检索公开资料、给出带原文出处的回答，并把一次回答的执行过程记录下来供核对。\n\n三个要点：\n\n1. **回答带出处**：模型必须通过检索工具拿到资料片段才组织结论，回答里的每条来源都指向具体文档、行号范围与片段哈希。\n2. **过程可核对**：每轮问答都有运行记录，包含模型调用、工具调用、检索和消息落库的真实耗时与状态；失败、取消、中断都如实显示，不会伪装成成功。\n3. **失败可恢复**：重复点击发送不会重复执行，刷新页面不会丢问题，服务重启时结果未知的任务不会被悄悄重放。",
+        "visible": true
+      }
+    },
+    {
+      "citationId": "51ba8f28-7e1a-49e5-bd64-05509d1d3f71:1",
+      "documentId": "78f6ebe5-9685-420b-a408-80b7f8b672ff",
+      "view": {
+        "text": "| 体验路径 | 你会看到什么 | 依据 |\n| --- | --- | --- |\n| 直接提问 | 一句结论 + 几条要点，下面挂来源；点开来源可看到原文对应段落 | 公开知识库检索、引用投影、原文预览 |\n| 查看执行过程 | 展开「查看过程」可看到这一轮的模型、检索、工具与落库步骤及其耗时 | 运行摘要与事件表 |\n| 核对边界 | 问实现细节、工程取舍或「有什么做不到」，回答会明确说明边界而不是编造 | 本文档与《工程案例》《能力归属》 |",
+        "visible": true
+      }
+    },
+    {
+      "citationId": "51ba8f28-7e1a-49e5-bd64-05509d1d3f71:3",
+      "documentId": "78f6ebe5-9685-420b-a408-80b7f8b672ff",
+      "view": {
+        "text": "- 游客模式不需要登录，只能看到公开资料与自己的会话；看不到任何其他访客或账号的数据。\n- 账号模式下管理员也不能读取其他用户私有知识库、助手与会话的运行记录。\n- 公开资料的范围由配置明确发布，未发布的路径在网关层就会被拒绝，而不是仅靠前端隐藏入口。\n- 游客可以取消自己正在执行的回答；公开只读示例不可取消、不可续写。",
+        "visible": true
+      }
+    }
+  ],
+  "retryEvents": 0,
+  "modelDurationMs": 7345,
+  "retrievalDurationMs": 0,
+  "oneIntent": true,
+  "readFailures": []
+}

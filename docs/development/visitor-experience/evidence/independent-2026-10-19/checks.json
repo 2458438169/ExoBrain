@@ -1,7 +1,7 @@
 {
   "unit": {
     "totals": {
-      "tests": 285,
+      "tests": 291,
       "failures": 0,
       "errors": 0,
       "skipped": 4
@@ -9,7 +9,7 @@
     "suites": [
       {
         "name": "com.kama.jchatmind.agent.JChatMindCitationTest",
-        "tests": "10",
+        "tests": "16",
         "failures": "0",
         "errors": "0",
         "skipped": "0"
@@ -430,5 +430,6 @@
     "exitCode": 0,
     "checks": 18,
     "failed": 0
-  }
+  },
+  "scopeNote": "Java checks rerun after citation fix; unchanged frontend and frozen assets retain the e105f0c checks and identical source/build bytes."
 }

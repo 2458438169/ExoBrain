@@ -1,0 +1,301 @@
+{
+  "sample": {
+    "label": "看一条有原文出处的回答",
+    "question": "这个项目如何让我核对答案的依据？请说明引用和原文的关系。",
+    "id": "Q02",
+    "variant": "production-20261019-ux-e105f0c",
+    "first": false,
+    "resume": false,
+    "skipSources": false
+  },
+  "sessionId": "660bf61f-40d2-4ef1-b802-f7c409db9492",
+  "status": "SUCCEEDED",
+  "timings": {
+    "start": 1103.699999988079,
+    "feedback": 3.5,
+    "accepted": 875.9000000357628,
+    "firstAnswer": 7116.200000047684,
+    "finalAnswer": 7129.600000023842,
+    "runId": "6a1a6bec-9cb6-4ca5-827b-9097dd871991",
+    "terminalAt": 7124.5,
+    "acceptedResponse": {
+      "http": 200,
+      "code": 200,
+      "data": {
+        "chatMessageId": "d0b0ff58-4449-4205-8f61-f20fd3edcd81",
+        "runId": "6a1a6bec-9cb6-4ca5-827b-9097dd871991",
+        "runStatus": "QUEUED",
+        "idempotentReplay": false
+      },
+      "message": "success"
+    },
+    "summary": {
+      "runId": "6a1a6bec-9cb6-4ca5-827b-9097dd871991",
+      "status": "SUCCEEDED",
+      "interrupted": false,
+      "agentName": "ExoBrain 演示助手",
+      "modelName": "DeepSeek-V4.1-Flash",
+      "submittedAt": "2026-10-19T15:30:50.376517Z",
+      "startedAt": "2026-10-19T15:30:50.390095Z",
+      "finishedAt": "2026-10-19T15:30:56.489721Z",
+      "durationMs": 6099,
+      "queueDurationMs": 13,
+      "inputTokens": 5213,
+      "outputTokens": 550,
+      "totalTokens": 5763,
+      "errorCode": null,
+      "traceIncomplete": false,
+      "triggeringMessageId": "d0b0ff58-4449-4205-8f61-f20fd3edcd81",
+      "answerMessageId": "122ddd59-4f8f-4241-8579-994ab231d5a5"
+    }
+  },
+  "summary": {
+    "runId": "6a1a6bec-9cb6-4ca5-827b-9097dd871991",
+    "status": "SUCCEEDED",
+    "interrupted": false,
+    "agentName": "ExoBrain 演示助手",
+    "modelName": "DeepSeek-V4.1-Flash",
+    "submittedAt": "2026-10-19T15:30:50.376517Z",
+    "startedAt": "2026-10-19T15:30:50.390095Z",
+    "finishedAt": "2026-10-19T15:30:56.489721Z",
+    "durationMs": 6099,
+    "queueDurationMs": 13,
+    "inputTokens": 5213,
+    "outputTokens": 550,
+    "totalTokens": 5763,
+    "errorCode": null,
+    "traceIncomplete": false,
+    "triggeringMessageId": "d0b0ff58-4449-4205-8f61-f20fd3edcd81",
+    "answerMessageId": "122ddd59-4f8f-4241-8579-994ab231d5a5"
+  },
+  "events": [
+    {
+      "sequence": 1,
+      "type": "MODEL_CALL",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T15:30:50.427210Z",
+      "durationMs": 2355,
+      "retryAttempt": 1,
+      "toolName": null,
+      "detail": null
+    },
+    {
+      "sequence": 2,
+      "type": "PERSIST_MESSAGE",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T15:30:52.787926Z",
+      "durationMs": 1,
+      "retryAttempt": null,
+      "toolName": null,
+      "detail": null
+    },
+    {
+      "sequence": 3,
+      "type": "TOOL_CALL",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T15:30:52.929811Z",
+      "durationMs": 237,
+      "retryAttempt": null,
+      "toolName": "KnowledgeTool",
+      "detail": null
+    },
+    {
+      "sequence": 4,
+      "type": "TOOL_CALL",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T15:30:53.038286Z",
+      "durationMs": 130,
+      "retryAttempt": null,
+      "toolName": "KnowledgeTool",
+      "detail": null
+    },
+    {
+      "sequence": 5,
+      "type": "RETRIEVAL",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T15:30:53.169787Z",
+      "durationMs": 0,
+      "retryAttempt": null,
+      "toolName": null,
+      "detail": "OK"
+    },
+    {
+      "sequence": 6,
+      "type": "RETRIEVAL",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T15:30:53.171233Z",
+      "durationMs": 0,
+      "retryAttempt": null,
+      "toolName": null,
+      "detail": "OK"
+    },
+    {
+      "sequence": 7,
+      "type": "PERSIST_MESSAGE",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T15:30:53.177303Z",
+      "durationMs": 2,
+      "retryAttempt": null,
+      "toolName": null,
+      "detail": null
+    },
+    {
+      "sequence": 8,
+      "type": "PERSIST_MESSAGE",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T15:30:53.182312Z",
+      "durationMs": 1,
+      "retryAttempt": null,
+      "toolName": null,
+      "detail": null
+    },
+    {
+      "sequence": 9,
+      "type": "MODEL_CALL",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T15:30:53.194228Z",
+      "durationMs": 3253,
+      "retryAttempt": 1,
+      "toolName": null,
+      "detail": null
+    },
+    {
+      "sequence": 10,
+      "type": "PERSIST_MESSAGE",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T15:30:56.455831Z",
+      "durationMs": 2,
+      "retryAttempt": null,
+      "toolName": null,
+      "detail": null
+    },
+    {
+      "sequence": 11,
+      "type": "TOOL_CALL",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T15:30:56.472895Z",
+      "durationMs": 1,
+      "retryAttempt": null,
+      "toolName": "directAnswer",
+      "detail": null
+    },
+    {
+      "sequence": 12,
+      "type": "PERSIST_MESSAGE",
+      "status": "SUCCEEDED",
+      "startedAt": "2026-10-19T15:30:56.478543Z",
+      "durationMs": 1,
+      "retryAttempt": null,
+      "toolName": null,
+      "detail": null
+    }
+  ],
+  "answer": "结论：每条引用都指向具体文档与行号，点开来源能看到那段原文，但引用只证明来源被校验过，不等于结论一定正确。\n\n主要可以这样核对：\n\n1. **引用指向原文**：回答里的每条来源都指向具体文档、行号范围与片段哈希，点开就能看到文档名、行号范围和原文本身。\n\n2. **事实来源与口径**：事实来自仓库源码、部署配置和真实运行记录，耗时与测试数量只引用真实输出并标注日期；「已实现 / 已部署 / 已验证」会尽量区分，不把其中一个说成全部。\n\n3. **怎么判断边界**：想看能力是否存在，对照源码位置与当前仓库提交；想看是否验证过，看测试文件与运行记录，区分单元、集成与真实生产证据；想看边界就直接问「现在还做不到什么」。\n\n关于引用与原文的关系：引用说明这条来源被服务端校验过，只代表来源存在，不代表模型组织的结论一定正确，仍需人工判断。",
+  "answerChars": 369,
+  "sourceCount": 4,
+  "sources": [
+    {
+      "label": 1,
+      "source": {
+        "documentId": "78f6ebe5-9685-420b-a408-80b7f8b672ff",
+        "documentName": "01_product_guide.md",
+        "headingPath": [
+          "ExoBrain 产品导览（2026-10-19 版）",
+          "这一版资料的核对口径"
+        ],
+        "sourceHash": "177e48ad96039972de8455c24f541a29d26f74832a729ebd6139f9941a891f38",
+        "startLine": 40,
+        "endLine": 42
+      },
+      "http": 200,
+      "hashMatches": true,
+      "rangeValid": true,
+      "citedText": "- 资料版本：`v2-2026-10-19`，与冻结评测语料 `v1-2026-10-14` 并存，旧版本不修改。\n- 事实来源：仓库源码、部署配置与本次真实运行记录；耗时与测试数量只引用真实输出，并标注日期。\n- 关于「已实现 / 已部署 / 已验证」的区别，回答里会尽量区分，不把其中一个说成全部。"
+    },
+    {
+      "label": 2,
+      "source": {
+        "documentId": "651f8308-e976-4e1a-8372-1b077735686f",
+        "documentName": "03_contribution_map.md",
+        "headingPath": [
+          "ExoBrain 能力归属（2026-10-19 版）",
+          "怎么核对这些说法"
+        ],
+        "sourceHash": "a6008c717a3e03feb24ef3bde4af81c8d470582ebc3e5b35b6aa66d2e07e38fa",
+        "startLine": 52,
+        "endLine": 54
+      },
+      "http": 200,
+      "hashMatches": true,
+      "rangeValid": true,
+      "citedText": "- 想看能力是否存在：对照上表「主要依据」的源码位置与当前仓库提交。\n- 想看是否验证过：看对应的测试文件与运行记录，注意区分单元、集成与真实浏览器/生产证据。\n- 想看边界：直接问「现在还做不到什么」，回答应当复述上两节的边界，而不是把计划中的能力当作已完成。"
+    },
+    {
+      "label": 3,
+      "source": {
+        "documentId": "78f6ebe5-9685-420b-a408-80b7f8b672ff",
+        "documentName": "01_product_guide.md",
+        "headingPath": [
+          "ExoBrain 产品导览（2026-10-19 版）",
+          "用一句话和三个要点说明这个项目"
+        ],
+        "sourceHash": "177e48ad96039972de8455c24f541a29d26f74832a729ebd6139f9941a891f38",
+        "startLine": 9,
+        "endLine": 15
+      },
+      "http": 200,
+      "hashMatches": true,
+      "rangeValid": true,
+      "citedText": "ExoBrain 是一个可核验的 RAG 问答项目：它检索公开资料、给出带原文出处的回答，并把一次回答的执行过程记录下来供核对。\n\n三个要点：\n\n1. **回答带出处**：模型必须通过检索工具拿到资料片段才组织结论，回答里的每条来源都指向具体文档、行号范围与片段哈希。\n2. **过程可核对**：每轮问答都有运行记录，包含模型调用、工具调用、检索和消息落库的真实耗时与状态；失败、取消、中断都如实显示，不会伪装成成功。\n3. **失败可恢复**：重复点击发送不会重复执行，刷新页面不会丢问题，服务重启时结果未知的任务不会被悄悄重放。"
+    },
+    {
+      "label": 4,
+      "source": {
+        "documentId": "78f6ebe5-9685-420b-a408-80b7f8b672ff",
+        "documentName": "01_product_guide.md",
+        "headingPath": [
+          "ExoBrain 产品导览（2026-10-19 版）",
+          "能解决的问题与不能解决的问题"
+        ],
+        "sourceHash": "177e48ad96039972de8455c24f541a29d26f74832a729ebd6139f9941a891f38",
+        "startLine": 27,
+        "endLine": 29
+      },
+      "http": 200,
+      "hashMatches": true,
+      "rangeValid": true,
+      "citedText": "能解决：需要从一批文档里快速得到有出处答案的问题，以及需要证明「答案来自哪一段原文」的场景。\n\n不能解决：需要实时联网数据的问题（检索范围只是已发布的知识库）、需要精确数值计算与外部系统写入的问题、以及把引用等同于事实核验的问题。引用只说明「这条来源被服务端校验过」，不代表模型组织的结论一定正确，仍需人工判断。"
+    }
+  ],
+  "clickedSources": [
+    {
+      "citationId": "f79ad5ac-ada8-4aaf-ad95-ab174bb00680:2",
+      "documentId": "78f6ebe5-9685-420b-a408-80b7f8b672ff",
+      "view": {
+        "text": "- 资料版本：`v2-2026-10-19`，与冻结评测语料 `v1-2026-10-14` 并存，旧版本不修改。\n- 事实来源：仓库源码、部署配置与本次真实运行记录；耗时与测试数量只引用真实输出，并标注日期。\n- 关于「已实现 / 已部署 / 已验证」的区别，回答里会尽量区分，不把其中一个说成全部。",
+        "visible": true
+      }
+    },
+    {
+      "citationId": "f79ad5ac-ada8-4aaf-ad95-ab174bb00680:3",
+      "documentId": "651f8308-e976-4e1a-8372-1b077735686f",
+      "view": {
+        "text": "- 想看能力是否存在：对照上表「主要依据」的源码位置与当前仓库提交。\n- 想看是否验证过：看对应的测试文件与运行记录，注意区分单元、集成与真实浏览器/生产证据。\n- 想看边界：直接问「现在还做不到什么」，回答应当复述上两节的边界，而不是把计划中的能力当作已完成。",
+        "visible": true
+      }
+    },
+    {
+      "citationId": "fc8a5d53-6af0-48d2-84d6-721a29384ac8:1",
+      "documentId": "78f6ebe5-9685-420b-a408-80b7f8b672ff",
+      "view": {
+        "text": "ExoBrain 是一个可核验的 RAG 问答项目：它检索公开资料、给出带原文出处的回答，并把一次回答的执行过程记录下来供核对。\n\n三个要点：\n\n1. **回答带出处**：模型必须通过检索工具拿到资料片段才组织结论，回答里的每条来源都指向具体文档、行号范围与片段哈希。\n2. **过程可核对**：每轮问答都有运行记录，包含模型调用、工具调用、检索和消息落库的真实耗时与状态；失败、取消、中断都如实显示，不会伪装成成功。\n3. **失败可恢复**：重复点击发送不会重复执行，刷新页面不会丢问题，服务重启时结果未知的任务不会被悄悄重放。",
+        "visible": true
+      }
+    }
+  ],
+  "retryEvents": 0,
+  "modelDurationMs": 5608,
+  "retrievalDurationMs": 0,
+  "oneIntent": true,
+  "readFailures": []
+}
