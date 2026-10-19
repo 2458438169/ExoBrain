@@ -10,3 +10,6 @@
 /docs/public-demo/*.md text eol=lf
 /docs/public-demo/v2-2026-10-19/** text eol=lf
 /docs/public-demo/README.md text eol=lf
+# This fixture tests literal BOM + CRLF bytes; Git must not normalize them on Linux.
+/jchatmind/src/test/resources/retrieval-golden/bom-crlf.md -text whitespace=cr-at-eol
+/jchatmind/src/test/resources/retrieval-golden/bom-crlf-lf-twin.md text eol=lf
