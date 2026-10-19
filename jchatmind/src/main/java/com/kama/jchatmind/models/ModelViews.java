@@ -25,5 +25,15 @@ public final class ModelViews {
         }
     }
 
+
+    /** 管理页「迁移知识库」：列出所有知识库当前绑定的向量模型。 */
+    public record KnowledgeBaseBinding(String knowledgeBaseId, String name, String modelId) {
+        static KnowledgeBaseBinding from(ModelRepository.KnowledgeBaseBinding value) {
+            return new KnowledgeBaseBinding(value.knowledgeBaseId(), value.name(), value.modelId());
+        }
+    }
+
+    public record RebindResult(String modelId, int rebound, java.util.List<String> knowledgeBaseIds) { }
+
     public record TestResult(boolean success, String message, long latencyMs, Integer dimensions) { }
 }

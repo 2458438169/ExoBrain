@@ -1,6 +1,8 @@
 package com.kama.jchatmind.models;
 
 import com.kama.jchatmind.config.EmbeddingProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,7 @@ import java.util.regex.Pattern;
 @Service
 public class ModelCatalogService {
     private static final Pattern ID = Pattern.compile("[a-z0-9][a-z0-9._-]{0,63}");
+    private static final Logger log = LoggerFactory.getLogger(ModelCatalogService.class);
     private static final Set<String> LLM_PROTOCOLS = Set.of("deepseek", "zhipuai", "openai");
     private static final Set<String> EMBEDDING_PROTOCOLS = Set.of("ollama", "openai");
     private final ModelRepository repository;
@@ -137,6 +140,41 @@ public class ModelCatalogService {
             throw new ModelException(409, "此知识库使用的向量模型已停用，请联系管理员");
         }
         return model;
+    }
+
+    /** 管理页「迁移知识库」：所有知识库当前的向量模型绑定。 */
+    public List<ModelViews.KnowledgeBaseBinding> knowledgeBaseBindings() {
+        return repository.knowledgeBaseBindings().stream().map(ModelViews.KnowledgeBaseBinding::from).toList();
+    }
+
+    /**
+     * 把已有知识库迁移到 {@code modelId} 这个向量模型（只改绑定，不重建向量）。
+     *
+     * <p>守卫：目标必须是启用中的 EMBEDDING 模型，且调用方必须显式确认
+     * {@code vectorSpaceUnchanged=true}（同一模型的改名/换别名）。换了模型或供应商时，
+     * 旧向量与新查询向量不可比，必须重新导入资料——这属于会静默失准的错误，所以直接拒绝而不是只提示。</p>
+     */
+    @Transactional
+    public ModelViews.RebindResult rebindKnowledgeBases(String modelId, ModelRebindRequest request) {
+        ModelDefinition model = requireModel(modelId);
+        if (model.kind() != ModelKind.EMBEDDING) {
+            throw new ModelException(400, "只有向量模型可以接管知识库");
+        }
+        if (!model.enabled()) {
+            throw new ModelException(409, "请先启用该向量模型再迁移知识库");
+        }
+        if (request == null || !Boolean.TRUE.equals(request.vectorSpaceUnchanged())) {
+            throw new ModelException(400,
+                    "请先确认新旧模型是同一向量空间（同一模型的改名或别名）；更换模型或供应商需重新导入资料");
+        }
+        List<String> targets = request.knowledgeBaseIds() == null ? List.of() : request.knowledgeBaseIds();
+        for (String kbId : targets) {
+            validateKnowledgeBaseId(kbId);
+        }
+        repository.lockCatalog();
+        int rebound = repository.rebindKnowledgeBases(modelId, targets);
+        log.info("Knowledge bases rebound to embedding model {}: {} row(s)", modelId, rebound);
+        return new ModelViews.RebindResult(modelId, rebound, targets);
     }
 
     public ModelDefinition defaultEmbedding() {

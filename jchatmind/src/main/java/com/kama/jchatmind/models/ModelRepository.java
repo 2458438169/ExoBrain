@@ -90,4 +90,36 @@ public class ModelRepository {
                 + "(SELECT model_id FROM exobrain_kb_embedding WHERE kb_id = CAST(? AS uuid))", ROW, kbId)
                 .stream().findFirst();
     }
+
+    /** 一个知识库当前绑定的向量模型（管理页「迁移知识库」用）。 */
+    public record KnowledgeBaseBinding(String knowledgeBaseId, String name, String modelId) {
+    }
+
+    public List<KnowledgeBaseBinding> knowledgeBaseBindings() {
+        return jdbc.query("SELECT b.kb_id::text, k.name, b.model_id FROM exobrain_kb_embedding b "
+                        + "JOIN knowledge_base k ON k.id = b.kb_id ORDER BY k.name",
+                (rs, row) -> new KnowledgeBaseBinding(rs.getString(1), rs.getString(2), rs.getString(3)));
+    }
+
+    /**
+     * 把知识库改绑到另一个向量模型。
+     *
+     * <p>只改绑定关系，不动已有向量：调用方必须先确认新旧模型是同一向量空间（同一模型的改名/换别名）。
+     * 换了模型或供应商时，旧向量与新查询向量不可比，必须重新导入资料。</p>
+     *
+     * @param knowledgeBaseIds 为空表示所有当前绑定在别的模型上的知识库
+     * @return 实际改绑的行数
+     */
+    public int rebindKnowledgeBases(String modelId, List<String> knowledgeBaseIds) {
+        if (knowledgeBaseIds == null || knowledgeBaseIds.isEmpty()) {
+            return jdbc.update("UPDATE exobrain_kb_embedding SET model_id = ? WHERE model_id <> ?",
+                    modelId, modelId);
+        }
+        int rebound = 0;
+        for (String kbId : knowledgeBaseIds) {
+            rebound += jdbc.update("UPDATE exobrain_kb_embedding SET model_id = ? "
+                    + "WHERE kb_id = CAST(? AS uuid) AND model_id <> ?", modelId, kbId, modelId);
+        }
+        return rebound;
+    }
 }

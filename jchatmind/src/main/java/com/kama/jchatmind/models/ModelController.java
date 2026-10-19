@@ -57,6 +57,19 @@ public class ModelController {
         return response(runtime.test(catalog.requireModel(id)));
     }
 
+    @GetMapping("/admin/model-bindings")
+    public ResponseEntity<?> knowledgeBaseBindings() {
+        AuthContext.requireAdmin();
+        return response(Map.of("bindings", catalog.knowledgeBaseBindings()));
+    }
+
+    @PostMapping("/admin/models/{id}/knowledge-bases")
+    public ResponseEntity<?> rebindKnowledgeBases(@PathVariable String id,
+                                                  @RequestBody ModelRebindRequest request) {
+        AuthContext.requireAdmin();
+        return response(catalog.rebindKnowledgeBases(id, request));
+    }
+
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<?> invalidRequest() {
         return ResponseEntity.badRequest().body(ApiResponse.error(400, "模型配置格式无效，请检查填写内容"));

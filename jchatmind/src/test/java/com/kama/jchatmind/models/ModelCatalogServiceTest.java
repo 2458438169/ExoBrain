@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kama.jchatmind.config.EmbeddingProperties;
 import com.kama.jchatmind.config.ChatClientRegistry;
 import org.junit.jupiter.api.BeforeEach;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.env.MockEnvironment;
 
@@ -131,7 +132,43 @@ class ModelCatalogServiceTest {
         assertFalse(records.containsKey("unused"));
     }
 
+
+    // ---- 迁移知识库（模型改名后的换绑）----------------------------------------
+
     @Test
+    void rebindingRequiresAnExplicitVectorSpaceConfirmation() {
+        records.put("bge-m3", embedding("bge-m3", "BAAI/bge-m3", true));
+        assertEquals(400, assertThrows(ModelException.class, () -> catalog.rebindKnowledgeBases(
+                "bge-m3", new ModelRebindRequest(false, null))).getStatus());
+        assertEquals(400, assertThrows(ModelException.class, () -> catalog.rebindKnowledgeBases(
+                "bge-m3", new ModelRebindRequest(null, null))).getStatus());
+        assertEquals(400, assertThrows(ModelException.class, () -> catalog.rebindKnowledgeBases(
+                "bge-m3", null)).getStatus());
+        verify(repository, never()).rebindKnowledgeBases(anyString(), anyList());
+    }
+
+    @Test
+    void rebindingRejectsLlmTargetsAndDisabledEmbeddings() {
+        records.put("chat", llm("chat", true, false));
+        assertEquals(400, assertThrows(ModelException.class, () -> catalog.rebindKnowledgeBases(
+                "chat", new ModelRebindRequest(true, null))).getStatus());
+        records.put("off", embedding("off", "some-model", false));
+        assertEquals(409, assertThrows(ModelException.class, () -> catalog.rebindKnowledgeBases(
+                "off", new ModelRebindRequest(true, null))).getStatus());
+    }
+
+    @Test
+    void rebindingMovesSelectedKnowledgeBasesAndReportsTheCount() {
+        records.put("bge-m3", embedding("bge-m3", "BAAI/bge-m3", true));
+        when(repository.rebindKnowledgeBases(eq("bge-m3"), anyList())).thenReturn(2);
+        ModelViews.RebindResult result = catalog.rebindKnowledgeBases("bge-m3",
+                new ModelRebindRequest(true, List.of(KB)));
+        assertEquals("bge-m3", result.modelId());
+        assertEquals(2, result.rebound());
+        assertEquals(List.of(KB), result.knowledgeBaseIds());
+        verify(repository).rebindKnowledgeBases("bge-m3", List.of(KB));
+        verify(repository).lockCatalog();
+    }
     void invalidAddressNeverEchoesAnEmbeddedCredential() {
         ModelUpsertRequest request = new ModelUpsertRequest("bad", "Bad", ModelKind.LLM, "openai",
                 "https://private:do-not-echo@example.test/v1", "model", null, false, false, false, null);
