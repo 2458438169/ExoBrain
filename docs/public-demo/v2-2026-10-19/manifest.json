@@ -40,8 +40,8 @@
   ],
   "prompt": {
     "file": "agent-system-prompt.md",
-    "sha256": "34be88edc2963dc43398ffa51aecde4deef6d5f942461cb39538fa67ac9068b3",
-    "bytes": 1840,
+    "sha256": "fa83d379d5768d3d05ed86e84d76c8b9b148c044fa2bb7bae74729879b87e169",
+    "bytes": 2596,
     "note": "对话助手的系统提示词，只写入助手配置，不上传到知识库。"
   },
   "excludedFromUpload": [
