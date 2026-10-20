@@ -1,5 +1,5 @@
 import React from "react";
-import { Sender } from "@ant-design/x";
+import NativeComposer from "./NativeComposer.tsx";
 
 interface AgentChatInputProps {
   value: string;
@@ -24,7 +24,7 @@ interface AgentChatInputProps {
  * 输入区把三种能力分开：可编辑草稿 / 可发送 / 可取消。
  * - 等待期间仍能写下一句（草稿不会被清空或锁定）；
  * - 发送按钮只在有内容且连接可用时提交，提交过程由发送协调器去重；
- * - 等待时 Sender 的发送按钮变为停止按钮，调用真实取消接口。
+ * - 等待时发送按钮变为停止按钮，调用真实取消接口。
  */
 const AgentChatInput: React.FC<AgentChatInputProps> = ({
   value,
@@ -37,7 +37,6 @@ const AgentChatInput: React.FC<AgentChatInputProps> = ({
   connected = true,
   disabled = false,
 }) => {
-  const canSend = !!value.trim() && !waiting && connected && !disabled;
   const hint = waiting
     ? cancelling
       ? "正在取消：停止请求已登记，终态以运行状态为准"
@@ -50,20 +49,15 @@ const AgentChatInput: React.FC<AgentChatInputProps> = ({
 
   return (
     <div className="min-w-0">
-      <Sender
+      <NativeComposer
         value={value}
         onChange={onChange}
-        onSubmit={async () => {
-          if (!canSend) return;
-          await onSend(value.trim());
-        }}
+        onSubmit={(message) => { void onSend(message); }}
         loading={waiting}
-        onCancel={waiting ? onCancel : undefined}
-        disabled={disabled}
-        suffix={(_, { components: { SendButton, LoadingButton } }) => waiting
-          ? <LoadingButton aria-label={cancelling ? "正在取消回答" : "停止本次回答"} disabled={!cancellable || cancelling} />
-          : <SendButton aria-label="发送问题" disabled={!canSend} />}
-        autoSize={{ minRows: 1, maxRows: 6 }}
+        disabled={disabled || !connected}
+        onCancel={onCancel}
+        canCancel={cancellable}
+        cancelling={cancelling}
         placeholder={
           waiting
             ? "可以先写下一条问题，本轮结束后再发送"

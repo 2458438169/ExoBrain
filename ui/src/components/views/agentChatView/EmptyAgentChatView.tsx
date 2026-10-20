@@ -1,7 +1,7 @@
-import { useCallback, useMemo, useRef, useState } from "react";
-import { Alert, Button, Select, Tag, Typography } from "antd";
-import { ArrowRightOutlined, BookOutlined, DownOutlined, HistoryOutlined, ReloadOutlined } from "@ant-design/icons";
-import { Sender } from "@ant-design/x";
+import { lazy, Suspense, useCallback, useMemo, useRef, useState } from "react";
+import { Alert, Button, Tag, Typography } from "antd";
+import { ArrowRightOutlined, BookOutlined, HistoryOutlined, ReloadOutlined } from "@ant-design/icons";
+import NativeComposer from "./NativeComposer.tsx";
 import { useLocation, useNavigate } from "react-router-dom";
 import { type AgentVO, createChatSession } from "../../../api/api.ts";
 import { getAgentEmoji } from "../../../utils";
@@ -9,6 +9,9 @@ import { useChatSessions } from "../../../hooks/useChatSessions.ts";
 import { DEMO_PROMPTS, IS_PUBLIC_DEMO } from "../../../config.ts";
 import { showRequestError } from "../../../api/http.ts";
 import ExoBrainLogo from "../../ExoBrainLogo.tsx";
+
+// 助手选择器只在账号构建里出现，单独成 chunk，游客首屏不必下载 rc-select。
+const AgentPicker = lazy(() => import("./AgentPicker.tsx"));
 
 const { Title, Text } = Typography;
 
@@ -91,19 +94,20 @@ export default function EmptyAgentChatView({
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className="flex min-h-14 shrink-0 flex-wrap items-center gap-2 border-b-2 border-dashed border-sketch bg-white/70 px-4 py-2 backdrop-blur-sm sm:px-8">
-        <Select
-          aria-label="选择智能体助手"
-          value={effectiveAgentId}
-          onChange={setSelectedAgentId}
-          loading={loadingAgents}
-          disabled={!agents.length}
-          variant="borderless"
-          popupMatchSelectWidth={false}
-          style={{ maxWidth: "100%" }}
-          suffixIcon={<DownOutlined className="text-slate-400" />}
-          placeholder={loadingAgents ? "正在连接助手…" : "暂无可用助手"}
-          options={agents.map((agent) => ({ value: agent.id, label: `${getAgentEmoji(agent.id)} ${agent.name}` }))}
-        />
+        {IS_PUBLIC_DEMO ? (
+          <span className="inline-flex min-w-0 items-center gap-2 text-sm font-semibold text-ink" aria-live="polite">
+            <span aria-hidden="true">{loadingAgents ? "…" : getAgentEmoji(effectiveAgentId)}</span>
+            <span className="truncate">
+              {loadingAgents
+                ? "正在连接助手…"
+                : agents.find((agent) => agent.id === effectiveAgentId)?.name ?? "公开资料助手"}
+            </span>
+          </span>
+        ) : (
+          <Suspense fallback={<span className="text-sm text-slate-500">正在准备助手选择…</span>}>
+            <AgentPicker agents={agents} value={effectiveAgentId} loading={!!loadingAgents} onChange={setSelectedAgentId} />
+          </Suspense>
+        )}
         <span className="flex-1" />
         {IS_PUBLIC_DEMO && <Tag color="magenta" className="m-0">免登录体验</Tag>}
       </div>
@@ -213,19 +217,16 @@ export default function EmptyAgentChatView({
         style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
       >
         <div className="mx-auto w-full max-w-2xl px-4 pt-3 sm:px-8">
-          <Sender
-            onSubmit={(value) => void startQuestion(value)}
+          <NativeComposer
             value={message}
+            onChange={setMessage}
+            onSubmit={(value) => { void startQuestion(value); }}
             loading={busy}
-            disabled={!agentReady || busy}
-            autoSize={{ minRows: 1, maxRows: 5 }}
+            disabled={!agentReady}
+            sendLabel="发送问题"
             placeholder={
               loadingAgents ? "正在连接助手…" : agentReady ? "输入你的问题…" : "助手暂时不可用"
             }
-            onChange={setMessage}
-            suffix={(_, { components: { SendButton, LoadingButton } }) => busy
-              ? <LoadingButton aria-label="正在创建会话" disabled />
-              : <SendButton aria-label="发送问题" disabled={!agentReady || !message.trim()} />}
           />
           <p className="mt-1.5 text-center text-xs leading-5 text-slate-400">
             {IS_PUBLIC_DEMO ? "回答会标注来源；工具调用与执行过程可展开查看。" : "Enter 发送，Shift + Enter 换行。"}

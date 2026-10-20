@@ -1,0 +1,386 @@
+{
+  "label": "split-2",
+  "url": "http://127.0.0.1:18081/",
+  "measuredAt": "2026-10-20T04:25:44.816Z",
+  "environment": {
+    "browser": "chrome (playwright-core channel)",
+    "viewport": "1366x900",
+    "network": "5 Mbps down / 1 Mbps up / 150 ms RTT",
+    "cpu": "4x slowdown",
+    "serverCompression": "gzip"
+  },
+  "cold": {
+    "runs": 10,
+    "failures": 0,
+    "usableP50Ms": 2969,
+    "usableP95Ms": 3490,
+    "usableMinMs": 2813,
+    "usableMaxMs": 3490,
+    "ttfbP50Ms": 4,
+    "fcpP50Ms": 1628,
+    "lcpP50Ms": 2732,
+    "shellP50Ms": 1485,
+    "jsTransferP50Bytes": 301179,
+    "jsRequestsP50": 1
+  },
+  "hot": {
+    "runs": 10,
+    "failures": 0,
+    "usableP50Ms": 1240,
+    "usableP95Ms": 1501,
+    "usableMinMs": 1214,
+    "usableMaxMs": 1501,
+    "ttfbP50Ms": 3,
+    "fcpP50Ms": 580,
+    "lcpP50Ms": 1072,
+    "shellP50Ms": 558,
+    "jsTransferP50Bytes": 0,
+    "jsRequestsP50": 1
+  },
+  "records": {
+    "cold": [
+      {
+        "warm": false,
+        "navigationError": null,
+        "ttfbMs": 12,
+        "fcpMs": 1656,
+        "lcpMs": 1656,
+        "shellMs": 1504,
+        "usableMs": 3010,
+        "usableWallMs": 3019,
+        "domContentLoadedMs": 1269,
+        "loadMs": 1270,
+        "jsRequests": 1,
+        "jsTransferBytes": 301179,
+        "scriptUrls": [
+          "index-BawANwaB.js"
+        ]
+      },
+      {
+        "warm": false,
+        "navigationError": null,
+        "ttfbMs": 4,
+        "fcpMs": 1648,
+        "lcpMs": 2836,
+        "shellMs": 1500,
+        "usableMs": 2996,
+        "usableWallMs": 3003,
+        "domContentLoadedMs": 1242,
+        "loadMs": 1243,
+        "jsRequests": 1,
+        "jsTransferBytes": 301179,
+        "scriptUrls": [
+          "index-BawANwaB.js"
+        ]
+      },
+      {
+        "warm": false,
+        "navigationError": null,
+        "ttfbMs": 4,
+        "fcpMs": 1656,
+        "lcpMs": 2956,
+        "shellMs": 1520,
+        "usableMs": 3179,
+        "usableWallMs": 3192,
+        "domContentLoadedMs": 1266,
+        "loadMs": 1267,
+        "jsRequests": 1,
+        "jsTransferBytes": 301179,
+        "scriptUrls": [
+          "index-BawANwaB.js"
+        ]
+      },
+      {
+        "warm": false,
+        "navigationError": null,
+        "ttfbMs": 4,
+        "fcpMs": 1628,
+        "lcpMs": 3012,
+        "shellMs": 1491,
+        "usableMs": 3214,
+        "usableWallMs": 3225,
+        "domContentLoadedMs": 1243,
+        "loadMs": 1244,
+        "jsRequests": 1,
+        "jsTransferBytes": 301179,
+        "scriptUrls": [
+          "index-BawANwaB.js"
+        ]
+      },
+      {
+        "warm": false,
+        "navigationError": null,
+        "ttfbMs": 4,
+        "fcpMs": 1776,
+        "lcpMs": 3268,
+        "shellMs": 1635,
+        "usableMs": 3490,
+        "usableWallMs": 3502,
+        "domContentLoadedMs": 1353,
+        "loadMs": 1353,
+        "jsRequests": 1,
+        "jsTransferBytes": 301179,
+        "scriptUrls": [
+          "index-BawANwaB.js"
+        ]
+      },
+      {
+        "warm": false,
+        "navigationError": null,
+        "ttfbMs": 5,
+        "fcpMs": 1588,
+        "lcpMs": 2716,
+        "shellMs": 1459,
+        "usableMs": 2880,
+        "usableWallMs": 2891,
+        "domContentLoadedMs": 1235,
+        "loadMs": 1236,
+        "jsRequests": 1,
+        "jsTransferBytes": 301179,
+        "scriptUrls": [
+          "index-BawANwaB.js"
+        ]
+      },
+      {
+        "warm": false,
+        "navigationError": null,
+        "ttfbMs": 4,
+        "fcpMs": 1568,
+        "lcpMs": 2732,
+        "shellMs": 1449,
+        "usableMs": 2927,
+        "usableWallMs": 2936,
+        "domContentLoadedMs": 1230,
+        "loadMs": 1231,
+        "jsRequests": 1,
+        "jsTransferBytes": 301179,
+        "scriptUrls": [
+          "index-BawANwaB.js"
+        ]
+      },
+      {
+        "warm": false,
+        "navigationError": null,
+        "ttfbMs": 3,
+        "fcpMs": 1628,
+        "lcpMs": 2808,
+        "shellMs": 1485,
+        "usableMs": 2969,
+        "usableWallMs": 2979,
+        "domContentLoadedMs": 1260,
+        "loadMs": 1261,
+        "jsRequests": 1,
+        "jsTransferBytes": 301179,
+        "scriptUrls": [
+          "index-BawANwaB.js"
+        ]
+      },
+      {
+        "warm": false,
+        "navigationError": null,
+        "ttfbMs": 4,
+        "fcpMs": 1576,
+        "lcpMs": 2700,
+        "shellMs": 1446,
+        "usableMs": 2860,
+        "usableWallMs": 2870,
+        "domContentLoadedMs": 1236,
+        "loadMs": 1236,
+        "jsRequests": 1,
+        "jsTransferBytes": 301179,
+        "scriptUrls": [
+          "index-BawANwaB.js"
+        ]
+      },
+      {
+        "warm": false,
+        "navigationError": null,
+        "ttfbMs": 5,
+        "fcpMs": 1552,
+        "lcpMs": 2644,
+        "shellMs": 1430,
+        "usableMs": 2813,
+        "usableWallMs": 2825,
+        "domContentLoadedMs": 1211,
+        "loadMs": 1211,
+        "jsRequests": 1,
+        "jsTransferBytes": 301179,
+        "scriptUrls": [
+          "index-BawANwaB.js"
+        ]
+      }
+    ],
+    "hot": [
+      {
+        "warm": true,
+        "navigationError": null,
+        "ttfbMs": 3,
+        "fcpMs": 672,
+        "lcpMs": 1332,
+        "shellMs": 646,
+        "usableMs": 1501,
+        "usableWallMs": 1508,
+        "domContentLoadedMs": 532,
+        "loadMs": 533,
+        "jsRequests": 1,
+        "jsTransferBytes": 0,
+        "scriptUrls": [
+          "index-BawANwaB.js"
+        ]
+      },
+      {
+        "warm": true,
+        "navigationError": null,
+        "ttfbMs": 4,
+        "fcpMs": 592,
+        "lcpMs": 1076,
+        "shellMs": 569,
+        "usableMs": 1240,
+        "usableWallMs": 1247,
+        "domContentLoadedMs": 461,
+        "loadMs": 462,
+        "jsRequests": 1,
+        "jsTransferBytes": 0,
+        "scriptUrls": [
+          "index-BawANwaB.js"
+        ]
+      },
+      {
+        "warm": true,
+        "navigationError": null,
+        "ttfbMs": 3,
+        "fcpMs": 552,
+        "lcpMs": 1052,
+        "shellMs": 533,
+        "usableMs": 1233,
+        "usableWallMs": 1239,
+        "domContentLoadedMs": 426,
+        "loadMs": 426,
+        "jsRequests": 1,
+        "jsTransferBytes": 0,
+        "scriptUrls": [
+          "index-BawANwaB.js"
+        ]
+      },
+      {
+        "warm": true,
+        "navigationError": null,
+        "ttfbMs": 3,
+        "fcpMs": 588,
+        "lcpMs": 1072,
+        "shellMs": 565,
+        "usableMs": 1255,
+        "usableWallMs": 1262,
+        "domContentLoadedMs": 459,
+        "loadMs": 460,
+        "jsRequests": 1,
+        "jsTransferBytes": 0,
+        "scriptUrls": [
+          "index-BawANwaB.js"
+        ]
+      },
+      {
+        "warm": true,
+        "navigationError": null,
+        "ttfbMs": 3,
+        "fcpMs": 600,
+        "lcpMs": 1088,
+        "shellMs": 577,
+        "usableMs": 1270,
+        "usableWallMs": 1277,
+        "domContentLoadedMs": 470,
+        "loadMs": 471,
+        "jsRequests": 1,
+        "jsTransferBytes": 0,
+        "scriptUrls": [
+          "index-BawANwaB.js"
+        ]
+      },
+      {
+        "warm": true,
+        "navigationError": null,
+        "ttfbMs": 3,
+        "fcpMs": 560,
+        "lcpMs": 1040,
+        "shellMs": 541,
+        "usableMs": 1225,
+        "usableWallMs": 1231,
+        "domContentLoadedMs": 437,
+        "loadMs": 438,
+        "jsRequests": 1,
+        "jsTransferBytes": 0,
+        "scriptUrls": [
+          "index-BawANwaB.js"
+        ]
+      },
+      {
+        "warm": true,
+        "navigationError": null,
+        "ttfbMs": 3,
+        "fcpMs": 556,
+        "lcpMs": 1056,
+        "shellMs": 533,
+        "usableMs": 1222,
+        "usableWallMs": 1230,
+        "domContentLoadedMs": 427,
+        "loadMs": 427,
+        "jsRequests": 1,
+        "jsTransferBytes": 0,
+        "scriptUrls": [
+          "index-BawANwaB.js"
+        ]
+      },
+      {
+        "warm": true,
+        "navigationError": null,
+        "ttfbMs": 3,
+        "fcpMs": 556,
+        "lcpMs": 1040,
+        "shellMs": 537,
+        "usableMs": 1214,
+        "usableWallMs": 1220,
+        "domContentLoadedMs": 431,
+        "loadMs": 432,
+        "jsRequests": 1,
+        "jsTransferBytes": 0,
+        "scriptUrls": [
+          "index-BawANwaB.js"
+        ]
+      },
+      {
+        "warm": true,
+        "navigationError": null,
+        "ttfbMs": 3,
+        "fcpMs": 580,
+        "lcpMs": 1080,
+        "shellMs": 558,
+        "usableMs": 1267,
+        "usableWallMs": 1273,
+        "domContentLoadedMs": 452,
+        "loadMs": 453,
+        "jsRequests": 1,
+        "jsTransferBytes": 0,
+        "scriptUrls": [
+          "index-BawANwaB.js"
+        ]
+      },
+      {
+        "warm": true,
+        "navigationError": null,
+        "ttfbMs": 3,
+        "fcpMs": 716,
+        "lcpMs": 1212,
+        "shellMs": 699,
+        "usableMs": 1377,
+        "usableWallMs": 1382,
+        "domContentLoadedMs": 596,
+        "loadMs": 597,
+        "jsRequests": 1,
+        "jsTransferBytes": 0,
+        "scriptUrls": [
+          "index-BawANwaB.js"
+        ]
+      }
+    ]
+  }
+}

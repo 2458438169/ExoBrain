@@ -1,7 +1,33 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { Button, Empty, Spin, Tag } from "antd";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import AgentChatHistory from "./agentChatView/AgentChatHistory.tsx";
+import RouteFallback from "../RouteFallback.tsx";
+import LazyBoundary from "../LazyBoundary.tsx";
+
+// 阅读区带 Markdown 渲染器、气泡与原文抽屉，只有真的有消息时才需要下载。
+const AgentChatHistory = lazy(() => import("./agentChatView/AgentChatHistory.tsx"));
+
+/** 草稿按会话存在标签页里：分包加载失败或误刷新后，用户已经写下的一句话不会丢。 */
+function draftKey(sessionId: string) {
+  return `exobrain.draft.${sessionId}`;
+}
+
+function readDraft(sessionId: string) {
+  try {
+    return window.sessionStorage.getItem(draftKey(sessionId)) ?? "";
+  } catch {
+    return "";
+  }
+}
+
+function writeDraft(sessionId: string, value: string) {
+  try {
+    if (value.trim()) window.sessionStorage.setItem(draftKey(sessionId), value);
+    else window.sessionStorage.removeItem(draftKey(sessionId));
+  } catch {
+    // 隐私模式下 sessionStorage 可能不可用：不影响正常输入。
+  }
+}
 import AgentChatInput from "./agentChatView/AgentChatInput.tsx";
 import {
   createChatMessage,
@@ -70,7 +96,8 @@ function SessionChatView({ sessionId, agentCatalog }: { sessionId: string; agent
   const { state } = useLocation();
   const initialMessage = useRef(readInitialMessage(state));
   const initialSent = useRef(false);
-  const [draft, setDraft] = useState(() => readInitialMessage(state)?.content ?? "");
+  // 每个会话由 key 重新挂载，所以初始化时直接读该会话自己的草稿即可（首条自动发送的消息优先）。
+  const [draft, setDraft] = useState(() => readInitialMessage(state)?.content || readDraft(sessionId));
   const [session, setSession] = useState<ChatSessionVO | null>(null);
   const [messages, setMessages] = useState<ChatMessageVO[]>([]);
   const [loading, setLoading] = useState(true);
@@ -83,6 +110,11 @@ function SessionChatView({ sessionId, agentCatalog }: { sessionId: string; agent
   const [activeRunId, renderActiveRunId] = useState<string | null>(null);
   const [cancelRequested, setCancelRequested] = useState(false);
   const [waitStartedAt, setWaitStartedAt] = useState<number | null>(null);
+  // 草稿落盘：分包加载失败或误刷新后，重新加载能接着写；确认受理后由草稿清空自动移除。
+  useEffect(() => {
+    writeDraft(sessionId, draft);
+  }, [sessionId, draft]);
+
   const [runRevision, setRunRevision] = useState(0);
   const waitingRef = useRef(false);
   const activeRunRef = useRef<string | null>(null);
@@ -424,19 +456,23 @@ function SessionChatView({ sessionId, agentCatalog }: { sessionId: string; agent
         </div>
         <SessionAgentLabel agentId={session.agentId} catalog={agentCatalog} className="mt-1 text-xs" />
       </div>
-      <AgentChatHistory
-        messages={messages}
-        sessionId={sessionId}
-        refreshVersion={runRevision}
-        waitStartedAt={waitStartedAt}
-        displayAgentStatus={waiting}
-        agentStatusText={status?.text || "正在生成回答…"}
-        agentStatusType={status?.type}
-        cancelling={cancelRequested}
-        busy={waiting}
-        onAskFollowUp={IS_PUBLIC_DEMO ? handleSendMessage : undefined}
-        followUpPrompts={IS_PUBLIC_DEMO ? FOLLOW_UP_PROMPTS : []}
-      />
+      <LazyBoundary title="阅读区没有加载成功">
+        <Suspense fallback={<RouteFallback label="正在准备阅读区…" />}>
+          <AgentChatHistory
+            messages={messages}
+            sessionId={sessionId}
+            refreshVersion={runRevision}
+            waitStartedAt={waitStartedAt}
+            displayAgentStatus={waiting}
+            agentStatusText={status?.text || "正在生成回答…"}
+            agentStatusType={status?.type}
+            cancelling={cancelRequested}
+            busy={waiting}
+            onAskFollowUp={IS_PUBLIC_DEMO ? handleSendMessage : undefined}
+            followUpPrompts={IS_PUBLIC_DEMO ? FOLLOW_UP_PROMPTS : []}
+          />
+        </Suspense>
+      </LazyBoundary>
       <div
         className="shrink-0 border-t-2 border-dashed border-sketch bg-white/70 backdrop-blur-sm"
         style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}

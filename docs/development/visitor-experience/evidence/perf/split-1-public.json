@@ -1,0 +1,386 @@
+{
+  "label": "split-1",
+  "url": "http://127.0.0.1:18081/",
+  "measuredAt": "2026-10-20T04:18:46.689Z",
+  "environment": {
+    "browser": "chrome (playwright-core channel)",
+    "viewport": "1366x900",
+    "network": "5 Mbps down / 1 Mbps up / 150 ms RTT",
+    "cpu": "4x slowdown",
+    "serverCompression": "gzip"
+  },
+  "cold": {
+    "runs": 10,
+    "failures": 0,
+    "usableP50Ms": 3036,
+    "usableP95Ms": 3315,
+    "usableMinMs": 2931,
+    "usableMaxMs": 3315,
+    "ttfbP50Ms": 3,
+    "fcpP50Ms": 1568,
+    "lcpP50Ms": 2816,
+    "shellP50Ms": 1452,
+    "jsTransferP50Bytes": 321366,
+    "jsRequestsP50": 1
+  },
+  "hot": {
+    "runs": 10,
+    "failures": 0,
+    "usableP50Ms": 3264,
+    "usableP95Ms": 3781,
+    "usableMinMs": 2843,
+    "usableMaxMs": 3781,
+    "ttfbP50Ms": 4,
+    "fcpP50Ms": 1620,
+    "lcpP50Ms": 3028,
+    "shellP50Ms": 1488,
+    "jsTransferP50Bytes": 321366,
+    "jsRequestsP50": 1
+  },
+  "records": {
+    "cold": [
+      {
+        "warm": false,
+        "navigationError": null,
+        "ttfbMs": 11,
+        "fcpMs": 1616,
+        "lcpMs": 1616,
+        "shellMs": 1492,
+        "usableMs": 3315,
+        "usableWallMs": 3325,
+        "domContentLoadedMs": 1292,
+        "loadMs": 1293,
+        "jsRequests": 1,
+        "jsTransferBytes": 321366,
+        "scriptUrls": [
+          "index-DbnDIyN7.js"
+        ]
+      },
+      {
+        "warm": false,
+        "navigationError": null,
+        "ttfbMs": 5,
+        "fcpMs": 1572,
+        "lcpMs": 2756,
+        "shellMs": 1452,
+        "usableMs": 2948,
+        "usableWallMs": 2957,
+        "domContentLoadedMs": 1257,
+        "loadMs": 1257,
+        "jsRequests": 1,
+        "jsTransferBytes": 321366,
+        "scriptUrls": [
+          "index-DbnDIyN7.js"
+        ]
+      },
+      {
+        "warm": false,
+        "navigationError": null,
+        "ttfbMs": 3,
+        "fcpMs": 1632,
+        "lcpMs": 2888,
+        "shellMs": 1503,
+        "usableMs": 3081,
+        "usableWallMs": 3087,
+        "domContentLoadedMs": 1267,
+        "loadMs": 1268,
+        "jsRequests": 1,
+        "jsTransferBytes": 321366,
+        "scriptUrls": [
+          "index-DbnDIyN7.js"
+        ]
+      },
+      {
+        "warm": false,
+        "navigationError": null,
+        "ttfbMs": 3,
+        "fcpMs": 1564,
+        "lcpMs": 2924,
+        "shellMs": 1445,
+        "usableMs": 3175,
+        "usableWallMs": 3183,
+        "domContentLoadedMs": 1254,
+        "loadMs": 1254,
+        "jsRequests": 1,
+        "jsTransferBytes": 321366,
+        "scriptUrls": [
+          "index-DbnDIyN7.js"
+        ]
+      },
+      {
+        "warm": false,
+        "navigationError": null,
+        "ttfbMs": 4,
+        "fcpMs": 1564,
+        "lcpMs": 2784,
+        "shellMs": 1445,
+        "usableMs": 2980,
+        "usableWallMs": 2991,
+        "domContentLoadedMs": 1241,
+        "loadMs": 1241,
+        "jsRequests": 1,
+        "jsTransferBytes": 321366,
+        "scriptUrls": [
+          "index-DbnDIyN7.js"
+        ]
+      },
+      {
+        "warm": false,
+        "navigationError": null,
+        "ttfbMs": 3,
+        "fcpMs": 1660,
+        "lcpMs": 3068,
+        "shellMs": 1509,
+        "usableMs": 3308,
+        "usableWallMs": 3314,
+        "domContentLoadedMs": 1278,
+        "loadMs": 1278,
+        "jsRequests": 1,
+        "jsTransferBytes": 321366,
+        "scriptUrls": [
+          "index-DbnDIyN7.js"
+        ]
+      },
+      {
+        "warm": false,
+        "navigationError": null,
+        "ttfbMs": 3,
+        "fcpMs": 1540,
+        "lcpMs": 2816,
+        "shellMs": 1428,
+        "usableMs": 3049,
+        "usableWallMs": 3056,
+        "domContentLoadedMs": 1236,
+        "loadMs": 1237,
+        "jsRequests": 1,
+        "jsTransferBytes": 321366,
+        "scriptUrls": [
+          "index-DbnDIyN7.js"
+        ]
+      },
+      {
+        "warm": false,
+        "navigationError": null,
+        "ttfbMs": 3,
+        "fcpMs": 1616,
+        "lcpMs": 2840,
+        "shellMs": 1490,
+        "usableMs": 3035,
+        "usableWallMs": 3040,
+        "domContentLoadedMs": 1266,
+        "loadMs": 1267,
+        "jsRequests": 1,
+        "jsTransferBytes": 321366,
+        "scriptUrls": [
+          "index-DbnDIyN7.js"
+        ]
+      },
+      {
+        "warm": false,
+        "navigationError": null,
+        "ttfbMs": 3,
+        "fcpMs": 1568,
+        "lcpMs": 2840,
+        "shellMs": 1450,
+        "usableMs": 3036,
+        "usableWallMs": 3043,
+        "domContentLoadedMs": 1244,
+        "loadMs": 1244,
+        "jsRequests": 1,
+        "jsTransferBytes": 321366,
+        "scriptUrls": [
+          "index-DbnDIyN7.js"
+        ]
+      },
+      {
+        "warm": false,
+        "navigationError": null,
+        "ttfbMs": 4,
+        "fcpMs": 1568,
+        "lcpMs": 2740,
+        "shellMs": 1453,
+        "usableMs": 2931,
+        "usableWallMs": 2940,
+        "domContentLoadedMs": 1262,
+        "loadMs": 1263,
+        "jsRequests": 1,
+        "jsTransferBytes": 321366,
+        "scriptUrls": [
+          "index-DbnDIyN7.js"
+        ]
+      }
+    ],
+    "hot": [
+      {
+        "warm": true,
+        "navigationError": null,
+        "ttfbMs": 4,
+        "fcpMs": 1516,
+        "lcpMs": 2684,
+        "shellMs": 1400,
+        "usableMs": 2868,
+        "usableWallMs": 2875,
+        "domContentLoadedMs": 1213,
+        "loadMs": 1214,
+        "jsRequests": 1,
+        "jsTransferBytes": 321366,
+        "scriptUrls": [
+          "index-DbnDIyN7.js"
+        ]
+      },
+      {
+        "warm": true,
+        "navigationError": null,
+        "ttfbMs": 3,
+        "fcpMs": 1556,
+        "lcpMs": 2716,
+        "shellMs": 1440,
+        "usableMs": 2890,
+        "usableWallMs": 2897,
+        "domContentLoadedMs": 1249,
+        "loadMs": 1249,
+        "jsRequests": 1,
+        "jsTransferBytes": 321366,
+        "scriptUrls": [
+          "index-DbnDIyN7.js"
+        ]
+      },
+      {
+        "warm": true,
+        "navigationError": null,
+        "ttfbMs": 3,
+        "fcpMs": 1532,
+        "lcpMs": 2676,
+        "shellMs": 1417,
+        "usableMs": 2843,
+        "usableWallMs": 2850,
+        "domContentLoadedMs": 1225,
+        "loadMs": 1226,
+        "jsRequests": 1,
+        "jsTransferBytes": 321366,
+        "scriptUrls": [
+          "index-DbnDIyN7.js"
+        ]
+      },
+      {
+        "warm": true,
+        "navigationError": null,
+        "ttfbMs": 3,
+        "fcpMs": 1560,
+        "lcpMs": 2708,
+        "shellMs": 1438,
+        "usableMs": 2896,
+        "usableWallMs": 2903,
+        "domContentLoadedMs": 1246,
+        "loadMs": 1246,
+        "jsRequests": 1,
+        "jsTransferBytes": 321366,
+        "scriptUrls": [
+          "index-DbnDIyN7.js"
+        ]
+      },
+      {
+        "warm": true,
+        "navigationError": null,
+        "ttfbMs": 4,
+        "fcpMs": 2120,
+        "lcpMs": 3352,
+        "shellMs": 1959,
+        "usableMs": 3537,
+        "usableWallMs": 3548,
+        "domContentLoadedMs": 1583,
+        "loadMs": 1584,
+        "jsRequests": 1,
+        "jsTransferBytes": 321366,
+        "scriptUrls": [
+          "index-DbnDIyN7.js"
+        ]
+      },
+      {
+        "warm": true,
+        "navigationError": null,
+        "ttfbMs": 3,
+        "fcpMs": 1692,
+        "lcpMs": 3424,
+        "shellMs": 1526,
+        "usableMs": 3752,
+        "usableWallMs": 3759,
+        "domContentLoadedMs": 1311,
+        "loadMs": 1312,
+        "jsRequests": 1,
+        "jsTransferBytes": 321366,
+        "scriptUrls": [
+          "index-DbnDIyN7.js"
+        ]
+      },
+      {
+        "warm": true,
+        "navigationError": null,
+        "ttfbMs": 4,
+        "fcpMs": 1884,
+        "lcpMs": 3544,
+        "shellMs": 1711,
+        "usableMs": 3781,
+        "usableWallMs": 3789,
+        "domContentLoadedMs": 1433,
+        "loadMs": 1433,
+        "jsRequests": 1,
+        "jsTransferBytes": 321366,
+        "scriptUrls": [
+          "index-DbnDIyN7.js"
+        ]
+      },
+      {
+        "warm": true,
+        "navigationError": null,
+        "ttfbMs": 6,
+        "fcpMs": 1696,
+        "lcpMs": 3076,
+        "shellMs": 1568,
+        "usableMs": 3310,
+        "usableWallMs": 3320,
+        "domContentLoadedMs": 1326,
+        "loadMs": 1327,
+        "jsRequests": 1,
+        "jsTransferBytes": 321366,
+        "scriptUrls": [
+          "index-DbnDIyN7.js"
+        ]
+      },
+      {
+        "warm": true,
+        "navigationError": null,
+        "ttfbMs": 5,
+        "fcpMs": 1620,
+        "lcpMs": 3048,
+        "shellMs": 1488,
+        "usableMs": 3281,
+        "usableWallMs": 3299,
+        "domContentLoadedMs": 1253,
+        "loadMs": 1254,
+        "jsRequests": 1,
+        "jsTransferBytes": 321366,
+        "scriptUrls": [
+          "index-DbnDIyN7.js"
+        ]
+      },
+      {
+        "warm": true,
+        "navigationError": null,
+        "ttfbMs": 4,
+        "fcpMs": 1644,
+        "lcpMs": 3028,
+        "shellMs": 1510,
+        "usableMs": 3264,
+        "usableWallMs": 3272,
+        "domContentLoadedMs": 1293,
+        "loadMs": 1294,
+        "jsRequests": 1,
+        "jsTransferBytes": 321366,
+        "scriptUrls": [
+          "index-DbnDIyN7.js"
+        ]
+      }
+    ]
+  }
+}

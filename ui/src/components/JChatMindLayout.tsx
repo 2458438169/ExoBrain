@@ -1,5 +1,5 @@
 ﻿import { Routes, Route, Link } from "react-router-dom";
-import { useState, type ReactNode } from "react";
+import { lazy, Suspense, useState, type ReactNode } from "react";
 import { Button, Drawer, Result } from "antd";
 import { MenuOutlined } from "@ant-design/icons";
 import Layout from "../layout/Layout.tsx";
@@ -7,13 +7,18 @@ import Sidebar from "../layout/Sidebar.tsx";
 import SideMenu from "./SideMenu.tsx";
 import Content from "../layout/Content.tsx";
 import AgentChatView from "./views/AgentChatView.tsx";
-import KnowledgeBaseView from "./views/KnowledgeBaseView.tsx";
-import PublicShowcaseView from "./views/PublicShowcaseView.tsx";
 import { IS_PUBLIC_DEMO } from "../config.ts";
 import ExoBrainLogo from "./ExoBrainLogo.tsx";
 import { useAccount } from "../contexts/accountState.ts";
-import UsersManagementView from "./views/UsersManagementView.tsx";
-import ModelsManagementView from "./views/ModelsManagementView.tsx";
+import RouteFallback from "./RouteFallback.tsx";
+import LazyBoundary from "./LazyBoundary.tsx";
+
+// 首屏只需要"说明 + 推荐问题 + 输入框"。知识库、公开精选与账号管理按访问再加载，
+// 这样首次打开不会先下载 Markdown 渲染器、表格和抽屉。
+const KnowledgeBaseView = lazy(() => import("./views/KnowledgeBaseView.tsx"));
+const PublicShowcaseView = lazy(() => import("./views/PublicShowcaseView.tsx"));
+const UsersManagementView = lazy(() => import("./views/UsersManagementView.tsx"));
+const ModelsManagementView = lazy(() => import("./views/ModelsManagementView.tsx"));
 
 function AdminOnly({ children }: { children: ReactNode }) {
   const account = useAccount();
@@ -38,22 +43,26 @@ export default function JChatMindLayout() {
         <SideMenu />
       </Sidebar>
       <Content>
-        <Routes>
-          <Route path="/" element={<AgentChatView />} />
-          <Route path="/agent" element={<AgentChatView />} />
-          <Route path="/chat" element={<AgentChatView />} />
-          <Route path="/chat/:chatSessionId" element={<AgentChatView />} />
-          {IS_PUBLIC_DEMO && <Route path="/showcase" element={<PublicShowcaseView />} />}
-          {IS_PUBLIC_DEMO && <Route path="/showcase/:showcaseId" element={<PublicShowcaseView />} />}
-          <Route path="/knowledge-base" element={<KnowledgeBaseView />} />
-          <Route
-            path="/knowledge-base/:knowledgeBaseId"
-            element={<KnowledgeBaseView />}
-          />
-          {!IS_PUBLIC_DEMO && <Route path="/users" element={<AdminOnly><UsersManagementView /></AdminOnly>} />}
-          {!IS_PUBLIC_DEMO && <Route path="/models" element={<AdminOnly><ModelsManagementView /></AdminOnly>} />}
-          <Route path="*" element={<AgentChatView />} />
-        </Routes>
+        <LazyBoundary>
+          <Suspense fallback={<RouteFallback label="正在准备这个页面…" />}>
+            <Routes>
+              <Route path="/" element={<AgentChatView />} />
+              <Route path="/agent" element={<AgentChatView />} />
+              <Route path="/chat" element={<AgentChatView />} />
+              <Route path="/chat/:chatSessionId" element={<AgentChatView />} />
+              {IS_PUBLIC_DEMO && <Route path="/showcase" element={<PublicShowcaseView />} />}
+              {IS_PUBLIC_DEMO && <Route path="/showcase/:showcaseId" element={<PublicShowcaseView />} />}
+              <Route path="/knowledge-base" element={<KnowledgeBaseView />} />
+              <Route
+                path="/knowledge-base/:knowledgeBaseId"
+                element={<KnowledgeBaseView />}
+              />
+              {!IS_PUBLIC_DEMO && <Route path="/users" element={<AdminOnly><UsersManagementView /></AdminOnly>} />}
+              {!IS_PUBLIC_DEMO && <Route path="/models" element={<AdminOnly><ModelsManagementView /></AdminOnly>} />}
+              <Route path="*" element={<AgentChatView />} />
+            </Routes>
+          </Suspense>
+        </LazyBoundary>
       </Content>
     </Layout>
   );

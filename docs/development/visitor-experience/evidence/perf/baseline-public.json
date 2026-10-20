@@ -1,0 +1,386 @@
+{
+  "label": "baseline",
+  "url": "http://127.0.0.1:18081/",
+  "measuredAt": "2026-10-20T04:13:00.468Z",
+  "environment": {
+    "browser": "chrome (playwright-core channel)",
+    "viewport": "1366x900",
+    "network": "5 Mbps down / 1 Mbps up / 150 ms RTT",
+    "cpu": "4x slowdown",
+    "serverCompression": "gzip"
+  },
+  "cold": {
+    "runs": 10,
+    "failures": 0,
+    "usableP50Ms": 3234,
+    "usableP95Ms": 3800,
+    "usableMinMs": 3191,
+    "usableMaxMs": 3800,
+    "ttfbP50Ms": 3,
+    "fcpP50Ms": 1880,
+    "lcpP50Ms": 3036,
+    "shellP50Ms": 1765,
+    "jsTransferP50Bytes": 442463,
+    "jsRequestsP50": 1
+  },
+  "hot": {
+    "runs": 10,
+    "failures": 0,
+    "usableP50Ms": 3217,
+    "usableP95Ms": 3268,
+    "usableMinMs": 3173,
+    "usableMaxMs": 3268,
+    "ttfbP50Ms": 3,
+    "fcpP50Ms": 1876,
+    "lcpP50Ms": 3016,
+    "shellP50Ms": 1761,
+    "jsTransferP50Bytes": 442463,
+    "jsRequestsP50": 1
+  },
+  "records": {
+    "cold": [
+      {
+        "warm": false,
+        "navigationError": null,
+        "ttfbMs": 9,
+        "fcpMs": 1888,
+        "lcpMs": 1888,
+        "shellMs": 1765,
+        "usableMs": 3234,
+        "usableWallMs": 3243,
+        "domContentLoadedMs": 1570,
+        "loadMs": 1571,
+        "jsRequests": 1,
+        "jsTransferBytes": 442463,
+        "scriptUrls": [
+          "index-BvnFQfDR.js"
+        ]
+      },
+      {
+        "warm": false,
+        "navigationError": null,
+        "ttfbMs": 3,
+        "fcpMs": 1876,
+        "lcpMs": 3008,
+        "shellMs": 1765,
+        "usableMs": 3191,
+        "usableWallMs": 3198,
+        "domContentLoadedMs": 1564,
+        "loadMs": 1565,
+        "jsRequests": 1,
+        "jsTransferBytes": 442463,
+        "scriptUrls": [
+          "index-BvnFQfDR.js"
+        ]
+      },
+      {
+        "warm": false,
+        "navigationError": null,
+        "ttfbMs": 3,
+        "fcpMs": 1856,
+        "lcpMs": 3060,
+        "shellMs": 1737,
+        "usableMs": 3278,
+        "usableWallMs": 3284,
+        "domContentLoadedMs": 1548,
+        "loadMs": 1549,
+        "jsRequests": 1,
+        "jsTransferBytes": 442463,
+        "scriptUrls": [
+          "index-BvnFQfDR.js"
+        ]
+      },
+      {
+        "warm": false,
+        "navigationError": null,
+        "ttfbMs": 3,
+        "fcpMs": 1984,
+        "lcpMs": 3280,
+        "shellMs": 1860,
+        "usableMs": 3478,
+        "usableWallMs": 3485,
+        "domContentLoadedMs": 1626,
+        "loadMs": 1626,
+        "jsRequests": 1,
+        "jsTransferBytes": 442463,
+        "scriptUrls": [
+          "index-BvnFQfDR.js"
+        ]
+      },
+      {
+        "warm": false,
+        "navigationError": null,
+        "ttfbMs": 4,
+        "fcpMs": 1960,
+        "lcpMs": 3316,
+        "shellMs": 1839,
+        "usableMs": 3579,
+        "usableWallMs": 3587,
+        "domContentLoadedMs": 1625,
+        "loadMs": 1625,
+        "jsRequests": 1,
+        "jsTransferBytes": 442463,
+        "scriptUrls": [
+          "index-BvnFQfDR.js"
+        ]
+      },
+      {
+        "warm": false,
+        "navigationError": null,
+        "ttfbMs": 4,
+        "fcpMs": 2124,
+        "lcpMs": 3500,
+        "shellMs": 1993,
+        "usableMs": 3800,
+        "usableWallMs": 3812,
+        "domContentLoadedMs": 1717,
+        "loadMs": 1718,
+        "jsRequests": 1,
+        "jsTransferBytes": 442463,
+        "scriptUrls": [
+          "index-BvnFQfDR.js"
+        ]
+      },
+      {
+        "warm": false,
+        "navigationError": null,
+        "ttfbMs": 3,
+        "fcpMs": 1980,
+        "lcpMs": 3148,
+        "shellMs": 1853,
+        "usableMs": 3362,
+        "usableWallMs": 3369,
+        "domContentLoadedMs": 1648,
+        "loadMs": 1649,
+        "jsRequests": 1,
+        "jsTransferBytes": 442463,
+        "scriptUrls": [
+          "index-BvnFQfDR.js"
+        ]
+      },
+      {
+        "warm": false,
+        "navigationError": null,
+        "ttfbMs": 3,
+        "fcpMs": 1876,
+        "lcpMs": 3012,
+        "shellMs": 1764,
+        "usableMs": 3199,
+        "usableWallMs": 3212,
+        "domContentLoadedMs": 1573,
+        "loadMs": 1574,
+        "jsRequests": 1,
+        "jsTransferBytes": 442463,
+        "scriptUrls": [
+          "index-BvnFQfDR.js"
+        ]
+      },
+      {
+        "warm": false,
+        "navigationError": null,
+        "ttfbMs": 4,
+        "fcpMs": 1876,
+        "lcpMs": 3032,
+        "shellMs": 1757,
+        "usableMs": 3220,
+        "usableWallMs": 3234,
+        "domContentLoadedMs": 1564,
+        "loadMs": 1565,
+        "jsRequests": 1,
+        "jsTransferBytes": 442463,
+        "scriptUrls": [
+          "index-BvnFQfDR.js"
+        ]
+      },
+      {
+        "warm": false,
+        "navigationError": null,
+        "ttfbMs": 3,
+        "fcpMs": 1880,
+        "lcpMs": 3036,
+        "shellMs": 1762,
+        "usableMs": 3233,
+        "usableWallMs": 3240,
+        "domContentLoadedMs": 1563,
+        "loadMs": 1564,
+        "jsRequests": 1,
+        "jsTransferBytes": 442463,
+        "scriptUrls": [
+          "index-BvnFQfDR.js"
+        ]
+      }
+    ],
+    "hot": [
+      {
+        "warm": true,
+        "navigationError": null,
+        "ttfbMs": 3,
+        "fcpMs": 1876,
+        "lcpMs": 3012,
+        "shellMs": 1761,
+        "usableMs": 3186,
+        "usableWallMs": 3193,
+        "domContentLoadedMs": 1571,
+        "loadMs": 1571,
+        "jsRequests": 1,
+        "jsTransferBytes": 442463,
+        "scriptUrls": [
+          "index-BvnFQfDR.js"
+        ]
+      },
+      {
+        "warm": true,
+        "navigationError": null,
+        "ttfbMs": 3,
+        "fcpMs": 1888,
+        "lcpMs": 3044,
+        "shellMs": 1776,
+        "usableMs": 3218,
+        "usableWallMs": 3225,
+        "domContentLoadedMs": 1588,
+        "loadMs": 1589,
+        "jsRequests": 1,
+        "jsTransferBytes": 442463,
+        "scriptUrls": [
+          "index-BvnFQfDR.js"
+        ]
+      },
+      {
+        "warm": true,
+        "navigationError": null,
+        "ttfbMs": 3,
+        "fcpMs": 1896,
+        "lcpMs": 3080,
+        "shellMs": 1779,
+        "usableMs": 3267,
+        "usableWallMs": 3275,
+        "domContentLoadedMs": 1585,
+        "loadMs": 1585,
+        "jsRequests": 1,
+        "jsTransferBytes": 442463,
+        "scriptUrls": [
+          "index-BvnFQfDR.js"
+        ]
+      },
+      {
+        "warm": true,
+        "navigationError": null,
+        "ttfbMs": 3,
+        "fcpMs": 1868,
+        "lcpMs": 3000,
+        "shellMs": 1756,
+        "usableMs": 3184,
+        "usableWallMs": 3191,
+        "domContentLoadedMs": 1566,
+        "loadMs": 1566,
+        "jsRequests": 1,
+        "jsTransferBytes": 442463,
+        "scriptUrls": [
+          "index-BvnFQfDR.js"
+        ]
+      },
+      {
+        "warm": true,
+        "navigationError": null,
+        "ttfbMs": 3,
+        "fcpMs": 1916,
+        "lcpMs": 3064,
+        "shellMs": 1797,
+        "usableMs": 3268,
+        "usableWallMs": 3277,
+        "domContentLoadedMs": 1604,
+        "loadMs": 1605,
+        "jsRequests": 1,
+        "jsTransferBytes": 442463,
+        "scriptUrls": [
+          "index-BvnFQfDR.js"
+        ]
+      },
+      {
+        "warm": true,
+        "navigationError": null,
+        "ttfbMs": 2,
+        "fcpMs": 1876,
+        "lcpMs": 2992,
+        "shellMs": 1760,
+        "usableMs": 3173,
+        "usableWallMs": 3179,
+        "domContentLoadedMs": 1572,
+        "loadMs": 1572,
+        "jsRequests": 1,
+        "jsTransferBytes": 442463,
+        "scriptUrls": [
+          "index-BvnFQfDR.js"
+        ]
+      },
+      {
+        "warm": true,
+        "navigationError": null,
+        "ttfbMs": 3,
+        "fcpMs": 1864,
+        "lcpMs": 3016,
+        "shellMs": 1752,
+        "usableMs": 3190,
+        "usableWallMs": 3196,
+        "domContentLoadedMs": 1563,
+        "loadMs": 1564,
+        "jsRequests": 1,
+        "jsTransferBytes": 442463,
+        "scriptUrls": [
+          "index-BvnFQfDR.js"
+        ]
+      },
+      {
+        "warm": true,
+        "navigationError": null,
+        "ttfbMs": 3,
+        "fcpMs": 1892,
+        "lcpMs": 3052,
+        "shellMs": 1773,
+        "usableMs": 3257,
+        "usableWallMs": 3267,
+        "domContentLoadedMs": 1575,
+        "loadMs": 1576,
+        "jsRequests": 1,
+        "jsTransferBytes": 442463,
+        "scriptUrls": [
+          "index-BvnFQfDR.js"
+        ]
+      },
+      {
+        "warm": true,
+        "navigationError": null,
+        "ttfbMs": 3,
+        "fcpMs": 1920,
+        "lcpMs": 3068,
+        "shellMs": 1802,
+        "usableMs": 3253,
+        "usableWallMs": 3261,
+        "domContentLoadedMs": 1604,
+        "loadMs": 1604,
+        "jsRequests": 1,
+        "jsTransferBytes": 442463,
+        "scriptUrls": [
+          "index-BvnFQfDR.js"
+        ]
+      },
+      {
+        "warm": true,
+        "navigationError": null,
+        "ttfbMs": 3,
+        "fcpMs": 1868,
+        "lcpMs": 2996,
+        "shellMs": 1754,
+        "usableMs": 3217,
+        "usableWallMs": 3224,
+        "domContentLoadedMs": 1563,
+        "loadMs": 1563,
+        "jsRequests": 1,
+        "jsTransferBytes": 442463,
+        "scriptUrls": [
+          "index-BvnFQfDR.js"
+        ]
+      }
+    ]
+  }
+}
