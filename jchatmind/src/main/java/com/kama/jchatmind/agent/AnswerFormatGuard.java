@@ -12,9 +12,8 @@ final class AnswerFormatGuard {
     private static final Pattern PARAMETER_SPILL = Pattern.compile(
             "</(?:answer|parameter)>\\s*<parameter\\s+name\\s*=\\s*[\"']citationIds[\"']\\s*>",
             Pattern.CASE_INSENSITIVE);
-    // 位数不设上限：`[1000]`、`[12345678901]` 这类越界编号必须被识别出来，而不是当成不存在。
-    // 逗号分组与 AnswerCitationFormatter 的位置契约保持一致。
-    private static final Pattern MARKER = Pattern.compile("\\[(\\d+(?:[,，]\\d+)*)\\]");
+    // 编号表达式与位置解析统一放在 {@link CitationMarkers}：上一版两个类各写一份，
+    // 守卫漏掉了带空白的 `[1, 2]`、`[1， 2]` 与范围写法。
 
     private AnswerFormatGuard() { }
 
@@ -45,7 +44,7 @@ final class AnswerFormatGuard {
         verify(answer);
         int allowed = Math.max(0, citationCount);
         boolean[] protectedCharacters = MarkdownRegions.protectedCharacters(answer);
-        Matcher matcher = MARKER.matcher(answer);
+        Matcher matcher = CitationMarkers.PATTERN.matcher(answer);
         int previousEnd = -1;
         boolean previousWasCitation = false;
         while (matcher.find()) {
@@ -53,8 +52,7 @@ final class AnswerFormatGuard {
                     && !MarkdownRegions.escaped(answer, matcher.start())
                     && isNotSubscript(answer, matcher.start(), previousEnd, previousWasCitation);
             if (citation) {
-                for (String position : matcher.group(1).split("[,，]")) {
-                    int index = parseIndex(position);
+                for (Integer index : CitationMarkers.positions(matcher.group(1))) {
                     if (index < 1 || index > allowed) {
                         // 与 AnswerCitationFormatter 的编号校验用同一句文案：日志里要能一眼看出
                         // 是「编号没有可核验来源」，而不是被误读成工具参数残片。
@@ -66,15 +64,6 @@ final class AnswerFormatGuard {
             previousEnd = matcher.end();
             previousWasCitation = citation;
         }
-    }
-
-    /** 超长编号一律按「远超本轮来源数」处理，避免溢出异常把校验变成放行。 */
-    private static int parseIndex(String digits) {
-        String trimmed = digits.trim();
-        if (trimmed.length() > 9) {
-            return Integer.MAX_VALUE;
-        }
-        return Integer.parseInt(trimmed);
     }
 
     /**

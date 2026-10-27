@@ -226,7 +226,7 @@ class JChatMindCitationTest {
     @DisplayName("a glued Chinese marker or an out-of-range long marker is rejected before persistence too")
     void gluedAndLongMarkersWithoutSourcesNeverPersistAnAnswer() throws Exception {
         for (String answer : List.of("结论[1]。", "结论 [1][2]。", "结论 [1000]。", "结论 [12345678901]。",
-                "结论[1][missing]。", "结论 <[1]>。")) {
+                "结论[1][missing]。", "结论 <[1]>。", "结论 [1, 2]。", "结论 [1， 2]。")) {
             List<ChatMessageDTO> saved = new ArrayList<>();
             RuntimeException error = assertThrows(RuntimeException.class,
                     () -> run(List.of(answerRound("call-a1", answer, null)), saved, List.of(kb(KB)), ""),

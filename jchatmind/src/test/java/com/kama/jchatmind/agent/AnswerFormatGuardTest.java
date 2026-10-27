@@ -134,6 +134,19 @@ class AnswerFormatGuardTest {
     }
 
     @Test
+    @DisplayName("带空白的引用组与范围写法都要核验，与重排器同一份表达式")
+    void spacedGroupsAndRangesAreChecked() {
+        // 模型常写 `[1, 2]`；上一版守卫只认紧邻逗号，导致零来源时被放行并落库。
+        assertThrows(InvalidAnswerFormatException.class, () -> AnswerFormatGuard.verify("结论 [1, 2]。", 0));
+        assertThrows(InvalidAnswerFormatException.class, () -> AnswerFormatGuard.verify("结论 [1， 2]。", 0));
+        assertThrows(InvalidAnswerFormatException.class, () -> AnswerFormatGuard.verify("结论 [1, 2]。", 1));
+        assertDoesNotThrow(() -> AnswerFormatGuard.verify("结论 [1, 2]。", 2));
+        // 范围写法不在工具契约里：来源再多也按非法位置拒绝，不能因为解析失败就放行。
+        assertThrows(InvalidAnswerFormatException.class, () -> AnswerFormatGuard.verify("结论 [1-2]。", 5));
+        assertThrows(InvalidAnswerFormatException.class, () -> AnswerFormatGuard.verify("结论 [1–2]。", 5));
+    }
+
+    @Test
     @DisplayName("多维数组下标不算引用，紧邻的引用仍然算")
     void subscriptChainsVersusAdjacentCitations() {
         assertDoesNotThrow(() -> AnswerFormatGuard.verify("矩阵 array[1][2] 与 items[0][3]。", 0));
