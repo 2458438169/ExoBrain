@@ -1,0 +1,43 @@
+{
+  "corpusVersion": "v3-2026-10-28",
+  "corpusDir": "docs/public-demo/v3-2026-10-28",
+  "reviewedAt": "2026-10-28",
+  "questionSet": "docs/development/visitor-experience/ux08-question-set.json",
+  "documents": {
+    "01": "01_product_guide.md",
+    "02": "02_engineering_cases.md",
+    "03": "03_contribution_map.md"
+  },
+  "coverage": [
+    {"id": "Q01", "kind": "recommended", "facts": "一句话定位 + 三个要点 + 三条体验路径", "evidence": ["01 L9-15", "01 L19-23"], "gap": "none"},
+    {"id": "Q02", "kind": "recommended", "facts": "引用如何定位到原文；引用只说明来源被校验", "evidence": ["01 L13", "01 L21", "03 L26-27", "03 L56-62"], "gap": "none"},
+    {"id": "Q03", "kind": "recommended", "facts": "继承清单（Agent 循环/工具/持久化/SSE/Markdown）+ 新增两组", "evidence": ["03 L9-16", "03 L22-31"], "gap": "none"},
+    {"id": "Q04", "kind": "rewrite", "facts": "值得信任＝回答带出处 + 过程可核对 + 边界明说", "evidence": ["01 L9-15", "01 L27-29", "03 L22-31"], "gap": "none"},
+    {"id": "Q05", "kind": "rewrite", "facts": "解决「从文档得到有出处答案」的问题及其边界", "evidence": ["01 L27-29"], "gap": "none"},
+    {"id": "Q06", "kind": "boundary", "facts": "幂等键去重、同键只返回原运行；不是外部 exactly-once", "evidence": ["02 L8-22", "03 L46"], "gap": "none"},
+    {"id": "Q07", "kind": "boundary", "facts": "取消只登记 cancel_requested；fencing + RUNNING 双条件；迟到答案整笔回滚", "evidence": ["02 L26-42"], "gap": "none"},
+    {"id": "Q08", "kind": "boundary", "facts": "重启后 QUEUED 重新领取、RUNNING 记 INTERRUPTED_BY_RESTART、不自动重放", "evidence": ["02 L46-51", "01 L15"], "gap": "none"},
+    {"id": "Q09", "kind": "boundary", "facts": "每个租约独立调度器、独立连接、lock_timeout、有界等待；16s/22s 用例", "evidence": ["02 L53-68"], "gap": "none"},
+    {"id": "Q10", "kind": "boundary", "facts": "同步模型调用 + 工具参数交付，界面只有状态流", "evidence": ["03 L44-45"], "gap": "none"},
+    {"id": "Q11", "kind": "boundary", "facts": "引用只说明来源被校验，结论仍需人工判断", "evidence": ["01 L29"], "gap": "none"},
+    {"id": "Q12", "kind": "boundary", "facts": "管理员也不能读取他人私有知识库/助手/会话", "evidence": ["01 L34", "03 L31"], "gap": "none"},
+    {"id": "Q13", "kind": "unsupported", "facts": "客户数量与节省成本（资料中不存在，应拒答）", "evidence": [], "gap": "intended-unsupported"},
+    {"id": "Q14", "kind": "unsupported", "facts": "作者履历（资料中不存在，应拒答）", "evidence": [], "gap": "intended-unsupported"},
+    {"id": "Q15", "kind": "unsupported", "facts": "支持的文件格式数量（资料只写 Markdown 解析，数量未写）", "evidence": ["03 L24"], "gap": "intended-unsupported"},
+    {"id": "Q16", "kind": "fact", "facts": "来源粒度＝文档 + 行号范围 + 片段哈希 + 索引版本", "evidence": ["03 L26-27"], "gap": "none"},
+    {"id": "Q17", "kind": "fact", "facts": "导入入队、失败重试、固定错误码、状态可查询", "evidence": ["03 L29"], "gap": "none"},
+    {"id": "Q18", "kind": "fact", "facts": "执行过程可见模型/检索/工具/落库步骤与耗时", "evidence": ["01 L22", "03 L28"], "gap": "none"},
+    {"id": "Q19", "kind": "fact", "facts": "游客范围＝公开资料 + 自己会话；账号按所有者隔离", "evidence": ["01 L33-35", "03 L31"], "gap": "none"},
+    {"id": "Q20", "kind": "fact", "facts": "评测指标 Hit@3 / Recall@3 / MRR@3 与资产构成", "evidence": ["03 L25"], "gap": "none"},
+    {"id": "Q21", "kind": "fact", "facts": "不同模型向量不能混用、换模型必须重新导入；换绑受守卫", "evidence": ["03 L48", "03 L32"], "gap": "none"},
+    {"id": "Q22", "kind": "fact", "facts": "fencing_token 每次领取前进；写回需校验", "evidence": ["02 L33-34"], "gap": "none"},
+    {"id": "Q23", "kind": "fact", "facts": "锁等待会拖住心跳、跨过租约期限；预算内重试 + 不加锁读确认", "evidence": ["02 L58-62", "02 L67-68"], "gap": "none"},
+    {"id": "Q24", "kind": "fact", "facts": "基于 JChatMind；技术栈与保留能力；MIT 许可", "evidence": ["03 L5", "03 L9-16"], "gap": "none"},
+    {"id": "Q25", "kind": "fact", "facts": "正文 [n] 对应 citationIds 第 n 项，服务端校验去重重排后给出展示编号", "evidence": ["03 L56-62"], "gap": "filled-in-v3"},
+    {"id": "Q26", "kind": "fact", "facts": "资料没写时如何回答；已实现/已验证的标注口径", "evidence": ["01 L3-5", "03 L52-54"], "gap": "none"},
+    {"id": "Q27", "kind": "rewrite", "facts": "靠出处与运行记录让用户自己发现错误；引用≠正确", "evidence": ["01 L13-14", "01 L29"], "gap": "none"},
+    {"id": "Q28", "kind": "rewrite", "facts": "同键不新建运行；不承诺外部 exactly-once（不含费用保证）", "evidence": ["02 L8-22", "03 L46"], "gap": "none"},
+    {"id": "Q29", "kind": "boundary", "facts": "首页精选是人工复核过的历史运行记录，不是现场生成", "evidence": ["01 L36", "01 L38-42"], "gap": "filled-in-v3"},
+    {"id": "Q30", "kind": "boundary", "facts": "点开来源看文档名/行号/原文；引用≠事实核验", "evidence": ["01 L21", "01 L13", "01 L29"], "gap": "none"}
+  ]
+}

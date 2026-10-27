@@ -44,12 +44,12 @@ public class DirectAnswerTool implements Tool {
                     + "把用到的那几条命中自带的 citationId 原样放进可选的 citationIds 数组（每项是完整 id 字符串）；"
                     + "没有用到检索资料时省略该参数。不要自己编造 id、行号、文件名或链接，"
                     + "正文需要标注引用时，[n] 必须指向 citationIds 数组的第 n 项（从 1 开始），"
-                    + "不是检索结果的 rank；多个来源写成 [1][2]，不要使用编号范围。"
+                    + "不是检索 rank、检索结果列表序号或文档行号；多个来源写成 [1][2]，不要使用编号范围。"
                     + "每个编号对应的片段必须直接支持旁边的说法，不要用同一文档的其他章节代替。"
-                    + "服务端校验、排序和合并来源后会同步调整正文编号。代码或数组下标示例请放在 Markdown 代码中。"
+                    + "最终展示编号由服务端校验、去重和重排后确定。代码或数组下标示例请放在 Markdown 代码中。"
     )
     public String directAnswer(
-            @ToolParam(description = "给用户看的完整答复正文；引用 [n] 对应 citationIds 数组第 n 项，不是检索 rank") String answer,
+            @ToolParam(description = "给用户看的完整答复正文；引用 [n] 对应 citationIds 数组第 n 项，不是检索 rank 或行号") String answer,
             @ToolParam(required = false,
                     description = "本答复实际使用的检索命中 citationId 列表；正文 [1] 指向第一项、[2] 指向第二项。"
                             + "可选；服务端校验本次运行的来源并同步调整最终编号。")

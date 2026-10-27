@@ -1,0 +1,40 @@
+{
+  "corpusVersion": "v3-2026-10-28",
+  "corpusDir": "D:\\Code\\Java\\JChatMind\\docs\\public-demo\\v3-2026-10-28",
+  "knowledgeBaseId": "c7697952-42fb-4c6c-afe2-1efa685ec69c",
+  "documents": [
+    {
+      "file": "01_product_guide.md",
+      "sha256": "85342e24022ba03eec4b80cf71302d8129b3c53ba66f8922b12c94f657bb7e23",
+      "documentId": "93c76230-823c-49c2-8886-813e17677c00",
+      "jobId": "744bd196-decb-4513-adc4-1d34379eabc1",
+      "status": "SUCCEEDED",
+      "chunksDone": 7,
+      "chunksTotal": 7,
+      "indexRevisionId": "378c8424-0009-4c93-ae17-08086ee74ae3",
+      "errorCode": null
+    },
+    {
+      "file": "02_engineering_cases.md",
+      "sha256": "f888dcc55c989e9e810ce03d8461615819cd391a08d25b2cdfb2586fab6a5c1e",
+      "documentId": "ff71c07d-06f6-4ff2-9f39-13e87fe47bbb",
+      "jobId": "f1c56cfc-843d-4428-a642-52f30f4f9a75",
+      "status": "SUCCEEDED",
+      "chunksDone": 13,
+      "chunksTotal": 13,
+      "indexRevisionId": "2d0ff78b-0655-42d5-a701-52f007e141fc",
+      "errorCode": null
+    },
+    {
+      "file": "03_contribution_map.md",
+      "sha256": "ff9b038f2cec96830cb3b759443a0515883882cf435ee74aa8985ec217618444",
+      "documentId": "d01786cc-d962-4d82-85e8-1935bde01660",
+      "jobId": "2267deee-6452-457c-a7ec-412fa836eb1b",
+      "status": "SUCCEEDED",
+      "chunksDone": 21,
+      "chunksTotal": 21,
+      "indexRevisionId": "63928442-d2f4-48d8-88f5-aa00149801d5",
+      "errorCode": null
+    }
+  ]
+}

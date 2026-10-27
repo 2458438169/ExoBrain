@@ -24,6 +24,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -51,9 +52,15 @@ class JChatMindFactoryTest {
         when(converter.toDTO(first)).thenReturn(configWithWindow(2));
         when(converter.toDTO(second)).thenReturn(configWithWindow(4));
 
+        // 每问配一条回答：未被回答的用户消息按新投影规则不会进入模型输入，
+        // 而本用例要检验的是「各自保留自己的记忆窗口」，所以历史必须是答过的。
         List<ChatMessageDTO> history = IntStream.rangeClosed(1, 5)
-                .mapToObj(i -> ChatMessageDTO.builder()
-                        .role(ChatMessageDTO.RoleType.USER).content("message-" + i).build())
+                .boxed()
+                .flatMap(i -> Stream.of(
+                        ChatMessageDTO.builder()
+                                .role(ChatMessageDTO.RoleType.USER).content("message-" + i).build(),
+                        ChatMessageDTO.builder()
+                                .role(ChatMessageDTO.RoleType.ASSISTANT).content("answer-" + i).build()))
                 .toList();
         CountDownLatch firstLoading = new CountDownLatch(1);
         CountDownLatch resumeFirst = new CountDownLatch(1);
@@ -75,8 +82,8 @@ class JChatMindFactoryTest {
             resumeFirst.countDown();
             JChatMind firstRuntime = pendingFirst.get(5, TimeUnit.SECONDS);
 
-            assertEquals(List.of("message-4", "message-5"), memoryTexts(firstRuntime, "session-first"));
-            assertEquals(List.of("message-2", "message-3", "message-4", "message-5"),
+            assertEquals(List.of("message-5", "answer-5"), memoryTexts(firstRuntime, "session-first"));
+            assertEquals(List.of("message-4", "answer-4", "message-5", "answer-5"),
                     memoryTexts(secondRuntime, "session-second"));
             verify(messages).getChatMessagesBySessionIdRecently("session-first", 2);
             verify(messages).getChatMessagesBySessionIdRecently("session-second", 4);

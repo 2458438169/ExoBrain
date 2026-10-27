@@ -84,9 +84,24 @@ public class JChatMindFactory {
         return restoreMemory(chatMessages);
     }
 
-    private List<Message> restoreMemory(List<ChatMessageDTO> chatMessages) {
+    /**
+     * 把数据库里的消息投影成「本轮给模型看的输入」。
+     *
+     * <p>除了最后一条用户消息，**没被回答过的旧用户消息不进入投影**。失败、取消或中断的运行不会写回答复，
+     * 这类「悬空的旧请求」如果留在上下文里，模型会把它当成还要一起完成的任务——实测里出现过把上一题
+     * 一起答掉的串题（Q14 串 Q13、Q21 串 Q20）。历史仍保留在数据库里，只是不再作为本轮任务下发；
+     * 显式追问上一轮内容时，最后一条用户消息本身就是追问，正常多轮不受影响。</p>
+     */
+    static List<Message> restoreMemory(List<ChatMessageDTO> chatMessages) {
+        int lastUserIndex = -1;
+        for (int index = 0; index < chatMessages.size(); index++) {
+            if (chatMessages.get(index).getRole() == ChatMessageDTO.RoleType.USER) {
+                lastUserIndex = index;
+            }
+        }
         List<Message> memory = new ArrayList<>();
-        for (ChatMessageDTO chatMessageDTO : chatMessages) {
+        for (int index = 0; index < chatMessages.size(); index++) {
+            ChatMessageDTO chatMessageDTO = chatMessages.get(index);
             switch (chatMessageDTO.getRole()) {
                 case SYSTEM:
                     if (!StringUtils.hasLength(chatMessageDTO.getContent())) continue;
@@ -94,13 +109,17 @@ public class JChatMindFactory {
                     break;
                 case USER:
                     if (!StringUtils.hasLength(chatMessageDTO.getContent())) continue;
+                    // 未被回答的旧请求：只留在数据库，不进入本轮输入。
+                    if (index != lastUserIndex && !answered(chatMessages, index)) continue;
                     memory.add(new UserMessage(chatMessageDTO.getContent()));
                     break;
                 case ASSISTANT:
                     memory.add(AssistantMessage.builder()
                             .content(chatMessageDTO.getContent())
-                            .toolCalls(chatMessageDTO.getMetadata()
-                                    .getToolCalls())
+                            .toolCalls(chatMessageDTO.getMetadata() == null
+                                    || chatMessageDTO.getMetadata().getToolCalls() == null
+                                    ? List.of()
+                                    : chatMessageDTO.getMetadata().getToolCalls())
                             .build());
                     break;
                 case TOOL:
@@ -119,6 +138,25 @@ public class JChatMindFactory {
             }
         }
         return memory;
+    }
+
+    /**
+     * 这条用户消息是否被回答过：它之后、下一条用户消息之前，是否存在带正文的助手消息。
+     *
+     * <p>失败、取消、中断的运行只留用户消息、不写回答，所以「没有带正文的助手消息」就是没答上。</p>
+     */
+    private static boolean answered(List<ChatMessageDTO> messages, int userIndex) {
+        for (int index = userIndex + 1; index < messages.size(); index++) {
+            ChatMessageDTO message = messages.get(index);
+            if (message.getRole() == ChatMessageDTO.RoleType.USER) {
+                return false;
+            }
+            if (message.getRole() == ChatMessageDTO.RoleType.ASSISTANT
+                    && StringUtils.hasLength(message.getContent())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private AgentDTO toAgentConfig(Agent agent) {

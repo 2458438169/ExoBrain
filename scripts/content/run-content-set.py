@@ -21,7 +21,8 @@ import urllib.request
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 QUESTIONS = os.path.join(ROOT, "docs", "development", "visitor-experience", "ux08-question-set.json")
-PROMPT = os.path.join(ROOT, "docs", "public-demo", "v2-2026-10-19", "agent-system-prompt.md")
+# 默认用最新语料版本的提示词；旧版本保留在各自目录里，用 --prompt 指定即可复现历史成绩。
+PROMPT = os.path.join(ROOT, "docs", "public-demo", "v3-2026-10-28", "agent-system-prompt.md")
 MARKER = re.compile(r"\[(\d+)\]")
 SECRET = re.compile(r"(sk-[A-Za-z0-9_\-]{8,}|Bearer\s+[A-Za-z0-9._\-]+)")
 URL = re.compile(r"https?://[^\s\"'<>]+")
@@ -137,6 +138,10 @@ def main():
     parser.add_argument("--attempts", type=int, default=2, help="每题最多尝试几次")
     parser.add_argument("--backoff", type=float, default=8.0, help="重试前的退避秒数")
     parser.add_argument("--only", default="", help="逗号分隔的题号，例如 Q05,Q06；留空跑全部")
+    parser.add_argument("--prompt", default=PROMPT, help="系统提示词文件；默认最新语料版本")
+    parser.add_argument("--session-mode", choices=("shared", "per-question"), default="shared",
+                        help="shared：全部题共用一个会话（历史可见）；per-question：每题新建会话")
+    parser.add_argument("--label", default="", help="证据标签，写进会话标题与 runParams")
     args = parser.parse_args()
     base = args.base.rstrip("/")
 
@@ -145,15 +150,19 @@ def main():
         sys.exit("login failed: %s" % status)
     state["csrf"] = login["data"]["csrfToken"]
 
-    prompt = open(PROMPT, encoding="utf-8").read()
+    prompt = open(args.prompt, encoding="utf-8").read()
     status, _ = call(base, "PATCH", "/api/agents/%s" % args.agent, {"systemPrompt": prompt})
     print("agent prompt update:", status)
 
-    status, session = call(base, "POST", "/api/chat-sessions",
-                           {"agentId": args.agent, "title": "UX-08 固定题组 %d" % int(time.time())})
-    session_id = ((session or {}).get("data") or {}).get("chatSessionId")
-    if not session_id:
-        sys.exit("cannot create session: %s" % (session,))
+    def create_session():
+        _, created = call(base, "POST", "/api/chat-sessions",
+                          {"agentId": args.agent,
+                           "title": "UX-08 %s %d" % (args.label or "run", int(time.time() * 1000))})
+        return ((created or {}).get("data") or {}).get("chatSessionId")
+
+    session_id = create_session() if args.session_mode == "shared" else None
+    if args.session_mode == "shared" and not session_id:
+        sys.exit("cannot create session")
 
     spec = json.load(open(QUESTIONS, encoding="utf-8"))
     if args.only:
@@ -163,6 +172,14 @@ def main():
 
     results = []
     for item in spec["questions"]:
+        # per-question：每题新建会话，历史不再跨题累积（用于区分"独立问答"）。
+        if args.session_mode == "per-question":
+            session_id = create_session()
+        # 记录本轮提交前模型能看到的历史：题间串题的对照证据。
+        _, history = call(base, "GET", "/api/chat-messages/session/%s" % session_id)
+        history_messages = ((history or {}).get("data") or {}).get("chatMessages") or []
+        history_users = [message.get("id") for message in history_messages
+                         if message.get("role") == "user"]
         # 题级单调时钟：把两次尝试之间的退避也包进来。wallMs 不含退避，不能冒充端到端。
         question_started = time.monotonic()
         attempts = []
@@ -189,6 +206,9 @@ def main():
             "attemptCount": len(attempts),
             # 端到端：题级单调时钟，含全部尝试与退避。
             "elapsedMsTotal": int((time.monotonic() - question_started) * 1000),
+            "sessionId": session_id,
+            "historyUserMessageCount": len(history_users),
+            "historyUserMessageIds": history_users,
             # 对照：只累加各次请求的观察时间，不含退避。
             "wallMsTotal": sum(record["wallMs"] for record in attempts),
             "attempts": [{key: value for key, value in record.items() if key != "answer"} for record in attempts],
@@ -252,7 +272,9 @@ def main():
                "promptSha256": hashlib.sha256(prompt.encode("utf-8")).hexdigest(),
                "scriptSha256": hashlib.sha256(open(os.path.abspath(__file__), "rb").read()).hexdigest(),
                "runParams": {"pauseSeconds": args.pause, "backoffSeconds": args.backoff,
-                             "maxAttempts": args.attempts, "only": args.only},
+                             "maxAttempts": args.attempts, "only": args.only,
+                             "sessionMode": args.session_mode, "label": args.label,
+                             "promptFile": os.path.relpath(args.prompt, ROOT)},
                "ranAt": time.strftime("%Y-%m-%dT%H:%M:%S"), "summary": summary, "results": results}
     os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
     json.dump(payload, open(args.out, "w", encoding="utf-8"), ensure_ascii=False, indent=2)

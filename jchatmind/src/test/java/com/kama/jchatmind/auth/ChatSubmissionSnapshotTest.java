@@ -75,8 +75,12 @@ class ChatSubmissionSnapshotTest {
         when(agents.selectById(AGENT)).thenReturn(Agent.builder().id(AGENT).name("合成助手")
                 .model("stub-model").allowedKbs("[]").allowedTools("[]")
                 .chatOptions("{\"temperature\":0.7,\"topP\":1.0,\"messageLength\":10}").build());
-        when(mapper.selectBySessionIdRecently(SESSION, 100)).thenReturn(List.of(ChatMessage.builder()
-                .id("old-message").sessionId(SESSION).role("user").content("previous question").build()));
+        // 历史快照里给上一问配一条回答：未被回答的用户消息按新投影规则不会进入模型输入。
+        when(mapper.selectBySessionIdRecently(SESSION, 100)).thenReturn(List.of(
+                ChatMessage.builder().id("old-message").sessionId(SESSION).role("user")
+                        .content("previous question").build(),
+                ChatMessage.builder().id("old-answer").sessionId(SESSION).role("assistant")
+                        .content("previous answer").build()));
         when(mapper.insert(any())).thenAnswer(call -> {
             ((ChatMessage) call.getArgument(0)).setId("trigger");
             return 1;
@@ -129,7 +133,7 @@ class ChatSubmissionSnapshotTest {
                 job.userInput(), job.historySnapshot(), config -> { });
         ChatMemory memory = (ChatMemory) ReflectionTestUtils.getField(runtime, "chatMemory");
         assertNotNull(memory);
-        assertEquals(List.of("previous question", "original question"),
+        assertEquals(List.of("previous question", "previous answer", "original question"),
                 memory.get(SESSION).stream().map(message -> message.getText()).toList());
         assertEquals("original question", ReflectionTestUtils.getField(runtime, "submittedUserInput"));
         verify(laterHistory, times(0)).getChatMessagesBySessionIdRecently(anyString(), anyInt());

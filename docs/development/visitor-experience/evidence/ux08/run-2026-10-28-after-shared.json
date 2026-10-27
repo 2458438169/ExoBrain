@@ -1,0 +1,847 @@
+{
+  "version": "ux08-2026-10-20",
+  "agentId": "b22dfb07-b159-4402-8d44-9af467a3d4d8",
+  "sessionId": "7dd4f504-a205-4c94-b33d-2dde131e3aef",
+  "promptSha256": "71c582eea648f40270a8298f9b726bc6dc75b7d6153570c30fbee5063b01e1b9",
+  "scriptSha256": "91ec2041296f1e9039bf4b2147c8388f70c7f8d2f1e311d3fa4426cfaaffe57d",
+  "runParams": {
+    "pauseSeconds": 4.0,
+    "backoffSeconds": 25.0,
+    "maxAttempts": 2,
+    "only": "Q03,Q06,Q11,Q14,Q16,Q21,Q25,Q29",
+    "sessionMode": "shared",
+    "label": "r5-shared",
+    "promptFile": "docs\\public-demo\\v3-2026-10-28\\agent-system-prompt.md"
+  },
+  "ranAt": "2026-10-28T01:59:59",
+  "summary": {
+    "total": 8,
+    "succeeded": 7,
+    "failed": 1,
+    "byStatus": {
+      "SUCCEEDED": 7,
+      "FAILED": 1
+    },
+    "byErrorCode": {
+      "INVALID_ANSWER_FORMAT": 1
+    },
+    "finalGuardRejections": 1,
+    "attemptsTotal": 10,
+    "attemptsSucceeded": 7,
+    "attemptsFailed": 3,
+    "attemptErrorCodes": {
+      "EXECUTION_FAILED": 2,
+      "INVALID_ANSWER_FORMAT": 1
+    },
+    "attemptGuardRejections": 1,
+    "runsTotal": 10,
+    "modelCallsTotal": 19,
+    "modelRetriesTotal": 0,
+    "modelCallsFailed": 2,
+    "modelCallErrorCodes": {
+      "MODEL_CALL_FAILED": 2
+    },
+    "modelCallDetails": {},
+    "traceIncomplete": 0,
+    "withinBudget": 5,
+    "withCitations": 7,
+    "unknownMarkers": 0,
+    "mustNotHits": 0,
+    "p50DurationMs": 8712,
+    "p95DurationMs": 12976,
+    "p50WallMs": 10139,
+    "p95WallMs": 14187,
+    "p50ElapsedMsTotal": 10139,
+    "p95ElapsedMsTotal": 37250,
+    "p50WallMsTotal": 10139,
+    "p95WallMsTotal": 14187
+  },
+  "results": [
+    {
+      "id": "Q03",
+      "kind": "recommended",
+      "question": "在上游 JChatMind 的基础上，这个仓库新增了哪些能力？请区分继承和新增。",
+      "expected": [
+        "03_contribution_map: 继承（Agent 循环/工具/持久化/SSE）与新增（正文索引、运行追踪、持久队列等）"
+      ],
+      "maxChars": 350,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 1,
+      "elapsedMsTotal": 14187,
+      "sessionId": "7dd4f504-a205-4c94-b33d-2dde131e3aef",
+      "historyUserMessageCount": 0,
+      "historyUserMessageIds": [],
+      "wallMsTotal": 14187,
+      "attempts": [
+        {
+          "runId": "5f8a81f4-0ec7-4892-8a6a-b9c0429d93a6",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "durationMs": 12976,
+          "wallMs": 14187,
+          "traceIncomplete": false,
+          "answerMessageId": "5b94b9c8-f9ff-42c7-a88e-36f1a4c0f374",
+          "answerChars": 554,
+          "markers": [
+            1,
+            2,
+            3
+          ],
+          "modelCalls": 3,
+          "modelRetries": 0,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 3,
+            "PERSIST_MESSAGE": 7,
+            "TOOL_CALL": 4,
+            "RETRIEVAL": 3
+          },
+          "citations": [
+            {
+              "label": 1,
+              "documentName": "03_contribution_map.md",
+              "startLine": 9,
+              "endLine": 18,
+              "excerpt": "上游是 JChatMind：一个 Java + Spring Boot + Spring AI 的 AI Agent 示例项目，前端为 React，数据库为 PostgreSQL 加 pgvector 向量扩展。本项目保留了这些核心能力： - Agent 主循环：模型判断下一步 → 执行工具 → 读取工具结果 → 继续"
+            },
+            {
+              "label": 2,
+              "documentName": "03_contribution_map.md",
+              "startLine": 31,
+              "endLine": 33,
+              "excerpt": "| 资源隔离 | 知识库、助手、会话按所有者隔离；管理员也不获得他人私有资源的读取权 | 访问控制与资源仓库 | 账号/管理员矩阵、游客矩阵 | | 模型目录与密钥加密 | 模型配置存库、密钥加密保存、向量模型可与知识库绑定并受换绑守卫 | 模型目录、密钥服务、换绑接口 | 接口测试与生产热修实操 | | CI 与检查"
+            },
+            {
+              "label": 3,
+              "documentName": "03_contribution_map.md",
+              "startLine": 22,
+              "endLine": 31,
+              "excerpt": "| 能力 | 一句话说明 | 主要依据 | 验证范围 | | --- | --- | --- | --- | | Markdown 解析隔离 | 每份文档独立解析状态，避免并发导入时共享可变状态互相污染 | 解析服务与并发用例 | 单元测试（含并发场景） | | 检索评测与冻结资产 | 题集、语料清单、冻结哈希与评测脚"
+            }
+          ],
+          "attempt": 1
+        }
+      ],
+      "answerChars": 554,
+      "withinBudget": false,
+      "citations": [
+        {
+          "label": 1,
+          "documentName": "03_contribution_map.md",
+          "startLine": 9,
+          "endLine": 18,
+          "excerpt": "上游是 JChatMind：一个 Java + Spring Boot + Spring AI 的 AI Agent 示例项目，前端为 React，数据库为 PostgreSQL 加 pgvector 向量扩展。本项目保留了这些核心能力： - Agent 主循环：模型判断下一步 → 执行工具 → 读取工具结果 → 继续"
+        },
+        {
+          "label": 2,
+          "documentName": "03_contribution_map.md",
+          "startLine": 31,
+          "endLine": 33,
+          "excerpt": "| 资源隔离 | 知识库、助手、会话按所有者隔离；管理员也不获得他人私有资源的读取权 | 访问控制与资源仓库 | 账号/管理员矩阵、游客矩阵 | | 模型目录与密钥加密 | 模型配置存库、密钥加密保存、向量模型可与知识库绑定并受换绑守卫 | 模型目录、密钥服务、换绑接口 | 接口测试与生产热修实操 | | CI 与检查"
+        },
+        {
+          "label": 3,
+          "documentName": "03_contribution_map.md",
+          "startLine": 22,
+          "endLine": 31,
+          "excerpt": "| 能力 | 一句话说明 | 主要依据 | 验证范围 | | --- | --- | --- | --- | | Markdown 解析隔离 | 每份文档独立解析状态，避免并发导入时共享可变状态互相污染 | 解析服务与并发用例 | 单元测试（含并发场景） | | 检索评测与冻结资产 | 题集、语料清单、冻结哈希与评测脚"
+        }
+      ],
+      "markers": [
+        1,
+        2,
+        3
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "结论：本仓库基于 JChatMind 继续开发，Agent 骨架等核心能力是继承的，新增能力主要集中在「检索/引用可核验」和「运行时可靠性」两类。\n\n**继承（一点）**\n上游的 Agent 主循环、按助手配置装载工具、会话与消息等数据持久化、SSE 状态推送，以及基础 Markdown 解析与向量检索链路都被保留 [1]。\n\n**新增第一组：检索与引用**\n文档解析改为每份文档独立状态，避免并发导入互相污染；片段按正文切分，来源带 documentId、sourceHash、行号范围与索引版本；引用只登记本轮真实完成的检索结果并写入消息 metadata，界面可按行定位原文 [3]。另配有检索评测题集、冻结哈希与 Hit@3 / Recall@3 / MRR@3 指标 [3]。\n\n**新增第二组：运行时可靠性**\n导入改为持久化队列（上传即入队、失败重试、固定错误码），对话任务持久化并带租约、fencing 与幂等键，取消与迟到写入都有明确语义；每轮问答还有运行摘要与事件记录，含真实耗时与用量 [3]。资源按所有者隔离，管理员也不能读取他人私有资源 [2]。\n\n需要说明的是，这些「已实现并通过检查」的范围各不相同（单元测试、集成测试、离线脚本、浏览器实测），具体验证程度资料里是逐项标注的。"
+    },
+    {
+      "id": "Q06",
+      "kind": "boundary",
+      "question": "网络不好，我重复点了发送，会运行两次吗？",
+      "expected": [
+        "02_engineering_cases: 案例一（幂等键，最多执行一次；不是外部调用 exactly-once）"
+      ],
+      "maxChars": 350,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 1,
+      "elapsedMsTotal": 10139,
+      "sessionId": "7dd4f504-a205-4c94-b33d-2dde131e3aef",
+      "historyUserMessageCount": 1,
+      "historyUserMessageIds": [
+        "5106e595-6104-446d-b960-4dda3553c3d5"
+      ],
+      "wallMsTotal": 10139,
+      "attempts": [
+        {
+          "runId": "a778ba98-7f1e-472d-b855-e9c0ae7d2c6d",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "durationMs": 9343,
+          "wallMs": 10139,
+          "traceIncomplete": false,
+          "answerMessageId": "392c507d-cf03-49b1-be71-38750ae31021",
+          "answerChars": 437,
+          "markers": [
+            1,
+            2
+          ],
+          "modelCalls": 2,
+          "modelRetries": 0,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 5,
+            "TOOL_CALL": 3,
+            "RETRIEVAL": 2
+          },
+          "citations": [
+            {
+              "label": 1,
+              "documentName": "02_engineering_cases.md",
+              "startLine": 8,
+              "endLine": 22,
+              "excerpt": "**问题**：网络慢的时候用户会连点发送，或者请求其实已经到服务器但响应丢了。如果后端每收到一次就执行一次， 会出现两条用户消息、两个模型调用、两笔费用，甚至两条不同的回答挂在同一个问题上。 **方案**：把「一次提问」变成带唯一键的提交意图，服务端按 `(身份, 会话, 幂等键)` 去重。 - 前端为每个「新的提问意"
+            },
+            {
+              "label": 2,
+              "documentName": "03_contribution_map.md",
+              "startLine": 44,
+              "endLine": 48,
+              "excerpt": "- **逐字流式输出**：当前回答由一次同步模型调用产生并通过工具参数交付，界面只有执行状态流， 没有正文的增量推送。任何「打字机效果」都不是流式实现。 - **对外部调用的 exactly-once**：幂等只覆盖「同一会话的同一提交意图」，不覆盖模型或第三方服务。 - **管理员跨用户读取**：这是刻意不做的隔离，"
+            }
+          ],
+          "attempt": 1
+        }
+      ],
+      "answerChars": 437,
+      "withinBudget": false,
+      "citations": [
+        {
+          "label": 1,
+          "documentName": "02_engineering_cases.md",
+          "startLine": 8,
+          "endLine": 22,
+          "excerpt": "**问题**：网络慢的时候用户会连点发送，或者请求其实已经到服务器但响应丢了。如果后端每收到一次就执行一次， 会出现两条用户消息、两个模型调用、两笔费用，甚至两条不同的回答挂在同一个问题上。 **方案**：把「一次提问」变成带唯一键的提交意图，服务端按 `(身份, 会话, 幂等键)` 去重。 - 前端为每个「新的提问意"
+        },
+        {
+          "label": 2,
+          "documentName": "03_contribution_map.md",
+          "startLine": 44,
+          "endLine": 48,
+          "excerpt": "- **逐字流式输出**：当前回答由一次同步模型调用产生并通过工具参数交付，界面只有执行状态流， 没有正文的增量推送。任何「打字机效果」都不是流式实现。 - **对外部调用的 exactly-once**：幂等只覆盖「同一会话的同一提交意图」，不覆盖模型或第三方服务。 - **管理员跨用户读取**：这是刻意不做的隔离，"
+        }
+      ],
+      "markers": [
+        1,
+        2
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "结论：不会。同一会话的同一「提交意图」最多只执行一次，你重复点发送不会多跑一次运行，也不会多出一条用户消息或多一笔模型调用。\n\n要点：\n\n1. 前端每次「新的提问」会生成一个幂等键，重试和断线重连都复用同一个键，只有你明确提出下一个问题时才换键；服务端按 `(身份, 会话, 幂等键)` 去重 [1]。\n2. 提交在一个事务里完成写用户消息、固定历史快照、创建运行记录和入队；同一个键再次到达时不新建运行，而是返回原来那次运行的 `runId` 与状态；同一个键但内容不同则直接拒绝 [1]。\n3. 这个保证已在真实 PostgreSQL 集成测试和浏览器实测中核对：同键并发只产生一次运行，丢弃首个响应后手动重试，数据库里仍只有一个运行、一条用户消息、一次模型调用 [1]。\n\n边界：这保证的是「同一会话的同一提交意图最多执行一次」，并不是对外部调用的 exactly-once 承诺。工具调用和模型请求本身仍可能被重复发出，系统只保证结果写入与终态唯一且受校验 [2]。"
+    },
+    {
+      "id": "Q11",
+      "kind": "boundary",
+      "question": "有引用就能说明答案一定正确吗？",
+      "expected": [
+        "01_product_guide: 引用只说明来源被校验，结论仍需人工判断"
+      ],
+      "maxChars": 300,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 1,
+      "elapsedMsTotal": 10125,
+      "sessionId": "7dd4f504-a205-4c94-b33d-2dde131e3aef",
+      "historyUserMessageCount": 2,
+      "historyUserMessageIds": [
+        "5106e595-6104-446d-b960-4dda3553c3d5",
+        "70c5ecdc-150a-4bfa-97f1-68f93bc6772b"
+      ],
+      "wallMsTotal": 10125,
+      "attempts": [
+        {
+          "runId": "e57775b8-0928-42f9-b519-85c727ac4e94",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "durationMs": 8712,
+          "wallMs": 10125,
+          "traceIncomplete": false,
+          "answerMessageId": "1d21e00c-0d13-43e9-b846-2cb21a833aa9",
+          "answerChars": 246,
+          "markers": [
+            1,
+            2
+          ],
+          "modelCalls": 2,
+          "modelRetries": 0,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 5,
+            "TOOL_CALL": 3,
+            "RETRIEVAL": 2
+          },
+          "citations": [
+            {
+              "label": 1,
+              "documentName": "03_contribution_map.md",
+              "startLine": 58,
+              "endLine": 62,
+              "excerpt": "- 正文里的 `[n]` 对应**本次答复的 `citationIds` 参数数组的第 n 项**（从 1 开始），不是检索排名、检索结果列表序号，也不是文档行号。 - 模型只负责从本轮检索命中里挑出实际用到的几条，把它们的 `citationId` 原样放进 `citationIds`；不能自己编造 id。 - 服务"
+            },
+            {
+              "label": 2,
+              "documentName": "01_product_guide.md",
+              "startLine": 27,
+              "endLine": 29,
+              "excerpt": "能解决：需要从一批文档里快速得到有出处答案的问题，以及需要证明「答案来自哪一段原文」的场景。 不能解决：需要实时联网数据的问题（检索范围只是已发布的知识库）、需要精确数值计算与外部系统写入的问题、以及把引用等同于事实核验的问题。引用只说明「这条来源被服务端校验过」，不代表模型组织的结论一定正确，仍需人工判断。"
+            }
+          ],
+          "attempt": 1
+        }
+      ],
+      "answerChars": 246,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "documentName": "03_contribution_map.md",
+          "startLine": 58,
+          "endLine": 62,
+          "excerpt": "- 正文里的 `[n]` 对应**本次答复的 `citationIds` 参数数组的第 n 项**（从 1 开始），不是检索排名、检索结果列表序号，也不是文档行号。 - 模型只负责从本轮检索命中里挑出实际用到的几条，把它们的 `citationId` 原样放进 `citationIds`；不能自己编造 id。 - 服务"
+        },
+        {
+          "label": 2,
+          "documentName": "01_product_guide.md",
+          "startLine": 27,
+          "endLine": 29,
+          "excerpt": "能解决：需要从一批文档里快速得到有出处答案的问题，以及需要证明「答案来自哪一段原文」的场景。 不能解决：需要实时联网数据的问题（检索范围只是已发布的知识库）、需要精确数值计算与外部系统写入的问题、以及把引用等同于事实核验的问题。引用只说明「这条来源被服务端校验过」，不代表模型组织的结论一定正确，仍需人工判断。"
+        }
+      ],
+      "markers": [
+        1,
+        2
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "结论：不能。引用只说明「这条来源被服务端校验过」，不代表模型组织的结论一定正确，仍需人工读原文判断 [2]。\n\n要点：\n\n1. 引用契约的边界就写在这一条里：它只保证「来源身份与位置有效」，不保证「结论一定正确」[1]。\n2. 服务端校验的是 id 是否来自本轮真实命中、是否在授权范围内，然后去重排序；校验的是来源，不是推理链 [1]。\n3. 产品层也把「把引用等同于事实核验」明确列为不能解决的问题 [2]。\n\n所以引用是一份可核对的线索，不是正确性证明；真正负责的用法是点开来源读原文。"
+    },
+    {
+      "id": "Q14",
+      "kind": "unsupported",
+      "question": "作者之前在哪家公司做后端？",
+      "expected": [
+        "无依据：不应编造个人履历"
+      ],
+      "maxChars": 300,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 2,
+      "elapsedMsTotal": 37250,
+      "sessionId": "7dd4f504-a205-4c94-b33d-2dde131e3aef",
+      "historyUserMessageCount": 3,
+      "historyUserMessageIds": [
+        "5106e595-6104-446d-b960-4dda3553c3d5",
+        "70c5ecdc-150a-4bfa-97f1-68f93bc6772b",
+        "8e98aa2d-3191-4c54-b5c9-4619bde7e27a"
+      ],
+      "wallMsTotal": 12249,
+      "attempts": [
+        {
+          "runId": "df1a74fd-9423-4399-836c-4513b9fd0c95",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "durationMs": 757,
+          "wallMs": 2109,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelRetries": 0,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "attempt": 1,
+          "backoffMs": 25000
+        },
+        {
+          "runId": "3f29b05b-49ab-4671-96ca-b8f24c249b89",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "durationMs": 9546,
+          "wallMs": 10140,
+          "traceIncomplete": false,
+          "answerMessageId": "3647c1cc-691c-48e3-9cd3-b5f90471443b",
+          "answerChars": 189,
+          "markers": [
+            1,
+            2
+          ],
+          "modelCalls": 2,
+          "modelRetries": 0,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 5,
+            "TOOL_CALL": 3,
+            "RETRIEVAL": 2
+          },
+          "citations": [
+            {
+              "label": 1,
+              "documentName": "01_product_guide.md",
+              "startLine": 3,
+              "endLine": 5,
+              "excerpt": "本文用于回答「这个项目能做什么、我在这里能亲自体验什么、哪些能力有边界」。核对日期：2026-10-28。 凡是标注「已实现」的，指仓库源码中存在对应逻辑；标注「已在线上验证」的，指在本次核对时通过真实请求确认过。 没有标注的内容不应被当作能力承诺。"
+            },
+            {
+              "label": 2,
+              "documentName": "03_contribution_map.md",
+              "startLine": 37,
+              "endLine": 40,
+              "excerpt": "- **多实例部署与网络分区**：代码按租约与 fencing 设计，但只在单机多进程与真实重启下演练过， 没有做过跨主机、时钟漂移、网络分区的验证。 - **远端 CI**：工作流文件已提交，是否真实执行过要按流水线记录说明，不能用本机结果代替。 - **真实付费模型的效果对比**：只做过单一路径的连通与链路验证，没"
+            }
+          ],
+          "attempt": 2
+        }
+      ],
+      "answerChars": 189,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "documentName": "01_product_guide.md",
+          "startLine": 3,
+          "endLine": 5,
+          "excerpt": "本文用于回答「这个项目能做什么、我在这里能亲自体验什么、哪些能力有边界」。核对日期：2026-10-28。 凡是标注「已实现」的，指仓库源码中存在对应逻辑；标注「已在线上验证」的，指在本次核对时通过真实请求确认过。 没有标注的内容不应被当作能力承诺。"
+        },
+        {
+          "label": 2,
+          "documentName": "03_contribution_map.md",
+          "startLine": 37,
+          "endLine": 40,
+          "excerpt": "- **多实例部署与网络分区**：代码按租约与 fencing 设计，但只在单机多进程与真实重启下演练过， 没有做过跨主机、时钟漂移、网络分区的验证。 - **远端 CI**：工作流文件已提交，是否真实执行过要按流水线记录说明，不能用本机结果代替。 - **真实付费模型的效果对比**：只做过单一路径的连通与链路验证，没"
+        }
+      ],
+      "markers": [
+        1,
+        2
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "资料里没有写作者曾在哪家公司做后端，三份文档只讲这个项目本身，没有个人履历信息。\n\n能确认的部分：\n\n1. 《能力归属》区分的是「哪些能力继承自上游仓库、哪些是本仓库新增」，按能力而非按人归属 [2]。\n2. 演示知识库的定位是回答项目能做什么、有哪些边界，明确说明没有标注的内容不应被当作能力承诺 [1]。\n\n所以关于「作者在哪家公司做后端」，我不能给出答案，也不会替你推测。"
+    },
+    {
+      "id": "Q16",
+      "kind": "fact",
+      "question": "回答时的来源能定位到什么粒度？",
+      "expected": [
+        "03_contribution_map: 行号范围 + sourceHash + 索引版本"
+      ],
+      "maxChars": 300,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 1,
+      "elapsedMsTotal": 8125,
+      "sessionId": "7dd4f504-a205-4c94-b33d-2dde131e3aef",
+      "historyUserMessageCount": 5,
+      "historyUserMessageIds": [
+        "5106e595-6104-446d-b960-4dda3553c3d5",
+        "70c5ecdc-150a-4bfa-97f1-68f93bc6772b",
+        "8e98aa2d-3191-4c54-b5c9-4619bde7e27a",
+        "4a23a172-2162-45ce-b168-1807974128ed",
+        "03915e3f-5761-451d-ac44-911ffcec47f6"
+      ],
+      "wallMsTotal": 8125,
+      "attempts": [
+        {
+          "runId": "6cd99c3c-a146-4ff8-abc9-4a6f85dfe5f5",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "durationMs": 7509,
+          "wallMs": 8125,
+          "traceIncomplete": false,
+          "answerMessageId": "54ef2da1-e8ef-4488-ba3b-9b8790e58ecc",
+          "answerChars": 267,
+          "markers": [
+            1,
+            2
+          ],
+          "modelCalls": 2,
+          "modelRetries": 0,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 4,
+            "TOOL_CALL": 2,
+            "RETRIEVAL": 1
+          },
+          "citations": [
+            {
+              "label": 1,
+              "documentName": "03_contribution_map.md",
+              "startLine": 58,
+              "endLine": 62,
+              "excerpt": "- 正文里的 `[n]` 对应**本次答复的 `citationIds` 参数数组的第 n 项**（从 1 开始），不是检索排名、检索结果列表序号，也不是文档行号。 - 模型只负责从本轮检索命中里挑出实际用到的几条，把它们的 `citationId` 原样放进 `citationIds`；不能自己编造 id。 - 服务"
+            },
+            {
+              "label": 2,
+              "documentName": "03_contribution_map.md",
+              "startLine": 22,
+              "endLine": 31,
+              "excerpt": "| 能力 | 一句话说明 | 主要依据 | 验证范围 | | --- | --- | --- | --- | | Markdown 解析隔离 | 每份文档独立解析状态，避免并发导入时共享可变状态互相污染 | 解析服务与并发用例 | 单元测试（含并发场景） | | 检索评测与冻结资产 | 题集、语料清单、冻结哈希与评测脚"
+            }
+          ],
+          "attempt": 1
+        }
+      ],
+      "answerChars": 267,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "documentName": "03_contribution_map.md",
+          "startLine": 58,
+          "endLine": 62,
+          "excerpt": "- 正文里的 `[n]` 对应**本次答复的 `citationIds` 参数数组的第 n 项**（从 1 开始），不是检索排名、检索结果列表序号，也不是文档行号。 - 模型只负责从本轮检索命中里挑出实际用到的几条，把它们的 `citationId` 原样放进 `citationIds`；不能自己编造 id。 - 服务"
+        },
+        {
+          "label": 2,
+          "documentName": "03_contribution_map.md",
+          "startLine": 22,
+          "endLine": 31,
+          "excerpt": "| 能力 | 一句话说明 | 主要依据 | 验证范围 | | --- | --- | --- | --- | | Markdown 解析隔离 | 每份文档独立解析状态，避免并发导入时共享可变状态互相污染 | 解析服务与并发用例 | 单元测试（含并发场景） | | 检索评测与冻结资产 | 题集、语料清单、冻结哈希与评测脚"
+        }
+      ],
+      "markers": [
+        1,
+        2
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "能定位到「文档 + 行号范围 + 原文片段」这一级，点开来源即可看到。\n\n- 来源带文档名、行号范围与原文片段，界面按行定位原文，未实际引用的行号不会出现在来源里 [1]。\n- 编号 `[n]` 对应本次答复 citationIds 数组的第 n 项，不是检索排名或行号；服务端会校验命中的真实性并去重排序，同一来源一次答复只出现一个编号 [1]。\n- 引用登记的是本轮真实完成的检索结果，行号经过浏览器实测与语料逐字符比对 [2]。\n\n需要说明的是，这套机制只保证「来源身份与位置有效」，不保证结论本身正确，仍需读原文判断 [1]。"
+    },
+    {
+      "id": "Q21",
+      "kind": "fact",
+      "question": "换一个向量模型时，已有知识库能直接换吗？",
+      "expected": [
+        "03_contribution_map: 不同模型向量不能混用，需重新导入"
+      ],
+      "maxChars": 300,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 1,
+      "elapsedMsTotal": 8109,
+      "sessionId": "7dd4f504-a205-4c94-b33d-2dde131e3aef",
+      "historyUserMessageCount": 6,
+      "historyUserMessageIds": [
+        "5106e595-6104-446d-b960-4dda3553c3d5",
+        "70c5ecdc-150a-4bfa-97f1-68f93bc6772b",
+        "8e98aa2d-3191-4c54-b5c9-4619bde7e27a",
+        "4a23a172-2162-45ce-b168-1807974128ed",
+        "03915e3f-5761-451d-ac44-911ffcec47f6",
+        "269f42c9-f073-4ccb-9077-db78d3420a8f"
+      ],
+      "wallMsTotal": 8109,
+      "attempts": [
+        {
+          "runId": "37fd58de-d651-4a6e-9ca2-2ff678a5b148",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "durationMs": 7464,
+          "wallMs": 8109,
+          "traceIncomplete": false,
+          "answerMessageId": "98dedb2f-81d2-4dfc-a407-9adc7aff50ec",
+          "answerChars": 221,
+          "markers": [
+            1,
+            2,
+            3
+          ],
+          "modelCalls": 2,
+          "modelRetries": 0,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 5,
+            "TOOL_CALL": 3,
+            "RETRIEVAL": 2
+          },
+          "citations": [
+            {
+              "label": 1,
+              "documentName": "03_contribution_map.md",
+              "startLine": 31,
+              "endLine": 33,
+              "excerpt": "| 资源隔离 | 知识库、助手、会话按所有者隔离；管理员也不获得他人私有资源的读取权 | 访问控制与资源仓库 | 账号/管理员矩阵、游客矩阵 | | 模型目录与密钥加密 | 模型配置存库、密钥加密保存、向量模型可与知识库绑定并受换绑守卫 | 模型目录、密钥服务、换绑接口 | 接口测试与生产热修实操 | | CI 与检查"
+            },
+            {
+              "label": 2,
+              "documentName": "03_contribution_map.md",
+              "startLine": 44,
+              "endLine": 48,
+              "excerpt": "- **逐字流式输出**：当前回答由一次同步模型调用产生并通过工具参数交付，界面只有执行状态流， 没有正文的增量推送。任何「打字机效果」都不是流式实现。 - **对外部调用的 exactly-once**：幂等只覆盖「同一会话的同一提交意图」，不覆盖模型或第三方服务。 - **管理员跨用户读取**：这是刻意不做的隔离，"
+            },
+            {
+              "label": 3,
+              "documentName": "03_contribution_map.md",
+              "startLine": 22,
+              "endLine": 31,
+              "excerpt": "| 能力 | 一句话说明 | 主要依据 | 验证范围 | | --- | --- | --- | --- | | Markdown 解析隔离 | 每份文档独立解析状态，避免并发导入时共享可变状态互相污染 | 解析服务与并发用例 | 单元测试（含并发场景） | | 检索评测与冻结资产 | 题集、语料清单、冻结哈希与评测脚"
+            }
+          ],
+          "attempt": 1
+        }
+      ],
+      "answerChars": 221,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "documentName": "03_contribution_map.md",
+          "startLine": 31,
+          "endLine": 33,
+          "excerpt": "| 资源隔离 | 知识库、助手、会话按所有者隔离；管理员也不获得他人私有资源的读取权 | 访问控制与资源仓库 | 账号/管理员矩阵、游客矩阵 | | 模型目录与密钥加密 | 模型配置存库、密钥加密保存、向量模型可与知识库绑定并受换绑守卫 | 模型目录、密钥服务、换绑接口 | 接口测试与生产热修实操 | | CI 与检查"
+        },
+        {
+          "label": 2,
+          "documentName": "03_contribution_map.md",
+          "startLine": 44,
+          "endLine": 48,
+          "excerpt": "- **逐字流式输出**：当前回答由一次同步模型调用产生并通过工具参数交付，界面只有执行状态流， 没有正文的增量推送。任何「打字机效果」都不是流式实现。 - **对外部调用的 exactly-once**：幂等只覆盖「同一会话的同一提交意图」，不覆盖模型或第三方服务。 - **管理员跨用户读取**：这是刻意不做的隔离，"
+        },
+        {
+          "label": 3,
+          "documentName": "03_contribution_map.md",
+          "startLine": 22,
+          "endLine": 31,
+          "excerpt": "| 能力 | 一句话说明 | 主要依据 | 验证范围 | | --- | --- | --- | --- | | Markdown 解析隔离 | 每份文档独立解析状态，避免并发导入时共享可变状态互相污染 | 解析服务与并发用例 | 单元测试（含并发场景） | | 检索评测与冻结资产 | 题集、语料清单、冻结哈希与评测脚"
+        }
+      ],
+      "markers": [
+        1,
+        2,
+        3
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "不能直接换，换向量模型必须重新导入知识库。\n\n- 不同供应商或不同模型的向量不能混在同一个索引里，因此换模型后已有索引不能沿用，需要重新导入 [2]。\n- 向量模型可以与知识库绑定，并通过换绑守卫约束切换，说明绑定的变更受控、并非随手替换 [1]。\n- 索引片段带有索引版本字段，重建索引有对应的迁移脚本支撑；但这属于代码侧线索，资料未说明换模型时迁移是否会自动完成 [3]。\n\n「换绑守卫」具体拦截什么条件、重新导入耗时多久，资料里没有写。"
+    },
+    {
+      "id": "Q25",
+      "kind": "fact",
+      "question": "引用里的数字编号是怎么和来源对应的？",
+      "expected": [
+        "01_product_guide / 03_contribution_map: [n] 对应第 n 条已核验来源"
+      ],
+      "maxChars": 300,
+      "status": "FAILED",
+      "errorCode": "INVALID_ANSWER_FORMAT",
+      "attemptCount": 2,
+      "elapsedMsTotal": 35233,
+      "sessionId": "7dd4f504-a205-4c94-b33d-2dde131e3aef",
+      "historyUserMessageCount": 7,
+      "historyUserMessageIds": [
+        "5106e595-6104-446d-b960-4dda3553c3d5",
+        "70c5ecdc-150a-4bfa-97f1-68f93bc6772b",
+        "8e98aa2d-3191-4c54-b5c9-4619bde7e27a",
+        "4a23a172-2162-45ce-b168-1807974128ed",
+        "03915e3f-5761-451d-ac44-911ffcec47f6",
+        "269f42c9-f073-4ccb-9077-db78d3420a8f",
+        "0c5e08b8-7925-46f8-bdff-beee10f4480e"
+      ],
+      "wallMsTotal": 10233,
+      "attempts": [
+        {
+          "runId": "e553c739-ab58-4549-bf55-545f4a3d7106",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "durationMs": 4878,
+          "wallMs": 6108,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 2,
+          "modelRetries": 0,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 3,
+            "TOOL_CALL": 2,
+            "RETRIEVAL": 2
+          },
+          "citations": [],
+          "attempt": 1,
+          "backoffMs": 25000
+        },
+        {
+          "runId": "c2d5f2c5-5f6f-4d82-b785-b3b2f49eb309",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "INVALID_ANSWER_FORMAT",
+          "durationMs": 3978,
+          "wallMs": 4125,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelRetries": 0,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "attempt": 2
+        }
+      ],
+      "answerChars": 0,
+      "withinBudget": true,
+      "citations": [],
+      "markers": [],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": ""
+    },
+    {
+      "id": "Q29",
+      "kind": "boundary",
+      "question": "公开示例是实时生成的答案吗？",
+      "expected": [
+        "01_product_guide: 只读示例为历史执行记录"
+      ],
+      "maxChars": 250,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 1,
+      "elapsedMsTotal": 10187,
+      "sessionId": "7dd4f504-a205-4c94-b33d-2dde131e3aef",
+      "historyUserMessageCount": 9,
+      "historyUserMessageIds": [
+        "5106e595-6104-446d-b960-4dda3553c3d5",
+        "70c5ecdc-150a-4bfa-97f1-68f93bc6772b",
+        "8e98aa2d-3191-4c54-b5c9-4619bde7e27a",
+        "4a23a172-2162-45ce-b168-1807974128ed",
+        "03915e3f-5761-451d-ac44-911ffcec47f6",
+        "269f42c9-f073-4ccb-9077-db78d3420a8f",
+        "0c5e08b8-7925-46f8-bdff-beee10f4480e",
+        "c8c2c546-ea2c-497b-a0ec-f4e4b02c3564",
+        "0c7dcf81-0533-49dd-bf09-07ebee0d74c9"
+      ],
+      "wallMsTotal": 10187,
+      "attempts": [
+        {
+          "runId": "5f7f20db-8e59-44da-b3ce-44b3dca1edd3",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "durationMs": 8247,
+          "wallMs": 10187,
+          "traceIncomplete": false,
+          "answerMessageId": "560b8ddc-cf3e-48c5-b1c7-fa0255c6e4d1",
+          "answerChars": 208,
+          "markers": [
+            1,
+            2
+          ],
+          "modelCalls": 2,
+          "modelRetries": 0,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 5,
+            "TOOL_CALL": 3,
+            "RETRIEVAL": 2
+          },
+          "citations": [
+            {
+              "label": 1,
+              "documentName": "01_product_guide.md",
+              "startLine": 40,
+              "endLine": 42,
+              "excerpt": "- 精选示例是**人工复核过的历史运行记录**：每条都是当时一次真实问答保存下来的会话、答复与来源，带当时的耗时与引用。 - 它们不是每次打开页面时现场生成的答案；现场提问走的是本轮的实时检索与模型调用。 - 只展示复核合格的真实运行，因此**不代表随机实时回答都能达到同样质量**；实时回答的质量以你自己这一轮的结果为"
+            },
+            {
+              "label": 2,
+              "documentName": "01_product_guide.md",
+              "startLine": 27,
+              "endLine": 29,
+              "excerpt": "能解决：需要从一批文档里快速得到有出处答案的问题，以及需要证明「答案来自哪一段原文」的场景。 不能解决：需要实时联网数据的问题（检索范围只是已发布的知识库）、需要精确数值计算与外部系统写入的问题、以及把引用等同于事实核验的问题。引用只说明「这条来源被服务端校验过」，不代表模型组织的结论一定正确，仍需人工判断。"
+            }
+          ],
+          "attempt": 1
+        }
+      ],
+      "answerChars": 208,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "documentName": "01_product_guide.md",
+          "startLine": 40,
+          "endLine": 42,
+          "excerpt": "- 精选示例是**人工复核过的历史运行记录**：每条都是当时一次真实问答保存下来的会话、答复与来源，带当时的耗时与引用。 - 它们不是每次打开页面时现场生成的答案；现场提问走的是本轮的实时检索与模型调用。 - 只展示复核合格的真实运行，因此**不代表随机实时回答都能达到同样质量**；实时回答的质量以你自己这一轮的结果为"
+        },
+        {
+          "label": 2,
+          "documentName": "01_product_guide.md",
+          "startLine": 27,
+          "endLine": 29,
+          "excerpt": "能解决：需要从一批文档里快速得到有出处答案的问题，以及需要证明「答案来自哪一段原文」的场景。 不能解决：需要实时联网数据的问题（检索范围只是已发布的知识库）、需要精确数值计算与外部系统写入的问题、以及把引用等同于事实核验的问题。引用只说明「这条来源被服务端校验过」，不代表模型组织的结论一定正确，仍需人工判断。"
+        }
+      ],
+      "markers": [
+        1,
+        2
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "不是实时生成的：首页精选示例是人工复核过的历史运行记录 [1]。\n\n- 每条示例都是当时一次真实问答保存下来的会话、答复与来源，带的是当时的耗时与引用 [1]。\n- 打开页面时不会重新生成；只有你自己提问时，才走这一轮的实时检索与模型调用 [1]。\n- 因此示例不代表随机实时回答都能达到同样质量，实时质量以你这轮的结果为准 [1]。\n\n需要说明的是，引用只表示来源被服务端校验过，结论是否正确仍需人工判断 [2]。"
+    }
+  ]
+}
