@@ -197,17 +197,31 @@ class JChatMindCitationTest {
     void answerWithoutCitationIdsStillWorks() throws Exception {
         String envelope = envelope(RetrievalEnvelope.ok("ret-1", List.of(hit("ret-1:1", "chunk-a", "片段", 1, 1, 2))));
         List<ChatMessageDTO> saved = new ArrayList<>();
+        // 正文里的数组下标 array[1] 不是引用标记，照旧原样保留（引用标记的判定见下一条用例）。
         run(List.of(
                 knowledgeRound("call-k1", envelope),
-                answerRound("call-a1", "普通答复，数组元素 array[1]，选项 [2]。", null)),
+                answerRound("call-a1", "普通答复，数组元素 array[1]，选项编号 2。", null)),
                 saved, List.of(kb(KB)), envelope);
 
         assertNull(answerIn(saved).getMetadata().getCitations());
-        assertEquals("普通答复，数组元素 array[1]，选项 [2]。", answerIn(saved).getContent());
+        assertEquals("普通答复，数组元素 array[1]，选项编号 2。", answerIn(saved).getContent());
         assertTrue(saved.stream().anyMatch(message -> message.getRole() == ChatMessageDTO.RoleType.TOOL
                         && message.getContent() != null && message.getContent().contains("答复已交付")),
                 "the directAnswer tool still completes a plain answer");
     }
+    @Test
+    @DisplayName("an answer whose citation markers have no verified source is rejected before persistence")
+    void citationMarkersWithoutSourcesNeverPersistAnAnswer() throws Exception {
+        List<ChatMessageDTO> saved = new ArrayList<>();
+        // 模型在自己的正文里写了 [1][2]，但没有给出任何 citationIds：这两个编号没有任何可核验对象。
+        ChatResponse fabricated = answerRound("call-a1", "结论一 [1]，要点二 [2]。", null);
+        RuntimeException error = assertThrows(RuntimeException.class,
+                () -> run(List.of(fabricated), saved, List.of(kb(KB)), ""));
+        assertEquals("INVALID_ANSWER_FORMAT", RunLifecycleService.classify(error));
+        assertFalse(saved.stream().anyMatch(message -> message.getRole() == ChatMessageDTO.RoleType.ASSISTANT),
+                "an answer with unverifiable citation numbers must not persist");
+    }
+
 
     @Test
     @DisplayName("a source outside the run's own knowledge bases is rejected even though it was really retrieved")
