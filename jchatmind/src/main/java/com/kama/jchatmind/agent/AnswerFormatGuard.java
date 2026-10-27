@@ -42,7 +42,9 @@ final class AnswerFormatGuard {
         int allowed = Math.max(0, citationCount);
         for (int index : citationMarkers(outsideCode(answer))) {
             if (index < 1 || index > allowed) {
-                throw new InvalidAnswerFormatException();
+                // 与 AnswerCitationFormatter 的编号校验用同一句文案：日志里要能一眼看出
+                // 是「编号没有可核验来源」，而不是被误读成工具参数残片。
+                throw new InvalidAnswerFormatException("Model answer references a source that could not be verified");
             }
         }
     }

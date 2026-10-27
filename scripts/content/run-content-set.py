@@ -53,6 +53,7 @@ def main():
     parser.add_argument("--agent", required=True)
     parser.add_argument("--out", required=True)
     parser.add_argument("--pause", type=float, default=1.0)
+    parser.add_argument("--only", default="", help="逗号分隔的题号，例如 Q05,Q06；留空跑全部")
     args = parser.parse_args()
     base = args.base.rstrip("/")
 
@@ -72,28 +73,10 @@ def main():
         sys.exit("cannot create session: %s" % (session,))
 
     spec = json.load(open(QUESTIONS, encoding="utf-8"))
-    results = []
-    for item in spec["questions"]:
-        started = time.time()
-        status, submitted = call(base, "POST", "/api/chat-messages", {
-            "agentId": args.agent, "sessionId": session_id, "role": "user",
-            "content": item["question"], "idempotencyKey": "ux08-%s-%d" % (item["id"], int(started)),
-        })
-        run_id = ((submitted or {}).get("data") or {}).get("runId")
-        detail = {}
-        for _ in range(90):
-            time.sleep(2)
-            _, run_body = call(base, "GET", "/api/chat-sessions/%s/runs" % session_id)
-            runs = ((run_body or {}).get("data") or {}).get("runs") or []
-            if runs and all(run.get("status") not in ("QUEUED", "RUNNING") for run in runs):
-                break
-        if run_id:
-            _, run_detail = call(base, "GET", "/api/runs/%s" % run_id)
-            detail = ((run_detail or {}).get("data") or {}).get("summary") or {}
-        _, messages = call(base, "GET", "/api/chat-messages/session/%s" % session_id)
-        answers = [m for m in (((messages or {}).get("data") or {}).get("chatMessages") or [])
-                   if m.get("role") == "assistant" and (m.get("content") or "").strip()]
-    spec = json.load(open(QUESTIONS, encoding="utf-8"))
+    if args.only:
+        wanted = {item.strip().upper() for item in args.only.split(",") if item.strip()}
+        spec["questions"] = [q for q in spec["questions"] if q["id"].upper() in wanted]
+        print("running subset:", [q["id"] for q in spec["questions"]])
     results = []
 
     def ask(question, key):
@@ -156,15 +139,31 @@ def main():
             (" mustNot=%s" % must_not) if must_not else ""))
         time.sleep(args.pause)
 
+    ok = [r for r in results if r["status"] == "SUCCEEDED"]
+    durations = sorted(r["durationMs"] or 0 for r in ok)
 
+    def percentile(values, fraction):
+        if not values:
+            return 0
+        index = min(len(values) - 1, int(round(fraction * (len(values) - 1))))
+        return values[index]
+
+    by_status = {}
+    for item in results:
+        by_status[item["status"]] = by_status.get(item["status"], 0) + 1
+    guard_failures = [r for r in results if r.get("errorCode") == "INVALID_ANSWER_FORMAT"]
     summary = {
         "total": len(results),
-        "succeeded": sum(1 for r in results if r["status"] == "SUCCEEDED"),
-        "withinBudget": sum(1 for r in results if r["withinBudget"]),
-        "withCitations": sum(1 for r in results if r["citations"]),
-        "unknownMarkers": sum(1 for r in results if r["unknownMarkers"]),
-        "mustNotHits": sum(1 for r in results if r["mustNotHits"]),
-        "p50DurationMs": sorted([r["durationMs"] or 0 for r in results])[len(results) // 2],
+        "succeeded": len(ok),
+        "byStatus": by_status,
+        "guardRejections": len(guard_failures),
+        # 以下四项只统计成功题：失败题没有正文，混进去会把成功率算成质量。
+        "withinBudget": sum(1 for r in ok if r["withinBudget"]),
+        "withCitations": sum(1 for r in ok if r["citations"]),
+        "unknownMarkers": sum(1 for r in ok if r["unknownMarkers"]),
+        "mustNotHits": sum(1 for r in ok if r["mustNotHits"]),
+        "p50DurationMs": percentile(durations, 0.50),
+        "p95DurationMs": percentile(durations, 0.95),
     }
     payload = {"version": spec["version"], "agentId": args.agent, "sessionId": session_id,
                "promptSha256": __import__("hashlib").sha256(prompt.encode("utf-8")).hexdigest(),

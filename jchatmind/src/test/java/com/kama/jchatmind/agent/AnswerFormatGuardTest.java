@@ -4,6 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
@@ -24,17 +25,19 @@ class AnswerFormatGuardTest {
     }
 
     @Test
-    @DisplayName("编号超出已核验来源条数时拒绝")
+    @DisplayName("编号超出已核验来源条数时拒绝，文案与编号校验一致")
     void markerBeyondVerifiedSourcesIsRejected() {
-        assertThrows(InvalidAnswerFormatException.class,
+        InvalidAnswerFormatException error = assertThrows(InvalidAnswerFormatException.class,
                 () -> AnswerFormatGuard.verify("结论 [1]，细节 [3]", 2));
+        assertEquals("Model answer references a source that could not be verified", error.getMessage());
     }
 
     @Test
     @DisplayName("零已核验来源时，正文里的引用编号一律视为伪造")
     void markersWithoutVerifiedSourcesAreRejected() {
-        assertThrows(InvalidAnswerFormatException.class,
+        InvalidAnswerFormatException error = assertThrows(InvalidAnswerFormatException.class,
                 () -> AnswerFormatGuard.verify("结论一 [1]，要点二 [2]。", 0));
+        assertEquals("Model answer references a source that could not be verified", error.getMessage());
         // 数组下标不是引用标记，零来源时也应放行。
         assertDoesNotThrow(() -> AnswerFormatGuard.verify("普通答复，数组元素 array[1]，选项编号 2。", 0));
     }
@@ -61,9 +64,10 @@ class AnswerFormatGuardTest {
     }
 
     @Test
-    @DisplayName("工具序列化残片仍然拒绝（既有行为不变）")
+    @DisplayName("工具序列化残片仍然拒绝，且保留原本文案")
     void parameterSpillIsStillRejected() {
-        assertThrows(InvalidAnswerFormatException.class, () -> AnswerFormatGuard.verify(
-                "答案正文</answer><parameter name=\"citationIds\">[\"ret-1:1\"]"));
+        InvalidAnswerFormatException error = assertThrows(InvalidAnswerFormatException.class,
+                () -> AnswerFormatGuard.verify("答案正文</answer><parameter name=\"citationIds\">[\"ret-1:1\"]"));
+        assertEquals("Model answer contains an invalid tool parameter boundary", error.getMessage());
     }
 }

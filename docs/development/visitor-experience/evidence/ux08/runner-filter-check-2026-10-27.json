@@ -1,0 +1,71 @@
+{
+  "version": "ux08-2026-10-20",
+  "agentId": "b22dfb07-b159-4402-8d44-9af467a3d4d8",
+  "sessionId": "952b32db-8007-4c26-9902-148126add6fe",
+  "promptSha256": "fa83d379d5768d3d05ed86e84d76c8b9b148c044fa2bb7bae74729879b87e169",
+  "ranAt": "2026-10-27T15:59:49",
+  "summary": {
+    "total": 1,
+    "succeeded": 1,
+    "byStatus": {
+      "SUCCEEDED": 1
+    },
+    "guardRejections": 0,
+    "withinBudget": 1,
+    "withCitations": 1,
+    "unknownMarkers": 0,
+    "mustNotHits": 0,
+    "p50DurationMs": 10507,
+    "p95DurationMs": 10507
+  },
+  "results": [
+    {
+      "id": "Q01",
+      "kind": "recommended",
+      "question": "用一句话和三个要点说明 ExoBrain 能做什么，并指出我可以亲自体验的能力。",
+      "expected": [
+        "01_product_guide: 一句话定位 + 三条体验路径"
+      ],
+      "maxChars": 350,
+      "runId": "6386acc7-7a37-4695-8bbb-ab75546a0457",
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attempts": 1,
+      "durationMs": 10507,
+      "wallMs": 12244,
+      "answerChars": 298,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "documentName": "01_product_guide.md",
+          "startLine": 19,
+          "endLine": 23,
+          "excerpt": "| 体验路径 | 你会看到什么 | 依据 | | --- | --- | --- | | 直接提问 | 一句结论 + 几条要点，下面挂来源；点开来源可看到原文对应段落 | 公开知识库检索、引用投影、原文预览 | | 查看执行过程 | 展开「查看过程」可看到这一轮的模型、检索、工具与落库步骤及其耗时 | 运行摘要与事件表"
+        },
+        {
+          "label": 2,
+          "documentName": "01_product_guide.md",
+          "startLine": 9,
+          "endLine": 15,
+          "excerpt": "ExoBrain 是一个可核验的 RAG 问答项目：它检索公开资料、给出带原文出处的回答，并把一次回答的执行过程记录下来供核对。 三个要点： 1. **回答带出处**：模型必须通过检索工具拿到资料片段才组织结论，回答里的每条来源都指向具体文档、行号范围与片段哈希。 2. **过程可核对**：每轮问答都有运行记录，包含模"
+        },
+        {
+          "label": 3,
+          "documentName": "01_product_guide.md",
+          "startLine": 33,
+          "endLine": 36,
+          "excerpt": "- 游客模式不需要登录，只能看到公开资料与自己的会话；看不到任何其他访客或账号的数据。 - 账号模式下管理员也不能读取其他用户私有知识库、助手与会话的运行记录。 - 公开资料的范围由配置明确发布，未发布的路径在网关层就会被拒绝，而不是仅靠前端隐藏入口。 - 游客可以取消自己正在执行的回答；公开只读示例不可取消、不可续写"
+        }
+      ],
+      "markers": [
+        1,
+        2,
+        3
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "ExoBrain 是一个可核验的 RAG 问答项目：检索公开资料、给出带原文出处的回答，并把执行过程记录下来供核对 [2]。\n\n1. 回答带出处：模型要先用检索工具拿到片段才组织结论，来源指向具体文档与行号范围 [2]。\n2. 过程可核对：每轮问答都有运行记录，含模型调用、工具、检索与落库的真实耗时和状态 [2]。\n3. 失败可恢复：重复提交不重复执行，刷新不丢问题，重启时结果未知的任务不会被悄悄重放 [2]。\n\n你能亲自体验的有三条路径：直接提问并点开来源看原文、展开「查看过程」看这一轮的步骤与耗时、以及追问「有什么做不到」核对边界 [1]。游客模式只能看到公开资料与自己的会话 [3]。"
+    }
+  ]
+}
