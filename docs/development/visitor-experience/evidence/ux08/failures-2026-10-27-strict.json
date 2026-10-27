@@ -1,4 +1,11 @@
 {
+  "logFile": "C:\\Users\\Sharmoon\\.pi-desktop\\scratch\\2ab9f297-3b17-4936-aa76-3f633280080c\\ux08-r3-app.log",
+  "logSha256": "2e218f9f00b81d37fbf445d3478bf5fa251bf12a3ae9f9bfdf67292a35c85dc6",
+  "logLines": 1268,
+  "timeRange": {
+    "first": "2026-10-27T20:43:41",
+    "last": "2026-10-27T21:06:28"
+  },
   "httpStatuses": {
     "429": 7
   },
@@ -11,5 +18,8 @@
   "guardRejections": {
     "Model answer references a source that could not be verified": 9
   },
-  "modelFailureTotal": 7
+  "httpFailureCount": 7,
+  "wrappedCallFailureCount": 7,
+  "modelFailureTotal": 7,
+  "countingRule": "max(httpFailureCount, wrappedCallFailureCount)：HTTP 错误两行计一次，非 HTTP 错误只有一行"
 }

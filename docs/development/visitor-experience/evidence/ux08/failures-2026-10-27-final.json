@@ -1,0 +1,26 @@
+{
+  "logFile": "C:\\Users\\Sharmoon\\.pi-desktop\\scratch\\2ab9f297-3b17-4936-aa76-3f633280080c\\ux08-r4-app.log",
+  "logEncoding": "utf-16-le",
+  "logSha256": "5b3d332143c79d146da964e8fcaa3d397ef79ec1c058b76ef4fb5c9adf438064",
+  "logLines": 1277,
+  "timeRange": {
+    "first": "2026-10-27T22:44:45",
+    "last": "2026-10-27T23:01:11"
+  },
+  "httpStatuses": {
+    "429": 4
+  },
+  "exceptionTypes": {
+    "ModelException": 4
+  },
+  "exceptionMessages": {
+    "语言模型服务暂不可用，请联系管理员检查模型配置": 4
+  },
+  "guardRejections": {
+    "Model answer references a source that could not be verified": 16
+  },
+  "httpFailureCount": 4,
+  "wrappedCallFailureCount": 4,
+  "modelFailureTotal": 4,
+  "countingRule": "max(httpFailureCount, wrappedCallFailureCount)：HTTP 错误两行计一次，非 HTTP 错误只有一行"
+}

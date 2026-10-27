@@ -103,17 +103,34 @@ class AnswerFormatGuardTest {
     }
 
     @Test
-    @DisplayName("链接目标、自动链接、裸 URL 与链接定义里的编号都不算引用")
-    void protectedRegionsDoNotProduceMarkers() {
+    @DisplayName("Markdown 认定的链接整段保护，包括折叠式、快捷式与带方括号的链接文本")
+    void markdownLinksAreProtected() {
         // 受保护区域一律用超范围编号（99），零来源时才可能暴露误拦。
         assertDoesNotThrow(() -> AnswerFormatGuard.verify("查看 [1](https://example.test/[99])。", 0));
         assertDoesNotThrow(() -> AnswerFormatGuard.verify("查看 [文档](https://example.test/[99])。", 0));
+        assertDoesNotThrow(() -> AnswerFormatGuard.verify("查看 [[99]](https://example.test)。", 0));
         assertDoesNotThrow(() -> AnswerFormatGuard.verify("见 <https://example.test/[99]>。", 0));
-        assertDoesNotThrow(() -> AnswerFormatGuard.verify("见 https://example.test/[99] 这一段。", 0));
+        // 已定义的引用式链接：全引用、折叠式、快捷式三种写法都受保护。
         assertDoesNotThrow(() -> AnswerFormatGuard.verify("查看 [1][ref]。\n\n[ref]: https://example.test/[99]", 0));
+        assertDoesNotThrow(() -> AnswerFormatGuard.verify("查看 [99][]。\n\n[99]: https://example.test", 0));
+        assertDoesNotThrow(() -> AnswerFormatGuard.verify("查看 [99]。\n\n[99]: https://example.test", 0));
         // 但正文里同一编号仍然要被拦住，证明不是整篇放行。
         assertThrows(InvalidAnswerFormatException.class,
                 () -> AnswerFormatGuard.verify("查看 [1](https://example.test/[99])，另见 [99]。", 0));
+    }
+
+    @Test
+    @DisplayName("没有定义的引用式标签、尖括号与偶数反斜杠都不能绕过校验")
+    void undefinedReferenceAndLooseBracketsStillReject() {
+        // [missing] 没有定义，Flexmark 不认为它是链接，里面的 [1] 仍是正文编号。
+        assertThrows(InvalidAnswerFormatException.class,
+                () -> AnswerFormatGuard.verify("结论[1][missing]。", 0));
+        // <[1]> 不是自动链接（自动链接要求 URI 或邮箱），不能整段屏蔽。
+        assertThrows(InvalidAnswerFormatException.class, () -> AnswerFormatGuard.verify("结论 <[1]>。", 0));
+        // 两个真实反斜杠＝一个字面反斜杠，编号没有被转义。
+        assertThrows(InvalidAnswerFormatException.class, () -> AnswerFormatGuard.verify("结论 \\\\[1]。", 0));
+        // 一个反斜杠才是转义示例，按 Markdown 语义跳过。
+        assertDoesNotThrow(() -> AnswerFormatGuard.verify("结论 \\[1]。", 0));
     }
 
     @Test

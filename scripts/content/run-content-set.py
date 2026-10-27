@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 """Run the frozen UX-08 question set against a real backend and keep every attempt.
 
-为什么保存逐次尝试：上一次这个脚本只留下最后一次的 runId，重试会把首次尝试
-（包括守卫拒绝）覆盖掉，于是「零守卫拒绝」只能靠数据库旁证。现在每次尝试的
-运行 ID、状态、错误码、耗时与模型调用事件都单独留下，题级结论和尝试级结论
-分开统计。
+三件事是这份脚本必须做对的，前两轮验收都在这上面出过问题：
+
+1. 每次尝试都要留证（runId/状态/错误码/耗时/模型调用），重试不能覆盖第一次；
+2. 题级时延要用单调时钟把重试与退避一起包住，`wallMs` 只累加请求观察时间，
+   所以它不能标成「含退避」；
+3. 模型调用量要把 `MODEL_RETRY` 也算进去——生产把第二次及以后的真实请求记成这个类型。
 """
 import argparse
 import collections
@@ -23,6 +25,8 @@ PROMPT = os.path.join(ROOT, "docs", "public-demo", "v2-2026-10-19", "agent-syste
 MARKER = re.compile(r"\[(\d+)\]")
 SECRET = re.compile(r"(sk-[A-Za-z0-9_\-]{8,}|Bearer\s+[A-Za-z0-9._\-]+)")
 URL = re.compile(r"https?://[^\s\"'<>]+")
+# 生产把第一次请求记 MODEL_CALL、第二次及以后记 MODEL_RETRY，两者都算真实调用。
+MODEL_CALL_TYPES = ("MODEL_CALL", "MODEL_RETRY")
 
 state = {"csrf": None}
 
@@ -67,7 +71,7 @@ def markers_of(text):
 
 def ask(base, agent_id, session_id, question, key):
     """提交一次问题，返回这一次尝试的完整记录（不覆盖、不合并）。"""
-    started = time.time()
+    started = time.monotonic()
     status, submitted = call(base, "POST", "/api/chat-messages", {
         "agentId": agent_id, "sessionId": session_id, "role": "user",
         "content": question, "idempotencyKey": key,
@@ -85,10 +89,10 @@ def ask(base, agent_id, session_id, question, key):
     _, messages = call(base, "GET", "/api/chat-messages/session/%s" % session_id)
     all_messages = ((messages or {}).get("data") or {}).get("chatMessages") or []
     answer_id = detail.get("answerMessageId")
-    answer = next((m for m in all_messages if m.get("id") == answer_id), None) or {}
+    answer = next((message for message in all_messages if message.get("id") == answer_id), None) or {}
     text = answer.get("content") or ""
     citations = (answer.get("metadata") or {}).get("citations") or []
-    model_calls = [event for event in events if event.get("type") == "MODEL_CALL"]
+    model_calls = [event for event in events if event.get("type") in MODEL_CALL_TYPES]
     failures = [event for event in model_calls if (event.get("status") or "").upper() != "SUCCEEDED"]
     return {
         "runId": run_id,
@@ -96,12 +100,13 @@ def ask(base, agent_id, session_id, question, key):
         "status": detail.get("status"),
         "errorCode": detail.get("errorCode"),
         "durationMs": detail.get("durationMs"),
-        "wallMs": int((time.time() - started) * 1000),
+        "wallMs": int((time.monotonic() - started) * 1000),
         "traceIncomplete": detail.get("traceIncomplete"),
         "answerMessageId": answer_id,
         "answerChars": len(text),
         "markers": markers_of(text),
         "modelCalls": len(model_calls),
+        "modelRetries": sum(1 for event in model_calls if event.get("type") == "MODEL_RETRY"),
         "modelCallFailures": len(failures),
         "modelCallErrorCodes": sorted({event.get("errorCode") for event in failures if event.get("errorCode")}),
         "modelCallDetails": [sanitize(event.get("detail")) for event in failures][:3],
@@ -158,6 +163,8 @@ def main():
 
     results = []
     for item in spec["questions"]:
+        # 题级单调时钟：把两次尝试之间的退避也包进来。wallMs 不含退避，不能冒充端到端。
+        question_started = time.monotonic()
         attempts = []
         for attempt in range(1, max(1, args.attempts) + 1):
             key = "ux08-%s-%d-%d" % (item["id"], int(time.time() * 1000), attempt)
@@ -167,6 +174,7 @@ def main():
             if record["status"] == "SUCCEEDED":
                 break
             if attempt < args.attempts:
+                attempts[-1]["backoffMs"] = int(args.backoff * 1000)
                 time.sleep(args.backoff)
 
         final = attempts[-1]
@@ -179,6 +187,9 @@ def main():
             "expected": item["expected"], "maxChars": item["maxChars"],
             "status": final["status"], "errorCode": final["errorCode"],
             "attemptCount": len(attempts),
+            # 端到端：题级单调时钟，含全部尝试与退避。
+            "elapsedMsTotal": int((time.monotonic() - question_started) * 1000),
+            # 对照：只累加各次请求的观察时间，不含退避。
             "wallMsTotal": sum(record["wallMs"] for record in attempts),
             "attempts": [{key: value for key, value in record.items() if key != "answer"} for record in attempts],
             "answerChars": len(text), "withinBudget": len(text) <= item["maxChars"],
@@ -187,9 +198,9 @@ def main():
             "mustNotHits": must_not, "answer": text,
         }
         results.append(entry)
-        print("%s %s attempts=%d chars=%d citations=%d markers=%s unknown=%s%s" % (
-            entry["id"], entry["status"], entry["attemptCount"], entry["answerChars"],
-            len(entry["citations"]), entry["markers"], unknown,
+        print("%s %s attempts=%d elapsed=%dms chars=%d citations=%d markers=%s unknown=%s%s" % (
+            entry["id"], entry["status"], entry["attemptCount"], entry["elapsedMsTotal"],
+            entry["answerChars"], len(entry["citations"]), entry["markers"], unknown,
             (" mustNot=%s" % must_not) if must_not else ""))
         time.sleep(args.pause)
 
@@ -212,6 +223,7 @@ def main():
         "attemptGuardRejections": sum(1 for record in every if record["errorCode"] == "INVALID_ANSWER_FORMAT"),
         "runsTotal": len({record["runId"] for record in every if record["runId"]}),
         "modelCallsTotal": sum(record["modelCalls"] for record in every),
+        "modelRetriesTotal": sum(record["modelRetries"] for record in every),
         "modelCallsFailed": sum(record["modelCallFailures"] for record in every),
         "modelCallErrorCodes": dict(collections.Counter(
             code for record in every for code in record["modelCallErrorCodes"])),
@@ -223,16 +235,24 @@ def main():
         "withCitations": sum(1 for entry in ok if entry["citations"]),
         "unknownMarkers": sum(1 for entry in ok if entry["unknownMarkers"]),
         "mustNotHits": sum(1 for entry in ok if entry["mustNotHits"]),
+        # 后端耗时：运行时自己的 durationMs。
         "p50DurationMs": percentile([entry["attempts"][-1]["durationMs"] or 0 for entry in ok], 0.50),
         "p95DurationMs": percentile([entry["attempts"][-1]["durationMs"] or 0 for entry in ok], 0.95),
+        # 单次请求的观察时间（最后一次尝试），不含退避。
         "p50WallMs": percentile([entry["attempts"][-1]["wallMs"] for entry in ok], 0.50),
         "p95WallMs": percentile([entry["attempts"][-1]["wallMs"] for entry in ok], 0.95),
-        "p50WallMsAllAttempts": percentile([entry["wallMsTotal"] for entry in ok], 0.50),
-        "p95WallMsAllAttempts": percentile([entry["wallMsTotal"] for entry in ok], 0.95),
+        # 题级端到端：含全部尝试与退避。
+        "p50ElapsedMsTotal": percentile([entry["elapsedMsTotal"] for entry in ok], 0.50),
+        "p95ElapsedMsTotal": percentile([entry["elapsedMsTotal"] for entry in ok], 0.95),
+        # 对照：各次请求观察时间之和，不含退避（不要把这一项标成含退避）。
+        "p50WallMsTotal": percentile([entry["wallMsTotal"] for entry in ok], 0.50),
+        "p95WallMsTotal": percentile([entry["wallMsTotal"] for entry in ok], 0.95),
     }
     payload = {"version": spec["version"], "agentId": args.agent, "sessionId": session_id,
                "promptSha256": hashlib.sha256(prompt.encode("utf-8")).hexdigest(),
                "scriptSha256": hashlib.sha256(open(os.path.abspath(__file__), "rb").read()).hexdigest(),
+               "runParams": {"pauseSeconds": args.pause, "backoffSeconds": args.backoff,
+                             "maxAttempts": args.attempts, "only": args.only},
                "ranAt": time.strftime("%Y-%m-%dT%H:%M:%S"), "summary": summary, "results": results}
     os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
     json.dump(payload, open(args.out, "w", encoding="utf-8"), ensure_ascii=False, indent=2)

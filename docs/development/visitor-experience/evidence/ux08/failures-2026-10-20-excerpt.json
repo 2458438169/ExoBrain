@@ -1,0 +1,19 @@
+{
+  "logFile": "C:\\Users\\Sharmoon\\.pi-desktop\\scratch\\2ab9f297-3b17-4936-aa76-3f633280080c\\ux08-clean-app.log",
+  "logSha256": "1e2ce478fd0c94c244a5d0895e1685533a742b32c821824f6d51aa3ad61aa869",
+  "logLines": 1631,
+  "timeRange": {
+    "first": "2026-10-27T15:59:28",
+    "last": "2026-10-27T16:06:09"
+  },
+  "httpStatuses": {
+    "429": 29
+  },
+  "exceptionTypes": {},
+  "exceptionMessages": {},
+  "guardRejections": {},
+  "httpFailureCount": 29,
+  "wrappedCallFailureCount": 0,
+  "modelFailureTotal": 29,
+  "countingRule": "max(httpFailureCount, wrappedCallFailureCount)：HTTP 错误两行计一次，非 HTTP 错误只有一行"
+}
