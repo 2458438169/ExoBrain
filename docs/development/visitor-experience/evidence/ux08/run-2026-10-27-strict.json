@@ -1,0 +1,2619 @@
+{
+  "version": "ux08-2026-10-20",
+  "agentId": "b22dfb07-b159-4402-8d44-9af467a3d4d8",
+  "sessionId": "cb598a4d-e943-4c6e-8e47-f3ebd8f41092",
+  "promptSha256": "fa83d379d5768d3d05ed86e84d76c8b9b148c044fa2bb7bae74729879b87e169",
+  "scriptSha256": "d315583c45d93ae12ae8972c88e90f114b17bdaa0fe1cd312f6f08803876d46d",
+  "ranAt": "2026-10-27T21:06:34",
+  "summary": {
+    "total": 30,
+    "succeeded": 25,
+    "failed": 5,
+    "byStatus": {
+      "SUCCEEDED": 25,
+      "FAILED": 5
+    },
+    "byErrorCode": {
+      "INVALID_ANSWER_FORMAT": 5
+    },
+    "finalGuardRejections": 5,
+    "attemptsTotal": 41,
+    "attemptsSucceeded": 25,
+    "attemptsFailed": 16,
+    "attemptErrorCodes": {
+      "EXECUTION_FAILED": 7,
+      "INVALID_ANSWER_FORMAT": 9
+    },
+    "attemptGuardRejections": 9,
+    "runsTotal": 41,
+    "modelCallsTotal": 73,
+    "modelCallsFailed": 7,
+    "modelCallErrorCodes": {
+      "MODEL_CALL_FAILED": 7
+    },
+    "modelCallDetails": {},
+    "traceIncomplete": 0,
+    "withinBudget": 22,
+    "withCitations": 25,
+    "unknownMarkers": 0,
+    "mustNotHits": 0,
+    "p50DurationMs": 7065,
+    "p95DurationMs": 9619,
+    "p50WallMs": 8172,
+    "p95WallMs": 10194,
+    "p50WallMsAllAttempts": 8181,
+    "p95WallMsAllAttempts": 12335
+  },
+  "results": [
+    {
+      "id": "Q01",
+      "kind": "recommended",
+      "question": "用一句话和三个要点说明 ExoBrain 能做什么，并指出我可以亲自体验的能力。",
+      "expected": [
+        "01_product_guide: 一句话定位 + 三条体验路径"
+      ],
+      "maxChars": 350,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 1,
+      "wallMsTotal": 10159,
+      "attempts": [
+        {
+          "runId": "e00f44ae-2e5e-4722-be3d-1610a26b06c7",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "durationMs": 8414,
+          "wallMs": 10159,
+          "traceIncomplete": false,
+          "answerMessageId": "1f97a6c9-9c18-455d-8ebd-95a8f87a9a38",
+          "answerChars": 371,
+          "markers": [
+            1,
+            2,
+            3
+          ],
+          "modelCalls": 2,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 5,
+            "TOOL_CALL": 3,
+            "RETRIEVAL": 2
+          },
+          "citations": [
+            {
+              "label": 1,
+              "documentName": "01_product_guide.md",
+              "startLine": 9,
+              "endLine": 15,
+              "excerpt": "ExoBrain 是一个可核验的 RAG 问答项目：它检索公开资料、给出带原文出处的回答，并把一次回答的执行过程记录下来供核对。 三个要点： 1. **回答带出处**：模型必须通过检索工具拿到资料片段才组织结论，回答里的每条来源都指向具体文档、行号范围与片段哈希。 2. **过程可核对**：每轮问答都有运行记录，包含模"
+            },
+            {
+              "label": 2,
+              "documentName": "01_product_guide.md",
+              "startLine": 19,
+              "endLine": 23,
+              "excerpt": "| 体验路径 | 你会看到什么 | 依据 | | --- | --- | --- | | 直接提问 | 一句结论 + 几条要点，下面挂来源；点开来源可看到原文对应段落 | 公开知识库检索、引用投影、原文预览 | | 查看执行过程 | 展开「查看过程」可看到这一轮的模型、检索、工具与落库步骤及其耗时 | 运行摘要与事件表"
+            },
+            {
+              "label": 3,
+              "documentName": "01_product_guide.md",
+              "startLine": 33,
+              "endLine": 36,
+              "excerpt": "- 游客模式不需要登录，只能看到公开资料与自己的会话；看不到任何其他访客或账号的数据。 - 账号模式下管理员也不能读取其他用户私有知识库、助手与会话的运行记录。 - 公开资料的范围由配置明确发布，未发布的路径在网关层就会被拒绝，而不是仅靠前端隐藏入口。 - 游客可以取消自己正在执行的回答；公开只读示例不可取消、不可续写"
+            }
+          ],
+          "attempt": 1
+        }
+      ],
+      "answerChars": 371,
+      "withinBudget": false,
+      "citations": [
+        {
+          "label": 1,
+          "documentName": "01_product_guide.md",
+          "startLine": 9,
+          "endLine": 15,
+          "excerpt": "ExoBrain 是一个可核验的 RAG 问答项目：它检索公开资料、给出带原文出处的回答，并把一次回答的执行过程记录下来供核对。 三个要点： 1. **回答带出处**：模型必须通过检索工具拿到资料片段才组织结论，回答里的每条来源都指向具体文档、行号范围与片段哈希。 2. **过程可核对**：每轮问答都有运行记录，包含模"
+        },
+        {
+          "label": 2,
+          "documentName": "01_product_guide.md",
+          "startLine": 19,
+          "endLine": 23,
+          "excerpt": "| 体验路径 | 你会看到什么 | 依据 | | --- | --- | --- | | 直接提问 | 一句结论 + 几条要点，下面挂来源；点开来源可看到原文对应段落 | 公开知识库检索、引用投影、原文预览 | | 查看执行过程 | 展开「查看过程」可看到这一轮的模型、检索、工具与落库步骤及其耗时 | 运行摘要与事件表"
+        },
+        {
+          "label": 3,
+          "documentName": "01_product_guide.md",
+          "startLine": 33,
+          "endLine": 36,
+          "excerpt": "- 游客模式不需要登录，只能看到公开资料与自己的会话；看不到任何其他访客或账号的数据。 - 账号模式下管理员也不能读取其他用户私有知识库、助手与会话的运行记录。 - 公开资料的范围由配置明确发布，未发布的路径在网关层就会被拒绝，而不是仅靠前端隐藏入口。 - 游客可以取消自己正在执行的回答；公开只读示例不可取消、不可续写"
+        }
+      ],
+      "markers": [
+        1,
+        2,
+        3
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "ExoBrain 是一个可核验的 RAG 问答项目：它检索公开资料、给出带出处的回答，并记录每轮的执行过程供核对 [1]。\n\n1. 回答带出处：模型必须先通过检索拿到资料片段才能组织结论，每条来源都指向具体文档、行号范围与片段哈希 [1]。\n2. 过程可核对：每轮问答都有运行记录，包含模型调用、工具调用、检索与落库的真实耗时和状态，失败、取消、中断都如实显示 [1]。\n3. 失败可恢复：重复点击发送不会重复执行，刷新页面不会丢问题，服务重启时结果未知的任务不会被悄悄重放 [1]。\n\n你可以亲自体验的是「直接提问」这条路径：提问后看到一句结论加几条要点、下面挂来源，点开来源可查看原文对应段落 [2]。此外还可展开「查看过程」逐轮核对执行步骤，或直接追问「有什么做不到」来说明边界 [2]。游客模式下你看不到其他访客或账号的数据 [3]。"
+    },
+    {
+      "id": "Q02",
+      "kind": "recommended",
+      "question": "这个项目如何让我核对答案的依据？请说明引用和原文的关系。",
+      "expected": [
+        "01_product_guide: 回答带出处/来源可核对",
+        "03_contribution_map: 可核验引用（行号/hash）"
+      ],
+      "maxChars": 350,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 1,
+      "wallMsTotal": 8132,
+      "attempts": [
+        {
+          "runId": "89555615-fb2f-4c21-aa3c-2bb8f9193166",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "durationMs": 6895,
+          "wallMs": 8132,
+          "traceIncomplete": false,
+          "answerMessageId": "757ff1bd-6004-463c-bb00-0773b8a88786",
+          "answerChars": 248,
+          "markers": [
+            1,
+            2,
+            3
+          ],
+          "modelCalls": 2,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 5,
+            "TOOL_CALL": 3,
+            "RETRIEVAL": 2
+          },
+          "citations": [
+            {
+              "label": 1,
+              "documentName": "01_product_guide.md",
+              "startLine": 27,
+              "endLine": 29,
+              "excerpt": "能解决：需要从一批文档里快速得到有出处答案的问题，以及需要证明「答案来自哪一段原文」的场景。 不能解决：需要实时联网数据的问题（检索范围只是已发布的知识库）、需要精确数值计算与外部系统写入的问题、以及把引用等同于事实核验的问题。引用只说明「这条来源被服务端校验过」，不代表模型组织的结论一定正确，仍需人工判断。"
+            },
+            {
+              "label": 2,
+              "documentName": "01_product_guide.md",
+              "startLine": 9,
+              "endLine": 15,
+              "excerpt": "ExoBrain 是一个可核验的 RAG 问答项目：它检索公开资料、给出带原文出处的回答，并把一次回答的执行过程记录下来供核对。 三个要点： 1. **回答带出处**：模型必须通过检索工具拿到资料片段才组织结论，回答里的每条来源都指向具体文档、行号范围与片段哈希。 2. **过程可核对**：每轮问答都有运行记录，包含模"
+            },
+            {
+              "label": 3,
+              "documentName": "03_contribution_map.md",
+              "startLine": 22,
+              "endLine": 31,
+              "excerpt": "| 能力 | 一句话说明 | 主要依据 | 验证范围 | | --- | --- | --- | --- | | Markdown 解析隔离 | 每份文档独立解析状态，避免并发导入时共享可变状态互相污染 | 解析服务与并发用例 | 单元测试（含并发场景） | | 检索评测与冻结资产 | 题集、语料清单、冻结哈希与评测脚"
+            }
+          ],
+          "attempt": 1
+        }
+      ],
+      "answerChars": 248,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "documentName": "01_product_guide.md",
+          "startLine": 27,
+          "endLine": 29,
+          "excerpt": "能解决：需要从一批文档里快速得到有出处答案的问题，以及需要证明「答案来自哪一段原文」的场景。 不能解决：需要实时联网数据的问题（检索范围只是已发布的知识库）、需要精确数值计算与外部系统写入的问题、以及把引用等同于事实核验的问题。引用只说明「这条来源被服务端校验过」，不代表模型组织的结论一定正确，仍需人工判断。"
+        },
+        {
+          "label": 2,
+          "documentName": "01_product_guide.md",
+          "startLine": 9,
+          "endLine": 15,
+          "excerpt": "ExoBrain 是一个可核验的 RAG 问答项目：它检索公开资料、给出带原文出处的回答，并把一次回答的执行过程记录下来供核对。 三个要点： 1. **回答带出处**：模型必须通过检索工具拿到资料片段才组织结论，回答里的每条来源都指向具体文档、行号范围与片段哈希。 2. **过程可核对**：每轮问答都有运行记录，包含模"
+        },
+        {
+          "label": 3,
+          "documentName": "03_contribution_map.md",
+          "startLine": 22,
+          "endLine": 31,
+          "excerpt": "| 能力 | 一句话说明 | 主要依据 | 验证范围 | | --- | --- | --- | --- | | Markdown 解析隔离 | 每份文档独立解析状态，避免并发导入时共享可变状态互相污染 | 解析服务与并发用例 | 单元测试（含并发场景） | | 检索评测与冻结资产 | 题集、语料清单、冻结哈希与评测脚"
+        }
+      ],
+      "markers": [
+        1,
+        2,
+        3
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "核对方式是：每个引用编号都能点开，看到它指向的具体文档、行号范围与那段原文，你逐字对照即可判断结论有没有被原文支撑。\n\n1. 引用只登记本轮真实完成的检索结果，写入消息的 `metadata.citations`，界面按行定位原文 [3]。\n2. 回答里的每条来源都指向具体文档、行号范围与片段哈希，因此「引用 → 原文段落」是可定位、可逐字比对的关系 [2]。\n3. 但引用仅说明这条来源被服务端校验过，不代表模型组织的结论一定正确，仍需你人工判断 [1]。\n\n一句话边界：引用不等于事实核验。"
+    },
+    {
+      "id": "Q03",
+      "kind": "recommended",
+      "question": "在上游 JChatMind 的基础上，这个仓库新增了哪些能力？请区分继承和新增。",
+      "expected": [
+        "03_contribution_map: 继承（Agent 循环/工具/持久化/SSE）与新增（正文索引、运行追踪、持久队列等）"
+      ],
+      "maxChars": 350,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 1,
+      "wallMsTotal": 10190,
+      "attempts": [
+        {
+          "runId": "93708f85-d203-4706-ac8d-b72dea6ab1b9",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "durationMs": 9257,
+          "wallMs": 10190,
+          "traceIncomplete": false,
+          "answerMessageId": "9975cb7c-f188-4cc9-9ddb-2c61121fc11c",
+          "answerChars": 351,
+          "markers": [
+            1,
+            2
+          ],
+          "modelCalls": 3,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 3,
+            "PERSIST_MESSAGE": 7,
+            "TOOL_CALL": 4,
+            "RETRIEVAL": 3
+          },
+          "citations": [
+            {
+              "label": 1,
+              "documentName": "03_contribution_map.md",
+              "startLine": 9,
+              "endLine": 18,
+              "excerpt": "上游是 JChatMind：一个 Java + Spring Boot + Spring AI 的 AI Agent 示例项目，前端为 React，数据库为 PostgreSQL 加 pgvector 向量扩展。本项目保留了这些核心能力： - Agent 主循环：模型判断下一步 → 执行工具 → 读取工具结果 → 继续"
+            },
+            {
+              "label": 2,
+              "documentName": "03_contribution_map.md",
+              "startLine": 22,
+              "endLine": 31,
+              "excerpt": "| 能力 | 一句话说明 | 主要依据 | 验证范围 | | --- | --- | --- | --- | | Markdown 解析隔离 | 每份文档独立解析状态，避免并发导入时共享可变状态互相污染 | 解析服务与并发用例 | 单元测试（含并发场景） | | 检索评测与冻结资产 | 题集、语料清单、冻结哈希与评测脚"
+            }
+          ],
+          "attempt": 1
+        }
+      ],
+      "answerChars": 351,
+      "withinBudget": false,
+      "citations": [
+        {
+          "label": 1,
+          "documentName": "03_contribution_map.md",
+          "startLine": 9,
+          "endLine": 18,
+          "excerpt": "上游是 JChatMind：一个 Java + Spring Boot + Spring AI 的 AI Agent 示例项目，前端为 React，数据库为 PostgreSQL 加 pgvector 向量扩展。本项目保留了这些核心能力： - Agent 主循环：模型判断下一步 → 执行工具 → 读取工具结果 → 继续"
+        },
+        {
+          "label": 2,
+          "documentName": "03_contribution_map.md",
+          "startLine": 22,
+          "endLine": 31,
+          "excerpt": "| 能力 | 一句话说明 | 主要依据 | 验证范围 | | --- | --- | --- | --- | | Markdown 解析隔离 | 每份文档独立解析状态，避免并发导入时共享可变状态互相污染 | 解析服务与并发用例 | 单元测试（含并发场景） | | 检索评测与冻结资产 | 题集、语料清单、冻结哈希与评测脚"
+        }
+      ],
+      "markers": [
+        1,
+        2
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "一句话结论：本仓库在 JChatMind 的 Agent 骨架上，重点补的是「可核验」与「不丢不重」两类工程能力。\n\n- **继承**：Agent 主循环、工具装配、会话与消息持久化、SSE 状态推送，以及基础 Markdown 解析与向量检索链路，都是上游已有、本仓库保留的部分 [1]。\n- **新增（可核验链路）**：正文级索引让每条来源带上 documentId、sourceHash 与行号范围，引用只登记本轮真实检索结果并在界面按行定位原文 [2]。\n- **新增（可靠执行）**：持久化导入队列与对话任务表，配合租约、fencing 与幂等键，取消、中断和迟到写入都有明确语义 [1]。\n\n边界上，真正的逐字流式输出、跨实例自动迁移与外部调用 exactly-once 都不在本版范围内。"
+    },
+    {
+      "id": "Q04",
+      "kind": "rewrite",
+      "question": "为什么这个问答系统值得信任？",
+      "expected": [
+        "01_product_guide: 回答带出处 + 过程可核对",
+        "03_contribution_map: 验证范围"
+      ],
+      "maxChars": 350,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 2,
+      "wallMsTotal": 10249,
+      "attempts": [
+        {
+          "runId": "12a2526a-ed27-418e-8df9-385abda21009",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "durationMs": 725,
+          "wallMs": 2108,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "attempt": 1
+        },
+        {
+          "runId": "1cdda971-4abd-453b-a92d-54681cc916d5",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "durationMs": 7455,
+          "wallMs": 8141,
+          "traceIncomplete": false,
+          "answerMessageId": "e608bea0-c6d8-4010-85a1-94769e35449f",
+          "answerChars": 296,
+          "markers": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "modelCalls": 2,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 5,
+            "TOOL_CALL": 3,
+            "RETRIEVAL": 2
+          },
+          "citations": [
+            {
+              "label": 1,
+              "documentName": "01_product_guide.md",
+              "startLine": 27,
+              "endLine": 29,
+              "excerpt": "能解决：需要从一批文档里快速得到有出处答案的问题，以及需要证明「答案来自哪一段原文」的场景。 不能解决：需要实时联网数据的问题（检索范围只是已发布的知识库）、需要精确数值计算与外部系统写入的问题、以及把引用等同于事实核验的问题。引用只说明「这条来源被服务端校验过」，不代表模型组织的结论一定正确，仍需人工判断。"
+            },
+            {
+              "label": 2,
+              "documentName": "03_contribution_map.md",
+              "startLine": 22,
+              "endLine": 31,
+              "excerpt": "| 能力 | 一句话说明 | 主要依据 | 验证范围 | | --- | --- | --- | --- | | Markdown 解析隔离 | 每份文档独立解析状态，避免并发导入时共享可变状态互相污染 | 解析服务与并发用例 | 单元测试（含并发场景） | | 检索评测与冻结资产 | 题集、语料清单、冻结哈希与评测脚"
+            },
+            {
+              "label": 3,
+              "documentName": "01_product_guide.md",
+              "startLine": 19,
+              "endLine": 23,
+              "excerpt": "| 体验路径 | 你会看到什么 | 依据 | | --- | --- | --- | | 直接提问 | 一句结论 + 几条要点，下面挂来源；点开来源可看到原文对应段落 | 公开知识库检索、引用投影、原文预览 | | 查看执行过程 | 展开「查看过程」可看到这一轮的模型、检索、工具与落库步骤及其耗时 | 运行摘要与事件表"
+            },
+            {
+              "label": 4,
+              "documentName": "02_engineering_cases.md",
+              "startLine": 66,
+              "endLine": 68,
+              "excerpt": "- 优先保证「不骗人」：宁可把一个运行标成中断，也不写回一个无法证明归属的结果。 - 所有结论都带可复核的证据：数据库断言、真实 HTTP 请求、真实模型调用。 - 没有做的不要装作做了：真正的逐字流式输出、跨实例自动迁移、外部调用 exactly-once 都不在本版范围。"
+            }
+          ],
+          "attempt": 2
+        }
+      ],
+      "answerChars": 296,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "documentName": "01_product_guide.md",
+          "startLine": 27,
+          "endLine": 29,
+          "excerpt": "能解决：需要从一批文档里快速得到有出处答案的问题，以及需要证明「答案来自哪一段原文」的场景。 不能解决：需要实时联网数据的问题（检索范围只是已发布的知识库）、需要精确数值计算与外部系统写入的问题、以及把引用等同于事实核验的问题。引用只说明「这条来源被服务端校验过」，不代表模型组织的结论一定正确，仍需人工判断。"
+        },
+        {
+          "label": 2,
+          "documentName": "03_contribution_map.md",
+          "startLine": 22,
+          "endLine": 31,
+          "excerpt": "| 能力 | 一句话说明 | 主要依据 | 验证范围 | | --- | --- | --- | --- | | Markdown 解析隔离 | 每份文档独立解析状态，避免并发导入时共享可变状态互相污染 | 解析服务与并发用例 | 单元测试（含并发场景） | | 检索评测与冻结资产 | 题集、语料清单、冻结哈希与评测脚"
+        },
+        {
+          "label": 3,
+          "documentName": "01_product_guide.md",
+          "startLine": 19,
+          "endLine": 23,
+          "excerpt": "| 体验路径 | 你会看到什么 | 依据 | | --- | --- | --- | | 直接提问 | 一句结论 + 几条要点，下面挂来源；点开来源可看到原文对应段落 | 公开知识库检索、引用投影、原文预览 | | 查看执行过程 | 展开「查看过程」可看到这一轮的模型、检索、工具与落库步骤及其耗时 | 运行摘要与事件表"
+        },
+        {
+          "label": 4,
+          "documentName": "02_engineering_cases.md",
+          "startLine": 66,
+          "endLine": 68,
+          "excerpt": "- 优先保证「不骗人」：宁可把一个运行标成中断，也不写回一个无法证明归属的结果。 - 所有结论都带可复核的证据：数据库断言、真实 HTTP 请求、真实模型调用。 - 没有做的不要装作做了：真正的逐字流式输出、跨实例自动迁移、外部调用 exactly-once 都不在本版范围。"
+        }
+      ],
+      "markers": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "结论：它值得信任的地方不在模型本身，而在于答案可溯源、过程可回看、边界敢明说。\n\n- **引用有登记**：引用只登记本轮真实完成的检索结果，点到来源可按行定位原文，行号经过与语料逐字符比对 [2]。\n- **过程可检查**：每轮问答都有运行摘要与事件，展开「查看过程」能看到模型、检索、工具与落库步骤及其耗时 [3]。\n- **取舍是「不骗人」**：宁可把一次运行标成中断，也不写回无法证明归属的结果；没做的部分（逐字流式、跨实例迁移、外部调用 exactly-once）不假装做了 [4]。\n\n但要提醒：引用只说明这条来源被服务端校验过，不代表模型组织的结论一定正确，仍需人工判断 [1]。"
+    },
+    {
+      "id": "Q05",
+      "kind": "rewrite",
+      "question": "这个项目解决什么问题？",
+      "expected": [
+        "01_product_guide: 需要从文档里得到有出处答案"
+      ],
+      "maxChars": 300,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 1,
+      "wallMsTotal": 8158,
+      "attempts": [
+        {
+          "runId": "a006fe85-196c-4e10-926d-55e66de290ad",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "durationMs": 6826,
+          "wallMs": 8158,
+          "traceIncomplete": false,
+          "answerMessageId": "f3033619-d41b-4d34-abb8-a1d1c0ba22a7",
+          "answerChars": 232,
+          "markers": [
+            1,
+            2
+          ],
+          "modelCalls": 2,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 4,
+            "TOOL_CALL": 2,
+            "RETRIEVAL": 1
+          },
+          "citations": [
+            {
+              "label": 1,
+              "documentName": "01_product_guide.md",
+              "startLine": 3,
+              "endLine": 5,
+              "excerpt": "本文用于回答「这个项目能做什么、我在这里能亲自体验什么、哪些能力有边界」。核对日期：2026-10-19。 凡是标注「已实现」的，指仓库源码中存在对应逻辑；标注「已在线上验证」的，指在本次核对时通过真实请求确认过。 没有标注的内容不应被当作能力承诺。"
+            },
+            {
+              "label": 2,
+              "documentName": "01_product_guide.md",
+              "startLine": 27,
+              "endLine": 29,
+              "excerpt": "能解决：需要从一批文档里快速得到有出处答案的问题，以及需要证明「答案来自哪一段原文」的场景。 不能解决：需要实时联网数据的问题（检索范围只是已发布的知识库）、需要精确数值计算与外部系统写入的问题、以及把引用等同于事实核验的问题。引用只说明「这条来源被服务端校验过」，不代表模型组织的结论一定正确，仍需人工判断。"
+            }
+          ],
+          "attempt": 1
+        }
+      ],
+      "answerChars": 232,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "documentName": "01_product_guide.md",
+          "startLine": 3,
+          "endLine": 5,
+          "excerpt": "本文用于回答「这个项目能做什么、我在这里能亲自体验什么、哪些能力有边界」。核对日期：2026-10-19。 凡是标注「已实现」的，指仓库源码中存在对应逻辑；标注「已在线上验证」的，指在本次核对时通过真实请求确认过。 没有标注的内容不应被当作能力承诺。"
+        },
+        {
+          "label": 2,
+          "documentName": "01_product_guide.md",
+          "startLine": 27,
+          "endLine": 29,
+          "excerpt": "能解决：需要从一批文档里快速得到有出处答案的问题，以及需要证明「答案来自哪一段原文」的场景。 不能解决：需要实时联网数据的问题（检索范围只是已发布的知识库）、需要精确数值计算与外部系统写入的问题、以及把引用等同于事实核验的问题。引用只说明「这条来源被服务端校验过」，不代表模型组织的结论一定正确，仍需人工判断。"
+        }
+      ],
+      "markers": [
+        1,
+        2
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "结论：它解决的是「从一批文档里快速得到有出处答案」的问题。\n\n- **核心场景**：需要从已发布的知识库文档中快速拿到有出处的答案，并能证明答案来自哪一段原文 [2]。\n- **边界：做不到什么**：不做实时联网数据、不做精确数值计算与外部系统写入；它也不会把引用等同于事实核验，结论仍需人工判断 [2]。\n- **口径说明**：资料里标注「已实现」，是指源码中存在对应逻辑；标注「已在线上验证」，是指核对时通过真实请求确认过；未标注的内容不构成能力承诺 [1]。"
+    },
+    {
+      "id": "Q06",
+      "kind": "boundary",
+      "question": "网络不好，我重复点了发送，会运行两次吗？",
+      "expected": [
+        "02_engineering_cases: 案例一（幂等键，最多执行一次；不是外部调用 exactly-once）"
+      ],
+      "maxChars": 350,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 1,
+      "wallMsTotal": 8192,
+      "attempts": [
+        {
+          "runId": "091a3818-2218-46a3-b4bb-9655e2923d77",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "durationMs": 6489,
+          "wallMs": 8192,
+          "traceIncomplete": false,
+          "answerMessageId": "943a8aa2-1230-4d7d-94f3-0677798e268a",
+          "answerChars": 253,
+          "markers": [
+            1,
+            2
+          ],
+          "modelCalls": 2,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 4,
+            "TOOL_CALL": 2,
+            "RETRIEVAL": 1
+          },
+          "citations": [
+            {
+              "label": 1,
+              "documentName": "02_engineering_cases.md",
+              "startLine": 8,
+              "endLine": 22,
+              "excerpt": "**问题**：网络慢的时候用户会连点发送，或者请求其实已经到服务器但响应丢了。如果后端每收到一次就执行一次， 会出现两条用户消息、两个模型调用、两笔费用，甚至两条不同的回答挂在同一个问题上。 **方案**：把「一次提问」变成带唯一键的提交意图，服务端按 `(身份, 会话, 幂等键)` 去重。 - 前端为每个「新的提问意"
+            },
+            {
+              "label": 2,
+              "documentName": "03_contribution_map.md",
+              "startLine": 44,
+              "endLine": 48,
+              "excerpt": "- **逐字流式输出**：当前回答由一次同步模型调用产生并通过工具参数交付，界面只有执行状态流， 没有正文的增量推送。任何「打字机效果」都不是流式实现。 - **对外部调用的 exactly-once**：幂等只覆盖「同一会话的同一提交意图」，不覆盖模型或第三方服务。 - **管理员跨用户读取**：这是刻意不做的隔离，"
+            }
+          ],
+          "attempt": 1
+        }
+      ],
+      "answerChars": 253,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "documentName": "02_engineering_cases.md",
+          "startLine": 8,
+          "endLine": 22,
+          "excerpt": "**问题**：网络慢的时候用户会连点发送，或者请求其实已经到服务器但响应丢了。如果后端每收到一次就执行一次， 会出现两条用户消息、两个模型调用、两笔费用，甚至两条不同的回答挂在同一个问题上。 **方案**：把「一次提问」变成带唯一键的提交意图，服务端按 `(身份, 会话, 幂等键)` 去重。 - 前端为每个「新的提问意"
+        },
+        {
+          "label": 2,
+          "documentName": "03_contribution_map.md",
+          "startLine": 44,
+          "endLine": 48,
+          "excerpt": "- **逐字流式输出**：当前回答由一次同步模型调用产生并通过工具参数交付，界面只有执行状态流， 没有正文的增量推送。任何「打字机效果」都不是流式实现。 - **对外部调用的 exactly-once**：幂等只覆盖「同一会话的同一提交意图」，不覆盖模型或第三方服务。 - **管理员跨用户读取**：这是刻意不做的隔离，"
+        }
+      ],
+      "markers": [
+        1,
+        2
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "结论：正常情况下不会跑两次，同一个提问意图最多执行一次。\n\n- 重试与重连复用同一个幂等键，服务端按「身份、会话、幂等键」去重，同键再来时只返回原来那次运行的 `runId` 和状态，不新建运行 [1]。\n- 已在真实 PostgreSQL 集成测试与真实浏览器「丢弃首个响应后重试」中验证：只产生一个运行、一条用户消息、一次模型调用 [1]。\n- 边界：这只覆盖同一会话的同一提交意图，不是对外部调用的 exactly-once 承诺，模型请求本身仍可能被重复发出，系统只保证结果写入与终态唯一 [2]。"
+    },
+    {
+      "id": "Q07",
+      "kind": "boundary",
+      "question": "点击取消之后模型又返回了，会发生什么？",
+      "expected": [
+        "02_engineering_cases: 案例二（fencing、迟到答案整笔回滚）"
+      ],
+      "maxChars": 350,
+      "status": "FAILED",
+      "errorCode": "INVALID_ANSWER_FORMAT",
+      "attemptCount": 2,
+      "wallMsTotal": 10293,
+      "attempts": [
+        {
+          "runId": "7d4233cf-f25d-4cbd-b747-b12593cb0ef5",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "durationMs": 4653,
+          "wallMs": 6145,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 2,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 2,
+            "TOOL_CALL": 1,
+            "RETRIEVAL": 1
+          },
+          "citations": [],
+          "attempt": 1
+        },
+        {
+          "runId": "ee691606-854d-4985-8acc-e4a517a69929",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "INVALID_ANSWER_FORMAT",
+          "durationMs": 3468,
+          "wallMs": 4148,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "attempt": 2
+        }
+      ],
+      "answerChars": 0,
+      "withinBudget": true,
+      "citations": [],
+      "markers": [],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": ""
+    },
+    {
+      "id": "Q08",
+      "kind": "boundary",
+      "question": "后端重启后，正在跑的任务会怎么样？",
+      "expected": [
+        "01_product_guide 的失败可恢复 + 02_engineering_cases 的租约/中断语义"
+      ],
+      "maxChars": 350,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 1,
+      "wallMsTotal": 8146,
+      "attempts": [
+        {
+          "runId": "98f2ef8a-b4a6-4989-9474-72806144c29b",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "durationMs": 6757,
+          "wallMs": 8146,
+          "traceIncomplete": false,
+          "answerMessageId": "4d1ea540-15b9-4306-ac45-50fcbb306ae5",
+          "answerChars": 412,
+          "markers": [
+            1,
+            2
+          ],
+          "modelCalls": 2,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 4,
+            "TOOL_CALL": 2,
+            "RETRIEVAL": 1
+          },
+          "citations": [
+            {
+              "label": 1,
+              "documentName": "02_engineering_cases.md",
+              "startLine": 46,
+              "endLine": 62,
+              "excerpt": "**问题**：租约续期、心跳、写消息都是对数据库的写操作。当某一行被一条慢事务锁住时，续期会卡在锁上。 如果多个运行共用同一个后台线程，一个任务的锁等待就会拖住所有任务的心跳，别的运行被误判成中断。 **方案**：把「锁等待」变成有界、可放弃的动作，并且每个运行独立。 - 每个租约使用自己的单线程调度器，心跳续期走独立"
+            },
+            {
+              "label": 2,
+              "documentName": "02_engineering_cases.md",
+              "startLine": 26,
+              "endLine": 42,
+              "excerpt": "**问题**：取消是个协作式动作。已经发出去的模型请求无法撤回，几秒后它可能仍然返回一段完整答案。 如果不加约束，这段时间里运行可能已经被标记为取消，而答案又被追加到会话里，用户看到「已取消 + 又有回答」。 **方案**：把「请求取消」和「运行终态」分开，并给每一次执行加 fencing 校验。 - 运行中的取消只登"
+            }
+          ],
+          "attempt": 1
+        }
+      ],
+      "answerChars": 412,
+      "withinBudget": false,
+      "citations": [
+        {
+          "label": 1,
+          "documentName": "02_engineering_cases.md",
+          "startLine": 46,
+          "endLine": 62,
+          "excerpt": "**问题**：租约续期、心跳、写消息都是对数据库的写操作。当某一行被一条慢事务锁住时，续期会卡在锁上。 如果多个运行共用同一个后台线程，一个任务的锁等待就会拖住所有任务的心跳，别的运行被误判成中断。 **方案**：把「锁等待」变成有界、可放弃的动作，并且每个运行独立。 - 每个租约使用自己的单线程调度器，心跳续期走独立"
+        },
+        {
+          "label": 2,
+          "documentName": "02_engineering_cases.md",
+          "startLine": 26,
+          "endLine": 42,
+          "excerpt": "**问题**：取消是个协作式动作。已经发出去的模型请求无法撤回，几秒后它可能仍然返回一段完整答案。 如果不加约束，这段时间里运行可能已经被标记为取消，而答案又被追加到会话里，用户看到「已取消 + 又有回答」。 **方案**：把「请求取消」和「运行终态」分开，并给每一次执行加 fencing 校验。 - 运行中的取消只登"
+        }
+      ],
+      "markers": [
+        1,
+        2
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "**点击取消后模型又迟到返回：答案会被整笔丢弃，不会追加到会话里。**\n\n- 取消只是登记 `cancel_requested`，检查点在下一步前停止发起新调用，最终记为 `CANCELLED`。 [2]\n- 写答案要求「任务行仍是 RUNNING」且「fencing 未被接管」同时成立；条件不满足就回滚，迟到的内容一个字都不留。 [2]\n- 已验证：18 秒模型调用、10 秒租约的用例中，取消后终态为 `CANCELLED`，迟到响应不追加答复。 [2]\n\n**后端重启后正在跑的任务：会被判定为中断，不会写回无法证明归属的结果。**\n\n- 判断「重启遗留的 RUNNING」靠摘要心跳，它改成了有界写，写完再确认一次，避免无限等待。 [1]\n- 资料没有写重启后是否会从头重跑；只说明取消、心跳跨周期与重启遗留各有独立判定，不互相顶替。 [2]\n\n[2] 案例二（取消与迟到响应） [1] 案例三（锁等待与摘要心跳）"
+    },
+    {
+      "id": "Q09",
+      "kind": "boundary",
+      "question": "一个任务变慢会连累其他任务吗？",
+      "expected": [
+        "02_engineering_cases: 案例三（独立心跳、lock_timeout、有界等待）"
+      ],
+      "maxChars": 350,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 1,
+      "wallMsTotal": 6175,
+      "attempts": [
+        {
+          "runId": "594e0553-f3eb-41ed-92fb-3a42129fedac",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "durationMs": 5831,
+          "wallMs": 6175,
+          "traceIncomplete": false,
+          "answerMessageId": "9ce0b5bb-718e-44cc-b17b-67be010657c8",
+          "answerChars": 303,
+          "markers": [
+            1
+          ],
+          "modelCalls": 2,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 4,
+            "TOOL_CALL": 2,
+            "RETRIEVAL": 1
+          },
+          "citations": [
+            {
+              "label": 1,
+              "documentName": "02_engineering_cases.md",
+              "startLine": 46,
+              "endLine": 62,
+              "excerpt": "**问题**：租约续期、心跳、写消息都是对数据库的写操作。当某一行被一条慢事务锁住时，续期会卡在锁上。 如果多个运行共用同一个后台线程，一个任务的锁等待就会拖住所有任务的心跳，别的运行被误判成中断。 **方案**：把「锁等待」变成有界、可放弃的动作，并且每个运行独立。 - 每个租约使用自己的单线程调度器，心跳续期走独立"
+            }
+          ],
+          "attempt": 1
+        }
+      ],
+      "answerChars": 303,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "documentName": "02_engineering_cases.md",
+          "startLine": 46,
+          "endLine": 62,
+          "excerpt": "**问题**：租约续期、心跳、写消息都是对数据库的写操作。当某一行被一条慢事务锁住时，续期会卡在锁上。 如果多个运行共用同一个后台线程，一个任务的锁等待就会拖住所有任务的心跳，别的运行被误判成中断。 **方案**：把「锁等待」变成有界、可放弃的动作，并且每个运行独立。 - 每个租约使用自己的单线程调度器，心跳续期走独立"
+        }
+      ],
+      "markers": [
+        1
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "结论：单个任务变慢不会拖垮其他任务，前提是每个运行的心跳各自独立。资料里描述的正是这种情况曾出现过、并被专门修掉。\n\n- 曾经的成因：多个运行共用同一个后台线程时，一个任务的锁等待会拖住所有任务的心跳，别的运行被误判成中断 [1]。\n- 修复方式：每个租约使用自己的单线程调度器，心跳续期走独立连接、独立事务并设置 `lock_timeout`，被锁挡住只跳过这一拍，不会判成租约丢失 [1]。\n- 已验证：A 的消息事务持锁 16 秒时，B 的 22 秒模型调用仍正常完成 [1]。\n\n边界：这是正确性与成本保护，不是吞吐优化——行锁冲突频繁时，运行会更快失败或降级为「中断」，而不是排队等更久 [1]。"
+    },
+    {
+      "id": "Q10",
+      "kind": "boundary",
+      "question": "现在是不是已经逐字流式输出？",
+      "expected": [
+        "03_contribution_map: 明确未做（同步调用 + 状态 SSE）"
+      ],
+      "maxChars": 300,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 1,
+      "wallMsTotal": 6139,
+      "attempts": [
+        {
+          "runId": "f01b319e-99e7-4b79-8a04-231912e82c62",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "durationMs": 5328,
+          "wallMs": 6139,
+          "traceIncomplete": false,
+          "answerMessageId": "ec49e4f1-f8e9-4706-9cb6-8f9ebc513541",
+          "answerChars": 142,
+          "markers": [
+            1
+          ],
+          "modelCalls": 2,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 4,
+            "TOOL_CALL": 2,
+            "RETRIEVAL": 1
+          },
+          "citations": [
+            {
+              "label": 1,
+              "documentName": "03_contribution_map.md",
+              "startLine": 44,
+              "endLine": 48,
+              "excerpt": "- **逐字流式输出**：当前回答由一次同步模型调用产生并通过工具参数交付，界面只有执行状态流， 没有正文的增量推送。任何「打字机效果」都不是流式实现。 - **对外部调用的 exactly-once**：幂等只覆盖「同一会话的同一提交意图」，不覆盖模型或第三方服务。 - **管理员跨用户读取**：这是刻意不做的隔离，"
+            }
+          ],
+          "attempt": 1
+        }
+      ],
+      "answerChars": 142,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "documentName": "03_contribution_map.md",
+          "startLine": 44,
+          "endLine": 48,
+          "excerpt": "- **逐字流式输出**：当前回答由一次同步模型调用产生并通过工具参数交付，界面只有执行状态流， 没有正文的增量推送。任何「打字机效果」都不是流式实现。 - **对外部调用的 exactly-once**：幂等只覆盖「同一会话的同一提交意图」，不覆盖模型或第三方服务。 - **管理员跨用户读取**：这是刻意不做的隔离，"
+        }
+      ],
+      "markers": [
+        1
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "不是，当前不是逐字流式输出。\n\n- 回答由一次同步模型调用产生，再通过工具参数整体交付，界面只有执行状态流，没有正文的增量推送 [1]。\n- 所以任何「打字机效果」都是前端渲染，不是流式实现 [1]。\n- 如果你看到文字在逐步出现，那只是展示层的效果，不代表数据是增量到达的 [1]。"
+    },
+    {
+      "id": "Q11",
+      "kind": "boundary",
+      "question": "有引用就能说明答案一定正确吗？",
+      "expected": [
+        "01_product_guide: 引用只说明来源被校验，结论仍需人工判断"
+      ],
+      "maxChars": 300,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 2,
+      "wallMsTotal": 10328,
+      "attempts": [
+        {
+          "runId": "7d7effd0-d7db-4b3c-9306-1b6a56e99b25",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "durationMs": 720,
+          "wallMs": 2129,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "attempt": 1
+        },
+        {
+          "runId": "ad7a74d5-2697-4b12-889c-e9da46e1a490",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "durationMs": 6414,
+          "wallMs": 8199,
+          "traceIncomplete": false,
+          "answerMessageId": "aaa30835-ca49-4c1e-8bf7-66220076b366",
+          "answerChars": 195,
+          "markers": [
+            1,
+            2
+          ],
+          "modelCalls": 2,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 4,
+            "TOOL_CALL": 2,
+            "RETRIEVAL": 1
+          },
+          "citations": [
+            {
+              "label": 1,
+              "documentName": "01_product_guide.md",
+              "startLine": 27,
+              "endLine": 29,
+              "excerpt": "能解决：需要从一批文档里快速得到有出处答案的问题，以及需要证明「答案来自哪一段原文」的场景。 不能解决：需要实时联网数据的问题（检索范围只是已发布的知识库）、需要精确数值计算与外部系统写入的问题、以及把引用等同于事实核验的问题。引用只说明「这条来源被服务端校验过」，不代表模型组织的结论一定正确，仍需人工判断。"
+            },
+            {
+              "label": 2,
+              "documentName": "01_product_guide.md",
+              "startLine": 9,
+              "endLine": 15,
+              "excerpt": "ExoBrain 是一个可核验的 RAG 问答项目：它检索公开资料、给出带原文出处的回答，并把一次回答的执行过程记录下来供核对。 三个要点： 1. **回答带出处**：模型必须通过检索工具拿到资料片段才组织结论，回答里的每条来源都指向具体文档、行号范围与片段哈希。 2. **过程可核对**：每轮问答都有运行记录，包含模"
+            }
+          ],
+          "attempt": 2
+        }
+      ],
+      "answerChars": 195,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "documentName": "01_product_guide.md",
+          "startLine": 27,
+          "endLine": 29,
+          "excerpt": "能解决：需要从一批文档里快速得到有出处答案的问题，以及需要证明「答案来自哪一段原文」的场景。 不能解决：需要实时联网数据的问题（检索范围只是已发布的知识库）、需要精确数值计算与外部系统写入的问题、以及把引用等同于事实核验的问题。引用只说明「这条来源被服务端校验过」，不代表模型组织的结论一定正确，仍需人工判断。"
+        },
+        {
+          "label": 2,
+          "documentName": "01_product_guide.md",
+          "startLine": 9,
+          "endLine": 15,
+          "excerpt": "ExoBrain 是一个可核验的 RAG 问答项目：它检索公开资料、给出带原文出处的回答，并把一次回答的执行过程记录下来供核对。 三个要点： 1. **回答带出处**：模型必须通过检索工具拿到资料片段才组织结论，回答里的每条来源都指向具体文档、行号范围与片段哈希。 2. **过程可核对**：每轮问答都有运行记录，包含模"
+        }
+      ],
+      "markers": [
+        1,
+        2
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "不能。有引用只说明来源被校验过，不等于结论（模型组织的答案）一定正确。\n\n- 引用只表示「这条来源被服务端校验过」，不代表结论一定正确，仍需人工判断 [1]。\n- 把引用等同于事实核验，本身就不在它能解决的问题范围内 [1]。\n- 引用能定位到具体文档、行号范围与片段哈希，方便你回原文核对，但核对这一步还得由人来做 [2]。\n\n所以正确用法是：把引用当成可回查的线索，而不是正确性的保证。"
+    },
+    {
+      "id": "Q12",
+      "kind": "boundary",
+      "question": "管理员能看到我的私有知识库吗？",
+      "expected": [
+        "01_product_guide: 资源隔离，管理员也不获得他人私有资源"
+      ],
+      "maxChars": 300,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 1,
+      "wallMsTotal": 8157,
+      "attempts": [
+        {
+          "runId": "70e5933c-3511-4741-9c47-5b3736687d2b",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "durationMs": 7251,
+          "wallMs": 8157,
+          "traceIncomplete": false,
+          "answerMessageId": "d236b25b-6976-4c23-8b2a-209e49b1c5df",
+          "answerChars": 207,
+          "markers": [
+            1,
+            2
+          ],
+          "modelCalls": 2,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 4,
+            "TOOL_CALL": 2,
+            "RETRIEVAL": 1
+          },
+          "citations": [
+            {
+              "label": 1,
+              "documentName": "03_contribution_map.md",
+              "startLine": 31,
+              "endLine": 33,
+              "excerpt": "| 资源隔离 | 知识库、助手、会话按所有者隔离；管理员也不获得他人私有资源的读取权 | 访问控制与资源仓库 | 账号/管理员矩阵、游客矩阵 | | 模型目录与密钥加密 | 模型配置存库、密钥加密保存、向量模型可与知识库绑定并受换绑守卫 | 模型目录、密钥服务、换绑接口 | 接口测试与生产热修实操 | | CI 与检查"
+            },
+            {
+              "label": 2,
+              "documentName": "01_product_guide.md",
+              "startLine": 33,
+              "endLine": 36,
+              "excerpt": "- 游客模式不需要登录，只能看到公开资料与自己的会话；看不到任何其他访客或账号的数据。 - 账号模式下管理员也不能读取其他用户私有知识库、助手与会话的运行记录。 - 公开资料的范围由配置明确发布，未发布的路径在网关层就会被拒绝，而不是仅靠前端隐藏入口。 - 游客可以取消自己正在执行的回答；公开只读示例不可取消、不可续写"
+            }
+          ],
+          "attempt": 1
+        }
+      ],
+      "answerChars": 207,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "documentName": "03_contribution_map.md",
+          "startLine": 31,
+          "endLine": 33,
+          "excerpt": "| 资源隔离 | 知识库、助手、会话按所有者隔离；管理员也不获得他人私有资源的读取权 | 访问控制与资源仓库 | 账号/管理员矩阵、游客矩阵 | | 模型目录与密钥加密 | 模型配置存库、密钥加密保存、向量模型可与知识库绑定并受换绑守卫 | 模型目录、密钥服务、换绑接口 | 接口测试与生产热修实操 | | CI 与检查"
+        },
+        {
+          "label": 2,
+          "documentName": "01_product_guide.md",
+          "startLine": 33,
+          "endLine": 36,
+          "excerpt": "- 游客模式不需要登录，只能看到公开资料与自己的会话；看不到任何其他访客或账号的数据。 - 账号模式下管理员也不能读取其他用户私有知识库、助手与会话的运行记录。 - 公开资料的范围由配置明确发布，未发布的路径在网关层就会被拒绝，而不是仅靠前端隐藏入口。 - 游客可以取消自己正在执行的回答；公开只读示例不可取消、不可续写"
+        }
+      ],
+      "markers": [
+        1,
+        2
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "不能，管理员也看不到你的私有知识库。\n\n- 在账号模式下，管理员同样无法读取其他用户的私有知识库、助手与会话运行记录 [2]。\n- 资源隔离按所有者生效：知识库、助手、会话都按所有者隔离，管理员不会获得读取他人私有资源的权限，并有账号/管理员矩阵用例覆盖 [1]。\n- 公开资料的范围由配置明确发布，未发布路径在网关层就被拒绝，并非只靠前端隐藏入口 [2]。\n\n需要说明的是：这些属于代码中已实现并写过测试的能力。"
+    },
+    {
+      "id": "Q13",
+      "kind": "unsupported",
+      "question": "这个项目服务了多少客户、节省了多少成本？",
+      "expected": [
+        "无依据：应说明资料里没有，不给数字"
+      ],
+      "maxChars": 300,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 1,
+      "wallMsTotal": 10175,
+      "attempts": [
+        {
+          "runId": "74c8a70e-db11-473e-b886-476dbf99803f",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "durationMs": 8436,
+          "wallMs": 10175,
+          "traceIncomplete": false,
+          "answerMessageId": "97f4b734-c1a2-41f9-baa6-8af3b2565a16",
+          "answerChars": 230,
+          "markers": [
+            1,
+            2
+          ],
+          "modelCalls": 3,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 3,
+            "PERSIST_MESSAGE": 6,
+            "TOOL_CALL": 3,
+            "RETRIEVAL": 2
+          },
+          "citations": [
+            {
+              "label": 1,
+              "documentName": "02_engineering_cases.md",
+              "startLine": 3,
+              "endLine": 4,
+              "excerpt": "本文用「问题 → 方案 → 验证结果」的结构讲三个真实的工程案例，全部来自本仓库的实现与测试记录。 核对日期：2026-10-19。文中耗时与用例数量都是当次真实输出，不代表长期性能承诺。"
+            },
+            {
+              "label": 2,
+              "documentName": "01_product_guide.md",
+              "startLine": 9,
+              "endLine": 15,
+              "excerpt": "ExoBrain 是一个可核验的 RAG 问答项目：它检索公开资料、给出带原文出处的回答，并把一次回答的执行过程记录下来供核对。 三个要点： 1. **回答带出处**：模型必须通过检索工具拿到资料片段才组织结论，回答里的每条来源都指向具体文档、行号范围与片段哈希。 2. **过程可核对**：每轮问答都有运行记录，包含模"
+            }
+          ],
+          "attempt": 1
+        }
+      ],
+      "answerChars": 230,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "documentName": "02_engineering_cases.md",
+          "startLine": 3,
+          "endLine": 4,
+          "excerpt": "本文用「问题 → 方案 → 验证结果」的结构讲三个真实的工程案例，全部来自本仓库的实现与测试记录。 核对日期：2026-10-19。文中耗时与用例数量都是当次真实输出，不代表长期性能承诺。"
+        },
+        {
+          "label": 2,
+          "documentName": "01_product_guide.md",
+          "startLine": 9,
+          "endLine": 15,
+          "excerpt": "ExoBrain 是一个可核验的 RAG 问答项目：它检索公开资料、给出带原文出处的回答，并把一次回答的执行过程记录下来供核对。 三个要点： 1. **回答带出处**：模型必须通过检索工具拿到资料片段才组织结论，回答里的每条来源都指向具体文档、行号范围与片段哈希。 2. **过程可核对**：每轮问答都有运行记录，包含模"
+        }
+      ],
+      "markers": [
+        1,
+        2
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "资料里没有写客户数量和节省成本的数据，这两项都无法给出数字。\n\n- 三份资料（《产品导览》《工程案例》《能力归属》）介绍的是项目能力与代码验证记录，没有任何客户数、付费用户数或商业指标 [1]。\n- 案例里出现的耗时与用例数量，只是当次测试的真实输出，明确「不代表长期性能承诺」，不能换算成成本节省 [1]。\n- 能确认的是能力本身：回答带出处、过程可核对、失败可恢复 [2]。\n\n如果你要对外做宣传口径，建议只讲可核验的功能，别引用未经记录的客户或收益数字。"
+    },
+    {
+      "id": "Q14",
+      "kind": "unsupported",
+      "question": "作者之前在哪家公司做后端？",
+      "expected": [
+        "无依据：不应编造个人履历"
+      ],
+      "maxChars": 300,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 2,
+      "wallMsTotal": 12283,
+      "attempts": [
+        {
+          "runId": "bd985a40-684a-471c-b09d-ecbe26b0f058",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "durationMs": 722,
+          "wallMs": 2089,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "attempt": 1
+        },
+        {
+          "runId": "67d35527-058e-4bc4-b5c1-9af2598ff910",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "durationMs": 9619,
+          "wallMs": 10194,
+          "traceIncomplete": false,
+          "answerMessageId": "29591d3f-e0ec-4485-b9b7-52b46e364318",
+          "answerChars": 153,
+          "markers": [
+            1,
+            2
+          ],
+          "modelCalls": 2,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 4,
+            "TOOL_CALL": 2,
+            "RETRIEVAL": 1
+          },
+          "citations": [
+            {
+              "label": 1,
+              "documentName": "01_product_guide.md",
+              "startLine": 19,
+              "endLine": 23,
+              "excerpt": "| 体验路径 | 你会看到什么 | 依据 | | --- | --- | --- | | 直接提问 | 一句结论 + 几条要点，下面挂来源；点开来源可看到原文对应段落 | 公开知识库检索、引用投影、原文预览 | | 查看执行过程 | 展开「查看过程」可看到这一轮的模型、检索、工具与落库步骤及其耗时 | 运行摘要与事件表"
+            },
+            {
+              "label": 2,
+              "documentName": "01_product_guide.md",
+              "startLine": 3,
+              "endLine": 5,
+              "excerpt": "本文用于回答「这个项目能做什么、我在这里能亲自体验什么、哪些能力有边界」。核对日期：2026-10-19。 凡是标注「已实现」的，指仓库源码中存在对应逻辑；标注「已在线上验证」的，指在本次核对时通过真实请求确认过。 没有标注的内容不应被当作能力承诺。"
+            }
+          ],
+          "attempt": 2
+        }
+      ],
+      "answerChars": 153,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "documentName": "01_product_guide.md",
+          "startLine": 19,
+          "endLine": 23,
+          "excerpt": "| 体验路径 | 你会看到什么 | 依据 | | --- | --- | --- | | 直接提问 | 一句结论 + 几条要点，下面挂来源；点开来源可看到原文对应段落 | 公开知识库检索、引用投影、原文预览 | | 查看执行过程 | 展开「查看过程」可看到这一轮的模型、检索、工具与落库步骤及其耗时 | 运行摘要与事件表"
+        },
+        {
+          "label": 2,
+          "documentName": "01_product_guide.md",
+          "startLine": 3,
+          "endLine": 5,
+          "excerpt": "本文用于回答「这个项目能做什么、我在这里能亲自体验什么、哪些能力有边界」。核对日期：2026-10-19。 凡是标注「已实现」的，指仓库源码中存在对应逻辑；标注「已在线上验证」的，指在本次核对时通过真实请求确认过。 没有标注的内容不应被当作能力承诺。"
+        }
+      ],
+      "markers": [
+        1,
+        2
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "资料里没有写作者的个人经历，也没有提过他此前在哪家公司做后端。\n\n- 三份资料的主题是项目能力、工程案例与体验路径，不包含作者背景信息 [1]。\n- 能确认的只是项目本身的定位与范围：资料只按「已实现」「已在线上验证」两种标注来说明能力 [2]。\n\n涉及个人经历的问题，我这边无法作答，建议直接问作者本人。"
+    },
+    {
+      "id": "Q15",
+      "kind": "unsupported",
+      "question": "你们支持多少种文件格式？",
+      "expected": [
+        "资料只写 Markdown；不应编造 PDF/Word 等"
+      ],
+      "maxChars": 300,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 1,
+      "wallMsTotal": 12227,
+      "attempts": [
+        {
+          "runId": "6164c24a-dc0d-4ce7-96c9-b2e35190b6f3",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "durationMs": 10479,
+          "wallMs": 12227,
+          "traceIncomplete": false,
+          "answerMessageId": "8e02d929-4f22-4cf2-8716-a450367f65ab",
+          "answerChars": 215,
+          "markers": [
+            1,
+            2
+          ],
+          "modelCalls": 3,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 3,
+            "PERSIST_MESSAGE": 6,
+            "TOOL_CALL": 3,
+            "RETRIEVAL": 2
+          },
+          "citations": [
+            {
+              "label": 1,
+              "documentName": "01_product_guide.md",
+              "startLine": 27,
+              "endLine": 29,
+              "excerpt": "能解决：需要从一批文档里快速得到有出处答案的问题，以及需要证明「答案来自哪一段原文」的场景。 不能解决：需要实时联网数据的问题（检索范围只是已发布的知识库）、需要精确数值计算与外部系统写入的问题、以及把引用等同于事实核验的问题。引用只说明「这条来源被服务端校验过」，不代表模型组织的结论一定正确，仍需人工判断。"
+            },
+            {
+              "label": 2,
+              "documentName": "03_contribution_map.md",
+              "startLine": 22,
+              "endLine": 31,
+              "excerpt": "| 能力 | 一句话说明 | 主要依据 | 验证范围 | | --- | --- | --- | --- | | Markdown 解析隔离 | 每份文档独立解析状态，避免并发导入时共享可变状态互相污染 | 解析服务与并发用例 | 单元测试（含并发场景） | | 检索评测与冻结资产 | 题集、语料清单、冻结哈希与评测脚"
+            }
+          ],
+          "attempt": 1
+        }
+      ],
+      "answerChars": 215,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "documentName": "01_product_guide.md",
+          "startLine": 27,
+          "endLine": 29,
+          "excerpt": "能解决：需要从一批文档里快速得到有出处答案的问题，以及需要证明「答案来自哪一段原文」的场景。 不能解决：需要实时联网数据的问题（检索范围只是已发布的知识库）、需要精确数值计算与外部系统写入的问题、以及把引用等同于事实核验的问题。引用只说明「这条来源被服务端校验过」，不代表模型组织的结论一定正确，仍需人工判断。"
+        },
+        {
+          "label": 2,
+          "documentName": "03_contribution_map.md",
+          "startLine": 22,
+          "endLine": 31,
+          "excerpt": "| 能力 | 一句话说明 | 主要依据 | 验证范围 | | --- | --- | --- | --- | | Markdown 解析隔离 | 每份文档独立解析状态，避免并发导入时共享可变状态互相污染 | 解析服务与并发用例 | 单元测试（含并发场景） | | 检索评测与冻结资产 | 题集、语料清单、冻结哈希与评测脚"
+        }
+      ],
+      "markers": [
+        1,
+        2
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "资料里没有写支持多少种文件格式，也没有给出格式清单。\n\n能确认的部分：\n- 解析能力指向 Markdown：资料里出现的是「Markdown 解析隔离」，为每份文档维护独立解析状态 [2]。\n- 导入链路本身是可用的：上传即入队，失败可重试、有固定错误码，导入状态可查询 [2]。\n- 检索范围只限已发布的知识库内容，不含实时联网数据 [1]。\n\n具体支持哪些格式、数量是多少，属于资料未覆盖的细节，建议以实际产品或作者说明为准。"
+    },
+    {
+      "id": "Q16",
+      "kind": "fact",
+      "question": "回答时的来源能定位到什么粒度？",
+      "expected": [
+        "03_contribution_map: 行号范围 + sourceHash + 索引版本"
+      ],
+      "maxChars": 300,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 1,
+      "wallMsTotal": 8155,
+      "attempts": [
+        {
+          "runId": "74508720-b72b-4739-a662-bf72dbf28f17",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "durationMs": 6964,
+          "wallMs": 8155,
+          "traceIncomplete": false,
+          "answerMessageId": "81acb91b-a8dd-4af3-a3a2-a29947836782",
+          "answerChars": 220,
+          "markers": [
+            1,
+            2
+          ],
+          "modelCalls": 2,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 4,
+            "TOOL_CALL": 2,
+            "RETRIEVAL": 1
+          },
+          "citations": [
+            {
+              "label": 1,
+              "documentName": "03_contribution_map.md",
+              "startLine": 22,
+              "endLine": 31,
+              "excerpt": "| 能力 | 一句话说明 | 主要依据 | 验证范围 | | --- | --- | --- | --- | | Markdown 解析隔离 | 每份文档独立解析状态，避免并发导入时共享可变状态互相污染 | 解析服务与并发用例 | 单元测试（含并发场景） | | 检索评测与冻结资产 | 题集、语料清单、冻结哈希与评测脚"
+            },
+            {
+              "label": 2,
+              "documentName": "01_product_guide.md",
+              "startLine": 27,
+              "endLine": 29,
+              "excerpt": "能解决：需要从一批文档里快速得到有出处答案的问题，以及需要证明「答案来自哪一段原文」的场景。 不能解决：需要实时联网数据的问题（检索范围只是已发布的知识库）、需要精确数值计算与外部系统写入的问题、以及把引用等同于事实核验的问题。引用只说明「这条来源被服务端校验过」，不代表模型组织的结论一定正确，仍需人工判断。"
+            }
+          ],
+          "attempt": 1
+        }
+      ],
+      "answerChars": 220,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "documentName": "03_contribution_map.md",
+          "startLine": 22,
+          "endLine": 31,
+          "excerpt": "| 能力 | 一句话说明 | 主要依据 | 验证范围 | | --- | --- | --- | --- | | Markdown 解析隔离 | 每份文档独立解析状态，避免并发导入时共享可变状态互相污染 | 解析服务与并发用例 | 单元测试（含并发场景） | | 检索评测与冻结资产 | 题集、语料清单、冻结哈希与评测脚"
+        },
+        {
+          "label": 2,
+          "documentName": "01_product_guide.md",
+          "startLine": 27,
+          "endLine": 29,
+          "excerpt": "能解决：需要从一批文档里快速得到有出处答案的问题，以及需要证明「答案来自哪一段原文」的场景。 不能解决：需要实时联网数据的问题（检索范围只是已发布的知识库）、需要精确数值计算与外部系统写入的问题、以及把引用等同于事实核验的问题。引用只说明「这条来源被服务端校验过」，不代表模型组织的结论一定正确，仍需人工判断。"
+        }
+      ],
+      "markers": [
+        1,
+        2
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "能定位到「具体文档 + 行号范围」这一级，足够打开原文比对。\n\n- 来源本身带结构化字段：`documentId`、`sourceHash`、`startLine`、`endLine` 与索引版本，片段按正文切分而不是按整篇文档 [1]。\n- 界面按行定位原文，引用只登记本轮真实完成的检索结果，写入消息的 `metadata.citations` [1]。\n- 引用只说明这条来源被服务端校验过，不等于事实核验，结论仍需人工判断 [2]。"
+    },
+    {
+      "id": "Q17",
+      "kind": "fact",
+      "question": "文档导入失败之后可以怎么处理？",
+      "expected": [
+        "03_contribution_map: 持久化导入队列 + 失败重试 + 固定错误码"
+      ],
+      "maxChars": 300,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 2,
+      "wallMsTotal": 8281,
+      "attempts": [
+        {
+          "runId": "b8f05cde-d745-4dad-bfa0-9aecac2af001",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "durationMs": 727,
+          "wallMs": 2125,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "attempt": 1
+        },
+        {
+          "runId": "ff1222ed-91b7-46f7-864c-bd2c9205fa21",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "durationMs": 5774,
+          "wallMs": 6156,
+          "traceIncomplete": false,
+          "answerMessageId": "54a35b86-040e-46f7-a76f-0a98678f4819",
+          "answerChars": 198,
+          "markers": [
+            1
+          ],
+          "modelCalls": 2,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 4,
+            "TOOL_CALL": 2,
+            "RETRIEVAL": 1
+          },
+          "citations": [
+            {
+              "label": 1,
+              "documentName": "03_contribution_map.md",
+              "startLine": 22,
+              "endLine": 31,
+              "excerpt": "| 能力 | 一句话说明 | 主要依据 | 验证范围 | | --- | --- | --- | --- | | Markdown 解析隔离 | 每份文档独立解析状态，避免并发导入时共享可变状态互相污染 | 解析服务与并发用例 | 单元测试（含并发场景） | | 检索评测与冻结资产 | 题集、语料清单、冻结哈希与评测脚"
+            }
+          ],
+          "attempt": 2
+        }
+      ],
+      "answerChars": 198,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "documentName": "03_contribution_map.md",
+          "startLine": 22,
+          "endLine": 31,
+          "excerpt": "| 能力 | 一句话说明 | 主要依据 | 验证范围 | | --- | --- | --- | --- | | Markdown 解析隔离 | 每份文档独立解析状态，避免并发导入时共享可变状态互相污染 | 解析服务与并发用例 | 单元测试（含并发场景） | | 检索评测与冻结资产 | 题集、语料清单、冻结哈希与评测脚"
+        }
+      ],
+      "markers": [
+        1
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "导入失败不需要重新上传，走队列的重试即可，错误码和状态都能查到。\n\n- 导入是持久化队列：上传即入队，支持失败重试，并给出固定错误码，导入状态可查询 [1]。\n- 该能力已有集成测试覆盖，含故障注入场景 [1]。\n- 每份文档的解析状态相互独立，并发导入不会因为共享可变状态而互相污染，失败的只是一份文档 [1]。\n\n资料里没有写具体错误码清单和重试次数上限，需要看导入任务表与执行器的实际定义。"
+    },
+    {
+      "id": "Q18",
+      "kind": "fact",
+      "question": "一次回答的执行过程能看到哪些信息？",
+      "expected": [
+        "03_contribution_map / 01_product_guide: 模型、工具、检索、落库与耗时"
+      ],
+      "maxChars": 300,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 1,
+      "wallMsTotal": 8172,
+      "attempts": [
+        {
+          "runId": "25dbd4d2-b9ed-464f-b5fa-6f087ac3cf5b",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "durationMs": 7065,
+          "wallMs": 8172,
+          "traceIncomplete": false,
+          "answerMessageId": "74c16825-f8f1-4f20-893b-b864ec747434",
+          "answerChars": 135,
+          "markers": [
+            1,
+            2
+          ],
+          "modelCalls": 2,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 4,
+            "TOOL_CALL": 2,
+            "RETRIEVAL": 1
+          },
+          "citations": [
+            {
+              "label": 1,
+              "documentName": "01_product_guide.md",
+              "startLine": 19,
+              "endLine": 23,
+              "excerpt": "| 体验路径 | 你会看到什么 | 依据 | | --- | --- | --- | | 直接提问 | 一句结论 + 几条要点，下面挂来源；点开来源可看到原文对应段落 | 公开知识库检索、引用投影、原文预览 | | 查看执行过程 | 展开「查看过程」可看到这一轮的模型、检索、工具与落库步骤及其耗时 | 运行摘要与事件表"
+            },
+            {
+              "label": 2,
+              "documentName": "03_contribution_map.md",
+              "startLine": 44,
+              "endLine": 48,
+              "excerpt": "- **逐字流式输出**：当前回答由一次同步模型调用产生并通过工具参数交付，界面只有执行状态流， 没有正文的增量推送。任何「打字机效果」都不是流式实现。 - **对外部调用的 exactly-once**：幂等只覆盖「同一会话的同一提交意图」，不覆盖模型或第三方服务。 - **管理员跨用户读取**：这是刻意不做的隔离，"
+            }
+          ],
+          "attempt": 1
+        }
+      ],
+      "answerChars": 135,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "documentName": "01_product_guide.md",
+          "startLine": 19,
+          "endLine": 23,
+          "excerpt": "| 体验路径 | 你会看到什么 | 依据 | | --- | --- | --- | | 直接提问 | 一句结论 + 几条要点，下面挂来源；点开来源可看到原文对应段落 | 公开知识库检索、引用投影、原文预览 | | 查看执行过程 | 展开「查看过程」可看到这一轮的模型、检索、工具与落库步骤及其耗时 | 运行摘要与事件表"
+        },
+        {
+          "label": 2,
+          "documentName": "03_contribution_map.md",
+          "startLine": 44,
+          "endLine": 48,
+          "excerpt": "- **逐字流式输出**：当前回答由一次同步模型调用产生并通过工具参数交付，界面只有执行状态流， 没有正文的增量推送。任何「打字机效果」都不是流式实现。 - **对外部调用的 exactly-once**：幂等只覆盖「同一会话的同一提交意图」，不覆盖模型或第三方服务。 - **管理员跨用户读取**：这是刻意不做的隔离，"
+        }
+      ],
+      "markers": [
+        1,
+        2
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "展开「查看过程」，能看到这一轮的模型、工具、检索与落库步骤及其耗时。\n\n- 入口在回答下方的「查看过程」，展示本轮执行步骤与各自耗时 [1]。\n- 背后由运行摘要与事件表支撑，每轮问答都留有运行记录 [1]。\n- 界面只有执行状态流，没有回答正文的逐字增量推送 [2]。"
+    },
+    {
+      "id": "Q19",
+      "kind": "fact",
+      "question": "游客和登录用户看到的范围有什么不同？",
+      "expected": [
+        "01_product_guide: 游客只看公开资料与自己的会话"
+      ],
+      "maxChars": 300,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 1,
+      "wallMsTotal": 8181,
+      "attempts": [
+        {
+          "runId": "de9aa8c2-b16b-44f0-83ce-3cf26e664b67",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "durationMs": 7236,
+          "wallMs": 8181,
+          "traceIncomplete": false,
+          "answerMessageId": "cfba3270-de5d-4094-8c6d-bfa06dbedfee",
+          "answerChars": 181,
+          "markers": [
+            1,
+            2
+          ],
+          "modelCalls": 2,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 5,
+            "TOOL_CALL": 3,
+            "RETRIEVAL": 2
+          },
+          "citations": [
+            {
+              "label": 1,
+              "documentName": "01_product_guide.md",
+              "startLine": 33,
+              "endLine": 36,
+              "excerpt": "- 游客模式不需要登录，只能看到公开资料与自己的会话；看不到任何其他访客或账号的数据。 - 账号模式下管理员也不能读取其他用户私有知识库、助手与会话的运行记录。 - 公开资料的范围由配置明确发布，未发布的路径在网关层就会被拒绝，而不是仅靠前端隐藏入口。 - 游客可以取消自己正在执行的回答；公开只读示例不可取消、不可续写"
+            },
+            {
+              "label": 2,
+              "documentName": "03_contribution_map.md",
+              "startLine": 31,
+              "endLine": 33,
+              "excerpt": "| 资源隔离 | 知识库、助手、会话按所有者隔离；管理员也不获得他人私有资源的读取权 | 访问控制与资源仓库 | 账号/管理员矩阵、游客矩阵 | | 模型目录与密钥加密 | 模型配置存库、密钥加密保存、向量模型可与知识库绑定并受换绑守卫 | 模型目录、密钥服务、换绑接口 | 接口测试与生产热修实操 | | CI 与检查"
+            }
+          ],
+          "attempt": 1
+        }
+      ],
+      "answerChars": 181,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "documentName": "01_product_guide.md",
+          "startLine": 33,
+          "endLine": 36,
+          "excerpt": "- 游客模式不需要登录，只能看到公开资料与自己的会话；看不到任何其他访客或账号的数据。 - 账号模式下管理员也不能读取其他用户私有知识库、助手与会话的运行记录。 - 公开资料的范围由配置明确发布，未发布的路径在网关层就会被拒绝，而不是仅靠前端隐藏入口。 - 游客可以取消自己正在执行的回答；公开只读示例不可取消、不可续写"
+        },
+        {
+          "label": 2,
+          "documentName": "03_contribution_map.md",
+          "startLine": 31,
+          "endLine": 33,
+          "excerpt": "| 资源隔离 | 知识库、助手、会话按所有者隔离；管理员也不获得他人私有资源的读取权 | 访问控制与资源仓库 | 账号/管理员矩阵、游客矩阵 | | 模型目录与密钥加密 | 模型配置存库、密钥加密保存、向量模型可与知识库绑定并受换绑守卫 | 模型目录、密钥服务、换绑接口 | 接口测试与生产热修实操 | | CI 与检查"
+        }
+      ],
+      "markers": [
+        1,
+        2
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "游客只能看到公开资料和自己的会话，账号用户则能看到自己私有的知识库、助手和会话。\n\n- 游客不用登录，可见范围限于公开资料与自己的会话，看不到其他访客或账号的数据 [1]。\n- 登录后，私有知识库、助手和会话都按所有者隔离，即使管理员也不能读取他人的这些私有资源 [2]。\n- 公开资料由配置明确发布；未发布的路径会在网关层被拒绝，并非只在前端隐藏入口 [1]。"
+    },
+    {
+      "id": "Q20",
+      "kind": "fact",
+      "question": "检索评测看哪些指标？",
+      "expected": [
+        "03_contribution_map: Hit@3 / Recall@3 / MRR@3"
+      ],
+      "maxChars": 300,
+      "status": "FAILED",
+      "errorCode": "INVALID_ANSWER_FORMAT",
+      "attemptCount": 2,
+      "wallMsTotal": 8245,
+      "attempts": [
+        {
+          "runId": "fceabd60-4e61-4f0f-8908-1fcdf4ed99fb",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "durationMs": 3053,
+          "wallMs": 4119,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 2,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 2,
+            "TOOL_CALL": 1,
+            "RETRIEVAL": 1
+          },
+          "citations": [],
+          "attempt": 1
+        },
+        {
+          "runId": "7035cc39-1b2c-4581-8c90-9ee75ccf7af8",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "INVALID_ANSWER_FORMAT",
+          "durationMs": 2731,
+          "wallMs": 4126,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "attempt": 2
+        }
+      ],
+      "answerChars": 0,
+      "withinBudget": true,
+      "citations": [],
+      "markers": [],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": ""
+    },
+    {
+      "id": "Q21",
+      "kind": "fact",
+      "question": "换一个向量模型时，已有知识库能直接换吗？",
+      "expected": [
+        "03_contribution_map: 不同模型向量不能混用，需重新导入"
+      ],
+      "maxChars": 300,
+      "status": "FAILED",
+      "errorCode": "INVALID_ANSWER_FORMAT",
+      "attemptCount": 2,
+      "wallMsTotal": 14344,
+      "attempts": [
+        {
+          "runId": "cb5b58c0-7f33-464d-ae83-d2ff5d0fe9af",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "INVALID_ANSWER_FORMAT",
+          "durationMs": 6996,
+          "wallMs": 8196,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 2,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 2,
+            "TOOL_CALL": 1,
+            "RETRIEVAL": 1
+          },
+          "citations": [],
+          "attempt": 1
+        },
+        {
+          "runId": "d0160543-7ecb-4a00-831c-1479b318e4ea",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "INVALID_ANSWER_FORMAT",
+          "durationMs": 4094,
+          "wallMs": 6148,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "attempt": 2
+        }
+      ],
+      "answerChars": 0,
+      "withinBudget": true,
+      "citations": [],
+      "markers": [],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": ""
+    },
+    {
+      "id": "Q22",
+      "kind": "fact",
+      "question": "什么是这项工程里的 fencing token？",
+      "expected": [
+        "02_engineering_cases: 每次领取让 token 前进，写回要校验"
+      ],
+      "maxChars": 350,
+      "status": "FAILED",
+      "errorCode": "INVALID_ANSWER_FORMAT",
+      "attemptCount": 2,
+      "wallMsTotal": 10301,
+      "attempts": [
+        {
+          "runId": "35c68e38-0a92-4003-8d6f-21214783ffa6",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "INVALID_ANSWER_FORMAT",
+          "durationMs": 3912,
+          "wallMs": 4155,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "attempt": 1
+        },
+        {
+          "runId": "9df8c6cd-7eb2-4cac-a578-88c8931d9678",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "INVALID_ANSWER_FORMAT",
+          "durationMs": 5442,
+          "wallMs": 6146,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "attempt": 2
+        }
+      ],
+      "answerChars": 0,
+      "withinBudget": true,
+      "citations": [],
+      "markers": [],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": ""
+    },
+    {
+      "id": "Q23",
+      "kind": "fact",
+      "question": "为什么检查点要做有界等待，而不是一直等锁？",
+      "expected": [
+        "02_engineering_cases: 案例三（锁等待跨过租约期限会带病发请求）"
+      ],
+      "maxChars": 350,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 1,
+      "wallMsTotal": 8162,
+      "attempts": [
+        {
+          "runId": "20dc66ee-f62d-4df9-8577-0b744a3f1ab4",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "durationMs": 6368,
+          "wallMs": 8162,
+          "traceIncomplete": false,
+          "answerMessageId": "b1cb761f-e3d6-425e-8ead-2d8e478ff885",
+          "answerChars": 297,
+          "markers": [
+            1
+          ],
+          "modelCalls": 2,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 4,
+            "TOOL_CALL": 2,
+            "RETRIEVAL": 1
+          },
+          "citations": [
+            {
+              "label": 1,
+              "documentName": "02_engineering_cases.md",
+              "startLine": 46,
+              "endLine": 62,
+              "excerpt": "**问题**：租约续期、心跳、写消息都是对数据库的写操作。当某一行被一条慢事务锁住时，续期会卡在锁上。 如果多个运行共用同一个后台线程，一个任务的锁等待就会拖住所有任务的心跳，别的运行被误判成中断。 **方案**：把「锁等待」变成有界、可放弃的动作，并且每个运行独立。 - 每个租约使用自己的单线程调度器，心跳续期走独立"
+            }
+          ],
+          "attempt": 1
+        }
+      ],
+      "answerChars": 297,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "documentName": "02_engineering_cases.md",
+          "startLine": 46,
+          "endLine": 62,
+          "excerpt": "**问题**：租约续期、心跳、写消息都是对数据库的写操作。当某一行被一条慢事务锁住时，续期会卡在锁上。 如果多个运行共用同一个后台线程，一个任务的锁等待就会拖住所有任务的心跳，别的运行被误判成中断。 **方案**：把「锁等待」变成有界、可放弃的动作，并且每个运行独立。 - 每个租约使用自己的单线程调度器，心跳续期走独立"
+        }
+      ],
+      "markers": [
+        1
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "结论：因为一直等锁会拖住别的任务，还可能把仍在正常运行的运行误判成「中断」；有界等待是正确性与成本保护，不是吞吐优化。\n\n- **一个锁等待会连累所有任务**：续期、心跳、写消息都是数据库写操作，若多个运行共用一个后台线程，一个任务卡在锁上就会饿住其他任务的心跳 [1]\n- **被挡住时要能放弃**：执行检查点被锁挡住先在预算内重试，预算耗尽后用一次不加锁的读确认状态、fencing 和租约期限，确认不了就停止执行 [1]\n- **代价是更早失败**：行锁冲突频繁时，运行会更快失败或降级为「中断」，而不是排队等更久；资料里有对应真实 PostgreSQL 用例，但没有给出吞吐数字 [1]"
+    },
+    {
+      "id": "Q24",
+      "kind": "fact",
+      "question": "这个项目基于什么开源项目，保留了哪些能力？",
+      "expected": [
+        "03_contribution_map: JChatMind + Spring Boot/Spring AI/React/pgvector"
+      ],
+      "maxChars": 350,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 1,
+      "wallMsTotal": 8163,
+      "attempts": [
+        {
+          "runId": "15738fc7-594b-47cf-b0d3-adcb0924dc1e",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "durationMs": 7713,
+          "wallMs": 8163,
+          "traceIncomplete": false,
+          "answerMessageId": "5dccbd14-5345-4916-a235-da982320b12b",
+          "answerChars": 342,
+          "markers": [
+            1,
+            2
+          ],
+          "modelCalls": 2,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 4,
+            "TOOL_CALL": 2,
+            "RETRIEVAL": 1
+          },
+          "citations": [
+            {
+              "label": 1,
+              "documentName": "03_contribution_map.md",
+              "startLine": 3,
+              "endLine": 5,
+              "excerpt": "本文回答「哪些能力来自上游项目、哪些是本仓库新增、依据在哪里、验证到什么程度」。核对日期：2026-10-19。 判断口径：**继承**＝上游仓库已有；**新增**＝本仓库范围内实现并通过检查；**边界**＝明确还没做的部分。 本仓库基于开源项目 JChatMind 继续开发，保留了其许可与项目来源说明。"
+            },
+            {
+              "label": 2,
+              "documentName": "03_contribution_map.md",
+              "startLine": 9,
+              "endLine": 18,
+              "excerpt": "上游是 JChatMind：一个 Java + Spring Boot + Spring AI 的 AI Agent 示例项目，前端为 React，数据库为 PostgreSQL 加 pgvector 向量扩展。本项目保留了这些核心能力： - Agent 主循环：模型判断下一步 → 执行工具 → 读取工具结果 → 继续"
+            }
+          ],
+          "attempt": 1
+        }
+      ],
+      "answerChars": 342,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "documentName": "03_contribution_map.md",
+          "startLine": 3,
+          "endLine": 5,
+          "excerpt": "本文回答「哪些能力来自上游项目、哪些是本仓库新增、依据在哪里、验证到什么程度」。核对日期：2026-10-19。 判断口径：**继承**＝上游仓库已有；**新增**＝本仓库范围内实现并通过检查；**边界**＝明确还没做的部分。 本仓库基于开源项目 JChatMind 继续开发，保留了其许可与项目来源说明。"
+        },
+        {
+          "label": 2,
+          "documentName": "03_contribution_map.md",
+          "startLine": 9,
+          "endLine": 18,
+          "excerpt": "上游是 JChatMind：一个 Java + Spring Boot + Spring AI 的 AI Agent 示例项目，前端为 React，数据库为 PostgreSQL 加 pgvector 向量扩展。本项目保留了这些核心能力： - Agent 主循环：模型判断下一步 → 执行工具 → 读取工具结果 → 继续"
+        }
+      ],
+      "markers": [
+        1,
+        2
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "**结论：基于开源项目 JChatMind 继续开发**，并保留了其许可与项目来源说明 [1]\n\n- **技术栈沿用上游**：JChatMind 是 Java + Spring Boot + Spring AI 的 AI Agent 示例项目，前端用 React，数据库为 PostgreSQL 加 pgvector [2]\n- **核心能力保留**：Agent 主循环（模型判断→执行工具→读取结果→继续判断）、按助手配置装配工具与知识库范围、会话与消息持久化、SSE 状态推送，以及基础 Markdown 解析与向量检索链路 [2]\n- **归属口径**：资料按「继承＝上游已有、新增＝本仓库实现并通过检查、边界＝还没做」三档划分，所以这些算继承部分，不算本项目从零实现的 [1]"
+    },
+    {
+      "id": "Q25",
+      "kind": "fact",
+      "question": "引用里的数字编号是怎么和来源对应的？",
+      "expected": [
+        "01_product_guide / 03_contribution_map: [n] 对应第 n 条已核验来源"
+      ],
+      "maxChars": 300,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 2,
+      "wallMsTotal": 14333,
+      "attempts": [
+        {
+          "runId": "c1d52414-dd18-4ce0-a737-d39abe485edd",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "INVALID_ANSWER_FORMAT",
+          "durationMs": 4886,
+          "wallMs": 6137,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "attempt": 1
+        },
+        {
+          "runId": "18ccd425-69c8-4f27-821d-ad297539db0a",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "durationMs": 7073,
+          "wallMs": 8196,
+          "traceIncomplete": false,
+          "answerMessageId": "8cfe3410-29b4-49c3-a2d4-9d79d31acf90",
+          "answerChars": 249,
+          "markers": [
+            1,
+            2
+          ],
+          "modelCalls": 2,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 4,
+            "TOOL_CALL": 2,
+            "RETRIEVAL": 1
+          },
+          "citations": [
+            {
+              "label": 1,
+              "documentName": "01_product_guide.md",
+              "startLine": 27,
+              "endLine": 29,
+              "excerpt": "能解决：需要从一批文档里快速得到有出处答案的问题，以及需要证明「答案来自哪一段原文」的场景。 不能解决：需要实时联网数据的问题（检索范围只是已发布的知识库）、需要精确数值计算与外部系统写入的问题、以及把引用等同于事实核验的问题。引用只说明「这条来源被服务端校验过」，不代表模型组织的结论一定正确，仍需人工判断。"
+            },
+            {
+              "label": 2,
+              "documentName": "03_contribution_map.md",
+              "startLine": 22,
+              "endLine": 31,
+              "excerpt": "| 能力 | 一句话说明 | 主要依据 | 验证范围 | | --- | --- | --- | --- | | Markdown 解析隔离 | 每份文档独立解析状态，避免并发导入时共享可变状态互相污染 | 解析服务与并发用例 | 单元测试（含并发场景） | | 检索评测与冻结资产 | 题集、语料清单、冻结哈希与评测脚"
+            }
+          ],
+          "attempt": 2
+        }
+      ],
+      "answerChars": 249,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "documentName": "01_product_guide.md",
+          "startLine": 27,
+          "endLine": 29,
+          "excerpt": "能解决：需要从一批文档里快速得到有出处答案的问题，以及需要证明「答案来自哪一段原文」的场景。 不能解决：需要实时联网数据的问题（检索范围只是已发布的知识库）、需要精确数值计算与外部系统写入的问题、以及把引用等同于事实核验的问题。引用只说明「这条来源被服务端校验过」，不代表模型组织的结论一定正确，仍需人工判断。"
+        },
+        {
+          "label": 2,
+          "documentName": "03_contribution_map.md",
+          "startLine": 22,
+          "endLine": 31,
+          "excerpt": "| 能力 | 一句话说明 | 主要依据 | 验证范围 | | --- | --- | --- | --- | | Markdown 解析隔离 | 每份文档独立解析状态，避免并发导入时共享可变状态互相污染 | 解析服务与并发用例 | 单元测试（含并发场景） | | 检索评测与冻结资产 | 题集、语料清单、冻结哈希与评测脚"
+        }
+      ],
+      "markers": [
+        1,
+        2
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "结论：编号就是本轮检索结果里真实片段的序号，点开可看到对应原文段落。\n\n- 编号指向一段具体文本：片段带 `documentId`、`sourceHash`、`startLine`、`endLine` 与索引版本，界面按行定位到原文 [2]\n- 引用只登记本轮真实完成的检索，写入消息 `metadata.citations`，不是模型自己编的编号 [2]\n- 点开来源能看到文档名、行号范围与原文预览 [2]\n\n一个边界：引用只说明该来源被服务端校验过，不代表结论一定正确，仍需人工判断 [1]。"
+    },
+    {
+      "id": "Q26",
+      "kind": "fact",
+      "question": "如果资料里没有写，你会怎么回答？",
+      "expected": [
+        "01_product_guide / 02_engineering_cases: 明说资料没有，不编造"
+      ],
+      "maxChars": 300,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 2,
+      "wallMsTotal": 12335,
+      "attempts": [
+        {
+          "runId": "234c6017-eb6e-4822-ba1d-aa63b70cfa13",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "INVALID_ANSWER_FORMAT",
+          "durationMs": 3227,
+          "wallMs": 4144,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "attempt": 1
+        },
+        {
+          "runId": "afa0e821-350d-4281-9c69-18ed306ea80b",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "durationMs": 6312,
+          "wallMs": 8191,
+          "traceIncomplete": false,
+          "answerMessageId": "13eac67d-5e97-45fb-a1cf-29533c804195",
+          "answerChars": 224,
+          "markers": [
+            1,
+            2
+          ],
+          "modelCalls": 2,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 4,
+            "TOOL_CALL": 2,
+            "RETRIEVAL": 1
+          },
+          "citations": [
+            {
+              "label": 1,
+              "documentName": "01_product_guide.md",
+              "startLine": 3,
+              "endLine": 5,
+              "excerpt": "本文用于回答「这个项目能做什么、我在这里能亲自体验什么、哪些能力有边界」。核对日期：2026-10-19。 凡是标注「已实现」的，指仓库源码中存在对应逻辑；标注「已在线上验证」的，指在本次核对时通过真实请求确认过。 没有标注的内容不应被当作能力承诺。"
+            },
+            {
+              "label": 2,
+              "documentName": "03_contribution_map.md",
+              "startLine": 52,
+              "endLine": 54,
+              "excerpt": "- 想看能力是否存在：对照上表「主要依据」的源码位置与当前仓库提交。 - 想看是否验证过：看对应的测试文件与运行记录，注意区分单元、集成与真实浏览器/生产证据。 - 想看边界：直接问「现在还做不到什么」，回答应当复述上两节的边界，而不是把计划中的能力当作已完成。"
+            }
+          ],
+          "attempt": 2
+        }
+      ],
+      "answerChars": 224,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "documentName": "01_product_guide.md",
+          "startLine": 3,
+          "endLine": 5,
+          "excerpt": "本文用于回答「这个项目能做什么、我在这里能亲自体验什么、哪些能力有边界」。核对日期：2026-10-19。 凡是标注「已实现」的，指仓库源码中存在对应逻辑；标注「已在线上验证」的，指在本次核对时通过真实请求确认过。 没有标注的内容不应被当作能力承诺。"
+        },
+        {
+          "label": 2,
+          "documentName": "03_contribution_map.md",
+          "startLine": 52,
+          "endLine": 54,
+          "excerpt": "- 想看能力是否存在：对照上表「主要依据」的源码位置与当前仓库提交。 - 想看是否验证过：看对应的测试文件与运行记录，注意区分单元、集成与真实浏览器/生产证据。 - 想看边界：直接问「现在还做不到什么」，回答应当复述上两节的边界，而不是把计划中的能力当作已完成。"
+        }
+      ],
+      "markers": [
+        1,
+        2
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "结论：资料里没写的，我会直接说「资料里没有写」，只讲能确认的部分，不靠印象补细节。\n\n- 边界与依据：只承认有标注的内容——「已实现」指源码中存在对应逻辑，「已在线上验证」才指真实请求确认过，未标注的不当作能力承诺 [1]。\n- 可以借资料自查：想知道某项是否验证过，看对应测试与运行记录，并区分单元、集成与真实浏览器/生产证据 [2]。\n- 处理方式：如果问到的是资料未覆盖的实现细节或计划中能力，我会说明资料不足，而不是把计划当已完成 [2]。"
+    },
+    {
+      "id": "Q27",
+      "kind": "rewrite",
+      "question": "这套系统怎么保证答错的时候我知道？",
+      "expected": [
+        "01_product_guide: 失败/取消/中断如实显示 + 来源可核对"
+      ],
+      "maxChars": 350,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 1,
+      "wallMsTotal": 8175,
+      "attempts": [
+        {
+          "runId": "04fab664-70a3-4f3e-a578-3c09b950cf37",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "durationMs": 6523,
+          "wallMs": 8175,
+          "traceIncomplete": false,
+          "answerMessageId": "408316fa-0550-418c-8e50-13973277dac9",
+          "answerChars": 230,
+          "markers": [
+            1,
+            2,
+            3
+          ],
+          "modelCalls": 2,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 4,
+            "TOOL_CALL": 2,
+            "RETRIEVAL": 1
+          },
+          "citations": [
+            {
+              "label": 1,
+              "documentName": "01_product_guide.md",
+              "startLine": 27,
+              "endLine": 29,
+              "excerpt": "能解决：需要从一批文档里快速得到有出处答案的问题，以及需要证明「答案来自哪一段原文」的场景。 不能解决：需要实时联网数据的问题（检索范围只是已发布的知识库）、需要精确数值计算与外部系统写入的问题、以及把引用等同于事实核验的问题。引用只说明「这条来源被服务端校验过」，不代表模型组织的结论一定正确，仍需人工判断。"
+            },
+            {
+              "label": 2,
+              "documentName": "01_product_guide.md",
+              "startLine": 9,
+              "endLine": 15,
+              "excerpt": "ExoBrain 是一个可核验的 RAG 问答项目：它检索公开资料、给出带原文出处的回答，并把一次回答的执行过程记录下来供核对。 三个要点： 1. **回答带出处**：模型必须通过检索工具拿到资料片段才组织结论，回答里的每条来源都指向具体文档、行号范围与片段哈希。 2. **过程可核对**：每轮问答都有运行记录，包含模"
+            },
+            {
+              "label": 3,
+              "documentName": "02_engineering_cases.md",
+              "startLine": 66,
+              "endLine": 68,
+              "excerpt": "- 优先保证「不骗人」：宁可把一个运行标成中断，也不写回一个无法证明归属的结果。 - 所有结论都带可复核的证据：数据库断言、真实 HTTP 请求、真实模型调用。 - 没有做的不要装作做了：真正的逐字流式输出、跨实例自动迁移、外部调用 exactly-once 都不在本版范围。"
+            }
+          ],
+          "attempt": 1
+        }
+      ],
+      "answerChars": 230,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "documentName": "01_product_guide.md",
+          "startLine": 27,
+          "endLine": 29,
+          "excerpt": "能解决：需要从一批文档里快速得到有出处答案的问题，以及需要证明「答案来自哪一段原文」的场景。 不能解决：需要实时联网数据的问题（检索范围只是已发布的知识库）、需要精确数值计算与外部系统写入的问题、以及把引用等同于事实核验的问题。引用只说明「这条来源被服务端校验过」，不代表模型组织的结论一定正确，仍需人工判断。"
+        },
+        {
+          "label": 2,
+          "documentName": "01_product_guide.md",
+          "startLine": 9,
+          "endLine": 15,
+          "excerpt": "ExoBrain 是一个可核验的 RAG 问答项目：它检索公开资料、给出带原文出处的回答，并把一次回答的执行过程记录下来供核对。 三个要点： 1. **回答带出处**：模型必须通过检索工具拿到资料片段才组织结论，回答里的每条来源都指向具体文档、行号范围与片段哈希。 2. **过程可核对**：每轮问答都有运行记录，包含模"
+        },
+        {
+          "label": 3,
+          "documentName": "02_engineering_cases.md",
+          "startLine": 66,
+          "endLine": 68,
+          "excerpt": "- 优先保证「不骗人」：宁可把一个运行标成中断，也不写回一个无法证明归属的结果。 - 所有结论都带可复核的证据：数据库断言、真实 HTTP 请求、真实模型调用。 - 没有做的不要装作做了：真正的逐字流式输出、跨实例自动迁移、外部调用 exactly-once 都不在本版范围。"
+        }
+      ],
+      "markers": [
+        1,
+        2,
+        3
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "结论：它靠「答案带原文出处 + 执行过程可核对」让你能自己发现答错，但引用不等于事实核验，仍需人工判断 [1]。\n\n- 每条来源都指向具体文档、行号范围与片段哈希，你可以点开原文逐句比对 [2]。\n- 每轮问答都有运行记录，模型与工具调用、检索、落库的耗时和状态如实显示，失败或中断不会被伪装成成功 [2]。\n- 取舍是「不骗人」优先：宁可把运行标成中断，也不写回无法证明归属的结果；不过自行核对结论这一点，资料里没有写自动化手段，只能靠你读原文判断 [3]。"
+    },
+    {
+      "id": "Q28",
+      "kind": "rewrite",
+      "question": "重复提问会不会多花钱？",
+      "expected": [
+        "02_engineering_cases: 幂等提交，同键只执行一次"
+      ],
+      "maxChars": 300,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 1,
+      "wallMsTotal": 8168,
+      "attempts": [
+        {
+          "runId": "a30943fd-b2c7-40bc-a7ea-c9c9a8a98cc6",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "durationMs": 7966,
+          "wallMs": 8168,
+          "traceIncomplete": false,
+          "answerMessageId": "46afc6f8-8678-4220-aff1-c360e5db38b3",
+          "answerChars": 297,
+          "markers": [
+            1,
+            2
+          ],
+          "modelCalls": 2,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 4,
+            "TOOL_CALL": 2,
+            "RETRIEVAL": 1
+          },
+          "citations": [
+            {
+              "label": 1,
+              "documentName": "02_engineering_cases.md",
+              "startLine": 8,
+              "endLine": 22,
+              "excerpt": "**问题**：网络慢的时候用户会连点发送，或者请求其实已经到服务器但响应丢了。如果后端每收到一次就执行一次， 会出现两条用户消息、两个模型调用、两笔费用，甚至两条不同的回答挂在同一个问题上。 **方案**：把「一次提问」变成带唯一键的提交意图，服务端按 `(身份, 会话, 幂等键)` 去重。 - 前端为每个「新的提问意"
+            },
+            {
+              "label": 2,
+              "documentName": "03_contribution_map.md",
+              "startLine": 44,
+              "endLine": 48,
+              "excerpt": "- **逐字流式输出**：当前回答由一次同步模型调用产生并通过工具参数交付，界面只有执行状态流， 没有正文的增量推送。任何「打字机效果」都不是流式实现。 - **对外部调用的 exactly-once**：幂等只覆盖「同一会话的同一提交意图」，不覆盖模型或第三方服务。 - **管理员跨用户读取**：这是刻意不做的隔离，"
+            }
+          ],
+          "attempt": 1
+        }
+      ],
+      "answerChars": 297,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "documentName": "02_engineering_cases.md",
+          "startLine": 8,
+          "endLine": 22,
+          "excerpt": "**问题**：网络慢的时候用户会连点发送，或者请求其实已经到服务器但响应丢了。如果后端每收到一次就执行一次， 会出现两条用户消息、两个模型调用、两笔费用，甚至两条不同的回答挂在同一个问题上。 **方案**：把「一次提问」变成带唯一键的提交意图，服务端按 `(身份, 会话, 幂等键)` 去重。 - 前端为每个「新的提问意"
+        },
+        {
+          "label": 2,
+          "documentName": "03_contribution_map.md",
+          "startLine": 44,
+          "endLine": 48,
+          "excerpt": "- **逐字流式输出**：当前回答由一次同步模型调用产生并通过工具参数交付，界面只有执行状态流， 没有正文的增量推送。任何「打字机效果」都不是流式实现。 - **对外部调用的 exactly-once**：幂等只覆盖「同一会话的同一提交意图」，不覆盖模型或第三方服务。 - **管理员跨用户读取**：这是刻意不做的隔离，"
+        }
+      ],
+      "markers": [
+        1,
+        2
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "结论：同一会话里「同一个提问」重复发送不会重复执行，因此不会产生重复的模型调用和费用；换成一个新问题则会正常再算一次 [1]。\n\n- 服务端按 `(身份, 会话, 幂等键)` 去重，同键再次到达只返回原来那次运行的 `runId` 与状态，不再新建运行 [1]。\n- 已用真实 PostgreSQL 集成测试和浏览器丢弃响应后重试验证：最终只有一个运行、一条用户消息、一次模型调用 [1]。\n- 边界：这只覆盖「同一会话的同一提交意图」，不是对外部调用的 exactly-once 承诺，模型请求本身仍可能被重复发出 [2]。\n\n另外，资料里没有写具体计费单价或单次调用成本，无法据此估算金额。"
+    },
+    {
+      "id": "Q29",
+      "kind": "boundary",
+      "question": "公开示例是实时生成的答案吗？",
+      "expected": [
+        "01_product_guide: 只读示例为历史执行记录"
+      ],
+      "maxChars": 250,
+      "status": "FAILED",
+      "errorCode": "INVALID_ANSWER_FORMAT",
+      "attemptCount": 2,
+      "wallMsTotal": 8277,
+      "attempts": [
+        {
+          "runId": "f1c2e4bf-5d58-42ca-8a20-9acec0d434e2",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "durationMs": 3245,
+          "wallMs": 4125,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 2,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 2,
+            "TOOL_CALL": 1,
+            "RETRIEVAL": 1
+          },
+          "citations": [],
+          "attempt": 1
+        },
+        {
+          "runId": "83d12c18-1846-4395-9f74-960bf58030da",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "INVALID_ANSWER_FORMAT",
+          "durationMs": 3277,
+          "wallMs": 4152,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "attempt": 2
+        }
+      ],
+      "answerChars": 0,
+      "withinBudget": true,
+      "citations": [],
+      "markers": [],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": ""
+    },
+    {
+      "id": "Q30",
+      "kind": "boundary",
+      "question": "如果我只想核对某一条结论的出处，应该怎么操作？",
+      "expected": [
+        "01_product_guide: 点开来源看文档名/行号/原文"
+      ],
+      "maxChars": 300,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 1,
+      "wallMsTotal": 8182,
+      "attempts": [
+        {
+          "runId": "88b2f94f-15ad-4f2e-a029-65181003af70",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "durationMs": 7809,
+          "wallMs": 8182,
+          "traceIncomplete": false,
+          "answerMessageId": "8a11adc3-f575-4dea-8ea5-e1827f8fb718",
+          "answerChars": 268,
+          "markers": [
+            1,
+            2,
+            3
+          ],
+          "modelCalls": 2,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 5,
+            "TOOL_CALL": 3,
+            "RETRIEVAL": 2
+          },
+          "citations": [
+            {
+              "label": 1,
+              "documentName": "01_product_guide.md",
+              "startLine": 19,
+              "endLine": 23,
+              "excerpt": "| 体验路径 | 你会看到什么 | 依据 | | --- | --- | --- | | 直接提问 | 一句结论 + 几条要点，下面挂来源；点开来源可看到原文对应段落 | 公开知识库检索、引用投影、原文预览 | | 查看执行过程 | 展开「查看过程」可看到这一轮的模型、检索、工具与落库步骤及其耗时 | 运行摘要与事件表"
+            },
+            {
+              "label": 2,
+              "documentName": "01_product_guide.md",
+              "startLine": 9,
+              "endLine": 15,
+              "excerpt": "ExoBrain 是一个可核验的 RAG 问答项目：它检索公开资料、给出带原文出处的回答，并把一次回答的执行过程记录下来供核对。 三个要点： 1. **回答带出处**：模型必须通过检索工具拿到资料片段才组织结论，回答里的每条来源都指向具体文档、行号范围与片段哈希。 2. **过程可核对**：每轮问答都有运行记录，包含模"
+            },
+            {
+              "label": 3,
+              "documentName": "01_product_guide.md",
+              "startLine": 27,
+              "endLine": 29,
+              "excerpt": "能解决：需要从一批文档里快速得到有出处答案的问题，以及需要证明「答案来自哪一段原文」的场景。 不能解决：需要实时联网数据的问题（检索范围只是已发布的知识库）、需要精确数值计算与外部系统写入的问题、以及把引用等同于事实核验的问题。引用只说明「这条来源被服务端校验过」，不代表模型组织的结论一定正确，仍需人工判断。"
+            }
+          ],
+          "attempt": 1
+        }
+      ],
+      "answerChars": 268,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "documentName": "01_product_guide.md",
+          "startLine": 19,
+          "endLine": 23,
+          "excerpt": "| 体验路径 | 你会看到什么 | 依据 | | --- | --- | --- | | 直接提问 | 一句结论 + 几条要点，下面挂来源；点开来源可看到原文对应段落 | 公开知识库检索、引用投影、原文预览 | | 查看执行过程 | 展开「查看过程」可看到这一轮的模型、检索、工具与落库步骤及其耗时 | 运行摘要与事件表"
+        },
+        {
+          "label": 2,
+          "documentName": "01_product_guide.md",
+          "startLine": 9,
+          "endLine": 15,
+          "excerpt": "ExoBrain 是一个可核验的 RAG 问答项目：它检索公开资料、给出带原文出处的回答，并把一次回答的执行过程记录下来供核对。 三个要点： 1. **回答带出处**：模型必须通过检索工具拿到资料片段才组织结论，回答里的每条来源都指向具体文档、行号范围与片段哈希。 2. **过程可核对**：每轮问答都有运行记录，包含模"
+        },
+        {
+          "label": 3,
+          "documentName": "01_product_guide.md",
+          "startLine": 27,
+          "endLine": 29,
+          "excerpt": "能解决：需要从一批文档里快速得到有出处答案的问题，以及需要证明「答案来自哪一段原文」的场景。 不能解决：需要实时联网数据的问题（检索范围只是已发布的知识库）、需要精确数值计算与外部系统写入的问题、以及把引用等同于事实核验的问题。引用只说明「这条来源被服务端校验过」，不代表模型组织的结论一定正确，仍需人工判断。"
+        }
+      ],
+      "markers": [
+        1,
+        2,
+        3
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "公开示例的回答是现场生成的：每轮都是一次真实的检索加模型调用，并留下可核对的运行记录，而非预置好的固定文案 [2]。\n\n- 回答不是凭空写的：模型要先通过检索工具拿到资料片段才组织结论，所以每轮都会有检索和模型调用 [2]。\n- 过程可查：展开「查看过程」能看到这一轮的模型、检索、工具与落库步骤及各自耗时 [1]。\n\n若只想核对某一条结论的出处：点开该结论后面挂的来源编号，会显示原文对应段落，包括文档名与行号范围，两边比照着看即可 [1]。注意引用只说明这条来源被服务端校验过，并不等于事实核验，结论是否成立仍需你自己判断 [3]。"
+    }
+  ]
+}

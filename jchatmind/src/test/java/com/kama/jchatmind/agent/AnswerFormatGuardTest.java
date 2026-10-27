@@ -70,4 +70,57 @@ class AnswerFormatGuardTest {
                 () -> AnswerFormatGuard.verify("答案正文</answer><parameter name=\"citationIds\">[\"ret-1:1\"]"));
         assertEquals("Model answer contains an invalid tool parameter boundary", error.getMessage());
     }
+
+    @Test
+    @DisplayName("中文正文紧邻的编号仍是引用，不能当成数组下标放行")
+    void markerGluedToChineseTextIsStillACitation() {
+        InvalidAnswerFormatException error = assertThrows(InvalidAnswerFormatException.class,
+                () -> AnswerFormatGuard.verify("结论[1]。", 0));
+        assertEquals("Model answer references a source that could not be verified", error.getMessage());
+        assertThrows(InvalidAnswerFormatException.class, () -> AnswerFormatGuard.verify("结论[1]。", 0));
+        // 有来源时同样放行，说明判定不是「见到中文就拒绝」。
+        assertDoesNotThrow(() -> AnswerFormatGuard.verify("结论[1]。", 1));
+        assertDoesNotThrow(() -> AnswerFormatGuard.verify("要点[1][2]。", 2));
+    }
+
+    @Test
+    @DisplayName("相邻编号逐个校验，第二个超范围同样拒绝")
+    void adjacentMarkersAreEachChecked() {
+        // 只有一条来源时 [2] 是伪造的，不能因为紧跟着 [1] 就被跳过。
+        assertThrows(InvalidAnswerFormatException.class, () -> AnswerFormatGuard.verify("结论 [1][2]。", 1));
+        assertDoesNotThrow(() -> AnswerFormatGuard.verify("结论 [1][2]。", 2));
+    }
+
+    @Test
+    @DisplayName("长编号与超大编号都按越界处理，不会溢出成放行")
+    void longMarkersAreStillRejected() {
+        assertThrows(InvalidAnswerFormatException.class, () -> AnswerFormatGuard.verify("结论 [1000]。", 0));
+        assertThrows(InvalidAnswerFormatException.class, () -> AnswerFormatGuard.verify("结论 [1000]。", 3));
+        assertThrows(InvalidAnswerFormatException.class,
+                () -> AnswerFormatGuard.verify("结论 [12345678901]。", 3));
+        // [0] 不是合法引用位置。
+        assertThrows(InvalidAnswerFormatException.class, () -> AnswerFormatGuard.verify("结论 [0]。", 3));
+    }
+
+    @Test
+    @DisplayName("链接目标、自动链接、裸 URL 与链接定义里的编号都不算引用")
+    void protectedRegionsDoNotProduceMarkers() {
+        // 受保护区域一律用超范围编号（99），零来源时才可能暴露误拦。
+        assertDoesNotThrow(() -> AnswerFormatGuard.verify("查看 [1](https://example.test/[99])。", 0));
+        assertDoesNotThrow(() -> AnswerFormatGuard.verify("查看 [文档](https://example.test/[99])。", 0));
+        assertDoesNotThrow(() -> AnswerFormatGuard.verify("见 <https://example.test/[99]>。", 0));
+        assertDoesNotThrow(() -> AnswerFormatGuard.verify("见 https://example.test/[99] 这一段。", 0));
+        assertDoesNotThrow(() -> AnswerFormatGuard.verify("查看 [1][ref]。\n\n[ref]: https://example.test/[99]", 0));
+        // 但正文里同一编号仍然要被拦住，证明不是整篇放行。
+        assertThrows(InvalidAnswerFormatException.class,
+                () -> AnswerFormatGuard.verify("查看 [1](https://example.test/[99])，另见 [99]。", 0));
+    }
+
+    @Test
+    @DisplayName("多维数组下标不算引用，紧邻的引用仍然算")
+    void subscriptChainsVersusAdjacentCitations() {
+        assertDoesNotThrow(() -> AnswerFormatGuard.verify("矩阵 array[1][2] 与 items[0][3]。", 0));
+        assertThrows(InvalidAnswerFormatException.class,
+                () -> AnswerFormatGuard.verify("矩阵 array[1][2]，结论 [1]。", 0));
+    }
 }

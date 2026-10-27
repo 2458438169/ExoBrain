@@ -222,6 +222,21 @@ class JChatMindCitationTest {
                 "an answer with unverifiable citation numbers must not persist");
     }
 
+    @Test
+    @DisplayName("a glued Chinese marker or an out-of-range long marker is rejected before persistence too")
+    void gluedAndLongMarkersWithoutSourcesNeverPersistAnAnswer() throws Exception {
+        // 覆盖验收探针发现的两个漏洞：中文紧邻（结论[1]，曾被当成数组下标放行）与长编号（[1000]，曾被位数正则漏掉）。
+        for (String answer : List.of("结论[1]。", "结论 [1][2]。", "结论 [1000]。", "结论 [12345678901]。")) {
+            List<ChatMessageDTO> saved = new ArrayList<>();
+            RuntimeException error = assertThrows(RuntimeException.class,
+                    () -> run(List.of(answerRound("call-a1", answer, null)), saved, List.of(kb(KB)), ""),
+                    "answer must be rejected: " + answer);
+            assertEquals("INVALID_ANSWER_FORMAT", RunLifecycleService.classify(error), answer);
+            assertFalse(saved.stream().anyMatch(message -> message.getRole() == ChatMessageDTO.RoleType.ASSISTANT),
+                    "no answer body may persist for: " + answer);
+        }
+    }
+
 
     @Test
     @DisplayName("a source outside the run's own knowledge bases is rejected even though it was really retrieved")

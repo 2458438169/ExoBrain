@@ -174,7 +174,7 @@ public class ModelRuntimeService {
         @Override
         public ChatResponse call(Prompt prompt) {
             try { return delegate.call(prompt); }
-            catch (Exception failure) { throw llmUnavailable(); }
+            catch (Exception failure) { logFailure(failure); throw llmUnavailable(); }
         }
 
         @Override
@@ -182,7 +182,25 @@ public class ModelRuntimeService {
 
         @Override
         public Flux<ChatResponse> stream(Prompt prompt) {
-            return Flux.defer(() -> delegate.stream(prompt)).timeout(timeout).onErrorMap(failure -> llmUnavailable());
+            return Flux.defer(() -> delegate.stream(prompt)).timeout(timeout)
+                    .onErrorMap(failure -> { logFailure(failure); return llmUnavailable(); });
+        }
+
+        /**
+         * 记录可分诊的失败根因：只留异常类名与去掉 URL／密钥后的短消息。
+         *
+         * <p>没有这一行时，{@link #llmUnavailable()} 会把超时、限流与解析错误压成同一句
+         * 「服务暂不可用」，验收时无法区分失败来自供应商还是客户端。</p>
+         */
+        private static void logFailure(Throwable failure) {
+            String message = failure.getMessage() == null ? "" : failure.getMessage();
+            message = message.replaceAll("(?i)(https?://|bearer\\s+)[^\\s\"']+", "<redacted>")
+                    .replaceAll("sk-[A-Za-z0-9_\\-]{8,}", "<redacted>")
+                    .replaceAll("\\s+", " ");
+            if (message.length() > 160) {
+                message = message.substring(0, 160);
+            }
+            log.warn("Language model call failed: type={} message={}", failure.getClass().getSimpleName(), message);
         }
     }
 }

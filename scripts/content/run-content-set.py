@@ -1,43 +1,48 @@
-#!/usr/bin/env python3
-"""UX-08：用冻结的 30 题跑真实问答，记录正文、引用、耗时与自动可判定的检查项。
+# -*- coding: utf-8 -*-
+"""Run the frozen UX-08 question set against a real backend and keep every attempt.
 
-    python scripts/content/run-content-set.py --base http://127.0.0.1:18080 \
-        --agent <agent-id> --out <file.json>
-
-只做自动可判定的部分（长度、编号一致性、禁用词、运行状态）；语义是否正确由人逐题复核，
-脚本不会替人打分。
+为什么保存逐次尝试：上一次这个脚本只留下最后一次的 runId，重试会把首次尝试
+（包括守卫拒绝）覆盖掉，于是「零守卫拒绝」只能靠数据库旁证。现在每次尝试的
+运行 ID、状态、错误码、耗时与模型调用事件都单独留下，题级结论和尝试级结论
+分开统计。
 """
 import argparse
+import collections
+import hashlib
 import json
 import os
+import re
 import sys
 import time
 import urllib.error
 import urllib.request
 
-REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-QUESTIONS = os.path.join(REPO, "docs", "development", "visitor-experience", "ux08-question-set.json")
-PROMPT = os.path.join(REPO, "docs", "public-demo", "v2-2026-10-19", "agent-system-prompt.md")
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+QUESTIONS = os.path.join(ROOT, "docs", "development", "visitor-experience", "ux08-question-set.json")
+PROMPT = os.path.join(ROOT, "docs", "public-demo", "v2-2026-10-19", "agent-system-prompt.md")
+MARKER = re.compile(r"\[(\d+)\]")
+SECRET = re.compile(r"(sk-[A-Za-z0-9_\-]{8,}|Bearer\s+[A-Za-z0-9._\-]+)")
+URL = re.compile(r"https?://[^\s\"'<>]+")
 
-state = {"cookie": "", "csrf": ""}
+state = {"csrf": None}
 
 
-def call(base, method, path, body=None, timeout=180):
-    data = None if body is None else json.dumps(body).encode("utf-8")
+def call(base, method, path, payload=None):
+    data = None if payload is None else json.dumps(payload).encode("utf-8")
     request = urllib.request.Request(base + path, data=data, method=method)
     if data is not None:
         request.add_header("Content-Type", "application/json")
     if state["csrf"]:
         request.add_header("X-CSRF-Token", state["csrf"])
-    if state["cookie"]:
-        request.add_header("Cookie", state["cookie"])
+    cookie = state.get("cookie")
+    if cookie:
+        request.add_header("Cookie", cookie)
     try:
-        with urllib.request.urlopen(request, timeout=timeout) as response:
-            for header in response.headers.get_all("Set-Cookie") or []:
-                name = header.split("=", 1)[0]
-                if "exobrain_session" in name and not header.startswith(name + "=;"):
-                    state["cookie"] = header.split(";", 1)[0]
+        with urllib.request.urlopen(request, timeout=120) as response:
             raw = response.read().decode("utf-8")
+            grabbed = response.headers.get_all("Set-Cookie") or []
+            if grabbed:
+                state["cookie"] = "; ".join(part.split(";")[0] for part in grabbed)
             return response.status, (json.loads(raw) if raw.strip() else None)
     except urllib.error.HTTPError as error:
         raw = error.read().decode("utf-8")
@@ -47,12 +52,85 @@ def call(base, method, path, body=None, timeout=180):
             return error.code, raw
 
 
+def sanitize(text):
+    """脱敏：去掉密钥与主机名，只保留错误类别可判断的部分。"""
+    if not text:
+        return ""
+    text = SECRET.sub("<redacted>", text)
+    text = URL.sub("<url>", text)
+    return text[:200]
+
+
+def markers_of(text):
+    return sorted({int(number) for number in MARKER.findall(text)})
+
+
+def ask(base, agent_id, session_id, question, key):
+    """提交一次问题，返回这一次尝试的完整记录（不覆盖、不合并）。"""
+    started = time.time()
+    status, submitted = call(base, "POST", "/api/chat-messages", {
+        "agentId": agent_id, "sessionId": session_id, "role": "user",
+        "content": question, "idempotencyKey": key,
+    })
+    run_id = ((submitted or {}).get("data") or {}).get("runId")
+    detail, events = {}, []
+    for _ in range(120):
+        time.sleep(2)
+        _, run_detail = call(base, "GET", "/api/runs/%s" % run_id)
+        body = (run_detail or {}).get("data") or {}
+        detail = body.get("summary") or {}
+        events = body.get("events") or []
+        if detail.get("status") in ("SUCCEEDED", "FAILED", "CANCELLED", "INTERRUPTED"):
+            break
+    _, messages = call(base, "GET", "/api/chat-messages/session/%s" % session_id)
+    all_messages = ((messages or {}).get("data") or {}).get("chatMessages") or []
+    answer_id = detail.get("answerMessageId")
+    answer = next((m for m in all_messages if m.get("id") == answer_id), None) or {}
+    text = answer.get("content") or ""
+    citations = (answer.get("metadata") or {}).get("citations") or []
+    model_calls = [event for event in events if event.get("type") == "MODEL_CALL"]
+    failures = [event for event in model_calls if (event.get("status") or "").upper() != "SUCCEEDED"]
+    return {
+        "runId": run_id,
+        "submitStatus": status,
+        "status": detail.get("status"),
+        "errorCode": detail.get("errorCode"),
+        "durationMs": detail.get("durationMs"),
+        "wallMs": int((time.time() - started) * 1000),
+        "traceIncomplete": detail.get("traceIncomplete"),
+        "answerMessageId": answer_id,
+        "answerChars": len(text),
+        "markers": markers_of(text),
+        "modelCalls": len(model_calls),
+        "modelCallFailures": len(failures),
+        "modelCallErrorCodes": sorted({event.get("errorCode") for event in failures if event.get("errorCode")}),
+        "modelCallDetails": [sanitize(event.get("detail")) for event in failures][:3],
+        "eventTypes": dict(collections.Counter(event.get("type") for event in events)),
+        "citations": [{"label": citation.get("label"),
+                       "documentName": (citation.get("source") or {}).get("documentName"),
+                       "startLine": (citation.get("source") or {}).get("startLine"),
+                       "endLine": (citation.get("source") or {}).get("endLine"),
+                       "excerpt": (citation.get("excerpt") or "")[:160]} for citation in citations],
+        "answer": text,
+    }
+
+
+def percentile(values, fraction):
+    if not values:
+        return 0
+    ordered = sorted(values)
+    index = min(len(ordered) - 1, int(round(fraction * (len(ordered) - 1))))
+    return ordered[index]
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--base", default="http://127.0.0.1:18080")
     parser.add_argument("--agent", required=True)
     parser.add_argument("--out", required=True)
     parser.add_argument("--pause", type=float, default=1.0)
+    parser.add_argument("--attempts", type=int, default=2, help="每题最多尝试几次")
+    parser.add_argument("--backoff", type=float, default=8.0, help="重试前的退避秒数")
     parser.add_argument("--only", default="", help="逗号分隔的题号，例如 Q05,Q06；留空跑全部")
     args = parser.parse_args()
     base = args.base.rstrip("/")
@@ -63,7 +141,7 @@ def main():
     state["csrf"] = login["data"]["csrfToken"]
 
     prompt = open(PROMPT, encoding="utf-8").read()
-    status, patched = call(base, "PATCH", "/api/agents/%s" % args.agent, {"systemPrompt": prompt})
+    status, _ = call(base, "PATCH", "/api/agents/%s" % args.agent, {"systemPrompt": prompt})
     print("agent prompt update:", status)
 
     status, session = call(base, "POST", "/api/chat-sessions",
@@ -75,103 +153,92 @@ def main():
     spec = json.load(open(QUESTIONS, encoding="utf-8"))
     if args.only:
         wanted = {item.strip().upper() for item in args.only.split(",") if item.strip()}
-        spec["questions"] = [q for q in spec["questions"] if q["id"].upper() in wanted]
-        print("running subset:", [q["id"] for q in spec["questions"]])
+        spec["questions"] = [question for question in spec["questions"] if question["id"].upper() in wanted]
+        print("running subset:", [question["id"] for question in spec["questions"]])
+
     results = []
-
-    def ask(question, key):
-        status, submitted = call(base, "POST", "/api/chat-messages", {
-            "agentId": args.agent, "sessionId": session_id, "role": "user",
-            "content": question, "idempotencyKey": key,
-        })
-        run_id = ((submitted or {}).get("data") or {}).get("runId")
-        detail = {}
-        for _ in range(120):
-            time.sleep(2)
-            _, run_detail = call(base, "GET", "/api/runs/%s" % run_id)
-            detail = ((run_detail or {}).get("data") or {}).get("summary") or {}
-            if detail.get("status") in ("SUCCEEDED", "FAILED", "CANCELLED", "INTERRUPTED"):
-                break
-        _, messages = call(base, "GET", "/api/chat-messages/session/%s" % session_id)
-        all_messages = ((messages or {}).get("data") or {}).get("chatMessages") or []
-        answer_id = detail.get("answerMessageId")
-        answer = next((m for m in all_messages if m.get("id") == answer_id), None)
-        if answer is None:
-            # 没有答案关联时只认本轮触发消息之后的那条助手消息，绝不回退到上一轮的旧答案。
-            answer = {}
-        return run_id, detail, answer
-
     for item in spec["questions"]:
-        started = time.time()
-        key = "ux08-%s-%d" % (item["id"], int(started))
-        run_id, detail, answer = ask(item["question"], key)
-        attempts = 1
-        while detail.get("status") != "SUCCEEDED" and attempts < 2:
-            time.sleep(8)
-            attempts += 1
-            run_id, detail, answer = ask(item["question"], "%s-r%d" % (key, attempts))
-        text = (answer.get("content") or "") if answer else ""
-        citations = ((answer or {}).get("metadata") or {}).get("citations") or []
-        labels = [c.get("label") for c in citations]
-        markers = sorted({int(n) for n in __import__("re").findall(r"\[(\d+)\]", text)})
-        missing = [m for m in markers if m not in labels]
-        must_not = [pattern for pattern in item.get("mustNot", [])
-                    if __import__("re").search(pattern, text)]
+        attempts = []
+        for attempt in range(1, max(1, args.attempts) + 1):
+            key = "ux08-%s-%d-%d" % (item["id"], int(time.time() * 1000), attempt)
+            record = ask(base, args.agent, session_id, item["question"], key)
+            record["attempt"] = attempt
+            attempts.append(record)
+            if record["status"] == "SUCCEEDED":
+                break
+            if attempt < args.attempts:
+                time.sleep(args.backoff)
+
+        final = attempts[-1]
+        text = final["answer"]
+        labels = [citation["label"] for citation in final["citations"]]
+        unknown = [marker for marker in final["markers"] if marker not in labels]
+        must_not = [pattern for pattern in item.get("mustNot", []) if re.search(pattern, text)]
         entry = {
             "id": item["id"], "kind": item["kind"], "question": item["question"],
             "expected": item["expected"], "maxChars": item["maxChars"],
-            "runId": run_id, "status": detail.get("status"), "errorCode": detail.get("errorCode"),
-            "attempts": attempts,
-            "durationMs": detail.get("durationMs"), "wallMs": int((time.time() - started) * 1000),
+            "status": final["status"], "errorCode": final["errorCode"],
+            "attemptCount": len(attempts),
+            "wallMsTotal": sum(record["wallMs"] for record in attempts),
+            "attempts": [{key: value for key, value in record.items() if key != "answer"} for record in attempts],
             "answerChars": len(text), "withinBudget": len(text) <= item["maxChars"],
-            "citations": [{"label": c.get("label"),
-                           "documentName": (c.get("source") or {}).get("documentName"),
-                           "startLine": (c.get("source") or {}).get("startLine"),
-                           "endLine": (c.get("source") or {}).get("endLine"),
-                           "excerpt": (c.get("excerpt") or "")[:160]} for c in citations],
-            "markers": markers, "unknownMarkers": missing,
-            "mustNotHits": must_not,
-            "answer": text,
+            "citations": final["citations"],
+            "markers": final["markers"], "unknownMarkers": unknown,
+            "mustNotHits": must_not, "answer": text,
         }
         results.append(entry)
-        print("%s %s chars=%d citations=%d markers=%s unknown=%s%s" % (
-            entry["id"], entry["status"], entry["answerChars"], len(citations), markers, missing,
+        print("%s %s attempts=%d chars=%d citations=%d markers=%s unknown=%s%s" % (
+            entry["id"], entry["status"], entry["attemptCount"], entry["answerChars"],
+            len(entry["citations"]), entry["markers"], unknown,
             (" mustNot=%s" % must_not) if must_not else ""))
         time.sleep(args.pause)
 
-    ok = [r for r in results if r["status"] == "SUCCEEDED"]
-    durations = sorted(r["durationMs"] or 0 for r in ok)
-
-    def percentile(values, fraction):
-        if not values:
-            return 0
-        index = min(len(values) - 1, int(round(fraction * (len(values) - 1))))
-        return values[index]
-
-    by_status = {}
-    for item in results:
-        by_status[item["status"]] = by_status.get(item["status"], 0) + 1
-    guard_failures = [r for r in results if r.get("errorCode") == "INVALID_ANSWER_FORMAT"]
+    # 题级结论（每题只算一次）与尝试级结论（每次真实请求都算）分开统计。
+    every = [record for entry in results for record in entry["attempts"]]
+    ok = [entry for entry in results if entry["status"] == "SUCCEEDED"]
+    ok_attempts = [record for record in every if record["status"] == "SUCCEEDED"]
+    failed_attempts = [record for record in every if record["status"] != "SUCCEEDED"]
     summary = {
         "total": len(results),
         "succeeded": len(ok),
-        "byStatus": by_status,
-        "guardRejections": len(guard_failures),
-        # 以下四项只统计成功题：失败题没有正文，混进去会把成功率算成质量。
-        "withinBudget": sum(1 for r in ok if r["withinBudget"]),
-        "withCitations": sum(1 for r in ok if r["citations"]),
-        "unknownMarkers": sum(1 for r in ok if r["unknownMarkers"]),
-        "mustNotHits": sum(1 for r in ok if r["mustNotHits"]),
-        "p50DurationMs": percentile(durations, 0.50),
-        "p95DurationMs": percentile(durations, 0.95),
+        "failed": len(results) - len(ok),
+        "byStatus": dict(collections.Counter(entry["status"] for entry in results)),
+        "byErrorCode": dict(collections.Counter(entry["errorCode"] for entry in results if entry["errorCode"])),
+        "finalGuardRejections": sum(1 for entry in results if entry["errorCode"] == "INVALID_ANSWER_FORMAT"),
+        "attemptsTotal": len(every),
+        "attemptsSucceeded": len(ok_attempts),
+        "attemptsFailed": len(failed_attempts),
+        "attemptErrorCodes": dict(collections.Counter(record["errorCode"] for record in failed_attempts)),
+        "attemptGuardRejections": sum(1 for record in every if record["errorCode"] == "INVALID_ANSWER_FORMAT"),
+        "runsTotal": len({record["runId"] for record in every if record["runId"]}),
+        "modelCallsTotal": sum(record["modelCalls"] for record in every),
+        "modelCallsFailed": sum(record["modelCallFailures"] for record in every),
+        "modelCallErrorCodes": dict(collections.Counter(
+            code for record in every for code in record["modelCallErrorCodes"])),
+        "modelCallDetails": dict(collections.Counter(
+            detail for record in every for detail in record["modelCallDetails"] if detail)),
+        "traceIncomplete": sum(1 for record in every if record["traceIncomplete"]),
+        # 以下只统计成功题：失败题没有正文，混进去会把失败算成「达标」。
+        "withinBudget": sum(1 for entry in ok if entry["withinBudget"]),
+        "withCitations": sum(1 for entry in ok if entry["citations"]),
+        "unknownMarkers": sum(1 for entry in ok if entry["unknownMarkers"]),
+        "mustNotHits": sum(1 for entry in ok if entry["mustNotHits"]),
+        "p50DurationMs": percentile([entry["attempts"][-1]["durationMs"] or 0 for entry in ok], 0.50),
+        "p95DurationMs": percentile([entry["attempts"][-1]["durationMs"] or 0 for entry in ok], 0.95),
+        "p50WallMs": percentile([entry["attempts"][-1]["wallMs"] for entry in ok], 0.50),
+        "p95WallMs": percentile([entry["attempts"][-1]["wallMs"] for entry in ok], 0.95),
+        "p50WallMsAllAttempts": percentile([entry["wallMsTotal"] for entry in ok], 0.50),
+        "p95WallMsAllAttempts": percentile([entry["wallMsTotal"] for entry in ok], 0.95),
     }
     payload = {"version": spec["version"], "agentId": args.agent, "sessionId": session_id,
-               "promptSha256": __import__("hashlib").sha256(prompt.encode("utf-8")).hexdigest(),
+               "promptSha256": hashlib.sha256(prompt.encode("utf-8")).hexdigest(),
+               "scriptSha256": hashlib.sha256(open(os.path.abspath(__file__), "rb").read()).hexdigest(),
                "ranAt": time.strftime("%Y-%m-%dT%H:%M:%S"), "summary": summary, "results": results}
     os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
     json.dump(payload, open(args.out, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
     print(json.dumps(summary, ensure_ascii=False))
     print("written", args.out)
+
 
 if __name__ == "__main__":
     main()

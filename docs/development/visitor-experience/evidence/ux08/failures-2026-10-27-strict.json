@@ -1,0 +1,15 @@
+{
+  "httpStatuses": {
+    "429": 7
+  },
+  "exceptionTypes": {
+    "ModelException": 7
+  },
+  "exceptionMessages": {
+    "语言模型服务暂不可用，请联系管理员检查模型配置": 7
+  },
+  "guardRejections": {
+    "Model answer references a source that could not be verified": 9
+  },
+  "modelFailureTotal": 7
+}
