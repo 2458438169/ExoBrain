@@ -48,6 +48,11 @@ public class JChatMindFactory {
     private final ToolFacadeService toolFacadeService;
     private final ChatMessageFacadeService chatMessageFacadeService;
     private final ChatMessageConverter chatMessageConverter;
+    // 模型请求节奏闸门：由运行循环在真实发送前分片等待，等待期间可响应取消与租约失效。
+    // 字段注入并允许缺失，避免改动工厂的构造签名（测试与其它装配点保持兼容）。
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.kama.jchatmind.models.ModelRequestGate modelRequestGate =
+            com.kama.jchatmind.models.ModelRequestGate.NONE;
 
     public JChatMindFactory(
             ChatClientRegistry chatClientRegistry,
@@ -348,7 +353,7 @@ public class JChatMindFactory {
         if (Objects.isNull(chatClient)) {
             throw new IllegalStateException("未找到对应的 ChatClient: " + agent.getModel());
         }
-        return new JChatMind(
+        JChatMind mind = new JChatMind(
                 agent.getId(),
                 agent.getName(),
                 agent.getDescription(),
@@ -365,6 +370,10 @@ public class JChatMindFactory {
                 runtimeGuard,
                 submittedUserInput
         );
+        // 模型请求节奏由运行循环负责等待（等待期间要能响应取消/租约失效），所以闸门绑到运行时，
+        // 不绑在底层 ChatModel 上。没有配节流时闸门是空实现，行为不变。
+        mind.attachModelRequestGate(modelRequestGate);
+        return mind;
     }
 
     /**

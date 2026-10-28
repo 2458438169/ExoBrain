@@ -39,19 +39,11 @@ public class ModelRuntimeService {
     private final ModelSecretCipher cipher;
     private final ModelSettings settings;
     private final WebClient.Builder webClientBuilder;
-    private final ModelRequestPacer pacer;
 
     public ModelRuntimeService(ModelSecretCipher cipher, ModelSettings settings, WebClient.Builder webClientBuilder) {
-        this(cipher, settings, webClientBuilder, new ModelRequestPacer(0));
-    }
-
-    @org.springframework.beans.factory.annotation.Autowired
-    public ModelRuntimeService(ModelSecretCipher cipher, ModelSettings settings, WebClient.Builder webClientBuilder,
-                               ModelRequestPacer pacer) {
         this.cipher = cipher;
         this.settings = settings;
         this.webClientBuilder = webClientBuilder;
-        this.pacer = pacer;
     }
 
     public ChatClient chatClient(ModelDefinition model) {
@@ -88,7 +80,7 @@ public class ModelRuntimeService {
         } else {
             throw new ModelException(400, "不支持的语言模型协议");
         }
-        return ChatClient.create(new SafeChatModel(provider, Duration.ofSeconds(timeoutSeconds), pacer));
+        return ChatClient.create(new SafeChatModel(provider, Duration.ofSeconds(timeoutSeconds)));
     }
 
     public float[] embed(ModelDefinition model, String text) {
@@ -192,10 +184,9 @@ public class ModelRuntimeService {
         }
     }
 
-    private record SafeChatModel(ChatModel delegate, Duration timeout, ModelRequestPacer pacer) implements ChatModel {
+    private record SafeChatModel(ChatModel delegate, Duration timeout) implements ChatModel {
         @Override
         public ChatResponse call(Prompt prompt) {
-            pacer.await();
             try { return delegate.call(prompt); }
             catch (Exception failure) { throw rethrowWithDiagnostics(failure); }
         }
@@ -205,11 +196,9 @@ public class ModelRuntimeService {
 
         @Override
         public Flux<ChatResponse> stream(Prompt prompt) {
-            pacer.await();
             return Flux.defer(() -> delegate.stream(prompt)).timeout(timeout)
                     .onErrorMap(ModelRuntimeService.SafeChatModel::rethrowWithDiagnostics);
         }
-
 
         /**
          * 记录根因并把白名单诊断带出去：有诊断就用 {@link ProviderUnavailableException}，

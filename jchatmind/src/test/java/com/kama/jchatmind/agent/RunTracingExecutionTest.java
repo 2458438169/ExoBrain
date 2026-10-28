@@ -41,6 +41,8 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -270,25 +272,62 @@ class RunTracingExecutionTest {
         assertEquals(26, usage.totalTokens());
     }
 
+    @Test
+    @DisplayName("节流等待期间运行失效：一次模型调用都不发")
+    void cancellationDuringThrottleWaitSkipsTheModelCall() {
+        AtomicInteger guardCalls = new AtomicInteger();
+        // 第一次检查放行（进入等待），等待中途的复查抛失效 → 不可能走到真实发送。
+        Harness harness = harness(List.of(greetingRound("不该被调用")), () -> {
+            if (guardCalls.incrementAndGet() > 1) {
+                throw AuthException.forbidden();
+            }
+        });
+        harness.runtime().attachModelRequestGate(() -> 3_000_000_000L);
+
+        RuntimeException error = assertThrows(RuntimeException.class, harness::run);
+
+        assertEquals(0, harness.runtime().modelCalls(), "等待中失效后不得发出模型调用");
+        assertEquals("AUTHORIZATION_REVOKED", com.kama.jchatmind.execution.RunLifecycleService.classify(error));
+        assertTrue(events.stream().noneMatch(e -> e.type() == RunEventType.MODEL_CALL),
+                "没有真实调用就不该有模型调用事件");
+    }
+
+    @Test
+    @DisplayName("节流等待被中断：不放行模型调用，且线程能正常结束")
+    void interruptionDuringThrottleWaitSkipsTheModelCall() {
+        Harness harness = harness(List.of(greetingRound("不该被调用")));
+        harness.runtime().attachModelRequestGate(() -> 5_000_000_000L);
+        AtomicReference<Throwable> thrown = new AtomicReference<>();
+
+        Thread worker = new Thread(() -> {
+            try {
+                harness.run();
+            } catch (RuntimeException failure) {
+                thrown.set(failure);
+            }
+        }, "throttle-wait-probe");
+        worker.start();
+        try {
+            Thread.sleep(400);
+            worker.interrupt();
+            worker.join(5_000);
+        } catch (InterruptedException interrupted) {
+            Thread.currentThread().interrupt();
+        }
+
+        assertFalse(worker.isAlive(), "被中断的等待必须尽快结束，而不是继续等满整个间隔");
+        assertEquals(0, harness.runtime().modelCalls(), "中断之后不得发出模型调用");
+        assertNotNull(thrown.get(), "等待被中断应向上抛出，而不是静默继续");
+    }
+
     // ------------------------------------------------------------------ harness
 
     private Harness harness(List<ChatResponse> script) {
-        return harness(script, false);
+        return harness(script, () -> { });
     }
 
     private Harness harness(List<ChatResponse> script, boolean revokeAfterKnowledgeTool) {
-        List<ChatMessageDTO> saved = new ArrayList<>();
-        ChatMessageFacadeService messages = mock(ChatMessageFacadeService.class);
-        when(messages.createChatMessage(any(ChatMessageDTO.class))).thenAnswer(invocation -> {
-            ChatMessageDTO dto = invocation.getArgument(0);
-            saved.add(dto);
-            return CreateChatMessageResponse.builder().chatMessageId("message-" + saved.size()).build();
-        });
         SyntheticKnowledgeTool knowledge = new SyntheticKnowledgeTool(envelope());
-        ToolCallback[] callbacks = MethodToolCallbackProvider.builder()
-                .toolObjects(knowledge, new FailingTool(), new DirectAnswerTool())
-                .build()
-                .getToolCallbacks();
         Runnable guard = revokeAfterKnowledgeTool
                 ? () -> {
                     if (knowledge.invoked) {
@@ -296,6 +335,25 @@ class RunTracingExecutionTest {
                     }
                 }
                 : () -> { };
+        return harness(script, guard, knowledge);
+    }
+
+    private Harness harness(List<ChatResponse> script, Runnable guard) {
+        return harness(script, guard, new SyntheticKnowledgeTool(envelope()));
+    }
+
+    private Harness harness(List<ChatResponse> script, Runnable guard, SyntheticKnowledgeTool knowledge) {
+        List<ChatMessageDTO> saved = new ArrayList<>();
+        ChatMessageFacadeService messages = mock(ChatMessageFacadeService.class);
+        when(messages.createChatMessage(any(ChatMessageDTO.class))).thenAnswer(invocation -> {
+            ChatMessageDTO dto = invocation.getArgument(0);
+            saved.add(dto);
+            return CreateChatMessageResponse.builder().chatMessageId("message-" + saved.size()).build();
+        });
+        ToolCallback[] callbacks = MethodToolCallbackProvider.builder()
+                .toolObjects(knowledge, new FailingTool(), new DirectAnswerTool())
+                .build()
+                .getToolCallbacks();
         String runId = "run-" + java.util.UUID.randomUUID();
         RunRecorder recorder = new RunRecorder(runId, sink, System.nanoTime());
         Runtime runtime = new Runtime(script, callbacks, mock(SseService.class), messages, guard);
@@ -329,6 +387,7 @@ class RunTracingExecutionTest {
         private final Queue<ChatResponse> responses;
         private ProviderFailure pendingFailure;
         private int pendingFailureTimes;
+        private final AtomicInteger modelCalls = new AtomicInteger();
 
         Runtime(List<ChatResponse> script, ToolCallback[] callbacks, SseService sse,
                 ChatMessageFacadeService messages, Runnable runtimeGuard) {
@@ -345,8 +404,14 @@ class RunTracingExecutionTest {
             this.pendingFailureTimes = times;
         }
 
+        /** 真实进入模型委托的次数：取消/中断路径必须停在 0。 */
+        int modelCalls() {
+            return modelCalls.get();
+        }
+
         @Override
         ChatResponse requestModel(Prompt prompt, String thinkPrompt) {
+            modelCalls.incrementAndGet();
             if (pendingFailureTimes > 0) {
                 pendingFailureTimes--;
                 throw new ProviderUnavailableException(pendingFailure);

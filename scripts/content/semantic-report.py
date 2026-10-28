@@ -6,13 +6,17 @@
   --runs-dir  运行 JSON 所在目录（verdicts 里的 runs 是相对这个目录的文件名）
 
 输出：
-  分组表（题号、来源运行、runId、状态、尝试次数、通过/失败、理由）与各组合计，
-  runId/状态/尝试次数一律从运行 JSON 读出，不从判定数据里抄。
+  分组表（题号、runId、状态、尝试次数、通过/失败、理由）与各组合计。
+  runId、状态、尝试次数、字数一律从运行 JSON 读出，不从判定数据里抄。
 
-同时做三条一致性校验，任一条不成立就报错退出（不静默算出好看的数）：
-  1. 判定的题目必须在对应运行里存在；
-  2. 非 SUCCEEDED 的题目不得判通过；
-  3. 判不通过必须写理由。
+生成前做以下校验，任一条不成立就**报错退出**（不生成一个缩小或放大的分母）：
+  1. 判定的题必须在对应运行里存在；
+  2. 每个 (运行, 题号) 只能出现一次；
+  3. 判定覆盖的题号集合必须与运行 JSON 里的题号集合**完全一致**（缺题、多题都报错）；
+  4. 组内题号数量必须与 groups[...].questionSet 一致；
+  5. pass 必须是布尔值（不接受 "true"、1、None）；
+  6. runId 必须从最终尝试读到且非空；
+  7. 判不通过必须写理由，且非 SUCCEEDED 的题不得判通过。
 """
 import argparse
 import io
@@ -23,6 +27,11 @@ import os
 def load_run(path):
     payload = json.load(io.open(path, encoding="utf-8"))
     return {entry["id"]: entry for entry in payload["results"]}, payload
+
+
+def final_attempt(entry):
+    attempts = entry.get("attempts") or []
+    return attempts[-1] if attempts else {}
 
 
 def main():
@@ -44,32 +53,64 @@ def main():
                            "promptSha256": payload.get("promptSha256")}
 
     problems, rows = [], []
+    seen = set()
+    declared = {label: set() for label in runs}
     for verdict in verdict_data["verdicts"]:
-        label = verdict["run"]
+        label = verdict.get("run")
+        question_id = verdict.get("id")
         entries = runs.get(label)
         if entries is None:
-            problems.append("%s: 未知运行 %s" % (verdict["id"], label))
+            problems.append("%s: 未知运行 %s" % (question_id, label))
             continue
-        entry = entries.get(verdict["id"])
+        declared[label].add(question_id)
+        key = (label, question_id)
+        if key in seen:
+            problems.append("%s: 在运行 %s 里重复出现（同一题只能计入一次）" % (question_id, label))
+            continue
+        seen.add(key)
+        if not isinstance(verdict.get("pass"), bool):
+            problems.append("%s: pass 必须是布尔值，实际是 %r" % (question_id, verdict.get("pass")))
+            continue
+        entry = entries.get(question_id)
         if entry is None:
-            problems.append("%s: 运行 %s 里没有这道题" % (verdict["id"], label))
+            problems.append("%s: 运行 %s 里没有这道题" % (question_id, label))
             continue
         if not verdict.get("reason"):
-            problems.append("%s: 判定缺少理由" % verdict["id"])
-        succeeded = entry.get("status") == "SUCCEEDED"
-        if verdict["pass"] and not succeeded:
-            problems.append("%s: 终态 %s 不能判通过" % (verdict["id"], entry.get("status")))
+            problems.append("%s: 判定缺少理由" % question_id)
+        if verdict["pass"] and entry.get("status") != "SUCCEEDED":
+            problems.append("%s: 终态 %s 不能判通过" % (question_id, entry.get("status")))
+        attempt = final_attempt(entry)
+        run_id = attempt.get("runId")
+        if not run_id:
+            problems.append("%s: 最终尝试里没有 runId，无法把判定关联到真实运行" % question_id)
         attempts = entry.get("attempts") or []
         rows.append({
-            "id": verdict["id"], "run": label, "runId": entry.get("runId"),
+            "id": question_id, "run": label, "runId": run_id,
             "status": entry.get("status"), "attemptCount": entry.get("attemptCount"),
+            "firstAttemptStatus": (attempts[0] if attempts else {}).get("status"),
             "deliveryChannel": entry.get("deliveryChannel"),
             "answerChars": entry.get("answerChars"), "maxChars": entry.get("maxChars"),
             "citations": len(entry.get("citations") or []),
-            "pass": bool(verdict["pass"]), "reason": verdict.get("reason"),
-            "durationMs": (attempts[-1] if attempts else {}).get("durationMs"),
+            "pass": verdict["pass"], "reason": verdict.get("reason"),
+            "durationMs": attempt.get("durationMs"),
             "elapsedMsTotal": entry.get("elapsedMsTotal"),
         })
+
+    # 完整性：判定集合必须与运行 JSON 的题号集合完全一致，且与 questionSet 声明一致。
+    for label, group in verdict_data["groups"].items():
+        run_ids = set(runs[label]) if label in runs else set()
+        missing = sorted(run_ids - declared[label])
+        extra = sorted(declared[label] - run_ids)
+        if missing:
+            problems.append("运行 %s 缺少判定：%s" % (label, "、".join(missing)))
+        if extra:
+            problems.append("运行 %s 出现运行里没有的判定：%s" % (label, "、".join(extra)))
+        expected = group.get("questionSet")
+        if expected is None:
+            problems.append("组 %s 没有声明 questionSet，无法校验分母" % label)
+        elif len(run_ids) != expected or len(declared[label]) != expected:
+            problems.append("组 %s 的题数不一致：运行 %d 题、判定 %d 题、声明 %s 题" % (
+                label, len(run_ids), len(declared[label]), expected))
     if problems:
         raise SystemExit("判定数据与运行证据不一致：\n - " + "\n - ".join(problems))
 
@@ -78,7 +119,8 @@ def main():
     lines.append("")
     lines.append("判定规则：%s" % verdict_data["rule"])
     lines.append("")
-    lines.append("数据来源：`%s`" % os.path.basename(args.verdicts))
+    lines.append("数据来源：`%s`。生成前已校验：每题判定唯一、判定集合与该运行的题号集合完全一致、"
+                 "runId 非空、pass 为布尔值、非 SUCCEEDED 不判通过。" % os.path.basename(args.verdicts))
     lines.append("")
 
     totals = {}
@@ -97,24 +139,28 @@ def main():
                          params.get("messageWindow"), params.get("pauseSeconds"),
                          params.get("maxAttempts"), params.get("backoffSeconds")))
         summary = meta["summary"]
+        # 首次尝试成功数按运行里真实的首次尝试终态算，不看人工语义判定。
+        first_ok = sum(1 for row in group_rows if row["firstAttemptStatus"] == "SUCCEEDED")
         lines.append("")
         lines.append("运行事实：%s 题（成功 %s / 失败 %s）；尝试 %s 次（成功 %s / 失败 %s）；"
-                     "模型调用 %s 次、失败 %s 次；守卫拒绝 %s 次；首次尝试成功 %s 题。" % (
+                     "模型调用 %s 次、失败 %s 次；守卫拒绝 %s 次；**首次尝试即成功 %s 题**。" % (
                          summary.get("total"), summary.get("succeeded"), summary.get("failed"),
                          summary.get("attemptsTotal"), summary.get("attemptsSucceeded"),
                          summary.get("attemptsFailed"), summary.get("modelCallsTotal"),
                          summary.get("modelCallsFailed"), summary.get("attemptGuardRejections"),
-                         sum(1 for row in group_rows if row["attemptCount"] == 1 and row["pass"])))
+                         first_ok))
         lines.append("")
-        lines.append("**通过 %d / %d。**" % (len(passed), len(group_rows)))
+        lines.append("**内容判定通过 %d / %d**（首次尝试即成功 %d 题；两者口径不同，不互相替代）。" % (
+            len(passed), len(group_rows), first_ok))
         lines.append("")
-        lines.append("| 题号 | runId | 终态 | 尝试 | 通道 | 字数/预算 | 引用 | 判定 | 理由 |")
-        lines.append("| --- | --- | --- | --- | --- | --- | --- | --- | --- |")
+        lines.append("| 题号 | runId | 终态 | 首次尝试 | 尝试 | 通道 | 字数/预算 | 引用 | 判定 | 理由 |")
+        lines.append("| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |")
         for row in group_rows:
-            lines.append("| %s | `%s` | %s | %s | %s | %s/%s | %s | %s | %s |" % (
-                row["id"], row["runId"], row["status"], row["attemptCount"],
-                row["deliveryChannel"] or "—", row["answerChars"], row["maxChars"],
-                row["citations"], "通过" if row["pass"] else "**不通过**", row["reason"]))
+            lines.append("| %s | `%s` | %s | %s | %s | %s | %s/%s | %s | %s | %s |" % (
+                row["id"], row["runId"], row["status"], row["firstAttemptStatus"],
+                row["attemptCount"], row["deliveryChannel"] or "—",
+                row["answerChars"], row["maxChars"], row["citations"],
+                "通过" if row["pass"] else "**不通过**", row["reason"]))
         lines.append("")
 
     lines.append("## 跨条件诊断（不作整组达标成绩）")
@@ -134,7 +180,7 @@ def main():
     lines.append("")
     lines.append("## 合计对照")
     lines.append("")
-    lines.append("| 数据组 | 通过 | 用途 |")
+    lines.append("| 数据组 | 内容通过 | 用途 |")
     lines.append("| --- | ---: | --- |")
     for label, (passed, total, group) in totals.items():
         lines.append("| %s | **%d/%d** | %s |" % (group["label"], passed, total, group["use"]))

@@ -16,6 +16,7 @@ import com.kama.jchatmind.model.dto.ChatMessageDTO;
 import com.kama.jchatmind.model.dto.KnowledgeBaseDTO;
 import com.kama.jchatmind.model.response.CreateChatMessageResponse;
 import com.kama.jchatmind.model.vo.ChatMessageVO;
+import com.kama.jchatmind.models.ModelRequestGate;
 import com.kama.jchatmind.models.ProviderFailure;
 import com.kama.jchatmind.service.ChatMessageFacadeService;
 import com.kama.jchatmind.service.SseService;
@@ -120,6 +121,10 @@ public class JChatMind {
     // 解析到的就是这些回调（计时包装因此覆盖真实执行路径）。
     private ChatOptions executionOptions;
     // 最近一次落库的 assistant 消息 id，用于把最终答复关联到运行记录。
+    // 模型请求节奏闸门：只算「还要等多久」，等待由本类分片执行，以便在等待期间响应取消/租约失效。
+    private ModelRequestGate modelRequestGate = ModelRequestGate.NONE;
+    // 等待分片：既保证间隔，又让取消与中断在 200 ms 内生效。
+    private static final long MODEL_WAIT_SLICE_NANOS = 200_000_000L;
     private String lastAssistantMessageId;
     // 本次运行内真实发生的模型请求序号（跨步累计），与「是否已发生检索」一起写进模型调用事件，
     // 用来区分「首个调用」和「检索之后的后续调用」——两者在限流上的表现可能不同。
@@ -535,6 +540,10 @@ public class JChatMind {
         RuntimeException lastError = null;
         for (int attempt = 1; attempt <= MODEL_MAX_ATTEMPTS; attempt++) {
             runtimeGuard.run();
+            // 节奏等待放在真实发送之前，并且**等待结束后立刻复查运行状态**：
+            // 等待期间可能发生取消、租约失效或权限变化（等待最长可达十几秒）。
+            awaitModelSlot();
+            runtimeGuard.run();
             RunRecorder recorder = this.runRecorder;
             long started = System.nanoTime();
             Instant startedAt = Instant.now();
@@ -591,6 +600,39 @@ public class JChatMind {
             }
         }
         throw lastError;
+    }
+
+    /**
+     * 等待下一次模型请求的时隙：**分片等待**，每一片之前都复查运行状态。
+     *
+     * <p>为什么不能简单 sleep 一大段：等待可达十几秒，期间运行可能被取消、租约失效或权限被撤销。
+     * 这里每 200 ms 复查一次 {@code runtimeGuard}，并在等待结束后由调用方再查一次，
+     * 确保「等待中取消 → 一次模型调用都不发」。</p>
+     *
+     * <p>线程被中断时**不放行**：恢复中断标记并抛出固定文案的异常，由上层记为运行失败。
+     * 之前的实现中断后直接返回并继续调用模型，等于取消不生效。</p>
+     */
+    private void awaitModelSlot() {
+        long waitNanos = modelRequestGate.reserveDelayNanos();
+        if (waitNanos <= 0) {
+            return;
+        }
+        long deadline = System.nanoTime() + waitNanos;
+        while (true) {
+            long remaining = deadline - System.nanoTime();
+            if (remaining <= 0) {
+                return;
+            }
+            long slice = Math.min(remaining, MODEL_WAIT_SLICE_NANOS);
+            try {
+                Thread.sleep(slice / 1_000_000L, (int) (slice % 1_000_000L));
+            } catch (InterruptedException interrupted) {
+                Thread.currentThread().interrupt();
+                throw new IllegalStateException("模型请求在等待节流时被中断，未发出调用");
+            }
+            // 这一片睡完之后、下一片之前：运行若已失效就在这里终止，不会走到真实发送。
+            runtimeGuard.run();
+        }
     }
 
     /**
@@ -989,6 +1031,13 @@ public class JChatMind {
      */
     public void attachRunPersistence(java.util.function.BiFunction<ChatMessageDTO, Boolean, String> guardedPersist) {
         this.guardedPersist = guardedPersist;
+    }
+
+    /**
+     * 绑定模型请求节奏闸门（见 {@code ModelRequestGate}）。未绑定时不节流，行为与引入节流前一致。
+     */
+    public void attachModelRequestGate(ModelRequestGate gate) {
+        this.modelRequestGate = gate == null ? ModelRequestGate.NONE : gate;
     }
 
     /** 本次运行的最终状态（上层据此写入运行终态；ERROR 表示没有产出面向用户的答复）。 */
