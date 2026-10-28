@@ -121,6 +121,23 @@ def delivery_of(answer, citations):
                 "startLine": citation.get("startLine"),
                 "endLine": citation.get("endLine"),
             })
+    text = (answer or {}).get("content") or ""
+    for statement in statements:
+        if statement["label"] is not None:
+            continue
+        # 同一来源被两个 citationId 指向时，展示引用只保留第一条 id，另一条要靠正文里的编号还原。
+        needle = (statement.get("text") or "").strip()
+        index = text.find(needle) if needle else -1
+        if index < 0:
+            continue
+        matched = re.match(r"\s*\[(\d+)\]", text[index + len(needle):index + len(needle) + 8])
+        if matched:
+            statement["label"] = int(matched.group(1))
+            statement["labelSource"] = "body-marker"
+        else:
+            statement["labelSource"] = None
+    for statement in statements:
+        statement.setdefault("labelSource", "citation")
     return {"deliveryChannel": channel, "toolCallNames": names,
             "statements": statements, "insufficient": insufficient}
 

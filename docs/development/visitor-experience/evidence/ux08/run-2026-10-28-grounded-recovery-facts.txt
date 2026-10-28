@@ -1,0 +1,207 @@
+===== Q03 SUCCEEDED channel=groundedAnswer efforts=1
+  text         : 上游 JChatMind 是 Java + Spring Boot + Spring AI 的 AI Agent 示例项目（前端 React，数据库 PostgreSQL 加 pgvector），本项目保留的继承能力包括 Agent 主循环、工具装配、会话与消息持久化、SSE 状态推送，以及基础 Markdown 解析与向量检索链路。
+  citationId   : 6f4866cf-4bcf-4ebd-b0cb-a26806cb01ad:2
+  evidenceQuote: 上游是 JChatMind：一个 Java + Spring Boot + Spring AI 的 AI Agent 示例项目，前端为 React，数据库为
+PostgreSQL 加 pgvector 向量扩展。本项目保留了这些核心能力：
+
+- Agent 主循环：模型判断下一步 → 执行工具 → 读取工具结果 → 继续判断，直到交付答复或终止。
+- 工具装配：助手配置里声明可用工具与知识库范围，运行时按配置装载。
+- 会话与消息持久化：会话、消息、知识库、文档、片段都有独立数据表。
+- SSE 状态推送：执行状态与回答通过 SSE 推送到页面。
+- 基础 Markdown 解析与向量检索链路。
+  -> [1] 03_contribution_map.md L9-18（引用卡片）
+
+  text         : 本仓库新增的第一组能力包括 Markdown 解析隔离、检索评测与冻结资产、正文级索引与结构化来源、可核验引用、运行追踪、持久化导入队列、持久化对话任务和资源隔离。
+  citationId   : 3777078b-6e5a-48bf-9895-97878e6d7f27:2
+  evidenceQuote: | Markdown 解析隔离 | 每份文档独立解析状态，避免并发导入时共享可变状态互相污染 | 解析服务与并发用例 | 单元测试（含并发场景） |
+| 检索评测与冻结资产 | 题集、语料清单、冻结哈希与评测脚本，指标为 Hit@3 / Recall@3 / MRR@3 | `evaluation/` 目录、评测说明 | 离线脚本与 pytest、真实 Embedding 一次基线 |
+| 正文级索引与结构化来源 | 片段按正文切分，来源带 `documentId`、`sourceHash`、`startLine`、`endLine` 与索引版本 | 索引服务、迁移脚本、检索工具 | 真实 PostgreSQL 集成测试与真实上传导入 |
+| 可核验引用 | 引用只登记本轮真实完成的检索结果，写入消息 `metadata.citations`，界面按行定位原文 | 引用登记与前端引用卡片 | 浏览器实测行号与语料逐字符比对 |
+| 运行追踪 | 每轮问答有运行摘要与事件（模型、工具、检索、落库），含真实耗时与用量 | 运行表、事件表、读取接口 | 真实运行与集成测试 |
+| 持久化导入队列 | 上传即入队，支持失败重试与固定错误码，导入状态可查询 | 导入任务表与执行器 | 集成测试含故障注入 |
+| 持久化对话任务 | 任务表 + 租约 + fencing + 幂等键；取消、中断与迟到写入都有明确语义 | 任务表、租约、结果写入 | 真实 PostgreSQL 与并发/重启演练 |
+| 资源隔离 | 知识库、助手、会话按所有者隔离；管理员也不获得他人私有资源的读取权 | 访问控制与资源仓库 | 账号/管理员矩阵、游客矩阵 |
+  -> [2] 03_contribution_map.md L22-31（引用卡片）
+
+  text         : 本仓库新增的能力还包括模型目录与密钥加密（模型配置存库、密钥加密保存、向量模型可与知识库绑定并受换绑守卫）以及 CI 与检查脚本（单元、集成、前端构建、冻结评测的统一入口）。
+  citationId   : 3777078b-6e5a-48bf-9895-97878e6d7f27:3
+  evidenceQuote: | 模型目录与密钥加密 | 模型配置存库、密钥加密保存、向量模型可与知识库绑定并受换绑守卫 | 模型目录、密钥服务、换绑接口 | 接口测试与生产热修实操 |
+| CI 与检查脚本 | 单元、集成、前端构建、冻结评测的统一入口 | `.github/`、`scripts/` | 本机脚本输出（远端 CI 结果另行标注） |
+  -> [3] 03_contribution_map.md L31-33（引用卡片）
+
+===== Q07 SUCCEEDED channel=groundedAnswer efforts=1
+  text         : 取消是协作式动作，已经发出去的模型请求无法撤回，几秒后模型可能仍然返回一段完整答案。
+  citationId   : 6a0a6bd5-4290-404c-bfaf-9f52cd22defb:1
+  evidenceQuote: 取消是个协作式动作。已经发出去的模型请求无法撤回，几秒后它可能仍然返回一段完整答案。
+  -> [1] 02_engineering_cases.md L26-42（引用卡片）
+
+  text         : 运行中的取消只登记 `cancel_requested`，检查点在下一个步骤前停止发起新的工具或模型调用，最终记为 `CANCELLED / CANCELLED_BY_USER`。
+  citationId   : 6a0a6bd5-4290-404c-bfaf-9f52cd22defb:1
+  evidenceQuote: 运行中的取消只登记 `cancel_requested`，检查点在下一个步骤前停止发起新的工具或模型调用，最终记为
+  `CANCELLED / CANCELLED_BY_USER`。
+  -> [1] 02_engineering_cases.md L26-42（引用卡片）
+
+  text         : 写答案时必须同时满足「任务行仍是 RUNNING」「fencing 未被接管」两个条件，答案消息与 `answer_message_id` 在同一个事务里写入，条件不满足就整笔回滚，迟到的内容一个字都不留。
+  citationId   : 6a0a6bd5-4290-404c-bfaf-9f52cd22defb:1
+  evidenceQuote: 写答案时必须同时满足「任务行仍是 RUNNING」「fencing 未被接管」
+  两个条件，答案消息与 `answer_message_id` 在同一个事务里写入；条件不满足就整笔回滚，迟到的内容一个字都不留。
+  -> [1] 02_engineering_cases.md L26-42（引用卡片）
+
+===== Q08 SUCCEEDED channel=groundedAnswer efforts=1
+  text         : 已经开始（RUNNING）的运行，如果原 worker 因重启消失，租约过期后会被记为 INTERRUPTED / INTERRUPTED_BY_RESTART。
+  citationId   : ccbcbea3-eb40-4c46-88c9-9e24baadd204:1
+  evidenceQuote: - **RUNNING（已经开始）**：如果原 worker 因重启消失，租约过期后将运行记为 `INTERRUPTED / INTERRUPTED_BY_RESTART`。
+  -> [1] 02_engineering_cases.md L46-51（引用卡片）
+
+  text         : 对结果未知的模型或工具调用不会自动重放，以避免重复执行、重复计费。
+  citationId   : ccbcbea3-eb40-4c46-88c9-9e24baadd204:1
+  evidenceQuote: 不自动重放结果未知的模型或工具调用，以免重复执行、重复计费。
+  -> [1] 02_engineering_cases.md L46-51（引用卡片）
+
+  text         : 这里说的恢复指重新领取尚未开始的任务或读取已保存记录，不是从任意一次外部调用中间无重复续跑。
+  citationId   : ccbcbea3-eb40-4c46-88c9-9e24baadd204:1
+  evidenceQuote: 恢复指重新领取尚未开始的任务或读取已保存记录，不是从任意一次外部调用中间无重复续跑。
+  -> [1] 02_engineering_cases.md L46-51（引用卡片）
+
+===== Q10 SUCCEEDED channel=groundedAnswer efforts=2
+  text         : 当前回答由一次同步模型调用产生并通过工具参数交付，界面只有执行状态流，没有正文的增量推送。
+  citationId   : ef54c039-d5f8-43ee-8787-fc8bde207c5a:1
+  evidenceQuote: **逐字流式输出**：当前回答由一次同步模型调用产生并通过工具参数交付，界面只有执行状态流，
+  没有正文的增量推送。
+  -> [1] 03_contribution_map.md L44-48（引用卡片）
+
+  text         : 任何「打字机效果」都不是流式实现。
+  citationId   : ef54c039-d5f8-43ee-8787-fc8bde207c5a:1
+  evidenceQuote: 任何「打字机效果」都不是流式实现。
+  -> [1] 03_contribution_map.md L44-48（引用卡片）
+
+===== Q13 SUCCEEDED channel=groundedAnswer efforts=1
+insufficient: 现有资料中没有客户数量或成本节省的数据，无法回答服务了多少客户、节省了多少成本。
+citations: 0（资料不足结果不挂引用）
+
+===== Q15 SUCCEEDED channel=groundedAnswer efforts=3
+insufficient: 本次可用资料没有写明支持的文件格式清单或格式数量（只在能力表中提到 Markdown 解析隔离），无法确认具体支持多少种文件格式。
+citations: 0（资料不足结果不挂引用）
+
+===== Q16 SUCCEEDED channel=groundedAnswer efforts=3
+  text         : 来源可以定位到文档名、行号范围与原文片段这个粒度。
+  citationId   : b07839ef-8fac-48bf-b1aa-4c067fafd545:1
+  evidenceQuote: - 点开来源能看到文档名、行号范围与原文片段；正文里写不出的行号不会出现在来源里。
+  -> [1] 03_contribution_map.md L81-83（引用卡片）
+
+  text         : 引用契约只保证「来源身份与位置有效」，并不保证结论一定正确，短引对得上只说明这句话确实在原文里。
+  citationId   : b07839ef-8fac-48bf-b1aa-4c067fafd545:1
+  evidenceQuote: - 这条契约只保证「来源身份与位置有效」，不保证「结论一定正确」——短引能对上只说明这句话确实在原文里，
+  -> [1] 03_contribution_map.md L81-83（引用卡片）
+
+  text         : 本次公开体验使用的新协议里模型完全不写编号，正文编号是服务端读完全部陈述后按真实检索顺序排出来的。
+  citationId   : e8c54e20-340a-41cb-b060-325bc7b83c62:2
+  evidenceQuote: 模型**完全不写编号**：正文里的 `[n]` 是服务端在读完全部陈述后按真实检索顺序排出来的，
+  -> [2] 03_contribution_map.md L70-77（引用卡片）
+
+===== Q17 SUCCEEDED channel=groundedAnswer efforts=3
+  text         : 导入使用持久化导入队列：上传即入队，支持失败重试与固定错误码，导入状态可查询。
+  citationId   : b0717bab-1abc-46a2-a282-f6317714145d:2
+  evidenceQuote: 上传即入队，支持失败重试与固定错误码，导入状态可查询
+  -> [2] 03_contribution_map.md L22-31（引用卡片）
+
+  text         : 该持久化导入队列的验证范围记为「集成测试含故障注入」。
+  citationId   : b0717bab-1abc-46a2-a282-f6317714145d:2
+  evidenceQuote: 集成测试含故障注入
+  -> [2] 03_contribution_map.md L22-31（引用卡片）
+
+  text         : 不同供应商或不同模型的向量不能混在一个索引里，换模型必须重新导入。
+  citationId   : 170c84aa-15db-4c06-a86a-36141f815a92:1
+  evidenceQuote: 不同供应商或不同模型的向量不能混在一个索引里，换模型必须重新导入。
+  -> [1] 03_contribution_map.md L44-48（引用卡片）
+
+===== Q19 SUCCEEDED channel=groundedAnswer efforts=2
+  text         : 游客模式不需要登录，只能看到公开资料与自己的会话，看不到任何其他访客或账号的数据。
+  citationId   : 2aeb4ceb-6d47-4166-8990-716bf3990a3d:1
+  evidenceQuote: 游客模式不需要登录，只能看到公开资料与自己的会话；看不到任何其他访客或账号的数据。
+  -> [1] 01_product_guide.md L33-36（引用卡片）
+
+  text         : 账号模式下管理员也不能读取其他用户私有知识库、助手与会话的运行记录。
+  citationId   : 2aeb4ceb-6d47-4166-8990-716bf3990a3d:1
+  evidenceQuote: 账号模式下管理员也不能读取其他用户私有知识库、助手与会话的运行记录。
+  -> [1] 01_product_guide.md L33-36（引用卡片）
+
+  text         : 知识库、助手、会话按所有者隔离，管理员也不获得他人私有资源的读取权。
+  citationId   : c24b2acb-9b3a-472a-8678-0d100a55edad:2
+  evidenceQuote: 知识库、助手、会话按所有者隔离；管理员也不获得他人私有资源的读取权
+  -> [2] 03_contribution_map.md L31-33（引用卡片）
+
+===== Q21 SUCCEEDED channel=groundedAnswer efforts=1
+  text         : 已有知识库不能直接换向量模型：不同供应商或不同模型的向量不能混在一个索引里，换模型必须重新导入。
+  citationId   : 3607a959-029f-4511-93f1-f4de76452b93:1
+  evidenceQuote: - **跨知识库的向量空间混用**：不同供应商或不同模型的向量不能混在一个索引里，换模型必须重新导入。
+  -> [1] 03_contribution_map.md L44-48（引用卡片）
+
+===== Q23 SUCCEEDED channel=groundedAnswer efforts=1
+  text         : 该方案的核心是把「锁等待」变成有界、可放弃的动作，并且让每个运行相互独立。
+  citationId   : adc178cd-596d-4c98-a9c0-3ba29bb25ebf:1
+  evidenceQuote: 把「锁等待」变成有界、可放弃的动作，并且每个运行独立。
+  -> [1] 02_engineering_cases.md L55-71（引用卡片）
+
+  text         : 执行检查点如果被锁挡住，会先在预算内重试；预算耗尽后用一次不加锁的读确认状态、fencing 与租约期限，确认不了就停止执行，绝不再发起新的模型调用。
+  citationId   : adc178cd-596d-4c98-a9c0-3ba29bb25ebf:1
+  evidenceQuote: 执行检查点如果被锁挡住，先在预算内重试；预算耗尽后用一次**不加锁的读**确认状态、fencing 与租约期限。
+  确认不了就停止执行，绝不再发起新的模型调用。
+  -> [1] 02_engineering_cases.md L55-71（引用卡片）
+
+  text         : 这些机制是正确性与成本保护，不是吞吐优化；行锁冲突频繁时，运行会更快失败或降级为「中断」，而不是排队等待更久。
+  citationId   : adc178cd-596d-4c98-a9c0-3ba29bb25ebf:1
+  evidenceQuote: 这些是正确性与成本保护，不是吞吐优化。行锁冲突频繁时，运行会更快失败或降级为「中断」，
+而不是排队等待更久。
+  -> [1] 02_engineering_cases.md L55-71（引用卡片）
+
+===== Q25 SUCCEEDED channel=groundedAnswer efforts=2
+  text         : 编号一律由服务端生成，模型不自报编号，编号也不是检索排名或文档行号，对应关系按两条交付通道分两种说法。
+  citationId   : da2a76be-2b14-47c5-97e7-d52ea822d023:1
+  evidenceQuote: 编号一律由**服务端**生成，模型不自报编号，也不是检索排名或文档行号。系统有两条答复交付通道，
+模型交给服务端的「来源身份」不同，编号的对应关系也就分两种说法。
+  -> [2] 03_contribution_map.md L58-59（引用卡片）
+
+  text         : 通道一（旧协议）里，模型调用 directAnswer 并把用到的来源 id 按顺序放进 citationIds 数组，正文里的 [n] 对应本次答复 citationIds 数组的第 n 项（从 1 开始）。
+  citationId   : 9bd1696c-62cc-4c32-a683-7d856dc373b2:1
+  evidenceQuote: - 正文里的 `[n]` 对应**本次答复 `citationIds` 数组的第 n 项**（从 1 开始），不是检索排名、检索结果列表序号，也不是文档行号。
+  -> [1] 03_contribution_map.md L63-66（引用卡片）
+
+  text         : 通道二（新协议，本次公开体验使用）里，模型调用 groundedAnswer，没有 citationIds 数组这个参数，模型完全不写编号，正文里的 [n] 由服务端读完全部陈述后按真实检索顺序排出，指服务端排出的第 n 个已核验来源。
+  citationId   : da2a76be-2b14-47c5-97e7-d52ea822d023:2
+  evidenceQuote: 模型**完全不写编号**：正文里的 `[n]` 是服务端在读完全部陈述后按真实检索顺序排出来的，
+  所以「第 n 项」指的是「服务端排出的第 n 个已核验来源」，而不是模型参数数组的第 n 项。
+  -> [3] 03_contribution_map.md L70-77（引用卡片）
+
+===== Q29 SUCCEEDED channel=groundedAnswer efforts=1
+  text         : 首页的精选示例是人工复核过的历史运行记录，每条都是当时一次真实问答保存下来的会话、答复与来源，并带当时的耗时与引用。
+  citationId   : 051c6c24-968b-455a-82d1-59f662a97840:1
+  evidenceQuote: - 精选示例是**人工复核过的历史运行记录**：每条都是当时一次真实问答保存下来的会话、答复与来源，带当时的耗时与引用。
+  -> [1] 01_product_guide.md L40-42（引用卡片）
+
+  text         : 精选示例不是每次打开页面时现场生成的答案，现场提问走的是本轮的实时检索与模型调用。
+  citationId   : 051c6c24-968b-455a-82d1-59f662a97840:1
+  evidenceQuote: - 它们不是每次打开页面时现场生成的答案；现场提问走的是本轮的实时检索与模型调用。
+  -> [1] 01_product_guide.md L40-42（引用卡片）
+
+  text         : 因为只展示复核合格的真实运行，所以精选示例不代表随机实时回答都能达到同样质量，实时回答的质量以你自己这一轮的结果为准。
+  citationId   : 051c6c24-968b-455a-82d1-59f662a97840:1
+  evidenceQuote: - 只展示复核合格的真实运行，因此**不代表随机实时回答都能达到同样质量**；实时回答的质量以你自己这一轮的结果为准。
+  -> [1] 01_product_guide.md L40-42（引用卡片）
+
+===== Q30 SUCCEEDED channel=groundedAnswer efforts=1
+  text         : 想核对某一条结论的出处，就点开这条结论挂的来源，可以看到来源文档名、行号范围与原文片段，正文里写不出的行号不会出现在来源里。
+  citationId   : d512ce75-1117-415b-a772-8d9a4cac12b6:1
+  evidenceQuote: - 点开来源能看到文档名、行号范围与原文片段；正文里写不出的行号不会出现在来源里。
+  -> [1] 03_contribution_map.md L81-83（引用卡片）
+
+  text         : 这条核对契约只保证来源身份与位置有效，不保证结论一定正确，结论是否被原文支持、是否被过度概括仍需人工读原文判断。
+  citationId   : d512ce75-1117-415b-a772-8d9a4cac12b6:1
+  evidenceQuote: 这条契约只保证「来源身份与位置有效」，不保证「结论一定正确」
+  -> [1] 03_contribution_map.md L81-83（引用卡片）
+
+  text         : 走「直接提问」这条路径时，回答的形式是一句结论加几条要点、下面挂来源，点开来源可看到原文对应段落。
+  citationId   : 97d730e0-c2d6-468e-b4fc-94e0d740b812:2
+  evidenceQuote: | 直接提问 | 一句结论 + 几条要点，下面挂来源；点开来源可看到原文对应段落 |
+  -> [2] 01_product_guide.md L19-23（引用卡片）
+

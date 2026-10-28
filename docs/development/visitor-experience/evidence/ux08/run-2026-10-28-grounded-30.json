@@ -1,0 +1,4899 @@
+{
+  "version": "ux08-2026-10-20",
+  "agentId": "b22dfb07-b159-4402-8d44-9af467a3d4d8",
+  "sessionId": "43adfe5f-2435-4fbd-83af-5de72cd36dec",
+  "promptSha256": "e2c639e59640d29a8685f02948b59b25b6b52251f503c742a2151682e5b4562a",
+  "scriptSha256": "c532b75fba983c2e93c4b92ad045bcc2aeaa86dfe88c8a6eb90d68a8dc58b1ac",
+  "corpus": {
+    "version": "v4-2026-10-28",
+    "dir": "docs\\public-demo\\v4-2026-10-28",
+    "documents": {
+      "01_product_guide.md": "85342e24022ba03eec4b80cf71302d8129b3c53ba66f8922b12c94f657bb7e23",
+      "02_engineering_cases.md": "f888dcc55c989e9e810ce03d8461615819cd391a08d25b2cdfb2586fab6a5c1e",
+      "03_contribution_map.md": "ea4f9d44a704f5592c89d807f2907e45f3be304d58a9e29eb5e88c508a3ad40b"
+    }
+  },
+  "runParams": {
+    "pauseSeconds": 1.0,
+    "backoffSeconds": 8.0,
+    "maxAttempts": 2,
+    "only": "",
+    "sessionMode": "shared",
+    "label": "grounded-v1-30-v4",
+    "promptFile": "docs\\public-demo\\v4-2026-10-28\\agent-system-prompt-grounded.md",
+    "messageWindow": 40,
+    "corpusVersion": "v4-2026-10-28"
+  },
+  "ranAt": "2026-10-28T17:29:08",
+  "summary": {
+    "total": 30,
+    "succeeded": 16,
+    "failed": 14,
+    "byStatus": {
+      "SUCCEEDED": 16,
+      "FAILED": 14
+    },
+    "byErrorCode": {
+      "EXECUTION_FAILED": 14
+    },
+    "finalGuardRejections": 0,
+    "attemptsTotal": 53,
+    "attemptsSucceeded": 16,
+    "attemptsFailed": 37,
+    "attemptErrorCodes": {
+      "EXECUTION_FAILED": 37
+    },
+    "attemptGuardRejections": 0,
+    "runsTotal": 53,
+    "modelCallsTotal": 85,
+    "modelRetriesTotal": 0,
+    "modelCallsFailed": 37,
+    "modelCallErrorCodes": {
+      "MODEL_CALL_FAILED": 37
+    },
+    "modelCallDetails": {},
+    "traceIncomplete": 0,
+    "withinBudget": 15,
+    "withCitations": 15,
+    "unknownMarkers": 0,
+    "mustNotHits": 0,
+    "deliveryChannels": {
+      "groundedAnswer": 16,
+      "None": 14
+    },
+    "groundedStatements": 38,
+    "insufficientAnswers": 1,
+    "statementsWithoutLabel": 1,
+    "p50DurationMs": 6280,
+    "p95DurationMs": 8686,
+    "p50WallMs": 8187,
+    "p95WallMs": 10218,
+    "p50ElapsedMsTotal": 16281,
+    "p95ElapsedMsTotal": 18592,
+    "p50WallMsTotal": 10171,
+    "p95WallMsTotal": 10559
+  },
+  "results": [
+    {
+      "id": "Q01",
+      "kind": "recommended",
+      "question": "用一句话和三个要点说明 ExoBrain 能做什么，并指出我可以亲自体验的能力。",
+      "expected": [
+        "01_product_guide: 一句话定位 + 三条体验路径"
+      ],
+      "maxChars": 350,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 1,
+      "elapsedMsTotal": 8187,
+      "sessionId": "43adfe5f-2435-4fbd-83af-5de72cd36dec",
+      "dbHistoryUserMessageCount": 0,
+      "dbHistoryUserMessageIds": [],
+      "wallMsTotal": 8187,
+      "attempts": [
+        {
+          "runId": "76d9f5bf-7623-4266-aad4-8ed31ba51679",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 7276,
+          "wallMs": 8187,
+          "traceIncomplete": false,
+          "answerMessageId": "f58846c3-d3fb-4834-bb20-c3ccb50498b1",
+          "answerChars": 143,
+          "markers": [
+            1,
+            2
+          ],
+          "modelCalls": 2,
+          "modelRetries": 0,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 5,
+            "TOOL_CALL": 3,
+            "RETRIEVAL": 2
+          },
+          "citations": [
+            {
+              "label": 1,
+              "citationId": "47db37c9-c73c-4886-bda4-b33bcc818a78:1",
+              "chunkId": "c3233ec8-14f4-4e03-98c9-29893476e4e7",
+              "documentName": "01_product_guide.md",
+              "startLine": 9,
+              "endLine": 15,
+              "excerpt": "ExoBrain 是一个可核验的 RAG 问答项目：它检索公开资料、给出带原文出处的回答，并把一次回答的执行过程记录下来供核对。 三个要点： 1. **回答带出处**：模型必须通过检索工具拿到资料片段才组织结论，回答里的每条来源都指向具体文档、行号范围与片段哈希。 2. **过程可核对**：每轮问答都有运行记录，包含模"
+            },
+            {
+              "label": 2,
+              "citationId": "59206f0d-ed97-46d0-8729-66bc19ddc247:1",
+              "chunkId": "52a14de7-7165-46ad-a15e-cc96ef96cba5",
+              "documentName": "01_product_guide.md",
+              "startLine": 19,
+              "endLine": 23,
+              "excerpt": "| 体验路径 | 你会看到什么 | 依据 | | --- | --- | --- | | 直接提问 | 一句结论 + 几条要点，下面挂来源；点开来源可看到原文对应段落 | 公开知识库检索、引用投影、原文预览 | | 查看执行过程 | 展开「查看过程」可看到这一轮的模型、检索、工具与落库步骤及其耗时 | 运行摘要与事件表"
+            }
+          ],
+          "delivery": {
+            "deliveryChannel": "groundedAnswer",
+            "toolCallNames": [
+              "groundedAnswer"
+            ],
+            "statements": [
+              {
+                "text": "ExoBrain 是一个可核验的 RAG 问答项目：它检索公开资料、给出带原文出处的回答，并把一次回答的执行过程记录下来供核对。",
+                "citationId": "47db37c9-c73c-4886-bda4-b33bcc818a78:1",
+                "evidenceQuote": "ExoBrain 是一个可核验的 RAG 问答项目：它检索公开资料、给出带原文出处的回答，并把一次回答的执行过程记录下来供核对。",
+                "label": 1,
+                "documentName": "01_product_guide.md",
+                "startLine": 9,
+                "endLine": 15
+              },
+              {
+                "text": "ExoBrain 的三个要点是回答带出处、过程可核对、失败可恢复。",
+                "citationId": "47db37c9-c73c-4886-bda4-b33bcc818a78:1",
+                "evidenceQuote": "1. **回答带出处**：模型必须通过检索工具拿到资料片段才组织结论，回答里的每条来源都指向具体文档、行号范围与片段哈希。\n2. **过程可核对**：每轮问答都有运行记录，包含模型调用、工具调用、检索和消息落库的真实耗时与状态；失败、取消、中断都如实显示，不会伪装成成功。\n3. **失败可恢复**：重复点击发送不会重复执行，刷新页面不会丢问题，服务重启时结果未知的任务不会被悄悄重放。",
+                "label": 1,
+                "documentName": "01_product_guide.md",
+                "startLine": 9,
+                "endLine": 15
+              },
+              {
+                "text": "你可以亲自体验的三条路径是直接提问、查看执行过程、核对边界。",
+                "citationId": "59206f0d-ed97-46d0-8729-66bc19ddc247:1",
+                "evidenceQuote": "| 直接提问 | 一句结论 + 几条要点，下面挂来源；点开来源可看到原文对应段落 | 公开知识库检索、引用投影、原文预览 |\n| 查看执行过程 | 展开「查看过程」可看到这一轮的模型、检索、工具与落库步骤及其耗时 | 运行摘要与事件表 |\n| 核对边界 | 问实现细节、工程取舍或「有什么做不到」，回答会明确说明边界而不是编造 | 本文档与《工程案例》《能力归属》 |",
+                "label": 2,
+                "documentName": "01_product_guide.md",
+                "startLine": 19,
+                "endLine": 23
+              }
+            ],
+            "insufficient": null
+          },
+          "attempt": 1
+        }
+      ],
+      "answerChars": 143,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "citationId": "47db37c9-c73c-4886-bda4-b33bcc818a78:1",
+          "chunkId": "c3233ec8-14f4-4e03-98c9-29893476e4e7",
+          "documentName": "01_product_guide.md",
+          "startLine": 9,
+          "endLine": 15,
+          "excerpt": "ExoBrain 是一个可核验的 RAG 问答项目：它检索公开资料、给出带原文出处的回答，并把一次回答的执行过程记录下来供核对。 三个要点： 1. **回答带出处**：模型必须通过检索工具拿到资料片段才组织结论，回答里的每条来源都指向具体文档、行号范围与片段哈希。 2. **过程可核对**：每轮问答都有运行记录，包含模"
+        },
+        {
+          "label": 2,
+          "citationId": "59206f0d-ed97-46d0-8729-66bc19ddc247:1",
+          "chunkId": "52a14de7-7165-46ad-a15e-cc96ef96cba5",
+          "documentName": "01_product_guide.md",
+          "startLine": 19,
+          "endLine": 23,
+          "excerpt": "| 体验路径 | 你会看到什么 | 依据 | | --- | --- | --- | | 直接提问 | 一句结论 + 几条要点，下面挂来源；点开来源可看到原文对应段落 | 公开知识库检索、引用投影、原文预览 | | 查看执行过程 | 展开「查看过程」可看到这一轮的模型、检索、工具与落库步骤及其耗时 | 运行摘要与事件表"
+        }
+      ],
+      "markers": [
+        1,
+        2
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "ExoBrain 是一个可核验的 RAG 问答项目：它检索公开资料、给出带原文出处的回答，并把一次回答的执行过程记录下来供核对。 [1]\n\nExoBrain 的三个要点是回答带出处、过程可核对、失败可恢复。 [1]\n\n你可以亲自体验的三条路径是直接提问、查看执行过程、核对边界。 [2]",
+      "deliveryChannel": "groundedAnswer",
+      "toolCallNames": [
+        "groundedAnswer"
+      ],
+      "statements": [
+        {
+          "text": "ExoBrain 是一个可核验的 RAG 问答项目：它检索公开资料、给出带原文出处的回答，并把一次回答的执行过程记录下来供核对。",
+          "citationId": "47db37c9-c73c-4886-bda4-b33bcc818a78:1",
+          "evidenceQuote": "ExoBrain 是一个可核验的 RAG 问答项目：它检索公开资料、给出带原文出处的回答，并把一次回答的执行过程记录下来供核对。",
+          "label": 1,
+          "documentName": "01_product_guide.md",
+          "startLine": 9,
+          "endLine": 15
+        },
+        {
+          "text": "ExoBrain 的三个要点是回答带出处、过程可核对、失败可恢复。",
+          "citationId": "47db37c9-c73c-4886-bda4-b33bcc818a78:1",
+          "evidenceQuote": "1. **回答带出处**：模型必须通过检索工具拿到资料片段才组织结论，回答里的每条来源都指向具体文档、行号范围与片段哈希。\n2. **过程可核对**：每轮问答都有运行记录，包含模型调用、工具调用、检索和消息落库的真实耗时与状态；失败、取消、中断都如实显示，不会伪装成成功。\n3. **失败可恢复**：重复点击发送不会重复执行，刷新页面不会丢问题，服务重启时结果未知的任务不会被悄悄重放。",
+          "label": 1,
+          "documentName": "01_product_guide.md",
+          "startLine": 9,
+          "endLine": 15
+        },
+        {
+          "text": "你可以亲自体验的三条路径是直接提问、查看执行过程、核对边界。",
+          "citationId": "59206f0d-ed97-46d0-8729-66bc19ddc247:1",
+          "evidenceQuote": "| 直接提问 | 一句结论 + 几条要点，下面挂来源；点开来源可看到原文对应段落 | 公开知识库检索、引用投影、原文预览 |\n| 查看执行过程 | 展开「查看过程」可看到这一轮的模型、检索、工具与落库步骤及其耗时 | 运行摘要与事件表 |\n| 核对边界 | 问实现细节、工程取舍或「有什么做不到」，回答会明确说明边界而不是编造 | 本文档与《工程案例》《能力归属》 |",
+          "label": 2,
+          "documentName": "01_product_guide.md",
+          "startLine": 19,
+          "endLine": 23
+        }
+      ],
+      "insufficient": null
+    },
+    {
+      "id": "Q02",
+      "kind": "recommended",
+      "question": "这个项目如何让我核对答案的依据？请说明引用和原文的关系。",
+      "expected": [
+        "01_product_guide: 回答带出处/来源可核对",
+        "03_contribution_map: 可核验引用（行号/hash）"
+      ],
+      "maxChars": 350,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 1,
+      "elapsedMsTotal": 10171,
+      "sessionId": "43adfe5f-2435-4fbd-83af-5de72cd36dec",
+      "dbHistoryUserMessageCount": 1,
+      "dbHistoryUserMessageIds": [
+        "b86746a2-82b6-4ce5-9049-f52371fd2cdf"
+      ],
+      "wallMsTotal": 10171,
+      "attempts": [
+        {
+          "runId": "3e75aae9-9232-4b07-9358-c8e6dbe310ab",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 8686,
+          "wallMs": 10171,
+          "traceIncomplete": false,
+          "answerMessageId": "f1bb08f1-fc3c-4ab6-aaf4-537cdccf5c8c",
+          "answerChars": 274,
+          "markers": [
+            1,
+            2
+          ],
+          "modelCalls": 2,
+          "modelRetries": 0,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 5,
+            "TOOL_CALL": 3,
+            "RETRIEVAL": 2
+          },
+          "citations": [
+            {
+              "label": 1,
+              "citationId": "d09e59e6-3e42-4829-aa22-2c2b1a6a1433:1",
+              "chunkId": "bca263f9-3241-481a-a123-871ca99ae9dc",
+              "documentName": "03_contribution_map.md",
+              "startLine": 81,
+              "endLine": 83,
+              "excerpt": "- 点开来源能看到文档名、行号范围与原文片段；正文里写不出的行号不会出现在来源里。 - 这条契约只保证「来源身份与位置有效」，不保证「结论一定正确」——短引能对上只说明这句话确实在原文里， 结论是否被原文支持、是否被过度概括，仍需人工读原文判断。"
+            },
+            {
+              "label": 2,
+              "citationId": "fbd8aa60-1b2b-4ef3-abae-71a4f86ea0d6:2",
+              "chunkId": "551a064d-7f39-45d9-a598-87bd40b79a63",
+              "documentName": "03_contribution_map.md",
+              "startLine": 70,
+              "endLine": 77,
+              "excerpt": "- 模型调用 `groundedAnswer` 工具，**没有 `citationIds` 数组这个参数**；它逐条交付 `statements`，每条包含三样东西：一句陈述、一个真实的 `citationId`、以及这段命中片段里的一段连续原文短引。 - 模型**完全不写编号**：正文里的 `[n]` 是服务端在读完"
+            }
+          ],
+          "delivery": {
+            "deliveryChannel": "groundedAnswer",
+            "toolCallNames": [
+              "groundedAnswer"
+            ],
+            "statements": [
+              {
+                "text": "点开来源可以看到文档名、行号范围与原文片段；正文里写不出的行号不会出现在来源里。",
+                "citationId": "d09e59e6-3e42-4829-aa22-2c2b1a6a1433:1",
+                "evidenceQuote": "- 点开来源能看到文档名、行号范围与原文片段；正文里写不出的行号不会出现在来源里。",
+                "label": 1,
+                "documentName": "03_contribution_map.md",
+                "startLine": 81,
+                "endLine": 83
+              },
+              {
+                "text": "本次公开体验使用的是新协议：模型逐条交付「一句陈述 + 一个真实 citationId + 这段命中片段里的一段连续原文短引」，模型完全不写编号，编号由服务端读完全部陈述后按真实检索顺序排出；服务端还会校验短引是否真的出现在该条命中自己的片段里，短引对不上就整轮判无效、不交付正文。",
+                "citationId": "fbd8aa60-1b2b-4ef3-abae-71a4f86ea0d6:2",
+                "evidenceQuote": "- 模型调用 `groundedAnswer` 工具，**没有 `citationIds` 数组这个参数**；它逐条交付\n  `statements`，每条包含三样东西：一句陈述、一个真实的 `citationId`、以及这段命中片段里的一段连续原文短引。\n- 模型**完全不写编号**：正文里的 `[n]` 是服务端在读完全部陈述后按真实检索顺序排出来的，\n  所以「第 n 项」指的是「服务端排出的第 n 个已核验来源」，而不是模型参数数组的第 n 项。\n- 服务端除了校验 id 是否属于本轮真实检索、来源是否仍在授权范围，还要校验短引是否真的出现在\n  **该条命中自己的片段**里；短引对不上就整轮判无效，不交付正文。",
+                "label": 2,
+                "documentName": "03_contribution_map.md",
+                "startLine": 70,
+                "endLine": 77
+              },
+              {
+                "text": "这条契约只保证「来源身份与位置有效」，不保证「结论一定正确」：短引能对上只说明这句话确实在原文里，结论是否被原文支持、是否被过度概括，仍需人工读原文判断。",
+                "citationId": "fbd8aa60-1b2b-4ef3-abae-71a4f86ea0d6:3",
+                "evidenceQuote": "- 这条契约只保证「来源身份与位置有效」，不保证「结论一定正确」——短引能对上只说明这句话确实在原文里，\n  结论是否被原文支持、是否被过度概括，仍需人工读原文判断。",
+                "label": null,
+                "documentName": null,
+                "startLine": null,
+                "endLine": null
+              }
+            ],
+            "insufficient": null
+          },
+          "attempt": 1
+        }
+      ],
+      "answerChars": 274,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "citationId": "d09e59e6-3e42-4829-aa22-2c2b1a6a1433:1",
+          "chunkId": "bca263f9-3241-481a-a123-871ca99ae9dc",
+          "documentName": "03_contribution_map.md",
+          "startLine": 81,
+          "endLine": 83,
+          "excerpt": "- 点开来源能看到文档名、行号范围与原文片段；正文里写不出的行号不会出现在来源里。 - 这条契约只保证「来源身份与位置有效」，不保证「结论一定正确」——短引能对上只说明这句话确实在原文里， 结论是否被原文支持、是否被过度概括，仍需人工读原文判断。"
+        },
+        {
+          "label": 2,
+          "citationId": "fbd8aa60-1b2b-4ef3-abae-71a4f86ea0d6:2",
+          "chunkId": "551a064d-7f39-45d9-a598-87bd40b79a63",
+          "documentName": "03_contribution_map.md",
+          "startLine": 70,
+          "endLine": 77,
+          "excerpt": "- 模型调用 `groundedAnswer` 工具，**没有 `citationIds` 数组这个参数**；它逐条交付 `statements`，每条包含三样东西：一句陈述、一个真实的 `citationId`、以及这段命中片段里的一段连续原文短引。 - 模型**完全不写编号**：正文里的 `[n]` 是服务端在读完"
+        }
+      ],
+      "markers": [
+        1,
+        2
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "点开来源可以看到文档名、行号范围与原文片段；正文里写不出的行号不会出现在来源里。 [1]\n\n本次公开体验使用的是新协议：模型逐条交付「一句陈述 + 一个真实 citationId + 这段命中片段里的一段连续原文短引」，模型完全不写编号，编号由服务端读完全部陈述后按真实检索顺序排出；服务端还会校验短引是否真的出现在该条命中自己的片段里，短引对不上就整轮判无效、不交付正文。 [2]\n\n这条契约只保证「来源身份与位置有效」，不保证「结论一定正确」：短引能对上只说明这句话确实在原文里，结论是否被原文支持、是否被过度概括，仍需人工读原文判断。 [1]",
+      "deliveryChannel": "groundedAnswer",
+      "toolCallNames": [
+        "groundedAnswer"
+      ],
+      "statements": [
+        {
+          "text": "点开来源可以看到文档名、行号范围与原文片段；正文里写不出的行号不会出现在来源里。",
+          "citationId": "d09e59e6-3e42-4829-aa22-2c2b1a6a1433:1",
+          "evidenceQuote": "- 点开来源能看到文档名、行号范围与原文片段；正文里写不出的行号不会出现在来源里。",
+          "label": 1,
+          "documentName": "03_contribution_map.md",
+          "startLine": 81,
+          "endLine": 83
+        },
+        {
+          "text": "本次公开体验使用的是新协议：模型逐条交付「一句陈述 + 一个真实 citationId + 这段命中片段里的一段连续原文短引」，模型完全不写编号，编号由服务端读完全部陈述后按真实检索顺序排出；服务端还会校验短引是否真的出现在该条命中自己的片段里，短引对不上就整轮判无效、不交付正文。",
+          "citationId": "fbd8aa60-1b2b-4ef3-abae-71a4f86ea0d6:2",
+          "evidenceQuote": "- 模型调用 `groundedAnswer` 工具，**没有 `citationIds` 数组这个参数**；它逐条交付\n  `statements`，每条包含三样东西：一句陈述、一个真实的 `citationId`、以及这段命中片段里的一段连续原文短引。\n- 模型**完全不写编号**：正文里的 `[n]` 是服务端在读完全部陈述后按真实检索顺序排出来的，\n  所以「第 n 项」指的是「服务端排出的第 n 个已核验来源」，而不是模型参数数组的第 n 项。\n- 服务端除了校验 id 是否属于本轮真实检索、来源是否仍在授权范围，还要校验短引是否真的出现在\n  **该条命中自己的片段**里；短引对不上就整轮判无效，不交付正文。",
+          "label": 2,
+          "documentName": "03_contribution_map.md",
+          "startLine": 70,
+          "endLine": 77
+        },
+        {
+          "text": "这条契约只保证「来源身份与位置有效」，不保证「结论一定正确」：短引能对上只说明这句话确实在原文里，结论是否被原文支持、是否被过度概括，仍需人工读原文判断。",
+          "citationId": "fbd8aa60-1b2b-4ef3-abae-71a4f86ea0d6:3",
+          "evidenceQuote": "- 这条契约只保证「来源身份与位置有效」，不保证「结论一定正确」——短引能对上只说明这句话确实在原文里，\n  结论是否被原文支持、是否被过度概括，仍需人工读原文判断。",
+          "label": null,
+          "documentName": null,
+          "startLine": null,
+          "endLine": null
+        }
+      ],
+      "insufficient": null
+    },
+    {
+      "id": "Q03",
+      "kind": "recommended",
+      "question": "在上游 JChatMind 的基础上，这个仓库新增了哪些能力？请区分继承和新增。",
+      "expected": [
+        "03_contribution_map: 继承（Agent 循环/工具/持久化/SSE）与新增（正文索引、运行追踪、持久队列等）"
+      ],
+      "maxChars": 350,
+      "status": "FAILED",
+      "errorCode": "EXECUTION_FAILED",
+      "attemptCount": 2,
+      "elapsedMsTotal": 14204,
+      "sessionId": "43adfe5f-2435-4fbd-83af-5de72cd36dec",
+      "dbHistoryUserMessageCount": 2,
+      "dbHistoryUserMessageIds": [
+        "b86746a2-82b6-4ce5-9049-f52371fd2cdf",
+        "554c898f-ab17-4585-8d58-967f7278a0ed"
+      ],
+      "wallMsTotal": 6187,
+      "attempts": [
+        {
+          "runId": "f46e1d80-e637-4e3a-be74-b605f8feb85d",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 2548,
+          "wallMs": 4125,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 2,
+          "modelRetries": 0,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 3,
+            "TOOL_CALL": 2,
+            "RETRIEVAL": 2
+          },
+          "citations": [],
+          "delivery": {
+            "deliveryChannel": null,
+            "toolCallNames": [],
+            "statements": [],
+            "insufficient": null
+          },
+          "attempt": 1,
+          "backoffMs": 8000
+        },
+        {
+          "runId": "68327c85-305d-45f8-9b92-2c4d991213b8",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 783,
+          "wallMs": 2062,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelRetries": 0,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "delivery": {
+            "deliveryChannel": null,
+            "toolCallNames": [],
+            "statements": [],
+            "insufficient": null
+          },
+          "attempt": 2
+        }
+      ],
+      "answerChars": 0,
+      "withinBudget": true,
+      "citations": [],
+      "markers": [],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "",
+      "deliveryChannel": null,
+      "toolCallNames": [],
+      "statements": [],
+      "insufficient": null
+    },
+    {
+      "id": "Q04",
+      "kind": "rewrite",
+      "question": "为什么这个问答系统值得信任？",
+      "expected": [
+        "01_product_guide: 回答带出处 + 过程可核对",
+        "03_contribution_map: 验证范围"
+      ],
+      "maxChars": 350,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 2,
+      "elapsedMsTotal": 18235,
+      "sessionId": "43adfe5f-2435-4fbd-83af-5de72cd36dec",
+      "dbHistoryUserMessageCount": 4,
+      "dbHistoryUserMessageIds": [
+        "b86746a2-82b6-4ce5-9049-f52371fd2cdf",
+        "554c898f-ab17-4585-8d58-967f7278a0ed",
+        "1d834f00-6297-44e1-b980-07efe731bb6b",
+        "2112d3ff-3588-47d1-9a7a-c8b16106eb6d"
+      ],
+      "wallMsTotal": 10234,
+      "attempts": [
+        {
+          "runId": "71adf32b-37b0-422d-b4b0-26e640e0bd28",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 519,
+          "wallMs": 2094,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelRetries": 0,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "delivery": {
+            "deliveryChannel": null,
+            "toolCallNames": [],
+            "statements": [],
+            "insufficient": null
+          },
+          "attempt": 1,
+          "backoffMs": 8000
+        },
+        {
+          "runId": "d1c8fc92-f9de-4053-bf1e-dcf9801051b2",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 6280,
+          "wallMs": 8140,
+          "traceIncomplete": false,
+          "answerMessageId": "83ce53c3-9760-4864-989e-c05c54568f3b",
+          "answerChars": 364,
+          "markers": [
+            1,
+            2,
+            3
+          ],
+          "modelCalls": 2,
+          "modelRetries": 0,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 5,
+            "TOOL_CALL": 3,
+            "RETRIEVAL": 2
+          },
+          "citations": [
+            {
+              "label": 1,
+              "citationId": "e8c21677-48d6-4ca6-ac2e-4a60f34aecdb:1",
+              "chunkId": "c3233ec8-14f4-4e03-98c9-29893476e4e7",
+              "documentName": "01_product_guide.md",
+              "startLine": 9,
+              "endLine": 15,
+              "excerpt": "ExoBrain 是一个可核验的 RAG 问答项目：它检索公开资料、给出带原文出处的回答，并把一次回答的执行过程记录下来供核对。 三个要点： 1. **回答带出处**：模型必须通过检索工具拿到资料片段才组织结论，回答里的每条来源都指向具体文档、行号范围与片段哈希。 2. **过程可核对**：每轮问答都有运行记录，包含模"
+            },
+            {
+              "label": 2,
+              "citationId": "e8c21677-48d6-4ca6-ac2e-4a60f34aecdb:2",
+              "chunkId": "bfe4dc89-d097-4151-ac30-ddf253dfbaea",
+              "documentName": "01_product_guide.md",
+              "startLine": 3,
+              "endLine": 5,
+              "excerpt": "本文用于回答「这个项目能做什么、我在这里能亲自体验什么、哪些能力有边界」。核对日期：2026-10-28。 凡是标注「已实现」的，指仓库源码中存在对应逻辑；标注「已在线上验证」的，指在本次核对时通过真实请求确认过。 没有标注的内容不应被当作能力承诺。"
+            },
+            {
+              "label": 3,
+              "citationId": "e8c21677-48d6-4ca6-ac2e-4a60f34aecdb:3",
+              "chunkId": "a4fb4132-9cd4-40f8-bf94-ed508c9b2938",
+              "documentName": "02_engineering_cases.md",
+              "startLine": 75,
+              "endLine": 77,
+              "excerpt": "- 优先保证「不骗人」：宁可把一个运行标成中断，也不写回一个无法证明归属的结果。 - 所有结论都带可复核的证据：数据库断言、真实 HTTP 请求、真实模型调用。 - 没有做的不要装作做了：真正的逐字流式输出、跨实例自动迁移、外部调用 exactly-once 都不在本版范围。"
+            }
+          ],
+          "delivery": {
+            "deliveryChannel": "groundedAnswer",
+            "toolCallNames": [
+              "groundedAnswer"
+            ],
+            "statements": [
+              {
+                "text": "可信的第一层依据是三个要点：回答带出处（每条来源指向具体文档、行号范围与片段哈希）；过程可核对（每轮有运行记录，含模型调用、工具调用、检索和消息落库的真实耗时与状态，失败、取消、中断如实显示、不伪装成成功）；失败可恢复（重复点击发送不会重复执行，刷新页面不丢问题，服务重启时结果未知的任务不会被悄悄重放）。",
+                "citationId": "e8c21677-48d6-4ca6-ac2e-4a60f34aecdb:1",
+                "evidenceQuote": "ExoBrain 是一个可核验的 RAG 问答项目：它检索公开资料、给出带原文出处的回答，并把一次回答的执行过程记录下来供核对。\n\n三个要点：\n\n1. **回答带出处**：模型必须通过检索工具拿到资料片段才组织结论，回答里的每条来源都指向具体文档、行号范围与片段哈希。\n2. **过程可核对**：每轮问答都有运行记录，包含模型调用、工具调用、检索和消息落库的真实耗时与状态；失败、取消、中断都如实显示，不会伪装成成功。\n3. **失败可恢复**：重复点击发送不会重复执行，刷新页面不会丢问题，服务重启时结果未知的任务不会被悄悄重放。",
+                "label": 1,
+                "documentName": "01_product_guide.md",
+                "startLine": 9,
+                "endLine": 15
+              },
+              {
+                "text": "资料对能力做了标注区分：标注「已实现」指仓库源码中存在对应逻辑，标注「已在线上验证」指本次核对时通过真实请求确认过，没有标注的内容不应被当作能力承诺。",
+                "citationId": "e8c21677-48d6-4ca6-ac2e-4a60f34aecdb:2",
+                "evidenceQuote": "凡是标注「已实现」的，指仓库源码中存在对应逻辑；标注「已在线上验证」的，指在本次核对时通过真实请求确认过。\n没有标注的内容不应被当作能力承诺。",
+                "label": 2,
+                "documentName": "01_product_guide.md",
+                "startLine": 3,
+                "endLine": 5
+              },
+              {
+                "text": "工程案例给出的取舍是：优先保证「不骗人」，宁可把一个运行标成中断，也不写回无法证明归属的结果；所有结论都带可复核的证据；同时明确没有做的不要装作做了——真正的逐字流式输出、跨实例自动迁移、外部调用 exactly-once 都不在本版范围。",
+                "citationId": "e8c21677-48d6-4ca6-ac2e-4a60f34aecdb:3",
+                "evidenceQuote": "- 优先保证「不骗人」：宁可把一个运行标成中断，也不写回一个无法证明归属的结果。\n- 所有结论都带可复核的证据：数据库断言、真实 HTTP 请求、真实模型调用。\n- 没有做的不要装作做了：真正的逐字流式输出、跨实例自动迁移、外部调用 exactly-once 都不在本版范围。",
+                "label": 3,
+                "documentName": "02_engineering_cases.md",
+                "startLine": 75,
+                "endLine": 77
+              }
+            ],
+            "insufficient": null
+          },
+          "attempt": 2
+        }
+      ],
+      "answerChars": 364,
+      "withinBudget": false,
+      "citations": [
+        {
+          "label": 1,
+          "citationId": "e8c21677-48d6-4ca6-ac2e-4a60f34aecdb:1",
+          "chunkId": "c3233ec8-14f4-4e03-98c9-29893476e4e7",
+          "documentName": "01_product_guide.md",
+          "startLine": 9,
+          "endLine": 15,
+          "excerpt": "ExoBrain 是一个可核验的 RAG 问答项目：它检索公开资料、给出带原文出处的回答，并把一次回答的执行过程记录下来供核对。 三个要点： 1. **回答带出处**：模型必须通过检索工具拿到资料片段才组织结论，回答里的每条来源都指向具体文档、行号范围与片段哈希。 2. **过程可核对**：每轮问答都有运行记录，包含模"
+        },
+        {
+          "label": 2,
+          "citationId": "e8c21677-48d6-4ca6-ac2e-4a60f34aecdb:2",
+          "chunkId": "bfe4dc89-d097-4151-ac30-ddf253dfbaea",
+          "documentName": "01_product_guide.md",
+          "startLine": 3,
+          "endLine": 5,
+          "excerpt": "本文用于回答「这个项目能做什么、我在这里能亲自体验什么、哪些能力有边界」。核对日期：2026-10-28。 凡是标注「已实现」的，指仓库源码中存在对应逻辑；标注「已在线上验证」的，指在本次核对时通过真实请求确认过。 没有标注的内容不应被当作能力承诺。"
+        },
+        {
+          "label": 3,
+          "citationId": "e8c21677-48d6-4ca6-ac2e-4a60f34aecdb:3",
+          "chunkId": "a4fb4132-9cd4-40f8-bf94-ed508c9b2938",
+          "documentName": "02_engineering_cases.md",
+          "startLine": 75,
+          "endLine": 77,
+          "excerpt": "- 优先保证「不骗人」：宁可把一个运行标成中断，也不写回一个无法证明归属的结果。 - 所有结论都带可复核的证据：数据库断言、真实 HTTP 请求、真实模型调用。 - 没有做的不要装作做了：真正的逐字流式输出、跨实例自动迁移、外部调用 exactly-once 都不在本版范围。"
+        }
+      ],
+      "markers": [
+        1,
+        2,
+        3
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "可信的第一层依据是三个要点：回答带出处（每条来源指向具体文档、行号范围与片段哈希）；过程可核对（每轮有运行记录，含模型调用、工具调用、检索和消息落库的真实耗时与状态，失败、取消、中断如实显示、不伪装成成功）；失败可恢复（重复点击发送不会重复执行，刷新页面不丢问题，服务重启时结果未知的任务不会被悄悄重放）。 [1]\n\n资料对能力做了标注区分：标注「已实现」指仓库源码中存在对应逻辑，标注「已在线上验证」指本次核对时通过真实请求确认过，没有标注的内容不应被当作能力承诺。 [2]\n\n工程案例给出的取舍是：优先保证「不骗人」，宁可把一个运行标成中断，也不写回无法证明归属的结果；所有结论都带可复核的证据；同时明确没有做的不要装作做了——真正的逐字流式输出、跨实例自动迁移、外部调用 exactly-once 都不在本版范围。 [3]",
+      "deliveryChannel": "groundedAnswer",
+      "toolCallNames": [
+        "groundedAnswer"
+      ],
+      "statements": [
+        {
+          "text": "可信的第一层依据是三个要点：回答带出处（每条来源指向具体文档、行号范围与片段哈希）；过程可核对（每轮有运行记录，含模型调用、工具调用、检索和消息落库的真实耗时与状态，失败、取消、中断如实显示、不伪装成成功）；失败可恢复（重复点击发送不会重复执行，刷新页面不丢问题，服务重启时结果未知的任务不会被悄悄重放）。",
+          "citationId": "e8c21677-48d6-4ca6-ac2e-4a60f34aecdb:1",
+          "evidenceQuote": "ExoBrain 是一个可核验的 RAG 问答项目：它检索公开资料、给出带原文出处的回答，并把一次回答的执行过程记录下来供核对。\n\n三个要点：\n\n1. **回答带出处**：模型必须通过检索工具拿到资料片段才组织结论，回答里的每条来源都指向具体文档、行号范围与片段哈希。\n2. **过程可核对**：每轮问答都有运行记录，包含模型调用、工具调用、检索和消息落库的真实耗时与状态；失败、取消、中断都如实显示，不会伪装成成功。\n3. **失败可恢复**：重复点击发送不会重复执行，刷新页面不会丢问题，服务重启时结果未知的任务不会被悄悄重放。",
+          "label": 1,
+          "documentName": "01_product_guide.md",
+          "startLine": 9,
+          "endLine": 15
+        },
+        {
+          "text": "资料对能力做了标注区分：标注「已实现」指仓库源码中存在对应逻辑，标注「已在线上验证」指本次核对时通过真实请求确认过，没有标注的内容不应被当作能力承诺。",
+          "citationId": "e8c21677-48d6-4ca6-ac2e-4a60f34aecdb:2",
+          "evidenceQuote": "凡是标注「已实现」的，指仓库源码中存在对应逻辑；标注「已在线上验证」的，指在本次核对时通过真实请求确认过。\n没有标注的内容不应被当作能力承诺。",
+          "label": 2,
+          "documentName": "01_product_guide.md",
+          "startLine": 3,
+          "endLine": 5
+        },
+        {
+          "text": "工程案例给出的取舍是：优先保证「不骗人」，宁可把一个运行标成中断，也不写回无法证明归属的结果；所有结论都带可复核的证据；同时明确没有做的不要装作做了——真正的逐字流式输出、跨实例自动迁移、外部调用 exactly-once 都不在本版范围。",
+          "citationId": "e8c21677-48d6-4ca6-ac2e-4a60f34aecdb:3",
+          "evidenceQuote": "- 优先保证「不骗人」：宁可把一个运行标成中断，也不写回一个无法证明归属的结果。\n- 所有结论都带可复核的证据：数据库断言、真实 HTTP 请求、真实模型调用。\n- 没有做的不要装作做了：真正的逐字流式输出、跨实例自动迁移、外部调用 exactly-once 都不在本版范围。",
+          "label": 3,
+          "documentName": "02_engineering_cases.md",
+          "startLine": 75,
+          "endLine": 77
+        }
+      ],
+      "insufficient": null
+    },
+    {
+      "id": "Q05",
+      "kind": "rewrite",
+      "question": "这个项目解决什么问题？",
+      "expected": [
+        "01_product_guide: 需要从文档里得到有出处答案"
+      ],
+      "maxChars": 300,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 2,
+      "elapsedMsTotal": 16281,
+      "sessionId": "43adfe5f-2435-4fbd-83af-5de72cd36dec",
+      "dbHistoryUserMessageCount": 6,
+      "dbHistoryUserMessageIds": [
+        "b86746a2-82b6-4ce5-9049-f52371fd2cdf",
+        "554c898f-ab17-4585-8d58-967f7278a0ed",
+        "1d834f00-6297-44e1-b980-07efe731bb6b",
+        "2112d3ff-3588-47d1-9a7a-c8b16106eb6d",
+        "813fc9f8-ed96-4511-a015-dc681fdaf5a6",
+        "81ca4953-7f34-4c66-bd8d-99475f060adf"
+      ],
+      "wallMsTotal": 8281,
+      "attempts": [
+        {
+          "runId": "d1590f2a-4a28-4b51-ba47-a635802cf2fc",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 532,
+          "wallMs": 2109,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelRetries": 0,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "delivery": {
+            "deliveryChannel": null,
+            "toolCallNames": [],
+            "statements": [],
+            "insufficient": null
+          },
+          "attempt": 1,
+          "backoffMs": 8000
+        },
+        {
+          "runId": "d600b6f2-c497-4c05-95d9-0deae1e805fe",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 4619,
+          "wallMs": 6172,
+          "traceIncomplete": false,
+          "answerMessageId": "c2386d28-4f3b-4bad-b504-3680123140a9",
+          "answerChars": 171,
+          "markers": [
+            1
+          ],
+          "modelCalls": 2,
+          "modelRetries": 0,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 5,
+            "TOOL_CALL": 3,
+            "RETRIEVAL": 2
+          },
+          "citations": [
+            {
+              "label": 1,
+              "citationId": "cdcdf0e8-63b7-4578-8784-feb75aff9ba4:1",
+              "chunkId": "b07beefc-6f9c-4ffe-8e79-638180bbf1d1",
+              "documentName": "01_product_guide.md",
+              "startLine": 27,
+              "endLine": 29,
+              "excerpt": "能解决：需要从一批文档里快速得到有出处答案的问题，以及需要证明「答案来自哪一段原文」的场景。 不能解决：需要实时联网数据的问题（检索范围只是已发布的知识库）、需要精确数值计算与外部系统写入的问题、以及把引用等同于事实核验的问题。引用只说明「这条来源被服务端校验过」，不代表模型组织的结论一定正确，仍需人工判断。"
+            }
+          ],
+          "delivery": {
+            "deliveryChannel": "groundedAnswer",
+            "toolCallNames": [
+              "groundedAnswer"
+            ],
+            "statements": [
+              {
+                "text": "它能解决的是：需要从一批文档里快速得到有出处答案的问题，以及需要证明「答案来自哪一段原文」的场景。",
+                "citationId": "cdcdf0e8-63b7-4578-8784-feb75aff9ba4:1",
+                "evidenceQuote": "能解决：需要从一批文档里快速得到有出处答案的问题，以及需要证明「答案来自哪一段原文」的场景。",
+                "label": 1,
+                "documentName": "01_product_guide.md",
+                "startLine": 27,
+                "endLine": 29
+              },
+              {
+                "text": "它不能解决需要实时联网数据的问题（检索范围只是已发布的知识库）、需要精确数值计算与外部系统写入的问题，以及把引用等同于事实核验的问题。",
+                "citationId": "cdcdf0e8-63b7-4578-8784-feb75aff9ba4:1",
+                "evidenceQuote": "不能解决：需要实时联网数据的问题（检索范围只是已发布的知识库）、需要精确数值计算与外部系统写入的问题、以及把引用等同于事实核验的问题。",
+                "label": 1,
+                "documentName": "01_product_guide.md",
+                "startLine": 27,
+                "endLine": 29
+              },
+              {
+                "text": "引用只说明这条来源被服务端校验过，不代表模型组织的结论一定正确，仍需人工判断。",
+                "citationId": "cdcdf0e8-63b7-4578-8784-feb75aff9ba4:1",
+                "evidenceQuote": "引用只说明「这条来源被服务端校验过」，不代表模型组织的结论一定正确，仍需人工判断。",
+                "label": 1,
+                "documentName": "01_product_guide.md",
+                "startLine": 27,
+                "endLine": 29
+              }
+            ],
+            "insufficient": null
+          },
+          "attempt": 2
+        }
+      ],
+      "answerChars": 171,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "citationId": "cdcdf0e8-63b7-4578-8784-feb75aff9ba4:1",
+          "chunkId": "b07beefc-6f9c-4ffe-8e79-638180bbf1d1",
+          "documentName": "01_product_guide.md",
+          "startLine": 27,
+          "endLine": 29,
+          "excerpt": "能解决：需要从一批文档里快速得到有出处答案的问题，以及需要证明「答案来自哪一段原文」的场景。 不能解决：需要实时联网数据的问题（检索范围只是已发布的知识库）、需要精确数值计算与外部系统写入的问题、以及把引用等同于事实核验的问题。引用只说明「这条来源被服务端校验过」，不代表模型组织的结论一定正确，仍需人工判断。"
+        }
+      ],
+      "markers": [
+        1
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "它能解决的是：需要从一批文档里快速得到有出处答案的问题，以及需要证明「答案来自哪一段原文」的场景。 [1]\n\n它不能解决需要实时联网数据的问题（检索范围只是已发布的知识库）、需要精确数值计算与外部系统写入的问题，以及把引用等同于事实核验的问题。 [1]\n\n引用只说明这条来源被服务端校验过，不代表模型组织的结论一定正确，仍需人工判断。 [1]",
+      "deliveryChannel": "groundedAnswer",
+      "toolCallNames": [
+        "groundedAnswer"
+      ],
+      "statements": [
+        {
+          "text": "它能解决的是：需要从一批文档里快速得到有出处答案的问题，以及需要证明「答案来自哪一段原文」的场景。",
+          "citationId": "cdcdf0e8-63b7-4578-8784-feb75aff9ba4:1",
+          "evidenceQuote": "能解决：需要从一批文档里快速得到有出处答案的问题，以及需要证明「答案来自哪一段原文」的场景。",
+          "label": 1,
+          "documentName": "01_product_guide.md",
+          "startLine": 27,
+          "endLine": 29
+        },
+        {
+          "text": "它不能解决需要实时联网数据的问题（检索范围只是已发布的知识库）、需要精确数值计算与外部系统写入的问题，以及把引用等同于事实核验的问题。",
+          "citationId": "cdcdf0e8-63b7-4578-8784-feb75aff9ba4:1",
+          "evidenceQuote": "不能解决：需要实时联网数据的问题（检索范围只是已发布的知识库）、需要精确数值计算与外部系统写入的问题、以及把引用等同于事实核验的问题。",
+          "label": 1,
+          "documentName": "01_product_guide.md",
+          "startLine": 27,
+          "endLine": 29
+        },
+        {
+          "text": "引用只说明这条来源被服务端校验过，不代表模型组织的结论一定正确，仍需人工判断。",
+          "citationId": "cdcdf0e8-63b7-4578-8784-feb75aff9ba4:1",
+          "evidenceQuote": "引用只说明「这条来源被服务端校验过」，不代表模型组织的结论一定正确，仍需人工判断。",
+          "label": 1,
+          "documentName": "01_product_guide.md",
+          "startLine": 27,
+          "endLine": 29
+        }
+      ],
+      "insufficient": null
+    },
+    {
+      "id": "Q06",
+      "kind": "boundary",
+      "question": "网络不好，我重复点了发送，会运行两次吗？",
+      "expected": [
+        "02_engineering_cases: 案例一（幂等键，最多执行一次；不是外部调用 exactly-once）"
+      ],
+      "maxChars": 350,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 1,
+      "elapsedMsTotal": 6171,
+      "sessionId": "43adfe5f-2435-4fbd-83af-5de72cd36dec",
+      "dbHistoryUserMessageCount": 8,
+      "dbHistoryUserMessageIds": [
+        "b86746a2-82b6-4ce5-9049-f52371fd2cdf",
+        "554c898f-ab17-4585-8d58-967f7278a0ed",
+        "1d834f00-6297-44e1-b980-07efe731bb6b",
+        "2112d3ff-3588-47d1-9a7a-c8b16106eb6d",
+        "813fc9f8-ed96-4511-a015-dc681fdaf5a6",
+        "81ca4953-7f34-4c66-bd8d-99475f060adf",
+        "6d843ec0-21fb-47e7-9f9a-fc574c77d00e",
+        "34bc75d5-1930-4c87-b24b-56b834220da2"
+      ],
+      "wallMsTotal": 6171,
+      "attempts": [
+        {
+          "runId": "4edcf2c6-541e-4308-a2a4-a84086516991",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 4063,
+          "wallMs": 6171,
+          "traceIncomplete": false,
+          "answerMessageId": "b4fc5293-3fe7-4956-b5cd-176d15940abf",
+          "answerChars": 205,
+          "markers": [
+            1
+          ],
+          "modelCalls": 2,
+          "modelRetries": 0,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 5,
+            "TOOL_CALL": 3,
+            "RETRIEVAL": 2
+          },
+          "citations": [
+            {
+              "label": 1,
+              "citationId": "fb7cd801-2e94-4c61-908d-443074678fb2:1",
+              "chunkId": "f56f301a-272e-43c8-b2cc-360243cf68bb",
+              "documentName": "02_engineering_cases.md",
+              "startLine": 8,
+              "endLine": 22,
+              "excerpt": "**问题**：网络慢的时候用户会连点发送，或者请求其实已经到服务器但响应丢了。如果后端每收到一次就执行一次， 会出现两条用户消息、两个模型调用、两笔费用，甚至两条不同的回答挂在同一个问题上。 **方案**：把「一次提问」变成带唯一键的提交意图，服务端按 `(身份, 会话, 幂等键)` 去重。 - 前端为每个「新的提问意"
+            }
+          ],
+          "delivery": {
+            "deliveryChannel": "groundedAnswer",
+            "toolCallNames": [
+              "groundedAnswer"
+            ],
+            "statements": [
+              {
+                "text": "不会重复执行：把「一次提问」变成带唯一键的提交意图，服务端按 `(身份, 会话, 幂等键)` 去重。",
+                "citationId": "fb7cd801-2e94-4c61-908d-443074678fb2:1",
+                "evidenceQuote": "**方案**：把「一次提问」变成带唯一键的提交意图，服务端按 `(身份, 会话, 幂等键)` 去重。",
+                "label": 1,
+                "documentName": "02_engineering_cases.md",
+                "startLine": 8,
+                "endLine": 22
+              },
+              {
+                "text": "真实浏览器里丢弃首个响应后手动重试，数据库仍然只有一个运行、一条用户消息、一次模型调用。",
+                "citationId": "fb7cd801-2e94-4c61-908d-443074678fb2:1",
+                "evidenceQuote": "真实浏览器里丢弃首个响应后手动重试，数据库仍然只有一个运行、一条用户消息、一次模型调用。",
+                "label": 1,
+                "documentName": "02_engineering_cases.md",
+                "startLine": 8,
+                "endLine": 22
+              },
+              {
+                "text": "边界是：这只保证「同一会话的同一提交意图最多执行一次」，不是对外部调用的 exactly-once 承诺；工具调用、模型请求本身仍然可能被重复发出，系统只保证结果写入与终态是唯一且受校验的。",
+                "citationId": "fb7cd801-2e94-4c61-908d-443074678fb2:1",
+                "evidenceQuote": "**边界**：这只保证「同一会话的同一提交意图最多执行一次」，不是对外部调用的 exactly-once 承诺。\n工具调用、模型请求本身仍然可能被重复发出，系统只保证结果写入与终态是唯一且受校验的。",
+                "label": 1,
+                "documentName": "02_engineering_cases.md",
+                "startLine": 8,
+                "endLine": 22
+              }
+            ],
+            "insufficient": null
+          },
+          "attempt": 1
+        }
+      ],
+      "answerChars": 205,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "citationId": "fb7cd801-2e94-4c61-908d-443074678fb2:1",
+          "chunkId": "f56f301a-272e-43c8-b2cc-360243cf68bb",
+          "documentName": "02_engineering_cases.md",
+          "startLine": 8,
+          "endLine": 22,
+          "excerpt": "**问题**：网络慢的时候用户会连点发送，或者请求其实已经到服务器但响应丢了。如果后端每收到一次就执行一次， 会出现两条用户消息、两个模型调用、两笔费用，甚至两条不同的回答挂在同一个问题上。 **方案**：把「一次提问」变成带唯一键的提交意图，服务端按 `(身份, 会话, 幂等键)` 去重。 - 前端为每个「新的提问意"
+        }
+      ],
+      "markers": [
+        1
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "不会重复执行：把「一次提问」变成带唯一键的提交意图，服务端按 `(身份, 会话, 幂等键)` 去重。 [1]\n\n真实浏览器里丢弃首个响应后手动重试，数据库仍然只有一个运行、一条用户消息、一次模型调用。 [1]\n\n边界是：这只保证「同一会话的同一提交意图最多执行一次」，不是对外部调用的 exactly-once 承诺；工具调用、模型请求本身仍然可能被重复发出，系统只保证结果写入与终态是唯一且受校验的。 [1]",
+      "deliveryChannel": "groundedAnswer",
+      "toolCallNames": [
+        "groundedAnswer"
+      ],
+      "statements": [
+        {
+          "text": "不会重复执行：把「一次提问」变成带唯一键的提交意图，服务端按 `(身份, 会话, 幂等键)` 去重。",
+          "citationId": "fb7cd801-2e94-4c61-908d-443074678fb2:1",
+          "evidenceQuote": "**方案**：把「一次提问」变成带唯一键的提交意图，服务端按 `(身份, 会话, 幂等键)` 去重。",
+          "label": 1,
+          "documentName": "02_engineering_cases.md",
+          "startLine": 8,
+          "endLine": 22
+        },
+        {
+          "text": "真实浏览器里丢弃首个响应后手动重试，数据库仍然只有一个运行、一条用户消息、一次模型调用。",
+          "citationId": "fb7cd801-2e94-4c61-908d-443074678fb2:1",
+          "evidenceQuote": "真实浏览器里丢弃首个响应后手动重试，数据库仍然只有一个运行、一条用户消息、一次模型调用。",
+          "label": 1,
+          "documentName": "02_engineering_cases.md",
+          "startLine": 8,
+          "endLine": 22
+        },
+        {
+          "text": "边界是：这只保证「同一会话的同一提交意图最多执行一次」，不是对外部调用的 exactly-once 承诺；工具调用、模型请求本身仍然可能被重复发出，系统只保证结果写入与终态是唯一且受校验的。",
+          "citationId": "fb7cd801-2e94-4c61-908d-443074678fb2:1",
+          "evidenceQuote": "**边界**：这只保证「同一会话的同一提交意图最多执行一次」，不是对外部调用的 exactly-once 承诺。\n工具调用、模型请求本身仍然可能被重复发出，系统只保证结果写入与终态是唯一且受校验的。",
+          "label": 1,
+          "documentName": "02_engineering_cases.md",
+          "startLine": 8,
+          "endLine": 22
+        }
+      ],
+      "insufficient": null
+    },
+    {
+      "id": "Q07",
+      "kind": "boundary",
+      "question": "点击取消之后模型又返回了，会发生什么？",
+      "expected": [
+        "02_engineering_cases: 案例二（fencing、迟到答案整笔回滚）"
+      ],
+      "maxChars": 350,
+      "status": "FAILED",
+      "errorCode": "EXECUTION_FAILED",
+      "attemptCount": 2,
+      "elapsedMsTotal": 14235,
+      "sessionId": "43adfe5f-2435-4fbd-83af-5de72cd36dec",
+      "dbHistoryUserMessageCount": 9,
+      "dbHistoryUserMessageIds": [
+        "b86746a2-82b6-4ce5-9049-f52371fd2cdf",
+        "554c898f-ab17-4585-8d58-967f7278a0ed",
+        "1d834f00-6297-44e1-b980-07efe731bb6b",
+        "2112d3ff-3588-47d1-9a7a-c8b16106eb6d",
+        "813fc9f8-ed96-4511-a015-dc681fdaf5a6",
+        "81ca4953-7f34-4c66-bd8d-99475f060adf",
+        "6d843ec0-21fb-47e7-9f9a-fc574c77d00e",
+        "34bc75d5-1930-4c87-b24b-56b834220da2",
+        "adf34e73-f80a-4f89-9ecc-936201d991b6"
+      ],
+      "wallMsTotal": 6219,
+      "attempts": [
+        {
+          "runId": "336d28be-0144-4e29-b462-a6f27469072f",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 587,
+          "wallMs": 2094,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelRetries": 0,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "delivery": {
+            "deliveryChannel": null,
+            "toolCallNames": [],
+            "statements": [],
+            "insufficient": null
+          },
+          "attempt": 1,
+          "backoffMs": 8000
+        },
+        {
+          "runId": "ee7d4d52-b8cf-414e-9421-70f11245c583",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 3490,
+          "wallMs": 4125,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 2,
+          "modelRetries": 0,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 3,
+            "TOOL_CALL": 2,
+            "RETRIEVAL": 2
+          },
+          "citations": [],
+          "delivery": {
+            "deliveryChannel": null,
+            "toolCallNames": [],
+            "statements": [],
+            "insufficient": null
+          },
+          "attempt": 2
+        }
+      ],
+      "answerChars": 0,
+      "withinBudget": true,
+      "citations": [],
+      "markers": [],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "",
+      "deliveryChannel": null,
+      "toolCallNames": [],
+      "statements": [],
+      "insufficient": null
+    },
+    {
+      "id": "Q08",
+      "kind": "boundary",
+      "question": "后端重启后，正在跑的任务会怎么样？",
+      "expected": [
+        "01_product_guide 的失败可恢复 + 02_engineering_cases 的租约/中断语义"
+      ],
+      "maxChars": 350,
+      "status": "FAILED",
+      "errorCode": "EXECUTION_FAILED",
+      "attemptCount": 2,
+      "elapsedMsTotal": 12235,
+      "sessionId": "43adfe5f-2435-4fbd-83af-5de72cd36dec",
+      "dbHistoryUserMessageCount": 11,
+      "dbHistoryUserMessageIds": [
+        "b86746a2-82b6-4ce5-9049-f52371fd2cdf",
+        "554c898f-ab17-4585-8d58-967f7278a0ed",
+        "1d834f00-6297-44e1-b980-07efe731bb6b",
+        "2112d3ff-3588-47d1-9a7a-c8b16106eb6d",
+        "813fc9f8-ed96-4511-a015-dc681fdaf5a6",
+        "81ca4953-7f34-4c66-bd8d-99475f060adf",
+        "6d843ec0-21fb-47e7-9f9a-fc574c77d00e",
+        "34bc75d5-1930-4c87-b24b-56b834220da2",
+        "adf34e73-f80a-4f89-9ecc-936201d991b6",
+        "94be92c2-52e1-4041-81fb-f5012e2b967d",
+        "aa385848-8782-499f-81ed-140d68b9e74c"
+      ],
+      "wallMsTotal": 4220,
+      "attempts": [
+        {
+          "runId": "1c9c6a69-5ee9-4e10-a74c-24e2b2d673b7",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 523,
+          "wallMs": 2110,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelRetries": 0,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "delivery": {
+            "deliveryChannel": null,
+            "toolCallNames": [],
+            "statements": [],
+            "insufficient": null
+          },
+          "attempt": 1,
+          "backoffMs": 8000
+        },
+        {
+          "runId": "86117546-0a02-4c8e-ba0f-a1b9db24cc1d",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 782,
+          "wallMs": 2110,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelRetries": 0,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "delivery": {
+            "deliveryChannel": null,
+            "toolCallNames": [],
+            "statements": [],
+            "insufficient": null
+          },
+          "attempt": 2
+        }
+      ],
+      "answerChars": 0,
+      "withinBudget": true,
+      "citations": [],
+      "markers": [],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "",
+      "deliveryChannel": null,
+      "toolCallNames": [],
+      "statements": [],
+      "insufficient": null
+    },
+    {
+      "id": "Q09",
+      "kind": "boundary",
+      "question": "一个任务变慢会连累其他任务吗？",
+      "expected": [
+        "02_engineering_cases: 案例三（独立心跳、lock_timeout、有界等待）"
+      ],
+      "maxChars": 350,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 1,
+      "elapsedMsTotal": 4155,
+      "sessionId": "43adfe5f-2435-4fbd-83af-5de72cd36dec",
+      "dbHistoryUserMessageCount": 13,
+      "dbHistoryUserMessageIds": [
+        "b86746a2-82b6-4ce5-9049-f52371fd2cdf",
+        "554c898f-ab17-4585-8d58-967f7278a0ed",
+        "1d834f00-6297-44e1-b980-07efe731bb6b",
+        "2112d3ff-3588-47d1-9a7a-c8b16106eb6d",
+        "813fc9f8-ed96-4511-a015-dc681fdaf5a6",
+        "81ca4953-7f34-4c66-bd8d-99475f060adf",
+        "6d843ec0-21fb-47e7-9f9a-fc574c77d00e",
+        "34bc75d5-1930-4c87-b24b-56b834220da2",
+        "adf34e73-f80a-4f89-9ecc-936201d991b6",
+        "94be92c2-52e1-4041-81fb-f5012e2b967d",
+        "aa385848-8782-499f-81ed-140d68b9e74c",
+        "0cbab13f-4577-415a-a1fa-464fec53650a",
+        "c753b8f4-5fd7-4009-9cba-db2d965bb60a"
+      ],
+      "wallMsTotal": 4155,
+      "attempts": [
+        {
+          "runId": "170dd6f1-7929-4688-bd16-a5ca89ea4a53",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 3909,
+          "wallMs": 4155,
+          "traceIncomplete": false,
+          "answerMessageId": "71520166-441e-40cc-95f2-2f1af1ff1617",
+          "answerChars": 187,
+          "markers": [
+            1
+          ],
+          "modelCalls": 2,
+          "modelRetries": 0,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 4,
+            "TOOL_CALL": 2,
+            "RETRIEVAL": 1
+          },
+          "citations": [
+            {
+              "label": 1,
+              "citationId": "969bbe95-c56e-4e58-aa93-0cea3b98fe07:1",
+              "chunkId": "c3327c82-3d26-403c-8d9e-1a55cf966803",
+              "documentName": "02_engineering_cases.md",
+              "startLine": 55,
+              "endLine": 71,
+              "excerpt": "**问题**：租约续期、心跳、写消息都是对数据库的写操作。当某一行被一条慢事务锁住时，续期会卡在锁上。 如果多个运行共用同一个后台线程，一个任务的锁等待就会拖住所有任务的心跳，别的运行被误判成中断。 **方案**：把「锁等待」变成有界、可放弃的动作，并且每个运行独立。 - 每个租约使用自己的单线程调度器，心跳续期走独立"
+            }
+          ],
+          "delivery": {
+            "deliveryChannel": "groundedAnswer",
+            "toolCallNames": [
+              "groundedAnswer"
+            ],
+            "statements": [
+              {
+                "text": "方案是把「锁等待」变成有界、可放弃的动作，并且每个运行独立。",
+                "citationId": "969bbe95-c56e-4e58-aa93-0cea3b98fe07:1",
+                "evidenceQuote": "**方案**：把「锁等待」变成有界、可放弃的动作，并且每个运行独立。",
+                "label": 1,
+                "documentName": "02_engineering_cases.md",
+                "startLine": 55,
+                "endLine": 71
+              },
+              {
+                "text": "每个租约使用自己的单线程调度器，心跳续期走独立连接 + 独立事务 + `SET LOCAL lock_timeout`，被锁挡住只会跳过这一拍，不会把运行判成租约丢失。",
+                "citationId": "969bbe95-c56e-4e58-aa93-0cea3b98fe07:1",
+                "evidenceQuote": "- 每个租约使用自己的单线程调度器，心跳续期走独立连接 + 独立事务 + `SET LOCAL lock_timeout`，\n  被锁挡住只会跳过这一拍，不会把运行判成租约丢失。",
+                "label": 1,
+                "documentName": "02_engineering_cases.md",
+                "startLine": 55,
+                "endLine": 71
+              },
+              {
+                "text": "边界是：这些是正确性与成本保护，不是吞吐优化；行锁冲突频繁时，运行会更快失败或降级为「中断」，而不是排队等待更久。",
+                "citationId": "969bbe95-c56e-4e58-aa93-0cea3b98fe07:1",
+                "evidenceQuote": "**边界**：这些是正确性与成本保护，不是吞吐优化。行锁冲突频繁时，运行会更快失败或降级为「中断」，\n而不是排队等待更久。",
+                "label": 1,
+                "documentName": "02_engineering_cases.md",
+                "startLine": 55,
+                "endLine": 71
+              }
+            ],
+            "insufficient": null
+          },
+          "attempt": 1
+        }
+      ],
+      "answerChars": 187,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "citationId": "969bbe95-c56e-4e58-aa93-0cea3b98fe07:1",
+          "chunkId": "c3327c82-3d26-403c-8d9e-1a55cf966803",
+          "documentName": "02_engineering_cases.md",
+          "startLine": 55,
+          "endLine": 71,
+          "excerpt": "**问题**：租约续期、心跳、写消息都是对数据库的写操作。当某一行被一条慢事务锁住时，续期会卡在锁上。 如果多个运行共用同一个后台线程，一个任务的锁等待就会拖住所有任务的心跳，别的运行被误判成中断。 **方案**：把「锁等待」变成有界、可放弃的动作，并且每个运行独立。 - 每个租约使用自己的单线程调度器，心跳续期走独立"
+        }
+      ],
+      "markers": [
+        1
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "方案是把「锁等待」变成有界、可放弃的动作，并且每个运行独立。 [1]\n\n每个租约使用自己的单线程调度器，心跳续期走独立连接 + 独立事务 + `SET LOCAL lock_timeout`，被锁挡住只会跳过这一拍，不会把运行判成租约丢失。 [1]\n\n边界是：这些是正确性与成本保护，不是吞吐优化；行锁冲突频繁时，运行会更快失败或降级为「中断」，而不是排队等待更久。 [1]",
+      "deliveryChannel": "groundedAnswer",
+      "toolCallNames": [
+        "groundedAnswer"
+      ],
+      "statements": [
+        {
+          "text": "方案是把「锁等待」变成有界、可放弃的动作，并且每个运行独立。",
+          "citationId": "969bbe95-c56e-4e58-aa93-0cea3b98fe07:1",
+          "evidenceQuote": "**方案**：把「锁等待」变成有界、可放弃的动作，并且每个运行独立。",
+          "label": 1,
+          "documentName": "02_engineering_cases.md",
+          "startLine": 55,
+          "endLine": 71
+        },
+        {
+          "text": "每个租约使用自己的单线程调度器，心跳续期走独立连接 + 独立事务 + `SET LOCAL lock_timeout`，被锁挡住只会跳过这一拍，不会把运行判成租约丢失。",
+          "citationId": "969bbe95-c56e-4e58-aa93-0cea3b98fe07:1",
+          "evidenceQuote": "- 每个租约使用自己的单线程调度器，心跳续期走独立连接 + 独立事务 + `SET LOCAL lock_timeout`，\n  被锁挡住只会跳过这一拍，不会把运行判成租约丢失。",
+          "label": 1,
+          "documentName": "02_engineering_cases.md",
+          "startLine": 55,
+          "endLine": 71
+        },
+        {
+          "text": "边界是：这些是正确性与成本保护，不是吞吐优化；行锁冲突频繁时，运行会更快失败或降级为「中断」，而不是排队等待更久。",
+          "citationId": "969bbe95-c56e-4e58-aa93-0cea3b98fe07:1",
+          "evidenceQuote": "**边界**：这些是正确性与成本保护，不是吞吐优化。行锁冲突频繁时，运行会更快失败或降级为「中断」，\n而不是排队等待更久。",
+          "label": 1,
+          "documentName": "02_engineering_cases.md",
+          "startLine": 55,
+          "endLine": 71
+        }
+      ],
+      "insufficient": null
+    },
+    {
+      "id": "Q10",
+      "kind": "boundary",
+      "question": "现在是不是已经逐字流式输出？",
+      "expected": [
+        "03_contribution_map: 明确未做（同步调用 + 状态 SSE）"
+      ],
+      "maxChars": 300,
+      "status": "FAILED",
+      "errorCode": "EXECUTION_FAILED",
+      "attemptCount": 2,
+      "elapsedMsTotal": 12218,
+      "sessionId": "43adfe5f-2435-4fbd-83af-5de72cd36dec",
+      "dbHistoryUserMessageCount": 14,
+      "dbHistoryUserMessageIds": [
+        "b86746a2-82b6-4ce5-9049-f52371fd2cdf",
+        "554c898f-ab17-4585-8d58-967f7278a0ed",
+        "1d834f00-6297-44e1-b980-07efe731bb6b",
+        "2112d3ff-3588-47d1-9a7a-c8b16106eb6d",
+        "813fc9f8-ed96-4511-a015-dc681fdaf5a6",
+        "81ca4953-7f34-4c66-bd8d-99475f060adf",
+        "6d843ec0-21fb-47e7-9f9a-fc574c77d00e",
+        "34bc75d5-1930-4c87-b24b-56b834220da2",
+        "adf34e73-f80a-4f89-9ecc-936201d991b6",
+        "94be92c2-52e1-4041-81fb-f5012e2b967d",
+        "aa385848-8782-499f-81ed-140d68b9e74c",
+        "0cbab13f-4577-415a-a1fa-464fec53650a",
+        "c753b8f4-5fd7-4009-9cba-db2d965bb60a",
+        "618c0e7f-714b-4b9a-906e-0bb612ff3d3c"
+      ],
+      "wallMsTotal": 4203,
+      "attempts": [
+        {
+          "runId": "09c0a70f-6e98-4bf4-bc21-5a29fdf724c4",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 512,
+          "wallMs": 2093,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelRetries": 0,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "delivery": {
+            "deliveryChannel": null,
+            "toolCallNames": [],
+            "statements": [],
+            "insufficient": null
+          },
+          "attempt": 1,
+          "backoffMs": 8000
+        },
+        {
+          "runId": "98d5a5e5-20cf-45f5-95f4-04ffa3608243",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 833,
+          "wallMs": 2110,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelRetries": 0,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "delivery": {
+            "deliveryChannel": null,
+            "toolCallNames": [],
+            "statements": [],
+            "insufficient": null
+          },
+          "attempt": 2
+        }
+      ],
+      "answerChars": 0,
+      "withinBudget": true,
+      "citations": [],
+      "markers": [],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "",
+      "deliveryChannel": null,
+      "toolCallNames": [],
+      "statements": [],
+      "insufficient": null
+    },
+    {
+      "id": "Q11",
+      "kind": "boundary",
+      "question": "有引用就能说明答案一定正确吗？",
+      "expected": [
+        "01_product_guide: 引用只说明来源被校验，结论仍需人工判断"
+      ],
+      "maxChars": 300,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 1,
+      "elapsedMsTotal": 4093,
+      "sessionId": "43adfe5f-2435-4fbd-83af-5de72cd36dec",
+      "dbHistoryUserMessageCount": 16,
+      "dbHistoryUserMessageIds": [
+        "b86746a2-82b6-4ce5-9049-f52371fd2cdf",
+        "554c898f-ab17-4585-8d58-967f7278a0ed",
+        "1d834f00-6297-44e1-b980-07efe731bb6b",
+        "2112d3ff-3588-47d1-9a7a-c8b16106eb6d",
+        "813fc9f8-ed96-4511-a015-dc681fdaf5a6",
+        "81ca4953-7f34-4c66-bd8d-99475f060adf",
+        "6d843ec0-21fb-47e7-9f9a-fc574c77d00e",
+        "34bc75d5-1930-4c87-b24b-56b834220da2",
+        "adf34e73-f80a-4f89-9ecc-936201d991b6",
+        "94be92c2-52e1-4041-81fb-f5012e2b967d",
+        "aa385848-8782-499f-81ed-140d68b9e74c",
+        "0cbab13f-4577-415a-a1fa-464fec53650a",
+        "c753b8f4-5fd7-4009-9cba-db2d965bb60a",
+        "618c0e7f-714b-4b9a-906e-0bb612ff3d3c",
+        "d2e9d03c-7496-4f55-9439-224e6413ae4c",
+        "deb6836b-0b35-4e06-893c-4186614058ab"
+      ],
+      "wallMsTotal": 4093,
+      "attempts": [
+        {
+          "runId": "3d536625-7bbf-41c2-a887-d86cbfe0a7c9",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 3458,
+          "wallMs": 4093,
+          "traceIncomplete": false,
+          "answerMessageId": "ff1ddaff-3730-4fb4-b23d-131301c33127",
+          "answerChars": 122,
+          "markers": [
+            1,
+            2
+          ],
+          "modelCalls": 2,
+          "modelRetries": 0,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 4,
+            "TOOL_CALL": 2,
+            "RETRIEVAL": 1
+          },
+          "citations": [
+            {
+              "label": 1,
+              "citationId": "33c4d08e-83b1-47f8-82aa-6a2562cbcb95:1",
+              "chunkId": "bca263f9-3241-481a-a123-871ca99ae9dc",
+              "documentName": "03_contribution_map.md",
+              "startLine": 81,
+              "endLine": 83,
+              "excerpt": "- 点开来源能看到文档名、行号范围与原文片段；正文里写不出的行号不会出现在来源里。 - 这条契约只保证「来源身份与位置有效」，不保证「结论一定正确」——短引能对上只说明这句话确实在原文里， 结论是否被原文支持、是否被过度概括，仍需人工读原文判断。"
+            },
+            {
+              "label": 2,
+              "citationId": "33c4d08e-83b1-47f8-82aa-6a2562cbcb95:2",
+              "chunkId": "b07beefc-6f9c-4ffe-8e79-638180bbf1d1",
+              "documentName": "01_product_guide.md",
+              "startLine": 27,
+              "endLine": 29,
+              "excerpt": "能解决：需要从一批文档里快速得到有出处答案的问题，以及需要证明「答案来自哪一段原文」的场景。 不能解决：需要实时联网数据的问题（检索范围只是已发布的知识库）、需要精确数值计算与外部系统写入的问题、以及把引用等同于事实核验的问题。引用只说明「这条来源被服务端校验过」，不代表模型组织的结论一定正确，仍需人工判断。"
+            }
+          ],
+          "delivery": {
+            "deliveryChannel": "groundedAnswer",
+            "toolCallNames": [
+              "groundedAnswer"
+            ],
+            "statements": [
+              {
+                "text": "引用只说明这条来源被服务端校验过，不代表模型组织的结论一定正确，仍需人工判断。",
+                "citationId": "33c4d08e-83b1-47f8-82aa-6a2562cbcb95:2",
+                "evidenceQuote": "引用只说明「这条来源被服务端校验过」，不代表模型组织的结论一定正确，仍需人工判断。",
+                "label": 2,
+                "documentName": "01_product_guide.md",
+                "startLine": 27,
+                "endLine": 29
+              },
+              {
+                "text": "来源契约只保证来源身份与位置有效，不保证结论一定正确；短引能对上只说明这句话确实在原文里，结论是否被原文支持、是否被过度概括，仍需人工读原文判断。",
+                "citationId": "33c4d08e-83b1-47f8-82aa-6a2562cbcb95:1",
+                "evidenceQuote": "这条契约只保证「来源身份与位置有效」，不保证「结论一定正确」——短引能对上只说明这句话确实在原文里，\n  结论是否被原文支持、是否被过度概括，仍需人工读原文判断。",
+                "label": 1,
+                "documentName": "03_contribution_map.md",
+                "startLine": 81,
+                "endLine": 83
+              }
+            ],
+            "insufficient": null
+          },
+          "attempt": 1
+        }
+      ],
+      "answerChars": 122,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "citationId": "33c4d08e-83b1-47f8-82aa-6a2562cbcb95:1",
+          "chunkId": "bca263f9-3241-481a-a123-871ca99ae9dc",
+          "documentName": "03_contribution_map.md",
+          "startLine": 81,
+          "endLine": 83,
+          "excerpt": "- 点开来源能看到文档名、行号范围与原文片段；正文里写不出的行号不会出现在来源里。 - 这条契约只保证「来源身份与位置有效」，不保证「结论一定正确」——短引能对上只说明这句话确实在原文里， 结论是否被原文支持、是否被过度概括，仍需人工读原文判断。"
+        },
+        {
+          "label": 2,
+          "citationId": "33c4d08e-83b1-47f8-82aa-6a2562cbcb95:2",
+          "chunkId": "b07beefc-6f9c-4ffe-8e79-638180bbf1d1",
+          "documentName": "01_product_guide.md",
+          "startLine": 27,
+          "endLine": 29,
+          "excerpt": "能解决：需要从一批文档里快速得到有出处答案的问题，以及需要证明「答案来自哪一段原文」的场景。 不能解决：需要实时联网数据的问题（检索范围只是已发布的知识库）、需要精确数值计算与外部系统写入的问题、以及把引用等同于事实核验的问题。引用只说明「这条来源被服务端校验过」，不代表模型组织的结论一定正确，仍需人工判断。"
+        }
+      ],
+      "markers": [
+        1,
+        2
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "引用只说明这条来源被服务端校验过，不代表模型组织的结论一定正确，仍需人工判断。 [2]\n\n来源契约只保证来源身份与位置有效，不保证结论一定正确；短引能对上只说明这句话确实在原文里，结论是否被原文支持、是否被过度概括，仍需人工读原文判断。 [1]",
+      "deliveryChannel": "groundedAnswer",
+      "toolCallNames": [
+        "groundedAnswer"
+      ],
+      "statements": [
+        {
+          "text": "引用只说明这条来源被服务端校验过，不代表模型组织的结论一定正确，仍需人工判断。",
+          "citationId": "33c4d08e-83b1-47f8-82aa-6a2562cbcb95:2",
+          "evidenceQuote": "引用只说明「这条来源被服务端校验过」，不代表模型组织的结论一定正确，仍需人工判断。",
+          "label": 2,
+          "documentName": "01_product_guide.md",
+          "startLine": 27,
+          "endLine": 29
+        },
+        {
+          "text": "来源契约只保证来源身份与位置有效，不保证结论一定正确；短引能对上只说明这句话确实在原文里，结论是否被原文支持、是否被过度概括，仍需人工读原文判断。",
+          "citationId": "33c4d08e-83b1-47f8-82aa-6a2562cbcb95:1",
+          "evidenceQuote": "这条契约只保证「来源身份与位置有效」，不保证「结论一定正确」——短引能对上只说明这句话确实在原文里，\n  结论是否被原文支持、是否被过度概括，仍需人工读原文判断。",
+          "label": 1,
+          "documentName": "03_contribution_map.md",
+          "startLine": 81,
+          "endLine": 83
+        }
+      ],
+      "insufficient": null
+    },
+    {
+      "id": "Q12",
+      "kind": "boundary",
+      "question": "管理员能看到我的私有知识库吗？",
+      "expected": [
+        "01_product_guide: 资源隔离，管理员也不获得他人私有资源"
+      ],
+      "maxChars": 300,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 2,
+      "elapsedMsTotal": 18592,
+      "sessionId": "43adfe5f-2435-4fbd-83af-5de72cd36dec",
+      "dbHistoryUserMessageCount": 17,
+      "dbHistoryUserMessageIds": [
+        "b86746a2-82b6-4ce5-9049-f52371fd2cdf",
+        "554c898f-ab17-4585-8d58-967f7278a0ed",
+        "1d834f00-6297-44e1-b980-07efe731bb6b",
+        "2112d3ff-3588-47d1-9a7a-c8b16106eb6d",
+        "813fc9f8-ed96-4511-a015-dc681fdaf5a6",
+        "81ca4953-7f34-4c66-bd8d-99475f060adf",
+        "6d843ec0-21fb-47e7-9f9a-fc574c77d00e",
+        "34bc75d5-1930-4c87-b24b-56b834220da2",
+        "adf34e73-f80a-4f89-9ecc-936201d991b6",
+        "94be92c2-52e1-4041-81fb-f5012e2b967d",
+        "aa385848-8782-499f-81ed-140d68b9e74c",
+        "0cbab13f-4577-415a-a1fa-464fec53650a",
+        "c753b8f4-5fd7-4009-9cba-db2d965bb60a",
+        "618c0e7f-714b-4b9a-906e-0bb612ff3d3c",
+        "d2e9d03c-7496-4f55-9439-224e6413ae4c",
+        "deb6836b-0b35-4e06-893c-4186614058ab",
+        "31992492-29c3-4d81-9654-6c24ea6ac334"
+      ],
+      "wallMsTotal": 10559,
+      "attempts": [
+        {
+          "runId": "fd162120-61cf-4ea5-bec0-23cfddf4d19b",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 537,
+          "wallMs": 2092,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelRetries": 0,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "delivery": {
+            "deliveryChannel": null,
+            "toolCallNames": [],
+            "statements": [],
+            "insufficient": null
+          },
+          "attempt": 1,
+          "backoffMs": 8000
+        },
+        {
+          "runId": "2737aceb-7e9e-496b-8326-5527ceda693b",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 6168,
+          "wallMs": 8467,
+          "traceIncomplete": false,
+          "answerMessageId": "57115c11-1c73-48df-8529-81c7a9c32aaa",
+          "answerChars": 131,
+          "markers": [
+            1,
+            2
+          ],
+          "modelCalls": 2,
+          "modelRetries": 0,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 5,
+            "TOOL_CALL": 3,
+            "RETRIEVAL": 2
+          },
+          "citations": [
+            {
+              "label": 1,
+              "citationId": "6576f716-922d-4e9c-b38e-7a3017415159:1",
+              "chunkId": "ec7b37a2-ae34-4721-9fef-77ba52ce9c37",
+              "documentName": "01_product_guide.md",
+              "startLine": 33,
+              "endLine": 36,
+              "excerpt": "- 游客模式不需要登录，只能看到公开资料与自己的会话；看不到任何其他访客或账号的数据。 - 账号模式下管理员也不能读取其他用户私有知识库、助手与会话的运行记录。 - 公开资料的范围由配置明确发布，未发布的路径在网关层就会被拒绝，而不是仅靠前端隐藏入口。 - 游客可以取消自己正在执行的回答；公开只读示例不可取消、不可续写"
+            },
+            {
+              "label": 2,
+              "citationId": "6576f716-922d-4e9c-b38e-7a3017415159:2",
+              "chunkId": "384ea75c-c9c8-401b-a3a4-40af3b00d864",
+              "documentName": "03_contribution_map.md",
+              "startLine": 31,
+              "endLine": 33,
+              "excerpt": "| 资源隔离 | 知识库、助手、会话按所有者隔离；管理员也不获得他人私有资源的读取权 | 访问控制与资源仓库 | 账号/管理员矩阵、游客矩阵 | | 模型目录与密钥加密 | 模型配置存库、密钥加密保存、向量模型可与知识库绑定并受换绑守卫 | 模型目录、密钥服务、换绑接口 | 接口测试与生产热修实操 | | CI 与检查"
+            }
+          ],
+          "delivery": {
+            "deliveryChannel": "groundedAnswer",
+            "toolCallNames": [
+              "groundedAnswer"
+            ],
+            "statements": [
+              {
+                "text": "账号模式下管理员也不能读取其他用户私有知识库、助手与会话的运行记录。",
+                "citationId": "6576f716-922d-4e9c-b38e-7a3017415159:1",
+                "evidenceQuote": "- 账号模式下管理员也不能读取其他用户私有知识库、助手与会话的运行记录。",
+                "label": 1,
+                "documentName": "01_product_guide.md",
+                "startLine": 33,
+                "endLine": 36
+              },
+              {
+                "text": "资源隔离上，知识库、助手、会话按所有者隔离，管理员也不获得他人私有资源的读取权。",
+                "citationId": "6576f716-922d-4e9c-b38e-7a3017415159:2",
+                "evidenceQuote": "| 资源隔离 | 知识库、助手、会话按所有者隔离；管理员也不获得他人私有资源的读取权 | 访问控制与资源仓库 | 账号/管理员矩阵、游客矩阵 |",
+                "label": 2,
+                "documentName": "03_contribution_map.md",
+                "startLine": 31,
+                "endLine": 33
+              },
+              {
+                "text": "游客模式不需要登录，只能看到公开资料与自己的会话；看不到任何其他访客或账号的数据。",
+                "citationId": "6576f716-922d-4e9c-b38e-7a3017415159:1",
+                "evidenceQuote": "- 游客模式不需要登录，只能看到公开资料与自己的会话；看不到任何其他访客或账号的数据。",
+                "label": 1,
+                "documentName": "01_product_guide.md",
+                "startLine": 33,
+                "endLine": 36
+              }
+            ],
+            "insufficient": null
+          },
+          "attempt": 2
+        }
+      ],
+      "answerChars": 131,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "citationId": "6576f716-922d-4e9c-b38e-7a3017415159:1",
+          "chunkId": "ec7b37a2-ae34-4721-9fef-77ba52ce9c37",
+          "documentName": "01_product_guide.md",
+          "startLine": 33,
+          "endLine": 36,
+          "excerpt": "- 游客模式不需要登录，只能看到公开资料与自己的会话；看不到任何其他访客或账号的数据。 - 账号模式下管理员也不能读取其他用户私有知识库、助手与会话的运行记录。 - 公开资料的范围由配置明确发布，未发布的路径在网关层就会被拒绝，而不是仅靠前端隐藏入口。 - 游客可以取消自己正在执行的回答；公开只读示例不可取消、不可续写"
+        },
+        {
+          "label": 2,
+          "citationId": "6576f716-922d-4e9c-b38e-7a3017415159:2",
+          "chunkId": "384ea75c-c9c8-401b-a3a4-40af3b00d864",
+          "documentName": "03_contribution_map.md",
+          "startLine": 31,
+          "endLine": 33,
+          "excerpt": "| 资源隔离 | 知识库、助手、会话按所有者隔离；管理员也不获得他人私有资源的读取权 | 访问控制与资源仓库 | 账号/管理员矩阵、游客矩阵 | | 模型目录与密钥加密 | 模型配置存库、密钥加密保存、向量模型可与知识库绑定并受换绑守卫 | 模型目录、密钥服务、换绑接口 | 接口测试与生产热修实操 | | CI 与检查"
+        }
+      ],
+      "markers": [
+        1,
+        2
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "账号模式下管理员也不能读取其他用户私有知识库、助手与会话的运行记录。 [1]\n\n资源隔离上，知识库、助手、会话按所有者隔离，管理员也不获得他人私有资源的读取权。 [2]\n\n游客模式不需要登录，只能看到公开资料与自己的会话；看不到任何其他访客或账号的数据。 [1]",
+      "deliveryChannel": "groundedAnswer",
+      "toolCallNames": [
+        "groundedAnswer"
+      ],
+      "statements": [
+        {
+          "text": "账号模式下管理员也不能读取其他用户私有知识库、助手与会话的运行记录。",
+          "citationId": "6576f716-922d-4e9c-b38e-7a3017415159:1",
+          "evidenceQuote": "- 账号模式下管理员也不能读取其他用户私有知识库、助手与会话的运行记录。",
+          "label": 1,
+          "documentName": "01_product_guide.md",
+          "startLine": 33,
+          "endLine": 36
+        },
+        {
+          "text": "资源隔离上，知识库、助手、会话按所有者隔离，管理员也不获得他人私有资源的读取权。",
+          "citationId": "6576f716-922d-4e9c-b38e-7a3017415159:2",
+          "evidenceQuote": "| 资源隔离 | 知识库、助手、会话按所有者隔离；管理员也不获得他人私有资源的读取权 | 访问控制与资源仓库 | 账号/管理员矩阵、游客矩阵 |",
+          "label": 2,
+          "documentName": "03_contribution_map.md",
+          "startLine": 31,
+          "endLine": 33
+        },
+        {
+          "text": "游客模式不需要登录，只能看到公开资料与自己的会话；看不到任何其他访客或账号的数据。",
+          "citationId": "6576f716-922d-4e9c-b38e-7a3017415159:1",
+          "evidenceQuote": "- 游客模式不需要登录，只能看到公开资料与自己的会话；看不到任何其他访客或账号的数据。",
+          "label": 1,
+          "documentName": "01_product_guide.md",
+          "startLine": 33,
+          "endLine": 36
+        }
+      ],
+      "insufficient": null
+    },
+    {
+      "id": "Q13",
+      "kind": "unsupported",
+      "question": "这个项目服务了多少客户、节省了多少成本？",
+      "expected": [
+        "无依据：应说明资料里没有，不给数字"
+      ],
+      "maxChars": 300,
+      "status": "FAILED",
+      "errorCode": "EXECUTION_FAILED",
+      "attemptCount": 2,
+      "elapsedMsTotal": 14217,
+      "sessionId": "43adfe5f-2435-4fbd-83af-5de72cd36dec",
+      "dbHistoryUserMessageCount": 19,
+      "dbHistoryUserMessageIds": [
+        "b86746a2-82b6-4ce5-9049-f52371fd2cdf",
+        "554c898f-ab17-4585-8d58-967f7278a0ed",
+        "1d834f00-6297-44e1-b980-07efe731bb6b",
+        "2112d3ff-3588-47d1-9a7a-c8b16106eb6d",
+        "813fc9f8-ed96-4511-a015-dc681fdaf5a6",
+        "81ca4953-7f34-4c66-bd8d-99475f060adf",
+        "6d843ec0-21fb-47e7-9f9a-fc574c77d00e",
+        "34bc75d5-1930-4c87-b24b-56b834220da2",
+        "adf34e73-f80a-4f89-9ecc-936201d991b6",
+        "94be92c2-52e1-4041-81fb-f5012e2b967d",
+        "aa385848-8782-499f-81ed-140d68b9e74c",
+        "0cbab13f-4577-415a-a1fa-464fec53650a",
+        "c753b8f4-5fd7-4009-9cba-db2d965bb60a",
+        "618c0e7f-714b-4b9a-906e-0bb612ff3d3c",
+        "d2e9d03c-7496-4f55-9439-224e6413ae4c",
+        "deb6836b-0b35-4e06-893c-4186614058ab",
+        "31992492-29c3-4d81-9654-6c24ea6ac334",
+        "bc777cfb-a6dc-491c-a30a-401e58b693fc",
+        "bc818549-102e-4865-bf3c-c5c4573b8673"
+      ],
+      "wallMsTotal": 6201,
+      "attempts": [
+        {
+          "runId": "a19bbc06-aeb3-480a-9f6b-b5af02746dab",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 2724,
+          "wallMs": 4109,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 2,
+          "modelRetries": 0,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 3,
+            "TOOL_CALL": 2,
+            "RETRIEVAL": 2
+          },
+          "citations": [],
+          "delivery": {
+            "deliveryChannel": null,
+            "toolCallNames": [],
+            "statements": [],
+            "insufficient": null
+          },
+          "attempt": 1,
+          "backoffMs": 8000
+        },
+        {
+          "runId": "55c4019b-ac1f-4aa5-8bc0-ab34f3650d70",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 764,
+          "wallMs": 2092,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelRetries": 0,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "delivery": {
+            "deliveryChannel": null,
+            "toolCallNames": [],
+            "statements": [],
+            "insufficient": null
+          },
+          "attempt": 2
+        }
+      ],
+      "answerChars": 0,
+      "withinBudget": true,
+      "citations": [],
+      "markers": [],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "",
+      "deliveryChannel": null,
+      "toolCallNames": [],
+      "statements": [],
+      "insufficient": null
+    },
+    {
+      "id": "Q14",
+      "kind": "unsupported",
+      "question": "作者之前在哪家公司做后端？",
+      "expected": [
+        "无依据：不应编造个人履历"
+      ],
+      "maxChars": 300,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 2,
+      "elapsedMsTotal": 18296,
+      "sessionId": "43adfe5f-2435-4fbd-83af-5de72cd36dec",
+      "dbHistoryUserMessageCount": 21,
+      "dbHistoryUserMessageIds": [
+        "b86746a2-82b6-4ce5-9049-f52371fd2cdf",
+        "554c898f-ab17-4585-8d58-967f7278a0ed",
+        "1d834f00-6297-44e1-b980-07efe731bb6b",
+        "2112d3ff-3588-47d1-9a7a-c8b16106eb6d",
+        "813fc9f8-ed96-4511-a015-dc681fdaf5a6",
+        "81ca4953-7f34-4c66-bd8d-99475f060adf",
+        "6d843ec0-21fb-47e7-9f9a-fc574c77d00e",
+        "34bc75d5-1930-4c87-b24b-56b834220da2",
+        "adf34e73-f80a-4f89-9ecc-936201d991b6",
+        "94be92c2-52e1-4041-81fb-f5012e2b967d",
+        "aa385848-8782-499f-81ed-140d68b9e74c",
+        "0cbab13f-4577-415a-a1fa-464fec53650a",
+        "c753b8f4-5fd7-4009-9cba-db2d965bb60a",
+        "618c0e7f-714b-4b9a-906e-0bb612ff3d3c",
+        "d2e9d03c-7496-4f55-9439-224e6413ae4c",
+        "deb6836b-0b35-4e06-893c-4186614058ab",
+        "31992492-29c3-4d81-9654-6c24ea6ac334",
+        "bc777cfb-a6dc-491c-a30a-401e58b693fc",
+        "bc818549-102e-4865-bf3c-c5c4573b8673",
+        "88dc83b4-729f-408a-a355-ed560766f0c0",
+        "d02738b2-4208-48aa-b75b-08d05b160d66"
+      ],
+      "wallMsTotal": 10279,
+      "attempts": [
+        {
+          "runId": "0a7c3259-2df6-4c2d-834e-d940c5354f21",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 489,
+          "wallMs": 2092,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelRetries": 0,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "delivery": {
+            "deliveryChannel": null,
+            "toolCallNames": [],
+            "statements": [],
+            "insufficient": null
+          },
+          "attempt": 1,
+          "backoffMs": 8000
+        },
+        {
+          "runId": "bbbe77cb-ad92-446e-88a3-40d56f5da75c",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 7486,
+          "wallMs": 8187,
+          "traceIncomplete": false,
+          "answerMessageId": "0e89f4db-de9d-456e-a106-1da70ea91139",
+          "answerChars": 56,
+          "markers": [],
+          "modelCalls": 2,
+          "modelRetries": 0,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 5,
+            "TOOL_CALL": 3,
+            "RETRIEVAL": 2
+          },
+          "citations": [],
+          "delivery": {
+            "deliveryChannel": "groundedAnswer",
+            "toolCallNames": [
+              "groundedAnswer"
+            ],
+            "statements": [],
+            "insufficient": "资料里没有写作者的个人履历或曾任职公司，本次可用资料不足以确认其此前在哪家公司做后端。"
+          },
+          "attempt": 2
+        }
+      ],
+      "answerChars": 56,
+      "withinBudget": true,
+      "citations": [],
+      "markers": [],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "本次可用资料不足以确认。 资料里没有写作者的个人履历或曾任职公司，本次可用资料不足以确认其此前在哪家公司做后端。",
+      "deliveryChannel": "groundedAnswer",
+      "toolCallNames": [
+        "groundedAnswer"
+      ],
+      "statements": [],
+      "insufficient": "资料里没有写作者的个人履历或曾任职公司，本次可用资料不足以确认其此前在哪家公司做后端。"
+    },
+    {
+      "id": "Q15",
+      "kind": "unsupported",
+      "question": "你们支持多少种文件格式？",
+      "expected": [
+        "资料只写 Markdown；不应编造 PDF/Word 等"
+      ],
+      "maxChars": 300,
+      "status": "FAILED",
+      "errorCode": "EXECUTION_FAILED",
+      "attemptCount": 2,
+      "elapsedMsTotal": 14172,
+      "sessionId": "43adfe5f-2435-4fbd-83af-5de72cd36dec",
+      "dbHistoryUserMessageCount": 23,
+      "dbHistoryUserMessageIds": [
+        "b86746a2-82b6-4ce5-9049-f52371fd2cdf",
+        "554c898f-ab17-4585-8d58-967f7278a0ed",
+        "1d834f00-6297-44e1-b980-07efe731bb6b",
+        "2112d3ff-3588-47d1-9a7a-c8b16106eb6d",
+        "813fc9f8-ed96-4511-a015-dc681fdaf5a6",
+        "81ca4953-7f34-4c66-bd8d-99475f060adf",
+        "6d843ec0-21fb-47e7-9f9a-fc574c77d00e",
+        "34bc75d5-1930-4c87-b24b-56b834220da2",
+        "adf34e73-f80a-4f89-9ecc-936201d991b6",
+        "94be92c2-52e1-4041-81fb-f5012e2b967d",
+        "aa385848-8782-499f-81ed-140d68b9e74c",
+        "0cbab13f-4577-415a-a1fa-464fec53650a",
+        "c753b8f4-5fd7-4009-9cba-db2d965bb60a",
+        "618c0e7f-714b-4b9a-906e-0bb612ff3d3c",
+        "d2e9d03c-7496-4f55-9439-224e6413ae4c",
+        "deb6836b-0b35-4e06-893c-4186614058ab",
+        "31992492-29c3-4d81-9654-6c24ea6ac334",
+        "bc777cfb-a6dc-491c-a30a-401e58b693fc",
+        "bc818549-102e-4865-bf3c-c5c4573b8673",
+        "88dc83b4-729f-408a-a355-ed560766f0c0",
+        "d02738b2-4208-48aa-b75b-08d05b160d66",
+        "9a3dd3c7-5e4d-4fec-b1a5-32ccf2e628e2",
+        "8c1c9ba7-6d7c-4833-b66c-e53946a96f67"
+      ],
+      "wallMsTotal": 6172,
+      "attempts": [
+        {
+          "runId": "fbddde49-ba59-408a-b9bf-938fd1ec34f3",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 1962,
+          "wallMs": 2078,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 2,
+          "modelRetries": 0,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 2,
+            "TOOL_CALL": 1,
+            "RETRIEVAL": 1
+          },
+          "citations": [],
+          "delivery": {
+            "deliveryChannel": null,
+            "toolCallNames": [],
+            "statements": [],
+            "insufficient": null
+          },
+          "attempt": 1,
+          "backoffMs": 8000
+        },
+        {
+          "runId": "487b3944-ba14-47ea-9ba8-a4c8c4838051",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 3036,
+          "wallMs": 4094,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 2,
+          "modelRetries": 0,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 3,
+            "TOOL_CALL": 2,
+            "RETRIEVAL": 2
+          },
+          "citations": [],
+          "delivery": {
+            "deliveryChannel": null,
+            "toolCallNames": [],
+            "statements": [],
+            "insufficient": null
+          },
+          "attempt": 2
+        }
+      ],
+      "answerChars": 0,
+      "withinBudget": true,
+      "citations": [],
+      "markers": [],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "",
+      "deliveryChannel": null,
+      "toolCallNames": [],
+      "statements": [],
+      "insufficient": null
+    },
+    {
+      "id": "Q16",
+      "kind": "fact",
+      "question": "回答时的来源能定位到什么粒度？",
+      "expected": [
+        "03_contribution_map: 行号范围 + sourceHash + 索引版本"
+      ],
+      "maxChars": 300,
+      "status": "FAILED",
+      "errorCode": "EXECUTION_FAILED",
+      "attemptCount": 2,
+      "elapsedMsTotal": 18250,
+      "sessionId": "43adfe5f-2435-4fbd-83af-5de72cd36dec",
+      "dbHistoryUserMessageCount": 25,
+      "dbHistoryUserMessageIds": [
+        "b86746a2-82b6-4ce5-9049-f52371fd2cdf",
+        "554c898f-ab17-4585-8d58-967f7278a0ed",
+        "1d834f00-6297-44e1-b980-07efe731bb6b",
+        "2112d3ff-3588-47d1-9a7a-c8b16106eb6d",
+        "813fc9f8-ed96-4511-a015-dc681fdaf5a6",
+        "81ca4953-7f34-4c66-bd8d-99475f060adf",
+        "6d843ec0-21fb-47e7-9f9a-fc574c77d00e",
+        "34bc75d5-1930-4c87-b24b-56b834220da2",
+        "adf34e73-f80a-4f89-9ecc-936201d991b6",
+        "94be92c2-52e1-4041-81fb-f5012e2b967d",
+        "aa385848-8782-499f-81ed-140d68b9e74c",
+        "0cbab13f-4577-415a-a1fa-464fec53650a",
+        "c753b8f4-5fd7-4009-9cba-db2d965bb60a",
+        "618c0e7f-714b-4b9a-906e-0bb612ff3d3c",
+        "d2e9d03c-7496-4f55-9439-224e6413ae4c",
+        "deb6836b-0b35-4e06-893c-4186614058ab",
+        "31992492-29c3-4d81-9654-6c24ea6ac334",
+        "bc777cfb-a6dc-491c-a30a-401e58b693fc",
+        "bc818549-102e-4865-bf3c-c5c4573b8673",
+        "88dc83b4-729f-408a-a355-ed560766f0c0",
+        "d02738b2-4208-48aa-b75b-08d05b160d66",
+        "9a3dd3c7-5e4d-4fec-b1a5-32ccf2e628e2",
+        "8c1c9ba7-6d7c-4833-b66c-e53946a96f67",
+        "dbb00b6c-2cf6-4b56-b7fb-457059f955d3",
+        "4c5cd7e6-3206-4066-b986-e244f5379c74"
+      ],
+      "wallMsTotal": 10234,
+      "attempts": [
+        {
+          "runId": "b408748b-ed07-4568-a08e-6195684a359b",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 483,
+          "wallMs": 2125,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelRetries": 0,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "delivery": {
+            "deliveryChannel": null,
+            "toolCallNames": [],
+            "statements": [],
+            "insufficient": null
+          },
+          "attempt": 1,
+          "backoffMs": 8000
+        },
+        {
+          "runId": "8179bb7f-c0d7-480b-b3f3-83e6c975302d",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 7016,
+          "wallMs": 8109,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 4,
+          "modelRetries": 0,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 4,
+            "PERSIST_MESSAGE": 7,
+            "TOOL_CALL": 4,
+            "RETRIEVAL": 4
+          },
+          "citations": [],
+          "delivery": {
+            "deliveryChannel": null,
+            "toolCallNames": [],
+            "statements": [],
+            "insufficient": null
+          },
+          "attempt": 2
+        }
+      ],
+      "answerChars": 0,
+      "withinBudget": true,
+      "citations": [],
+      "markers": [],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "",
+      "deliveryChannel": null,
+      "toolCallNames": [],
+      "statements": [],
+      "insufficient": null
+    },
+    {
+      "id": "Q17",
+      "kind": "fact",
+      "question": "文档导入失败之后可以怎么处理？",
+      "expected": [
+        "03_contribution_map: 持久化导入队列 + 失败重试 + 固定错误码"
+      ],
+      "maxChars": 300,
+      "status": "FAILED",
+      "errorCode": "EXECUTION_FAILED",
+      "attemptCount": 2,
+      "elapsedMsTotal": 12219,
+      "sessionId": "43adfe5f-2435-4fbd-83af-5de72cd36dec",
+      "dbHistoryUserMessageCount": 27,
+      "dbHistoryUserMessageIds": [
+        "b86746a2-82b6-4ce5-9049-f52371fd2cdf",
+        "554c898f-ab17-4585-8d58-967f7278a0ed",
+        "1d834f00-6297-44e1-b980-07efe731bb6b",
+        "2112d3ff-3588-47d1-9a7a-c8b16106eb6d",
+        "813fc9f8-ed96-4511-a015-dc681fdaf5a6",
+        "81ca4953-7f34-4c66-bd8d-99475f060adf",
+        "6d843ec0-21fb-47e7-9f9a-fc574c77d00e",
+        "34bc75d5-1930-4c87-b24b-56b834220da2",
+        "adf34e73-f80a-4f89-9ecc-936201d991b6",
+        "94be92c2-52e1-4041-81fb-f5012e2b967d",
+        "aa385848-8782-499f-81ed-140d68b9e74c",
+        "0cbab13f-4577-415a-a1fa-464fec53650a",
+        "c753b8f4-5fd7-4009-9cba-db2d965bb60a",
+        "618c0e7f-714b-4b9a-906e-0bb612ff3d3c",
+        "d2e9d03c-7496-4f55-9439-224e6413ae4c",
+        "deb6836b-0b35-4e06-893c-4186614058ab",
+        "31992492-29c3-4d81-9654-6c24ea6ac334",
+        "bc777cfb-a6dc-491c-a30a-401e58b693fc",
+        "bc818549-102e-4865-bf3c-c5c4573b8673",
+        "88dc83b4-729f-408a-a355-ed560766f0c0",
+        "d02738b2-4208-48aa-b75b-08d05b160d66",
+        "9a3dd3c7-5e4d-4fec-b1a5-32ccf2e628e2",
+        "8c1c9ba7-6d7c-4833-b66c-e53946a96f67",
+        "dbb00b6c-2cf6-4b56-b7fb-457059f955d3",
+        "4c5cd7e6-3206-4066-b986-e244f5379c74",
+        "c36d608e-e45c-451c-a99f-940f20d91807",
+        "fde95950-de10-4364-ac3b-08a5aa1b9481"
+      ],
+      "wallMsTotal": 4204,
+      "attempts": [
+        {
+          "runId": "9a231d1b-3b51-4add-9184-ebcac6d70232",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 456,
+          "wallMs": 2110,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelRetries": 0,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "delivery": {
+            "deliveryChannel": null,
+            "toolCallNames": [],
+            "statements": [],
+            "insufficient": null
+          },
+          "attempt": 1,
+          "backoffMs": 8000
+        },
+        {
+          "runId": "5e71dff3-b7b3-4450-9dc8-8fa54a0cfd10",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 747,
+          "wallMs": 2094,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelRetries": 0,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "delivery": {
+            "deliveryChannel": null,
+            "toolCallNames": [],
+            "statements": [],
+            "insufficient": null
+          },
+          "attempt": 2
+        }
+      ],
+      "answerChars": 0,
+      "withinBudget": true,
+      "citations": [],
+      "markers": [],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "",
+      "deliveryChannel": null,
+      "toolCallNames": [],
+      "statements": [],
+      "insufficient": null
+    },
+    {
+      "id": "Q18",
+      "kind": "fact",
+      "question": "一次回答的执行过程能看到哪些信息？",
+      "expected": [
+        "03_contribution_map / 01_product_guide: 模型、工具、检索、落库与耗时"
+      ],
+      "maxChars": 300,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 2,
+      "elapsedMsTotal": 16250,
+      "sessionId": "43adfe5f-2435-4fbd-83af-5de72cd36dec",
+      "dbHistoryUserMessageCount": 29,
+      "dbHistoryUserMessageIds": [
+        "b86746a2-82b6-4ce5-9049-f52371fd2cdf",
+        "554c898f-ab17-4585-8d58-967f7278a0ed",
+        "1d834f00-6297-44e1-b980-07efe731bb6b",
+        "2112d3ff-3588-47d1-9a7a-c8b16106eb6d",
+        "813fc9f8-ed96-4511-a015-dc681fdaf5a6",
+        "81ca4953-7f34-4c66-bd8d-99475f060adf",
+        "6d843ec0-21fb-47e7-9f9a-fc574c77d00e",
+        "34bc75d5-1930-4c87-b24b-56b834220da2",
+        "adf34e73-f80a-4f89-9ecc-936201d991b6",
+        "94be92c2-52e1-4041-81fb-f5012e2b967d",
+        "aa385848-8782-499f-81ed-140d68b9e74c",
+        "0cbab13f-4577-415a-a1fa-464fec53650a",
+        "c753b8f4-5fd7-4009-9cba-db2d965bb60a",
+        "618c0e7f-714b-4b9a-906e-0bb612ff3d3c",
+        "d2e9d03c-7496-4f55-9439-224e6413ae4c",
+        "deb6836b-0b35-4e06-893c-4186614058ab",
+        "31992492-29c3-4d81-9654-6c24ea6ac334",
+        "bc777cfb-a6dc-491c-a30a-401e58b693fc",
+        "bc818549-102e-4865-bf3c-c5c4573b8673",
+        "88dc83b4-729f-408a-a355-ed560766f0c0",
+        "d02738b2-4208-48aa-b75b-08d05b160d66",
+        "9a3dd3c7-5e4d-4fec-b1a5-32ccf2e628e2",
+        "8c1c9ba7-6d7c-4833-b66c-e53946a96f67",
+        "dbb00b6c-2cf6-4b56-b7fb-457059f955d3",
+        "4c5cd7e6-3206-4066-b986-e244f5379c74",
+        "c36d608e-e45c-451c-a99f-940f20d91807",
+        "fde95950-de10-4364-ac3b-08a5aa1b9481",
+        "77ab1854-7f3d-4d7c-9f0b-0c9661df643b",
+        "cfb05912-0a90-4d0d-8b29-6e772f4dc7f2"
+      ],
+      "wallMsTotal": 8249,
+      "attempts": [
+        {
+          "runId": "7da8aff4-79eb-4567-a9ec-7c4e9a268560",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 505,
+          "wallMs": 2109,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelRetries": 0,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "delivery": {
+            "deliveryChannel": null,
+            "toolCallNames": [],
+            "statements": [],
+            "insufficient": null
+          },
+          "attempt": 1,
+          "backoffMs": 8000
+        },
+        {
+          "runId": "b9df784e-1238-48a0-b0a7-588db812af97",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 4747,
+          "wallMs": 6140,
+          "traceIncomplete": false,
+          "answerMessageId": "1df78f15-f09d-4eaa-a4b3-c67ba27647b8",
+          "answerChars": 38,
+          "markers": [
+            1
+          ],
+          "modelCalls": 2,
+          "modelRetries": 0,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 5,
+            "TOOL_CALL": 3,
+            "RETRIEVAL": 2
+          },
+          "citations": [
+            {
+              "label": 1,
+              "citationId": "9b59ad94-a43a-4009-915b-08310d0be73f:1",
+              "chunkId": "52a14de7-7165-46ad-a15e-cc96ef96cba5",
+              "documentName": "01_product_guide.md",
+              "startLine": 19,
+              "endLine": 23,
+              "excerpt": "| 体验路径 | 你会看到什么 | 依据 | | --- | --- | --- | | 直接提问 | 一句结论 + 几条要点，下面挂来源；点开来源可看到原文对应段落 | 公开知识库检索、引用投影、原文预览 | | 查看执行过程 | 展开「查看过程」可看到这一轮的模型、检索、工具与落库步骤及其耗时 | 运行摘要与事件表"
+            }
+          ],
+          "delivery": {
+            "deliveryChannel": "groundedAnswer",
+            "toolCallNames": [
+              "groundedAnswer"
+            ],
+            "statements": [
+              {
+                "text": "展开「查看过程」可以看到这一轮的模型、检索、工具与落库步骤及其耗时。",
+                "citationId": "9b59ad94-a43a-4009-915b-08310d0be73f:1",
+                "evidenceQuote": "| 查看执行过程 | 展开「查看过程」可看到这一轮的模型、检索、工具与落库步骤及其耗时 | 运行摘要与事件表 |",
+                "label": 1,
+                "documentName": "01_product_guide.md",
+                "startLine": 19,
+                "endLine": 23
+              }
+            ],
+            "insufficient": null
+          },
+          "attempt": 2
+        }
+      ],
+      "answerChars": 38,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "citationId": "9b59ad94-a43a-4009-915b-08310d0be73f:1",
+          "chunkId": "52a14de7-7165-46ad-a15e-cc96ef96cba5",
+          "documentName": "01_product_guide.md",
+          "startLine": 19,
+          "endLine": 23,
+          "excerpt": "| 体验路径 | 你会看到什么 | 依据 | | --- | --- | --- | | 直接提问 | 一句结论 + 几条要点，下面挂来源；点开来源可看到原文对应段落 | 公开知识库检索、引用投影、原文预览 | | 查看执行过程 | 展开「查看过程」可看到这一轮的模型、检索、工具与落库步骤及其耗时 | 运行摘要与事件表"
+        }
+      ],
+      "markers": [
+        1
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "展开「查看过程」可以看到这一轮的模型、检索、工具与落库步骤及其耗时。 [1]",
+      "deliveryChannel": "groundedAnswer",
+      "toolCallNames": [
+        "groundedAnswer"
+      ],
+      "statements": [
+        {
+          "text": "展开「查看过程」可以看到这一轮的模型、检索、工具与落库步骤及其耗时。",
+          "citationId": "9b59ad94-a43a-4009-915b-08310d0be73f:1",
+          "evidenceQuote": "| 查看执行过程 | 展开「查看过程」可看到这一轮的模型、检索、工具与落库步骤及其耗时 | 运行摘要与事件表 |",
+          "label": 1,
+          "documentName": "01_product_guide.md",
+          "startLine": 19,
+          "endLine": 23
+        }
+      ],
+      "insufficient": null
+    },
+    {
+      "id": "Q19",
+      "kind": "fact",
+      "question": "游客和登录用户看到的范围有什么不同？",
+      "expected": [
+        "01_product_guide: 游客只看公开资料与自己的会话"
+      ],
+      "maxChars": 300,
+      "status": "FAILED",
+      "errorCode": "EXECUTION_FAILED",
+      "attemptCount": 2,
+      "elapsedMsTotal": 16282,
+      "sessionId": "43adfe5f-2435-4fbd-83af-5de72cd36dec",
+      "dbHistoryUserMessageCount": 31,
+      "dbHistoryUserMessageIds": [
+        "b86746a2-82b6-4ce5-9049-f52371fd2cdf",
+        "554c898f-ab17-4585-8d58-967f7278a0ed",
+        "1d834f00-6297-44e1-b980-07efe731bb6b",
+        "2112d3ff-3588-47d1-9a7a-c8b16106eb6d",
+        "813fc9f8-ed96-4511-a015-dc681fdaf5a6",
+        "81ca4953-7f34-4c66-bd8d-99475f060adf",
+        "6d843ec0-21fb-47e7-9f9a-fc574c77d00e",
+        "34bc75d5-1930-4c87-b24b-56b834220da2",
+        "adf34e73-f80a-4f89-9ecc-936201d991b6",
+        "94be92c2-52e1-4041-81fb-f5012e2b967d",
+        "aa385848-8782-499f-81ed-140d68b9e74c",
+        "0cbab13f-4577-415a-a1fa-464fec53650a",
+        "c753b8f4-5fd7-4009-9cba-db2d965bb60a",
+        "618c0e7f-714b-4b9a-906e-0bb612ff3d3c",
+        "d2e9d03c-7496-4f55-9439-224e6413ae4c",
+        "deb6836b-0b35-4e06-893c-4186614058ab",
+        "31992492-29c3-4d81-9654-6c24ea6ac334",
+        "bc777cfb-a6dc-491c-a30a-401e58b693fc",
+        "bc818549-102e-4865-bf3c-c5c4573b8673",
+        "88dc83b4-729f-408a-a355-ed560766f0c0",
+        "d02738b2-4208-48aa-b75b-08d05b160d66",
+        "9a3dd3c7-5e4d-4fec-b1a5-32ccf2e628e2",
+        "8c1c9ba7-6d7c-4833-b66c-e53946a96f67",
+        "dbb00b6c-2cf6-4b56-b7fb-457059f955d3",
+        "4c5cd7e6-3206-4066-b986-e244f5379c74",
+        "c36d608e-e45c-451c-a99f-940f20d91807",
+        "fde95950-de10-4364-ac3b-08a5aa1b9481",
+        "77ab1854-7f3d-4d7c-9f0b-0c9661df643b",
+        "cfb05912-0a90-4d0d-8b29-6e772f4dc7f2",
+        "5067ea13-c2a4-4585-89b4-25ee3c8b1154",
+        "c74622e8-80bd-4e4d-a996-be6a58dd4bfa"
+      ],
+      "wallMsTotal": 8281,
+      "attempts": [
+        {
+          "runId": "d4a53c36-bfb8-493d-acd3-dc8b0e8cc0ab",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 2553,
+          "wallMs": 4141,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 2,
+          "modelRetries": 0,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 3,
+            "TOOL_CALL": 2,
+            "RETRIEVAL": 2
+          },
+          "citations": [],
+          "delivery": {
+            "deliveryChannel": null,
+            "toolCallNames": [],
+            "statements": [],
+            "insufficient": null
+          },
+          "attempt": 1,
+          "backoffMs": 8000
+        },
+        {
+          "runId": "66fc591b-6abb-461d-9abd-4a31d1f281f2",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 2446,
+          "wallMs": 4140,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 2,
+          "modelRetries": 0,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 3,
+            "TOOL_CALL": 2,
+            "RETRIEVAL": 2
+          },
+          "citations": [],
+          "delivery": {
+            "deliveryChannel": null,
+            "toolCallNames": [],
+            "statements": [],
+            "insufficient": null
+          },
+          "attempt": 2
+        }
+      ],
+      "answerChars": 0,
+      "withinBudget": true,
+      "citations": [],
+      "markers": [],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "",
+      "deliveryChannel": null,
+      "toolCallNames": [],
+      "statements": [],
+      "insufficient": null
+    },
+    {
+      "id": "Q20",
+      "kind": "fact",
+      "question": "检索评测看哪些指标？",
+      "expected": [
+        "03_contribution_map: Hit@3 / Recall@3 / MRR@3"
+      ],
+      "maxChars": 300,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 2,
+      "elapsedMsTotal": 16328,
+      "sessionId": "43adfe5f-2435-4fbd-83af-5de72cd36dec",
+      "dbHistoryUserMessageCount": 33,
+      "dbHistoryUserMessageIds": [
+        "b86746a2-82b6-4ce5-9049-f52371fd2cdf",
+        "554c898f-ab17-4585-8d58-967f7278a0ed",
+        "1d834f00-6297-44e1-b980-07efe731bb6b",
+        "2112d3ff-3588-47d1-9a7a-c8b16106eb6d",
+        "813fc9f8-ed96-4511-a015-dc681fdaf5a6",
+        "81ca4953-7f34-4c66-bd8d-99475f060adf",
+        "6d843ec0-21fb-47e7-9f9a-fc574c77d00e",
+        "34bc75d5-1930-4c87-b24b-56b834220da2",
+        "adf34e73-f80a-4f89-9ecc-936201d991b6",
+        "94be92c2-52e1-4041-81fb-f5012e2b967d",
+        "aa385848-8782-499f-81ed-140d68b9e74c",
+        "0cbab13f-4577-415a-a1fa-464fec53650a",
+        "c753b8f4-5fd7-4009-9cba-db2d965bb60a",
+        "618c0e7f-714b-4b9a-906e-0bb612ff3d3c",
+        "d2e9d03c-7496-4f55-9439-224e6413ae4c",
+        "deb6836b-0b35-4e06-893c-4186614058ab",
+        "31992492-29c3-4d81-9654-6c24ea6ac334",
+        "bc777cfb-a6dc-491c-a30a-401e58b693fc",
+        "bc818549-102e-4865-bf3c-c5c4573b8673",
+        "88dc83b4-729f-408a-a355-ed560766f0c0",
+        "d02738b2-4208-48aa-b75b-08d05b160d66",
+        "9a3dd3c7-5e4d-4fec-b1a5-32ccf2e628e2",
+        "8c1c9ba7-6d7c-4833-b66c-e53946a96f67",
+        "dbb00b6c-2cf6-4b56-b7fb-457059f955d3",
+        "4c5cd7e6-3206-4066-b986-e244f5379c74",
+        "c36d608e-e45c-451c-a99f-940f20d91807",
+        "fde95950-de10-4364-ac3b-08a5aa1b9481",
+        "77ab1854-7f3d-4d7c-9f0b-0c9661df643b",
+        "cfb05912-0a90-4d0d-8b29-6e772f4dc7f2",
+        "5067ea13-c2a4-4585-89b4-25ee3c8b1154",
+        "c74622e8-80bd-4e4d-a996-be6a58dd4bfa",
+        "2a23ed49-e7f0-4fd6-9d23-576be3f42aab",
+        "933e60df-0caa-4475-9168-a16c4a25102e"
+      ],
+      "wallMsTotal": 8313,
+      "attempts": [
+        {
+          "runId": "802a40c7-fd0e-46f9-9e9c-22e8c7eabd6f",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 473,
+          "wallMs": 2125,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelRetries": 0,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "delivery": {
+            "deliveryChannel": null,
+            "toolCallNames": [],
+            "statements": [],
+            "insufficient": null
+          },
+          "attempt": 1,
+          "backoffMs": 8000
+        },
+        {
+          "runId": "8d3917d6-fba7-4b00-aa0d-38090fdf454d",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 4329,
+          "wallMs": 6188,
+          "traceIncomplete": false,
+          "answerMessageId": "3a8dba3f-af35-4392-9f94-c535f7a6ebd0",
+          "answerChars": 134,
+          "markers": [
+            1
+          ],
+          "modelCalls": 2,
+          "modelRetries": 0,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 5,
+            "TOOL_CALL": 3,
+            "RETRIEVAL": 2
+          },
+          "citations": [
+            {
+              "label": 1,
+              "citationId": "dfdf7a21-8a09-4579-8bd9-332835ae7a88:3",
+              "chunkId": "070fb20e-b82c-4d3b-99b1-3247889166e4",
+              "documentName": "03_contribution_map.md",
+              "startLine": 22,
+              "endLine": 31,
+              "excerpt": "| 能力 | 一句话说明 | 主要依据 | 验证范围 | | --- | --- | --- | --- | | Markdown 解析隔离 | 每份文档独立解析状态，避免并发导入时共享可变状态互相污染 | 解析服务与并发用例 | 单元测试（含并发场景） | | 检索评测与冻结资产 | 题集、语料清单、冻结哈希与评测脚"
+            }
+          ],
+          "delivery": {
+            "deliveryChannel": "groundedAnswer",
+            "toolCallNames": [
+              "groundedAnswer"
+            ],
+            "statements": [
+              {
+                "text": "检索评测的指标为 Hit@3 / Recall@3 / MRR@3。",
+                "citationId": "dfdf7a21-8a09-4579-8bd9-332835ae7a88:3",
+                "evidenceQuote": "| 检索评测与冻结资产 | 题集、语料清单、冻结哈希与评测脚本，指标为 Hit@3 / Recall@3 / MRR@3 |",
+                "label": 1,
+                "documentName": "03_contribution_map.md",
+                "startLine": 22,
+                "endLine": 31
+              },
+              {
+                "text": "检索评测的配套资产是题集、语料清单、冻结哈希与评测脚本，依据在 `evaluation/` 目录与评测说明，验证范围是离线脚本与 pytest、真实 Embedding 一次基线。",
+                "citationId": "dfdf7a21-8a09-4579-8bd9-332835ae7a88:3",
+                "evidenceQuote": "| 检索评测与冻结资产 | 题集、语料清单、冻结哈希与评测脚本，指标为 Hit@3 / Recall@3 / MRR@3 | `evaluation/` 目录、评测说明 | 离线脚本与 pytest、真实 Embedding 一次基线 |",
+                "label": 1,
+                "documentName": "03_contribution_map.md",
+                "startLine": 22,
+                "endLine": 31
+              }
+            ],
+            "insufficient": null
+          },
+          "attempt": 2
+        }
+      ],
+      "answerChars": 134,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "citationId": "dfdf7a21-8a09-4579-8bd9-332835ae7a88:3",
+          "chunkId": "070fb20e-b82c-4d3b-99b1-3247889166e4",
+          "documentName": "03_contribution_map.md",
+          "startLine": 22,
+          "endLine": 31,
+          "excerpt": "| 能力 | 一句话说明 | 主要依据 | 验证范围 | | --- | --- | --- | --- | | Markdown 解析隔离 | 每份文档独立解析状态，避免并发导入时共享可变状态互相污染 | 解析服务与并发用例 | 单元测试（含并发场景） | | 检索评测与冻结资产 | 题集、语料清单、冻结哈希与评测脚"
+        }
+      ],
+      "markers": [
+        1
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "检索评测的指标为 Hit@3 / Recall@3 / MRR@3。 [1]\n\n检索评测的配套资产是题集、语料清单、冻结哈希与评测脚本，依据在 `evaluation/` 目录与评测说明，验证范围是离线脚本与 pytest、真实 Embedding 一次基线。 [1]",
+      "deliveryChannel": "groundedAnswer",
+      "toolCallNames": [
+        "groundedAnswer"
+      ],
+      "statements": [
+        {
+          "text": "检索评测的指标为 Hit@3 / Recall@3 / MRR@3。",
+          "citationId": "dfdf7a21-8a09-4579-8bd9-332835ae7a88:3",
+          "evidenceQuote": "| 检索评测与冻结资产 | 题集、语料清单、冻结哈希与评测脚本，指标为 Hit@3 / Recall@3 / MRR@3 |",
+          "label": 1,
+          "documentName": "03_contribution_map.md",
+          "startLine": 22,
+          "endLine": 31
+        },
+        {
+          "text": "检索评测的配套资产是题集、语料清单、冻结哈希与评测脚本，依据在 `evaluation/` 目录与评测说明，验证范围是离线脚本与 pytest、真实 Embedding 一次基线。",
+          "citationId": "dfdf7a21-8a09-4579-8bd9-332835ae7a88:3",
+          "evidenceQuote": "| 检索评测与冻结资产 | 题集、语料清单、冻结哈希与评测脚本，指标为 Hit@3 / Recall@3 / MRR@3 | `evaluation/` 目录、评测说明 | 离线脚本与 pytest、真实 Embedding 一次基线 |",
+          "label": 1,
+          "documentName": "03_contribution_map.md",
+          "startLine": 22,
+          "endLine": 31
+        }
+      ],
+      "insufficient": null
+    },
+    {
+      "id": "Q21",
+      "kind": "fact",
+      "question": "换一个向量模型时，已有知识库能直接换吗？",
+      "expected": [
+        "03_contribution_map: 不同模型向量不能混用，需重新导入"
+      ],
+      "maxChars": 300,
+      "status": "FAILED",
+      "errorCode": "EXECUTION_FAILED",
+      "attemptCount": 2,
+      "elapsedMsTotal": 14296,
+      "sessionId": "43adfe5f-2435-4fbd-83af-5de72cd36dec",
+      "dbHistoryUserMessageCount": 35,
+      "dbHistoryUserMessageIds": [
+        "b86746a2-82b6-4ce5-9049-f52371fd2cdf",
+        "554c898f-ab17-4585-8d58-967f7278a0ed",
+        "1d834f00-6297-44e1-b980-07efe731bb6b",
+        "2112d3ff-3588-47d1-9a7a-c8b16106eb6d",
+        "813fc9f8-ed96-4511-a015-dc681fdaf5a6",
+        "81ca4953-7f34-4c66-bd8d-99475f060adf",
+        "6d843ec0-21fb-47e7-9f9a-fc574c77d00e",
+        "34bc75d5-1930-4c87-b24b-56b834220da2",
+        "adf34e73-f80a-4f89-9ecc-936201d991b6",
+        "94be92c2-52e1-4041-81fb-f5012e2b967d",
+        "aa385848-8782-499f-81ed-140d68b9e74c",
+        "0cbab13f-4577-415a-a1fa-464fec53650a",
+        "c753b8f4-5fd7-4009-9cba-db2d965bb60a",
+        "618c0e7f-714b-4b9a-906e-0bb612ff3d3c",
+        "d2e9d03c-7496-4f55-9439-224e6413ae4c",
+        "deb6836b-0b35-4e06-893c-4186614058ab",
+        "31992492-29c3-4d81-9654-6c24ea6ac334",
+        "bc777cfb-a6dc-491c-a30a-401e58b693fc",
+        "bc818549-102e-4865-bf3c-c5c4573b8673",
+        "88dc83b4-729f-408a-a355-ed560766f0c0",
+        "d02738b2-4208-48aa-b75b-08d05b160d66",
+        "9a3dd3c7-5e4d-4fec-b1a5-32ccf2e628e2",
+        "8c1c9ba7-6d7c-4833-b66c-e53946a96f67",
+        "dbb00b6c-2cf6-4b56-b7fb-457059f955d3",
+        "4c5cd7e6-3206-4066-b986-e244f5379c74",
+        "c36d608e-e45c-451c-a99f-940f20d91807",
+        "fde95950-de10-4364-ac3b-08a5aa1b9481",
+        "77ab1854-7f3d-4d7c-9f0b-0c9661df643b",
+        "cfb05912-0a90-4d0d-8b29-6e772f4dc7f2",
+        "5067ea13-c2a4-4585-89b4-25ee3c8b1154",
+        "c74622e8-80bd-4e4d-a996-be6a58dd4bfa",
+        "2a23ed49-e7f0-4fd6-9d23-576be3f42aab",
+        "933e60df-0caa-4475-9168-a16c4a25102e",
+        "3d4850a6-2839-424e-a14a-d948bba21c79",
+        "92bf33cc-9434-4ec2-8356-a4cb66d3b396"
+      ],
+      "wallMsTotal": 6280,
+      "attempts": [
+        {
+          "runId": "495c9694-e9d5-47d8-99ea-412113335c09",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 2059,
+          "wallMs": 4155,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 2,
+          "modelRetries": 0,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 2,
+            "TOOL_CALL": 1,
+            "RETRIEVAL": 1
+          },
+          "citations": [],
+          "delivery": {
+            "deliveryChannel": null,
+            "toolCallNames": [],
+            "statements": [],
+            "insufficient": null
+          },
+          "attempt": 1,
+          "backoffMs": 8000
+        },
+        {
+          "runId": "fa4533d0-35c5-40c8-9d90-3c7005779706",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 719,
+          "wallMs": 2125,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelRetries": 0,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "delivery": {
+            "deliveryChannel": null,
+            "toolCallNames": [],
+            "statements": [],
+            "insufficient": null
+          },
+          "attempt": 2
+        }
+      ],
+      "answerChars": 0,
+      "withinBudget": true,
+      "citations": [],
+      "markers": [],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "",
+      "deliveryChannel": null,
+      "toolCallNames": [],
+      "statements": [],
+      "insufficient": null
+    },
+    {
+      "id": "Q22",
+      "kind": "fact",
+      "question": "什么是这项工程里的 fencing token？",
+      "expected": [
+        "02_engineering_cases: 每次领取让 token 前进，写回要校验"
+      ],
+      "maxChars": 350,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 2,
+      "elapsedMsTotal": 18375,
+      "sessionId": "43adfe5f-2435-4fbd-83af-5de72cd36dec",
+      "dbHistoryUserMessageCount": 37,
+      "dbHistoryUserMessageIds": [
+        "b86746a2-82b6-4ce5-9049-f52371fd2cdf",
+        "554c898f-ab17-4585-8d58-967f7278a0ed",
+        "1d834f00-6297-44e1-b980-07efe731bb6b",
+        "2112d3ff-3588-47d1-9a7a-c8b16106eb6d",
+        "813fc9f8-ed96-4511-a015-dc681fdaf5a6",
+        "81ca4953-7f34-4c66-bd8d-99475f060adf",
+        "6d843ec0-21fb-47e7-9f9a-fc574c77d00e",
+        "34bc75d5-1930-4c87-b24b-56b834220da2",
+        "adf34e73-f80a-4f89-9ecc-936201d991b6",
+        "94be92c2-52e1-4041-81fb-f5012e2b967d",
+        "aa385848-8782-499f-81ed-140d68b9e74c",
+        "0cbab13f-4577-415a-a1fa-464fec53650a",
+        "c753b8f4-5fd7-4009-9cba-db2d965bb60a",
+        "618c0e7f-714b-4b9a-906e-0bb612ff3d3c",
+        "d2e9d03c-7496-4f55-9439-224e6413ae4c",
+        "deb6836b-0b35-4e06-893c-4186614058ab",
+        "31992492-29c3-4d81-9654-6c24ea6ac334",
+        "bc777cfb-a6dc-491c-a30a-401e58b693fc",
+        "bc818549-102e-4865-bf3c-c5c4573b8673",
+        "88dc83b4-729f-408a-a355-ed560766f0c0",
+        "d02738b2-4208-48aa-b75b-08d05b160d66",
+        "9a3dd3c7-5e4d-4fec-b1a5-32ccf2e628e2",
+        "8c1c9ba7-6d7c-4833-b66c-e53946a96f67",
+        "dbb00b6c-2cf6-4b56-b7fb-457059f955d3",
+        "4c5cd7e6-3206-4066-b986-e244f5379c74",
+        "c36d608e-e45c-451c-a99f-940f20d91807",
+        "fde95950-de10-4364-ac3b-08a5aa1b9481",
+        "77ab1854-7f3d-4d7c-9f0b-0c9661df643b",
+        "cfb05912-0a90-4d0d-8b29-6e772f4dc7f2",
+        "5067ea13-c2a4-4585-89b4-25ee3c8b1154",
+        "c74622e8-80bd-4e4d-a996-be6a58dd4bfa",
+        "2a23ed49-e7f0-4fd6-9d23-576be3f42aab",
+        "933e60df-0caa-4475-9168-a16c4a25102e",
+        "3d4850a6-2839-424e-a14a-d948bba21c79",
+        "92bf33cc-9434-4ec2-8356-a4cb66d3b396",
+        "101c53ca-3c55-4718-972e-89ab07682801",
+        "1737552f-d620-4ec2-befb-1e75d47227f3"
+      ],
+      "wallMsTotal": 10374,
+      "attempts": [
+        {
+          "runId": "0aabcd2b-5517-4e52-bb94-34e752081a3c",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 512,
+          "wallMs": 2171,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelRetries": 0,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "delivery": {
+            "deliveryChannel": null,
+            "toolCallNames": [],
+            "statements": [],
+            "insufficient": null
+          },
+          "attempt": 1,
+          "backoffMs": 8000
+        },
+        {
+          "runId": "51994e22-0157-4a72-aecb-7bc43ad01c9f",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 7636,
+          "wallMs": 8203,
+          "traceIncomplete": false,
+          "answerMessageId": "700b1f32-dcb8-4720-8543-4fde74090021",
+          "answerChars": 150,
+          "markers": [
+            1
+          ],
+          "modelCalls": 3,
+          "modelRetries": 0,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 3,
+            "PERSIST_MESSAGE": 7,
+            "TOOL_CALL": 4,
+            "RETRIEVAL": 3
+          },
+          "citations": [
+            {
+              "label": 1,
+              "citationId": "3223cd28-272e-4193-bdd9-822b7ffa8cef:2",
+              "chunkId": "3e056a50-2969-4ce1-ad38-685e84de39f6",
+              "documentName": "02_engineering_cases.md",
+              "startLine": 26,
+              "endLine": 42,
+              "excerpt": "**问题**：取消是个协作式动作。已经发出去的模型请求无法撤回，几秒后它可能仍然返回一段完整答案。 如果不加约束，这段时间里运行可能已经被标记为取消，而答案又被追加到会话里，用户看到「已取消 + 又有回答」。 **方案**：把「请求取消」和「运行终态」分开，并给每一次执行加 fencing 校验。 - 运行中的取消只登"
+            }
+          ],
+          "delivery": {
+            "deliveryChannel": "groundedAnswer",
+            "toolCallNames": [
+              "groundedAnswer"
+            ],
+            "statements": [
+              {
+                "text": "在这项工程里，每次领取任务都会让 `fencing_token` 前进。",
+                "citationId": "3223cd28-272e-4193-bdd9-822b7ffa8cef:2",
+                "evidenceQuote": "每次领取任务都会让 `fencing_token` 前进。",
+                "label": 1,
+                "documentName": "02_engineering_cases.md",
+                "startLine": 26,
+                "endLine": 42
+              },
+              {
+                "text": "写答案时必须同时满足「任务行仍是 RUNNING」和「fencing 未被接管」两个条件，答案消息与 `answer_message_id` 在同一个事务里写入，条件不满足就整笔回滚，迟到的内容一个字都不留。",
+                "citationId": "3223cd28-272e-4193-bdd9-822b7ffa8cef:2",
+                "evidenceQuote": "写答案时必须同时满足「任务行仍是 RUNNING」「fencing 未被接管」\n  两个条件，答案消息与 `answer_message_id` 在同一个事务里写入；条件不满足就整笔回滚，迟到的内容一个字都不留。",
+                "label": 1,
+                "documentName": "02_engineering_cases.md",
+                "startLine": 26,
+                "endLine": 42
+              }
+            ],
+            "insufficient": null
+          },
+          "attempt": 2
+        }
+      ],
+      "answerChars": 150,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "citationId": "3223cd28-272e-4193-bdd9-822b7ffa8cef:2",
+          "chunkId": "3e056a50-2969-4ce1-ad38-685e84de39f6",
+          "documentName": "02_engineering_cases.md",
+          "startLine": 26,
+          "endLine": 42,
+          "excerpt": "**问题**：取消是个协作式动作。已经发出去的模型请求无法撤回，几秒后它可能仍然返回一段完整答案。 如果不加约束，这段时间里运行可能已经被标记为取消，而答案又被追加到会话里，用户看到「已取消 + 又有回答」。 **方案**：把「请求取消」和「运行终态」分开，并给每一次执行加 fencing 校验。 - 运行中的取消只登"
+        }
+      ],
+      "markers": [
+        1
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "在这项工程里，每次领取任务都会让 `fencing_token` 前进。 [1]\n\n写答案时必须同时满足「任务行仍是 RUNNING」和「fencing 未被接管」两个条件，答案消息与 `answer_message_id` 在同一个事务里写入，条件不满足就整笔回滚，迟到的内容一个字都不留。 [1]",
+      "deliveryChannel": "groundedAnswer",
+      "toolCallNames": [
+        "groundedAnswer"
+      ],
+      "statements": [
+        {
+          "text": "在这项工程里，每次领取任务都会让 `fencing_token` 前进。",
+          "citationId": "3223cd28-272e-4193-bdd9-822b7ffa8cef:2",
+          "evidenceQuote": "每次领取任务都会让 `fencing_token` 前进。",
+          "label": 1,
+          "documentName": "02_engineering_cases.md",
+          "startLine": 26,
+          "endLine": 42
+        },
+        {
+          "text": "写答案时必须同时满足「任务行仍是 RUNNING」和「fencing 未被接管」两个条件，答案消息与 `answer_message_id` 在同一个事务里写入，条件不满足就整笔回滚，迟到的内容一个字都不留。",
+          "citationId": "3223cd28-272e-4193-bdd9-822b7ffa8cef:2",
+          "evidenceQuote": "写答案时必须同时满足「任务行仍是 RUNNING」「fencing 未被接管」\n  两个条件，答案消息与 `answer_message_id` 在同一个事务里写入；条件不满足就整笔回滚，迟到的内容一个字都不留。",
+          "label": 1,
+          "documentName": "02_engineering_cases.md",
+          "startLine": 26,
+          "endLine": 42
+        }
+      ],
+      "insufficient": null
+    },
+    {
+      "id": "Q23",
+      "kind": "fact",
+      "question": "为什么检查点要做有界等待，而不是一直等锁？",
+      "expected": [
+        "02_engineering_cases: 案例三（锁等待跨过租约期限会带病发请求）"
+      ],
+      "maxChars": 350,
+      "status": "FAILED",
+      "errorCode": "EXECUTION_FAILED",
+      "attemptCount": 2,
+      "elapsedMsTotal": 14281,
+      "sessionId": "43adfe5f-2435-4fbd-83af-5de72cd36dec",
+      "dbHistoryUserMessageCount": 39,
+      "dbHistoryUserMessageIds": [
+        "b86746a2-82b6-4ce5-9049-f52371fd2cdf",
+        "554c898f-ab17-4585-8d58-967f7278a0ed",
+        "1d834f00-6297-44e1-b980-07efe731bb6b",
+        "2112d3ff-3588-47d1-9a7a-c8b16106eb6d",
+        "813fc9f8-ed96-4511-a015-dc681fdaf5a6",
+        "81ca4953-7f34-4c66-bd8d-99475f060adf",
+        "6d843ec0-21fb-47e7-9f9a-fc574c77d00e",
+        "34bc75d5-1930-4c87-b24b-56b834220da2",
+        "adf34e73-f80a-4f89-9ecc-936201d991b6",
+        "94be92c2-52e1-4041-81fb-f5012e2b967d",
+        "aa385848-8782-499f-81ed-140d68b9e74c",
+        "0cbab13f-4577-415a-a1fa-464fec53650a",
+        "c753b8f4-5fd7-4009-9cba-db2d965bb60a",
+        "618c0e7f-714b-4b9a-906e-0bb612ff3d3c",
+        "d2e9d03c-7496-4f55-9439-224e6413ae4c",
+        "deb6836b-0b35-4e06-893c-4186614058ab",
+        "31992492-29c3-4d81-9654-6c24ea6ac334",
+        "bc777cfb-a6dc-491c-a30a-401e58b693fc",
+        "bc818549-102e-4865-bf3c-c5c4573b8673",
+        "88dc83b4-729f-408a-a355-ed560766f0c0",
+        "d02738b2-4208-48aa-b75b-08d05b160d66",
+        "9a3dd3c7-5e4d-4fec-b1a5-32ccf2e628e2",
+        "8c1c9ba7-6d7c-4833-b66c-e53946a96f67",
+        "dbb00b6c-2cf6-4b56-b7fb-457059f955d3",
+        "4c5cd7e6-3206-4066-b986-e244f5379c74",
+        "c36d608e-e45c-451c-a99f-940f20d91807",
+        "fde95950-de10-4364-ac3b-08a5aa1b9481",
+        "77ab1854-7f3d-4d7c-9f0b-0c9661df643b",
+        "cfb05912-0a90-4d0d-8b29-6e772f4dc7f2",
+        "5067ea13-c2a4-4585-89b4-25ee3c8b1154",
+        "c74622e8-80bd-4e4d-a996-be6a58dd4bfa",
+        "2a23ed49-e7f0-4fd6-9d23-576be3f42aab",
+        "933e60df-0caa-4475-9168-a16c4a25102e",
+        "3d4850a6-2839-424e-a14a-d948bba21c79",
+        "92bf33cc-9434-4ec2-8356-a4cb66d3b396",
+        "101c53ca-3c55-4718-972e-89ab07682801",
+        "1737552f-d620-4ec2-befb-1e75d47227f3",
+        "0c1e6dc5-70cd-4de2-9b11-327f09fd2f3d",
+        "52b55a11-522a-493e-b61a-36eeebd81dfe"
+      ],
+      "wallMsTotal": 6265,
+      "attempts": [
+        {
+          "runId": "acb2474f-83e5-461d-a01e-5cdac6402cbd",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 532,
+          "wallMs": 2094,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelRetries": 0,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "delivery": {
+            "deliveryChannel": null,
+            "toolCallNames": [],
+            "statements": [],
+            "insufficient": null
+          },
+          "attempt": 1,
+          "backoffMs": 8000
+        },
+        {
+          "runId": "c7ae72ce-70f5-4f8c-8894-35c3fe99f055",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 2809,
+          "wallMs": 4171,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 2,
+          "modelRetries": 0,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 3,
+            "TOOL_CALL": 2,
+            "RETRIEVAL": 2
+          },
+          "citations": [],
+          "delivery": {
+            "deliveryChannel": null,
+            "toolCallNames": [],
+            "statements": [],
+            "insufficient": null
+          },
+          "attempt": 2
+        }
+      ],
+      "answerChars": 0,
+      "withinBudget": true,
+      "citations": [],
+      "markers": [],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "",
+      "deliveryChannel": null,
+      "toolCallNames": [],
+      "statements": [],
+      "insufficient": null
+    },
+    {
+      "id": "Q24",
+      "kind": "fact",
+      "question": "这个项目基于什么开源项目，保留了哪些能力？",
+      "expected": [
+        "03_contribution_map: JChatMind + Spring Boot/Spring AI/React/pgvector"
+      ],
+      "maxChars": 350,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 2,
+      "elapsedMsTotal": 18312,
+      "sessionId": "43adfe5f-2435-4fbd-83af-5de72cd36dec",
+      "dbHistoryUserMessageCount": 41,
+      "dbHistoryUserMessageIds": [
+        "b86746a2-82b6-4ce5-9049-f52371fd2cdf",
+        "554c898f-ab17-4585-8d58-967f7278a0ed",
+        "1d834f00-6297-44e1-b980-07efe731bb6b",
+        "2112d3ff-3588-47d1-9a7a-c8b16106eb6d",
+        "813fc9f8-ed96-4511-a015-dc681fdaf5a6",
+        "81ca4953-7f34-4c66-bd8d-99475f060adf",
+        "6d843ec0-21fb-47e7-9f9a-fc574c77d00e",
+        "34bc75d5-1930-4c87-b24b-56b834220da2",
+        "adf34e73-f80a-4f89-9ecc-936201d991b6",
+        "94be92c2-52e1-4041-81fb-f5012e2b967d",
+        "aa385848-8782-499f-81ed-140d68b9e74c",
+        "0cbab13f-4577-415a-a1fa-464fec53650a",
+        "c753b8f4-5fd7-4009-9cba-db2d965bb60a",
+        "618c0e7f-714b-4b9a-906e-0bb612ff3d3c",
+        "d2e9d03c-7496-4f55-9439-224e6413ae4c",
+        "deb6836b-0b35-4e06-893c-4186614058ab",
+        "31992492-29c3-4d81-9654-6c24ea6ac334",
+        "bc777cfb-a6dc-491c-a30a-401e58b693fc",
+        "bc818549-102e-4865-bf3c-c5c4573b8673",
+        "88dc83b4-729f-408a-a355-ed560766f0c0",
+        "d02738b2-4208-48aa-b75b-08d05b160d66",
+        "9a3dd3c7-5e4d-4fec-b1a5-32ccf2e628e2",
+        "8c1c9ba7-6d7c-4833-b66c-e53946a96f67",
+        "dbb00b6c-2cf6-4b56-b7fb-457059f955d3",
+        "4c5cd7e6-3206-4066-b986-e244f5379c74",
+        "c36d608e-e45c-451c-a99f-940f20d91807",
+        "fde95950-de10-4364-ac3b-08a5aa1b9481",
+        "77ab1854-7f3d-4d7c-9f0b-0c9661df643b",
+        "cfb05912-0a90-4d0d-8b29-6e772f4dc7f2",
+        "5067ea13-c2a4-4585-89b4-25ee3c8b1154",
+        "c74622e8-80bd-4e4d-a996-be6a58dd4bfa",
+        "2a23ed49-e7f0-4fd6-9d23-576be3f42aab",
+        "933e60df-0caa-4475-9168-a16c4a25102e",
+        "3d4850a6-2839-424e-a14a-d948bba21c79",
+        "92bf33cc-9434-4ec2-8356-a4cb66d3b396",
+        "101c53ca-3c55-4718-972e-89ab07682801",
+        "1737552f-d620-4ec2-befb-1e75d47227f3",
+        "0c1e6dc5-70cd-4de2-9b11-327f09fd2f3d",
+        "52b55a11-522a-493e-b61a-36eeebd81dfe",
+        "337edba2-8acb-4d3c-a0f9-ddcc77ea261b",
+        "85153622-8020-4d0a-ac71-09aaeca29858"
+      ],
+      "wallMsTotal": 10296,
+      "attempts": [
+        {
+          "runId": "d604c882-bd00-4744-bfc1-40148e300a52",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 487,
+          "wallMs": 2109,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelRetries": 0,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "delivery": {
+            "deliveryChannel": null,
+            "toolCallNames": [],
+            "statements": [],
+            "insufficient": null
+          },
+          "attempt": 1,
+          "backoffMs": 8000
+        },
+        {
+          "runId": "a8d82c1b-4fd2-4cfa-a67d-5168cbf2ed49",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 6967,
+          "wallMs": 8187,
+          "traceIncomplete": false,
+          "answerMessageId": "111ff321-edea-4f42-bd32-eadd03e66584",
+          "answerChars": 203,
+          "markers": [
+            1,
+            2
+          ],
+          "modelCalls": 2,
+          "modelRetries": 0,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 5,
+            "TOOL_CALL": 3,
+            "RETRIEVAL": 2
+          },
+          "citations": [
+            {
+              "label": 1,
+              "citationId": "b163a090-a530-4c46-a4e2-837ac828c0c2:1",
+              "chunkId": "3412f918-4bde-4490-a26d-91246d713db8",
+              "documentName": "03_contribution_map.md",
+              "startLine": 9,
+              "endLine": 18,
+              "excerpt": "上游是 JChatMind：一个 Java + Spring Boot + Spring AI 的 AI Agent 示例项目，前端为 React，数据库为 PostgreSQL 加 pgvector 向量扩展。本项目保留了这些核心能力： - Agent 主循环：模型判断下一步 → 执行工具 → 读取工具结果 → 继续"
+            },
+            {
+              "label": 2,
+              "citationId": "b163a090-a530-4c46-a4e2-837ac828c0c2:2",
+              "chunkId": "44f40692-8261-49cb-9934-a85aaab5ff56",
+              "documentName": "03_contribution_map.md",
+              "startLine": 3,
+              "endLine": 5,
+              "excerpt": "本文回答「哪些能力来自上游项目、哪些是本仓库新增、依据在哪里、验证到什么程度」。核对日期：2026-10-28。 判断口径：**继承**＝上游仓库已有；**新增**＝本仓库范围内实现并通过检查；**边界**＝明确还没做的部分。 本仓库基于开源项目 JChatMind 继续开发，保留了其 MIT 许可与项目来源说明。仓库"
+            }
+          ],
+          "delivery": {
+            "deliveryChannel": "groundedAnswer",
+            "toolCallNames": [
+              "groundedAnswer"
+            ],
+            "statements": [
+              {
+                "text": "本项目基于开源项目 JChatMind 继续开发，保留了其 MIT 许可与项目来源说明。",
+                "citationId": "b163a090-a530-4c46-a4e2-837ac828c0c2:2",
+                "evidenceQuote": "本仓库基于开源项目 JChatMind 继续开发，保留了其 MIT 许可与项目来源说明。",
+                "label": 2,
+                "documentName": "03_contribution_map.md",
+                "startLine": 3,
+                "endLine": 5
+              },
+              {
+                "text": "上游 JChatMind 是一个 Java + Spring Boot + Spring AI 的 AI Agent 示例项目，前端为 React，数据库为 PostgreSQL 加 pgvector 向量扩展。",
+                "citationId": "b163a090-a530-4c46-a4e2-837ac828c0c2:1",
+                "evidenceQuote": "上游是 JChatMind：一个 Java + Spring Boot + Spring AI 的 AI Agent 示例项目，前端为 React，数据库为\nPostgreSQL 加 pgvector 向量扩展。",
+                "label": 1,
+                "documentName": "03_contribution_map.md",
+                "startLine": 9,
+                "endLine": 18
+              },
+              {
+                "text": "保留的核心能力包括 Agent 主循环、工具装配、会话与消息持久化这三项。",
+                "citationId": "b163a090-a530-4c46-a4e2-837ac828c0c2:1",
+                "evidenceQuote": "- Agent 主循环：模型判断下一步 → 执行工具 → 读取工具结果 → 继续判断，直到交付答复或终止。\n- 工具装配：助手配置里声明可用工具与知识库范围，运行时按配置装载。\n- 会话与消息持久化：会话、消息、知识库、文档、片段都有独立数据表。",
+                "label": 1,
+                "documentName": "03_contribution_map.md",
+                "startLine": 9,
+                "endLine": 18
+              }
+            ],
+            "insufficient": null
+          },
+          "attempt": 2
+        }
+      ],
+      "answerChars": 203,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "citationId": "b163a090-a530-4c46-a4e2-837ac828c0c2:1",
+          "chunkId": "3412f918-4bde-4490-a26d-91246d713db8",
+          "documentName": "03_contribution_map.md",
+          "startLine": 9,
+          "endLine": 18,
+          "excerpt": "上游是 JChatMind：一个 Java + Spring Boot + Spring AI 的 AI Agent 示例项目，前端为 React，数据库为 PostgreSQL 加 pgvector 向量扩展。本项目保留了这些核心能力： - Agent 主循环：模型判断下一步 → 执行工具 → 读取工具结果 → 继续"
+        },
+        {
+          "label": 2,
+          "citationId": "b163a090-a530-4c46-a4e2-837ac828c0c2:2",
+          "chunkId": "44f40692-8261-49cb-9934-a85aaab5ff56",
+          "documentName": "03_contribution_map.md",
+          "startLine": 3,
+          "endLine": 5,
+          "excerpt": "本文回答「哪些能力来自上游项目、哪些是本仓库新增、依据在哪里、验证到什么程度」。核对日期：2026-10-28。 判断口径：**继承**＝上游仓库已有；**新增**＝本仓库范围内实现并通过检查；**边界**＝明确还没做的部分。 本仓库基于开源项目 JChatMind 继续开发，保留了其 MIT 许可与项目来源说明。仓库"
+        }
+      ],
+      "markers": [
+        1,
+        2
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "本项目基于开源项目 JChatMind 继续开发，保留了其 MIT 许可与项目来源说明。 [2]\n\n上游 JChatMind 是一个 Java + Spring Boot + Spring AI 的 AI Agent 示例项目，前端为 React，数据库为 PostgreSQL 加 pgvector 向量扩展。 [1]\n\n保留的核心能力包括 Agent 主循环、工具装配、会话与消息持久化这三项。 [1]",
+      "deliveryChannel": "groundedAnswer",
+      "toolCallNames": [
+        "groundedAnswer"
+      ],
+      "statements": [
+        {
+          "text": "本项目基于开源项目 JChatMind 继续开发，保留了其 MIT 许可与项目来源说明。",
+          "citationId": "b163a090-a530-4c46-a4e2-837ac828c0c2:2",
+          "evidenceQuote": "本仓库基于开源项目 JChatMind 继续开发，保留了其 MIT 许可与项目来源说明。",
+          "label": 2,
+          "documentName": "03_contribution_map.md",
+          "startLine": 3,
+          "endLine": 5
+        },
+        {
+          "text": "上游 JChatMind 是一个 Java + Spring Boot + Spring AI 的 AI Agent 示例项目，前端为 React，数据库为 PostgreSQL 加 pgvector 向量扩展。",
+          "citationId": "b163a090-a530-4c46-a4e2-837ac828c0c2:1",
+          "evidenceQuote": "上游是 JChatMind：一个 Java + Spring Boot + Spring AI 的 AI Agent 示例项目，前端为 React，数据库为\nPostgreSQL 加 pgvector 向量扩展。",
+          "label": 1,
+          "documentName": "03_contribution_map.md",
+          "startLine": 9,
+          "endLine": 18
+        },
+        {
+          "text": "保留的核心能力包括 Agent 主循环、工具装配、会话与消息持久化这三项。",
+          "citationId": "b163a090-a530-4c46-a4e2-837ac828c0c2:1",
+          "evidenceQuote": "- Agent 主循环：模型判断下一步 → 执行工具 → 读取工具结果 → 继续判断，直到交付答复或终止。\n- 工具装配：助手配置里声明可用工具与知识库范围，运行时按配置装载。\n- 会话与消息持久化：会话、消息、知识库、文档、片段都有独立数据表。",
+          "label": 1,
+          "documentName": "03_contribution_map.md",
+          "startLine": 9,
+          "endLine": 18
+        }
+      ],
+      "insufficient": null
+    },
+    {
+      "id": "Q25",
+      "kind": "fact",
+      "question": "引用里的数字编号是怎么和来源对应的？",
+      "expected": [
+        "01_product_guide / 03_contribution_map: [n] 对应第 n 条已核验来源"
+      ],
+      "maxChars": 300,
+      "status": "FAILED",
+      "errorCode": "EXECUTION_FAILED",
+      "attemptCount": 2,
+      "elapsedMsTotal": 14188,
+      "sessionId": "43adfe5f-2435-4fbd-83af-5de72cd36dec",
+      "dbHistoryUserMessageCount": 43,
+      "dbHistoryUserMessageIds": [
+        "b86746a2-82b6-4ce5-9049-f52371fd2cdf",
+        "554c898f-ab17-4585-8d58-967f7278a0ed",
+        "1d834f00-6297-44e1-b980-07efe731bb6b",
+        "2112d3ff-3588-47d1-9a7a-c8b16106eb6d",
+        "813fc9f8-ed96-4511-a015-dc681fdaf5a6",
+        "81ca4953-7f34-4c66-bd8d-99475f060adf",
+        "6d843ec0-21fb-47e7-9f9a-fc574c77d00e",
+        "34bc75d5-1930-4c87-b24b-56b834220da2",
+        "adf34e73-f80a-4f89-9ecc-936201d991b6",
+        "94be92c2-52e1-4041-81fb-f5012e2b967d",
+        "aa385848-8782-499f-81ed-140d68b9e74c",
+        "0cbab13f-4577-415a-a1fa-464fec53650a",
+        "c753b8f4-5fd7-4009-9cba-db2d965bb60a",
+        "618c0e7f-714b-4b9a-906e-0bb612ff3d3c",
+        "d2e9d03c-7496-4f55-9439-224e6413ae4c",
+        "deb6836b-0b35-4e06-893c-4186614058ab",
+        "31992492-29c3-4d81-9654-6c24ea6ac334",
+        "bc777cfb-a6dc-491c-a30a-401e58b693fc",
+        "bc818549-102e-4865-bf3c-c5c4573b8673",
+        "88dc83b4-729f-408a-a355-ed560766f0c0",
+        "d02738b2-4208-48aa-b75b-08d05b160d66",
+        "9a3dd3c7-5e4d-4fec-b1a5-32ccf2e628e2",
+        "8c1c9ba7-6d7c-4833-b66c-e53946a96f67",
+        "dbb00b6c-2cf6-4b56-b7fb-457059f955d3",
+        "4c5cd7e6-3206-4066-b986-e244f5379c74",
+        "c36d608e-e45c-451c-a99f-940f20d91807",
+        "fde95950-de10-4364-ac3b-08a5aa1b9481",
+        "77ab1854-7f3d-4d7c-9f0b-0c9661df643b",
+        "cfb05912-0a90-4d0d-8b29-6e772f4dc7f2",
+        "5067ea13-c2a4-4585-89b4-25ee3c8b1154",
+        "c74622e8-80bd-4e4d-a996-be6a58dd4bfa",
+        "2a23ed49-e7f0-4fd6-9d23-576be3f42aab",
+        "933e60df-0caa-4475-9168-a16c4a25102e",
+        "3d4850a6-2839-424e-a14a-d948bba21c79",
+        "92bf33cc-9434-4ec2-8356-a4cb66d3b396",
+        "101c53ca-3c55-4718-972e-89ab07682801",
+        "1737552f-d620-4ec2-befb-1e75d47227f3",
+        "0c1e6dc5-70cd-4de2-9b11-327f09fd2f3d",
+        "52b55a11-522a-493e-b61a-36eeebd81dfe",
+        "337edba2-8acb-4d3c-a0f9-ddcc77ea261b",
+        "85153622-8020-4d0a-ac71-09aaeca29858",
+        "1bcd6cde-6f70-4853-a536-08bdca132336",
+        "f4558a90-69ae-424e-9807-be6eb249d62d"
+      ],
+      "wallMsTotal": 6188,
+      "attempts": [
+        {
+          "runId": "9effec55-094b-4fb5-b59a-1b31958c3f6e",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 2274,
+          "wallMs": 4110,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 2,
+          "modelRetries": 0,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 3,
+            "TOOL_CALL": 2,
+            "RETRIEVAL": 2
+          },
+          "citations": [],
+          "delivery": {
+            "deliveryChannel": null,
+            "toolCallNames": [],
+            "statements": [],
+            "insufficient": null
+          },
+          "attempt": 1,
+          "backoffMs": 8000
+        },
+        {
+          "runId": "69a9dca6-f0cd-4eae-98cd-acdaaf5837ce",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 775,
+          "wallMs": 2078,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelRetries": 0,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "delivery": {
+            "deliveryChannel": null,
+            "toolCallNames": [],
+            "statements": [],
+            "insufficient": null
+          },
+          "attempt": 2
+        }
+      ],
+      "answerChars": 0,
+      "withinBudget": true,
+      "citations": [],
+      "markers": [],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "",
+      "deliveryChannel": null,
+      "toolCallNames": [],
+      "statements": [],
+      "insufficient": null
+    },
+    {
+      "id": "Q26",
+      "kind": "fact",
+      "question": "如果资料里没有写，你会怎么回答？",
+      "expected": [
+        "01_product_guide / 02_engineering_cases: 明说资料没有，不编造"
+      ],
+      "maxChars": 300,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 2,
+      "elapsedMsTotal": 36453,
+      "sessionId": "43adfe5f-2435-4fbd-83af-5de72cd36dec",
+      "dbHistoryUserMessageCount": 45,
+      "dbHistoryUserMessageIds": [
+        "b86746a2-82b6-4ce5-9049-f52371fd2cdf",
+        "554c898f-ab17-4585-8d58-967f7278a0ed",
+        "1d834f00-6297-44e1-b980-07efe731bb6b",
+        "2112d3ff-3588-47d1-9a7a-c8b16106eb6d",
+        "813fc9f8-ed96-4511-a015-dc681fdaf5a6",
+        "81ca4953-7f34-4c66-bd8d-99475f060adf",
+        "6d843ec0-21fb-47e7-9f9a-fc574c77d00e",
+        "34bc75d5-1930-4c87-b24b-56b834220da2",
+        "adf34e73-f80a-4f89-9ecc-936201d991b6",
+        "94be92c2-52e1-4041-81fb-f5012e2b967d",
+        "aa385848-8782-499f-81ed-140d68b9e74c",
+        "0cbab13f-4577-415a-a1fa-464fec53650a",
+        "c753b8f4-5fd7-4009-9cba-db2d965bb60a",
+        "618c0e7f-714b-4b9a-906e-0bb612ff3d3c",
+        "d2e9d03c-7496-4f55-9439-224e6413ae4c",
+        "deb6836b-0b35-4e06-893c-4186614058ab",
+        "31992492-29c3-4d81-9654-6c24ea6ac334",
+        "bc777cfb-a6dc-491c-a30a-401e58b693fc",
+        "bc818549-102e-4865-bf3c-c5c4573b8673",
+        "88dc83b4-729f-408a-a355-ed560766f0c0",
+        "d02738b2-4208-48aa-b75b-08d05b160d66",
+        "9a3dd3c7-5e4d-4fec-b1a5-32ccf2e628e2",
+        "8c1c9ba7-6d7c-4833-b66c-e53946a96f67",
+        "dbb00b6c-2cf6-4b56-b7fb-457059f955d3",
+        "4c5cd7e6-3206-4066-b986-e244f5379c74",
+        "c36d608e-e45c-451c-a99f-940f20d91807",
+        "fde95950-de10-4364-ac3b-08a5aa1b9481",
+        "77ab1854-7f3d-4d7c-9f0b-0c9661df643b",
+        "cfb05912-0a90-4d0d-8b29-6e772f4dc7f2",
+        "5067ea13-c2a4-4585-89b4-25ee3c8b1154",
+        "c74622e8-80bd-4e4d-a996-be6a58dd4bfa",
+        "2a23ed49-e7f0-4fd6-9d23-576be3f42aab",
+        "933e60df-0caa-4475-9168-a16c4a25102e",
+        "3d4850a6-2839-424e-a14a-d948bba21c79",
+        "92bf33cc-9434-4ec2-8356-a4cb66d3b396",
+        "101c53ca-3c55-4718-972e-89ab07682801",
+        "1737552f-d620-4ec2-befb-1e75d47227f3",
+        "0c1e6dc5-70cd-4de2-9b11-327f09fd2f3d",
+        "52b55a11-522a-493e-b61a-36eeebd81dfe",
+        "337edba2-8acb-4d3c-a0f9-ddcc77ea261b",
+        "85153622-8020-4d0a-ac71-09aaeca29858",
+        "1bcd6cde-6f70-4853-a536-08bdca132336",
+        "f4558a90-69ae-424e-9807-be6eb249d62d",
+        "1ed0076e-0b68-499c-b128-f72f402e8660",
+        "fe4071c0-9982-4d65-ab89-89e333f05697"
+      ],
+      "wallMsTotal": 28453,
+      "attempts": [
+        {
+          "runId": "a0474afc-b595-4717-a966-bf7dd8f663d8",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 502,
+          "wallMs": 2109,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelRetries": 0,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "delivery": {
+            "deliveryChannel": null,
+            "toolCallNames": [],
+            "statements": [],
+            "insufficient": null
+          },
+          "attempt": 1,
+          "backoffMs": 8000
+        },
+        {
+          "runId": "0a8164e8-744e-4be8-800c-9419b92785f1",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 24478,
+          "wallMs": 26344,
+          "traceIncomplete": false,
+          "answerMessageId": "4c078504-2532-47c9-8d09-4a4e249c5f06",
+          "answerChars": 55,
+          "markers": [
+            1
+          ],
+          "modelCalls": 2,
+          "modelRetries": 0,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 5,
+            "TOOL_CALL": 3,
+            "RETRIEVAL": 2
+          },
+          "citations": [
+            {
+              "label": 1,
+              "citationId": "1a7742c7-c0af-4fcb-8a42-af38e16168a4:2",
+              "chunkId": "551a064d-7f39-45d9-a598-87bd40b79a63",
+              "documentName": "03_contribution_map.md",
+              "startLine": 70,
+              "endLine": 77,
+              "excerpt": "- 模型调用 `groundedAnswer` 工具，**没有 `citationIds` 数组这个参数**；它逐条交付 `statements`，每条包含三样东西：一句陈述、一个真实的 `citationId`、以及这段命中片段里的一段连续原文短引。 - 模型**完全不写编号**：正文里的 `[n]` 是服务端在读完"
+            }
+          ],
+          "delivery": {
+            "deliveryChannel": "groundedAnswer",
+            "toolCallNames": [
+              "groundedAnswer"
+            ],
+            "statements": [
+              {
+                "text": "资料里没有写时，走独立的「资料不足」结果：只说明缺什么，不挂任何引用，也不会为了凑引用挂不相关的来源。",
+                "citationId": "1a7742c7-c0af-4fcb-8a42-af38e16168a4:2",
+                "evidenceQuote": "- 资料不足时走独立的「资料不足」结果：只说明缺什么，不挂任何引用，也不会为了凑引用挂不相关的来源。",
+                "label": 1,
+                "documentName": "03_contribution_map.md",
+                "startLine": 70,
+                "endLine": 77
+              }
+            ],
+            "insufficient": null
+          },
+          "attempt": 2
+        }
+      ],
+      "answerChars": 55,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "citationId": "1a7742c7-c0af-4fcb-8a42-af38e16168a4:2",
+          "chunkId": "551a064d-7f39-45d9-a598-87bd40b79a63",
+          "documentName": "03_contribution_map.md",
+          "startLine": 70,
+          "endLine": 77,
+          "excerpt": "- 模型调用 `groundedAnswer` 工具，**没有 `citationIds` 数组这个参数**；它逐条交付 `statements`，每条包含三样东西：一句陈述、一个真实的 `citationId`、以及这段命中片段里的一段连续原文短引。 - 模型**完全不写编号**：正文里的 `[n]` 是服务端在读完"
+        }
+      ],
+      "markers": [
+        1
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "资料里没有写时，走独立的「资料不足」结果：只说明缺什么，不挂任何引用，也不会为了凑引用挂不相关的来源。 [1]",
+      "deliveryChannel": "groundedAnswer",
+      "toolCallNames": [
+        "groundedAnswer"
+      ],
+      "statements": [
+        {
+          "text": "资料里没有写时，走独立的「资料不足」结果：只说明缺什么，不挂任何引用，也不会为了凑引用挂不相关的来源。",
+          "citationId": "1a7742c7-c0af-4fcb-8a42-af38e16168a4:2",
+          "evidenceQuote": "- 资料不足时走独立的「资料不足」结果：只说明缺什么，不挂任何引用，也不会为了凑引用挂不相关的来源。",
+          "label": 1,
+          "documentName": "03_contribution_map.md",
+          "startLine": 70,
+          "endLine": 77
+        }
+      ],
+      "insufficient": null
+    },
+    {
+      "id": "Q27",
+      "kind": "rewrite",
+      "question": "这套系统怎么保证答错的时候我知道？",
+      "expected": [
+        "01_product_guide: 失败/取消/中断如实显示 + 来源可核对"
+      ],
+      "maxChars": 350,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 1,
+      "elapsedMsTotal": 10218,
+      "sessionId": "43adfe5f-2435-4fbd-83af-5de72cd36dec",
+      "dbHistoryUserMessageCount": 47,
+      "dbHistoryUserMessageIds": [
+        "b86746a2-82b6-4ce5-9049-f52371fd2cdf",
+        "554c898f-ab17-4585-8d58-967f7278a0ed",
+        "1d834f00-6297-44e1-b980-07efe731bb6b",
+        "2112d3ff-3588-47d1-9a7a-c8b16106eb6d",
+        "813fc9f8-ed96-4511-a015-dc681fdaf5a6",
+        "81ca4953-7f34-4c66-bd8d-99475f060adf",
+        "6d843ec0-21fb-47e7-9f9a-fc574c77d00e",
+        "34bc75d5-1930-4c87-b24b-56b834220da2",
+        "adf34e73-f80a-4f89-9ecc-936201d991b6",
+        "94be92c2-52e1-4041-81fb-f5012e2b967d",
+        "aa385848-8782-499f-81ed-140d68b9e74c",
+        "0cbab13f-4577-415a-a1fa-464fec53650a",
+        "c753b8f4-5fd7-4009-9cba-db2d965bb60a",
+        "618c0e7f-714b-4b9a-906e-0bb612ff3d3c",
+        "d2e9d03c-7496-4f55-9439-224e6413ae4c",
+        "deb6836b-0b35-4e06-893c-4186614058ab",
+        "31992492-29c3-4d81-9654-6c24ea6ac334",
+        "bc777cfb-a6dc-491c-a30a-401e58b693fc",
+        "bc818549-102e-4865-bf3c-c5c4573b8673",
+        "88dc83b4-729f-408a-a355-ed560766f0c0",
+        "d02738b2-4208-48aa-b75b-08d05b160d66",
+        "9a3dd3c7-5e4d-4fec-b1a5-32ccf2e628e2",
+        "8c1c9ba7-6d7c-4833-b66c-e53946a96f67",
+        "dbb00b6c-2cf6-4b56-b7fb-457059f955d3",
+        "4c5cd7e6-3206-4066-b986-e244f5379c74",
+        "c36d608e-e45c-451c-a99f-940f20d91807",
+        "fde95950-de10-4364-ac3b-08a5aa1b9481",
+        "77ab1854-7f3d-4d7c-9f0b-0c9661df643b",
+        "cfb05912-0a90-4d0d-8b29-6e772f4dc7f2",
+        "5067ea13-c2a4-4585-89b4-25ee3c8b1154",
+        "c74622e8-80bd-4e4d-a996-be6a58dd4bfa",
+        "2a23ed49-e7f0-4fd6-9d23-576be3f42aab",
+        "933e60df-0caa-4475-9168-a16c4a25102e",
+        "3d4850a6-2839-424e-a14a-d948bba21c79",
+        "92bf33cc-9434-4ec2-8356-a4cb66d3b396",
+        "101c53ca-3c55-4718-972e-89ab07682801",
+        "1737552f-d620-4ec2-befb-1e75d47227f3",
+        "0c1e6dc5-70cd-4de2-9b11-327f09fd2f3d",
+        "52b55a11-522a-493e-b61a-36eeebd81dfe",
+        "337edba2-8acb-4d3c-a0f9-ddcc77ea261b",
+        "85153622-8020-4d0a-ac71-09aaeca29858",
+        "1bcd6cde-6f70-4853-a536-08bdca132336",
+        "f4558a90-69ae-424e-9807-be6eb249d62d",
+        "1ed0076e-0b68-499c-b128-f72f402e8660",
+        "fe4071c0-9982-4d65-ab89-89e333f05697",
+        "adb905c2-448b-4a93-959b-f75e4a745b46",
+        "da15f60e-d84c-4509-a26b-f9fe70df5db3"
+      ],
+      "wallMsTotal": 10218,
+      "attempts": [
+        {
+          "runId": "bc7d1f4f-a891-4fc9-bc33-26e25fec417f",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 8629,
+          "wallMs": 10218,
+          "traceIncomplete": false,
+          "answerMessageId": "f30b7f8d-5095-4f90-b8a7-09c46503e639",
+          "answerChars": 163,
+          "markers": [
+            1,
+            2
+          ],
+          "modelCalls": 2,
+          "modelRetries": 0,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 5,
+            "TOOL_CALL": 3,
+            "RETRIEVAL": 2
+          },
+          "citations": [
+            {
+              "label": 1,
+              "citationId": "c6b2197c-0ef6-4483-b6b9-958333bab5f5:1",
+              "chunkId": "bca263f9-3241-481a-a123-871ca99ae9dc",
+              "documentName": "03_contribution_map.md",
+              "startLine": 81,
+              "endLine": 83,
+              "excerpt": "- 点开来源能看到文档名、行号范围与原文片段；正文里写不出的行号不会出现在来源里。 - 这条契约只保证「来源身份与位置有效」，不保证「结论一定正确」——短引能对上只说明这句话确实在原文里， 结论是否被原文支持、是否被过度概括，仍需人工读原文判断。"
+            },
+            {
+              "label": 2,
+              "citationId": "c6b2197c-0ef6-4483-b6b9-958333bab5f5:2",
+              "chunkId": "c3233ec8-14f4-4e03-98c9-29893476e4e7",
+              "documentName": "01_product_guide.md",
+              "startLine": 9,
+              "endLine": 15,
+              "excerpt": "ExoBrain 是一个可核验的 RAG 问答项目：它检索公开资料、给出带原文出处的回答，并把一次回答的执行过程记录下来供核对。 三个要点： 1. **回答带出处**：模型必须通过检索工具拿到资料片段才组织结论，回答里的每条来源都指向具体文档、行号范围与片段哈希。 2. **过程可核对**：每轮问答都有运行记录，包含模"
+            }
+          ],
+          "delivery": {
+            "deliveryChannel": "groundedAnswer",
+            "toolCallNames": [
+              "groundedAnswer"
+            ],
+            "statements": [
+              {
+                "text": "回答里的每条来源都指向具体文档、行号范围与片段哈希。",
+                "citationId": "c6b2197c-0ef6-4483-b6b9-958333bab5f5:2",
+                "evidenceQuote": "回答里的每条来源都指向具体文档、行号范围与片段哈希。",
+                "label": 2,
+                "documentName": "01_product_guide.md",
+                "startLine": 9,
+                "endLine": 15
+              },
+              {
+                "text": "这条引用契约只保证「来源身份与位置有效」，不保证「结论一定正确」，结论是否被原文支持、是否被过度概括仍需人工读原文判断。",
+                "citationId": "c6b2197c-0ef6-4483-b6b9-958333bab5f5:1",
+                "evidenceQuote": "这条契约只保证「来源身份与位置有效」，不保证「结论一定正确」——短引能对上只说明这句话确实在原文里，\n  结论是否被原文支持、是否被过度概括，仍需人工读原文判断。",
+                "label": 1,
+                "documentName": "03_contribution_map.md",
+                "startLine": 81,
+                "endLine": 83
+              },
+              {
+                "text": "每轮问答都有运行记录，包含模型调用、工具调用、检索和消息落库的真实耗时与状态，失败、取消、中断都如实显示，不会伪装成成功。",
+                "citationId": "c6b2197c-0ef6-4483-b6b9-958333bab5f5:2",
+                "evidenceQuote": "每轮问答都有运行记录，包含模型调用、工具调用、检索和消息落库的真实耗时与状态；失败、取消、中断都如实显示，不会伪装成成功。",
+                "label": 2,
+                "documentName": "01_product_guide.md",
+                "startLine": 9,
+                "endLine": 15
+              }
+            ],
+            "insufficient": null
+          },
+          "attempt": 1
+        }
+      ],
+      "answerChars": 163,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "citationId": "c6b2197c-0ef6-4483-b6b9-958333bab5f5:1",
+          "chunkId": "bca263f9-3241-481a-a123-871ca99ae9dc",
+          "documentName": "03_contribution_map.md",
+          "startLine": 81,
+          "endLine": 83,
+          "excerpt": "- 点开来源能看到文档名、行号范围与原文片段；正文里写不出的行号不会出现在来源里。 - 这条契约只保证「来源身份与位置有效」，不保证「结论一定正确」——短引能对上只说明这句话确实在原文里， 结论是否被原文支持、是否被过度概括，仍需人工读原文判断。"
+        },
+        {
+          "label": 2,
+          "citationId": "c6b2197c-0ef6-4483-b6b9-958333bab5f5:2",
+          "chunkId": "c3233ec8-14f4-4e03-98c9-29893476e4e7",
+          "documentName": "01_product_guide.md",
+          "startLine": 9,
+          "endLine": 15,
+          "excerpt": "ExoBrain 是一个可核验的 RAG 问答项目：它检索公开资料、给出带原文出处的回答，并把一次回答的执行过程记录下来供核对。 三个要点： 1. **回答带出处**：模型必须通过检索工具拿到资料片段才组织结论，回答里的每条来源都指向具体文档、行号范围与片段哈希。 2. **过程可核对**：每轮问答都有运行记录，包含模"
+        }
+      ],
+      "markers": [
+        1,
+        2
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "回答里的每条来源都指向具体文档、行号范围与片段哈希。 [2]\n\n这条引用契约只保证「来源身份与位置有效」，不保证「结论一定正确」，结论是否被原文支持、是否被过度概括仍需人工读原文判断。 [1]\n\n每轮问答都有运行记录，包含模型调用、工具调用、检索和消息落库的真实耗时与状态，失败、取消、中断都如实显示，不会伪装成成功。 [2]",
+      "deliveryChannel": "groundedAnswer",
+      "toolCallNames": [
+        "groundedAnswer"
+      ],
+      "statements": [
+        {
+          "text": "回答里的每条来源都指向具体文档、行号范围与片段哈希。",
+          "citationId": "c6b2197c-0ef6-4483-b6b9-958333bab5f5:2",
+          "evidenceQuote": "回答里的每条来源都指向具体文档、行号范围与片段哈希。",
+          "label": 2,
+          "documentName": "01_product_guide.md",
+          "startLine": 9,
+          "endLine": 15
+        },
+        {
+          "text": "这条引用契约只保证「来源身份与位置有效」，不保证「结论一定正确」，结论是否被原文支持、是否被过度概括仍需人工读原文判断。",
+          "citationId": "c6b2197c-0ef6-4483-b6b9-958333bab5f5:1",
+          "evidenceQuote": "这条契约只保证「来源身份与位置有效」，不保证「结论一定正确」——短引能对上只说明这句话确实在原文里，\n  结论是否被原文支持、是否被过度概括，仍需人工读原文判断。",
+          "label": 1,
+          "documentName": "03_contribution_map.md",
+          "startLine": 81,
+          "endLine": 83
+        },
+        {
+          "text": "每轮问答都有运行记录，包含模型调用、工具调用、检索和消息落库的真实耗时与状态，失败、取消、中断都如实显示，不会伪装成成功。",
+          "citationId": "c6b2197c-0ef6-4483-b6b9-958333bab5f5:2",
+          "evidenceQuote": "每轮问答都有运行记录，包含模型调用、工具调用、检索和消息落库的真实耗时与状态；失败、取消、中断都如实显示，不会伪装成成功。",
+          "label": 2,
+          "documentName": "01_product_guide.md",
+          "startLine": 9,
+          "endLine": 15
+        }
+      ],
+      "insufficient": null
+    },
+    {
+      "id": "Q28",
+      "kind": "rewrite",
+      "question": "重复提问会不会多花钱？",
+      "expected": [
+        "02_engineering_cases: 幂等提交，同键只执行一次"
+      ],
+      "maxChars": 300,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 1,
+      "elapsedMsTotal": 6203,
+      "sessionId": "43adfe5f-2435-4fbd-83af-5de72cd36dec",
+      "dbHistoryUserMessageCount": 48,
+      "dbHistoryUserMessageIds": [
+        "b86746a2-82b6-4ce5-9049-f52371fd2cdf",
+        "554c898f-ab17-4585-8d58-967f7278a0ed",
+        "1d834f00-6297-44e1-b980-07efe731bb6b",
+        "2112d3ff-3588-47d1-9a7a-c8b16106eb6d",
+        "813fc9f8-ed96-4511-a015-dc681fdaf5a6",
+        "81ca4953-7f34-4c66-bd8d-99475f060adf",
+        "6d843ec0-21fb-47e7-9f9a-fc574c77d00e",
+        "34bc75d5-1930-4c87-b24b-56b834220da2",
+        "adf34e73-f80a-4f89-9ecc-936201d991b6",
+        "94be92c2-52e1-4041-81fb-f5012e2b967d",
+        "aa385848-8782-499f-81ed-140d68b9e74c",
+        "0cbab13f-4577-415a-a1fa-464fec53650a",
+        "c753b8f4-5fd7-4009-9cba-db2d965bb60a",
+        "618c0e7f-714b-4b9a-906e-0bb612ff3d3c",
+        "d2e9d03c-7496-4f55-9439-224e6413ae4c",
+        "deb6836b-0b35-4e06-893c-4186614058ab",
+        "31992492-29c3-4d81-9654-6c24ea6ac334",
+        "bc777cfb-a6dc-491c-a30a-401e58b693fc",
+        "bc818549-102e-4865-bf3c-c5c4573b8673",
+        "88dc83b4-729f-408a-a355-ed560766f0c0",
+        "d02738b2-4208-48aa-b75b-08d05b160d66",
+        "9a3dd3c7-5e4d-4fec-b1a5-32ccf2e628e2",
+        "8c1c9ba7-6d7c-4833-b66c-e53946a96f67",
+        "dbb00b6c-2cf6-4b56-b7fb-457059f955d3",
+        "4c5cd7e6-3206-4066-b986-e244f5379c74",
+        "c36d608e-e45c-451c-a99f-940f20d91807",
+        "fde95950-de10-4364-ac3b-08a5aa1b9481",
+        "77ab1854-7f3d-4d7c-9f0b-0c9661df643b",
+        "cfb05912-0a90-4d0d-8b29-6e772f4dc7f2",
+        "5067ea13-c2a4-4585-89b4-25ee3c8b1154",
+        "c74622e8-80bd-4e4d-a996-be6a58dd4bfa",
+        "2a23ed49-e7f0-4fd6-9d23-576be3f42aab",
+        "933e60df-0caa-4475-9168-a16c4a25102e",
+        "3d4850a6-2839-424e-a14a-d948bba21c79",
+        "92bf33cc-9434-4ec2-8356-a4cb66d3b396",
+        "101c53ca-3c55-4718-972e-89ab07682801",
+        "1737552f-d620-4ec2-befb-1e75d47227f3",
+        "0c1e6dc5-70cd-4de2-9b11-327f09fd2f3d",
+        "52b55a11-522a-493e-b61a-36eeebd81dfe",
+        "337edba2-8acb-4d3c-a0f9-ddcc77ea261b",
+        "85153622-8020-4d0a-ac71-09aaeca29858",
+        "1bcd6cde-6f70-4853-a536-08bdca132336",
+        "f4558a90-69ae-424e-9807-be6eb249d62d",
+        "1ed0076e-0b68-499c-b128-f72f402e8660",
+        "fe4071c0-9982-4d65-ab89-89e333f05697",
+        "adb905c2-448b-4a93-959b-f75e4a745b46",
+        "da15f60e-d84c-4509-a26b-f9fe70df5db3",
+        "99076185-16c9-4c46-8b82-a97261e93359"
+      ],
+      "wallMsTotal": 6203,
+      "attempts": [
+        {
+          "runId": "635e3ca7-d2e0-4df1-9b6c-9c089c063c7a",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 4612,
+          "wallMs": 6203,
+          "traceIncomplete": false,
+          "answerMessageId": "41c27b6b-62e5-4380-92af-ed15bb95b7cb",
+          "answerChars": 155,
+          "markers": [
+            1
+          ],
+          "modelCalls": 2,
+          "modelRetries": 0,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 5,
+            "TOOL_CALL": 3,
+            "RETRIEVAL": 2
+          },
+          "citations": [
+            {
+              "label": 1,
+              "citationId": "9f19e23d-217f-4705-aa40-9a46eacbc822:1",
+              "chunkId": "f56f301a-272e-43c8-b2cc-360243cf68bb",
+              "documentName": "02_engineering_cases.md",
+              "startLine": 8,
+              "endLine": 22,
+              "excerpt": "**问题**：网络慢的时候用户会连点发送，或者请求其实已经到服务器但响应丢了。如果后端每收到一次就执行一次， 会出现两条用户消息、两个模型调用、两笔费用，甚至两条不同的回答挂在同一个问题上。 **方案**：把「一次提问」变成带唯一键的提交意图，服务端按 `(身份, 会话, 幂等键)` 去重。 - 前端为每个「新的提问意"
+            }
+          ],
+          "delivery": {
+            "deliveryChannel": "groundedAnswer",
+            "toolCallNames": [
+              "groundedAnswer"
+            ],
+            "statements": [
+              {
+                "text": "同一个幂等键再次到达时不再新建运行，而是返回原来那次运行的 `runId` 与状态。",
+                "citationId": "9f19e23d-217f-4705-aa40-9a46eacbc822:1",
+                "evidenceQuote": "提交在一个事务里完成：写用户消息、固定历史快照、创建运行记录、入队。同一个键再次到达时不再新建运行，\n  而是返回原来那次运行的 `runId` 与状态。",
+                "label": 1,
+                "documentName": "02_engineering_cases.md",
+                "startLine": 8,
+                "endLine": 22
+              },
+              {
+                "text": "真实浏览器里丢弃首个响应后手动重试，数据库仍然只有一个运行、一条用户消息、一次模型调用。",
+                "citationId": "9f19e23d-217f-4705-aa40-9a46eacbc822:1",
+                "evidenceQuote": "真实浏览器里丢弃首个响应后手动重试，数据库仍然只有一个运行、一条用户消息、一次模型调用。",
+                "label": 1,
+                "documentName": "02_engineering_cases.md",
+                "startLine": 8,
+                "endLine": 22
+              },
+              {
+                "text": "边界是：这只保证「同一会话的同一提交意图最多执行一次」，不是对外部调用的 exactly-once 承诺。",
+                "citationId": "9f19e23d-217f-4705-aa40-9a46eacbc822:1",
+                "evidenceQuote": "这只保证「同一会话的同一提交意图最多执行一次」，不是对外部调用的 exactly-once 承诺。",
+                "label": 1,
+                "documentName": "02_engineering_cases.md",
+                "startLine": 8,
+                "endLine": 22
+              }
+            ],
+            "insufficient": null
+          },
+          "attempt": 1
+        }
+      ],
+      "answerChars": 155,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "citationId": "9f19e23d-217f-4705-aa40-9a46eacbc822:1",
+          "chunkId": "f56f301a-272e-43c8-b2cc-360243cf68bb",
+          "documentName": "02_engineering_cases.md",
+          "startLine": 8,
+          "endLine": 22,
+          "excerpt": "**问题**：网络慢的时候用户会连点发送，或者请求其实已经到服务器但响应丢了。如果后端每收到一次就执行一次， 会出现两条用户消息、两个模型调用、两笔费用，甚至两条不同的回答挂在同一个问题上。 **方案**：把「一次提问」变成带唯一键的提交意图，服务端按 `(身份, 会话, 幂等键)` 去重。 - 前端为每个「新的提问意"
+        }
+      ],
+      "markers": [
+        1
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "同一个幂等键再次到达时不再新建运行，而是返回原来那次运行的 `runId` 与状态。 [1]\n\n真实浏览器里丢弃首个响应后手动重试，数据库仍然只有一个运行、一条用户消息、一次模型调用。 [1]\n\n边界是：这只保证「同一会话的同一提交意图最多执行一次」，不是对外部调用的 exactly-once 承诺。 [1]",
+      "deliveryChannel": "groundedAnswer",
+      "toolCallNames": [
+        "groundedAnswer"
+      ],
+      "statements": [
+        {
+          "text": "同一个幂等键再次到达时不再新建运行，而是返回原来那次运行的 `runId` 与状态。",
+          "citationId": "9f19e23d-217f-4705-aa40-9a46eacbc822:1",
+          "evidenceQuote": "提交在一个事务里完成：写用户消息、固定历史快照、创建运行记录、入队。同一个键再次到达时不再新建运行，\n  而是返回原来那次运行的 `runId` 与状态。",
+          "label": 1,
+          "documentName": "02_engineering_cases.md",
+          "startLine": 8,
+          "endLine": 22
+        },
+        {
+          "text": "真实浏览器里丢弃首个响应后手动重试，数据库仍然只有一个运行、一条用户消息、一次模型调用。",
+          "citationId": "9f19e23d-217f-4705-aa40-9a46eacbc822:1",
+          "evidenceQuote": "真实浏览器里丢弃首个响应后手动重试，数据库仍然只有一个运行、一条用户消息、一次模型调用。",
+          "label": 1,
+          "documentName": "02_engineering_cases.md",
+          "startLine": 8,
+          "endLine": 22
+        },
+        {
+          "text": "边界是：这只保证「同一会话的同一提交意图最多执行一次」，不是对外部调用的 exactly-once 承诺。",
+          "citationId": "9f19e23d-217f-4705-aa40-9a46eacbc822:1",
+          "evidenceQuote": "这只保证「同一会话的同一提交意图最多执行一次」，不是对外部调用的 exactly-once 承诺。",
+          "label": 1,
+          "documentName": "02_engineering_cases.md",
+          "startLine": 8,
+          "endLine": 22
+        }
+      ],
+      "insufficient": null
+    },
+    {
+      "id": "Q29",
+      "kind": "boundary",
+      "question": "公开示例是实时生成的答案吗？",
+      "expected": [
+        "01_product_guide: 只读示例为历史执行记录"
+      ],
+      "maxChars": 250,
+      "status": "FAILED",
+      "errorCode": "EXECUTION_FAILED",
+      "attemptCount": 2,
+      "elapsedMsTotal": 14297,
+      "sessionId": "43adfe5f-2435-4fbd-83af-5de72cd36dec",
+      "dbHistoryUserMessageCount": 49,
+      "dbHistoryUserMessageIds": [
+        "b86746a2-82b6-4ce5-9049-f52371fd2cdf",
+        "554c898f-ab17-4585-8d58-967f7278a0ed",
+        "1d834f00-6297-44e1-b980-07efe731bb6b",
+        "2112d3ff-3588-47d1-9a7a-c8b16106eb6d",
+        "813fc9f8-ed96-4511-a015-dc681fdaf5a6",
+        "81ca4953-7f34-4c66-bd8d-99475f060adf",
+        "6d843ec0-21fb-47e7-9f9a-fc574c77d00e",
+        "34bc75d5-1930-4c87-b24b-56b834220da2",
+        "adf34e73-f80a-4f89-9ecc-936201d991b6",
+        "94be92c2-52e1-4041-81fb-f5012e2b967d",
+        "aa385848-8782-499f-81ed-140d68b9e74c",
+        "0cbab13f-4577-415a-a1fa-464fec53650a",
+        "c753b8f4-5fd7-4009-9cba-db2d965bb60a",
+        "618c0e7f-714b-4b9a-906e-0bb612ff3d3c",
+        "d2e9d03c-7496-4f55-9439-224e6413ae4c",
+        "deb6836b-0b35-4e06-893c-4186614058ab",
+        "31992492-29c3-4d81-9654-6c24ea6ac334",
+        "bc777cfb-a6dc-491c-a30a-401e58b693fc",
+        "bc818549-102e-4865-bf3c-c5c4573b8673",
+        "88dc83b4-729f-408a-a355-ed560766f0c0",
+        "d02738b2-4208-48aa-b75b-08d05b160d66",
+        "9a3dd3c7-5e4d-4fec-b1a5-32ccf2e628e2",
+        "8c1c9ba7-6d7c-4833-b66c-e53946a96f67",
+        "dbb00b6c-2cf6-4b56-b7fb-457059f955d3",
+        "4c5cd7e6-3206-4066-b986-e244f5379c74",
+        "c36d608e-e45c-451c-a99f-940f20d91807",
+        "fde95950-de10-4364-ac3b-08a5aa1b9481",
+        "77ab1854-7f3d-4d7c-9f0b-0c9661df643b",
+        "cfb05912-0a90-4d0d-8b29-6e772f4dc7f2",
+        "5067ea13-c2a4-4585-89b4-25ee3c8b1154",
+        "c74622e8-80bd-4e4d-a996-be6a58dd4bfa",
+        "2a23ed49-e7f0-4fd6-9d23-576be3f42aab",
+        "933e60df-0caa-4475-9168-a16c4a25102e",
+        "3d4850a6-2839-424e-a14a-d948bba21c79",
+        "92bf33cc-9434-4ec2-8356-a4cb66d3b396",
+        "101c53ca-3c55-4718-972e-89ab07682801",
+        "1737552f-d620-4ec2-befb-1e75d47227f3",
+        "0c1e6dc5-70cd-4de2-9b11-327f09fd2f3d",
+        "52b55a11-522a-493e-b61a-36eeebd81dfe",
+        "337edba2-8acb-4d3c-a0f9-ddcc77ea261b",
+        "85153622-8020-4d0a-ac71-09aaeca29858",
+        "1bcd6cde-6f70-4853-a536-08bdca132336",
+        "f4558a90-69ae-424e-9807-be6eb249d62d",
+        "1ed0076e-0b68-499c-b128-f72f402e8660",
+        "fe4071c0-9982-4d65-ab89-89e333f05697",
+        "adb905c2-448b-4a93-959b-f75e4a745b46",
+        "da15f60e-d84c-4509-a26b-f9fe70df5db3",
+        "99076185-16c9-4c46-8b82-a97261e93359",
+        "450ea927-88c2-465b-9b15-d89dccec7ac2"
+      ],
+      "wallMsTotal": 6297,
+      "attempts": [
+        {
+          "runId": "422bb674-454b-423f-a69a-91ca990109d4",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 2907,
+          "wallMs": 4172,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 2,
+          "modelRetries": 0,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 3,
+            "TOOL_CALL": 2,
+            "RETRIEVAL": 2
+          },
+          "citations": [],
+          "delivery": {
+            "deliveryChannel": null,
+            "toolCallNames": [],
+            "statements": [],
+            "insufficient": null
+          },
+          "attempt": 1,
+          "backoffMs": 8000
+        },
+        {
+          "runId": "7d454f3b-148a-42b8-9ea7-2eda2a1d9a72",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 801,
+          "wallMs": 2125,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelRetries": 0,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "delivery": {
+            "deliveryChannel": null,
+            "toolCallNames": [],
+            "statements": [],
+            "insufficient": null
+          },
+          "attempt": 2
+        }
+      ],
+      "answerChars": 0,
+      "withinBudget": true,
+      "citations": [],
+      "markers": [],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "",
+      "deliveryChannel": null,
+      "toolCallNames": [],
+      "statements": [],
+      "insufficient": null
+    },
+    {
+      "id": "Q30",
+      "kind": "boundary",
+      "question": "如果我只想核对某一条结论的出处，应该怎么操作？",
+      "expected": [
+        "01_product_guide: 点开来源看文档名/行号/原文"
+      ],
+      "maxChars": 300,
+      "status": "FAILED",
+      "errorCode": "EXECUTION_FAILED",
+      "attemptCount": 2,
+      "elapsedMsTotal": 14265,
+      "sessionId": "43adfe5f-2435-4fbd-83af-5de72cd36dec",
+      "dbHistoryUserMessageCount": 51,
+      "dbHistoryUserMessageIds": [
+        "b86746a2-82b6-4ce5-9049-f52371fd2cdf",
+        "554c898f-ab17-4585-8d58-967f7278a0ed",
+        "1d834f00-6297-44e1-b980-07efe731bb6b",
+        "2112d3ff-3588-47d1-9a7a-c8b16106eb6d",
+        "813fc9f8-ed96-4511-a015-dc681fdaf5a6",
+        "81ca4953-7f34-4c66-bd8d-99475f060adf",
+        "6d843ec0-21fb-47e7-9f9a-fc574c77d00e",
+        "34bc75d5-1930-4c87-b24b-56b834220da2",
+        "adf34e73-f80a-4f89-9ecc-936201d991b6",
+        "94be92c2-52e1-4041-81fb-f5012e2b967d",
+        "aa385848-8782-499f-81ed-140d68b9e74c",
+        "0cbab13f-4577-415a-a1fa-464fec53650a",
+        "c753b8f4-5fd7-4009-9cba-db2d965bb60a",
+        "618c0e7f-714b-4b9a-906e-0bb612ff3d3c",
+        "d2e9d03c-7496-4f55-9439-224e6413ae4c",
+        "deb6836b-0b35-4e06-893c-4186614058ab",
+        "31992492-29c3-4d81-9654-6c24ea6ac334",
+        "bc777cfb-a6dc-491c-a30a-401e58b693fc",
+        "bc818549-102e-4865-bf3c-c5c4573b8673",
+        "88dc83b4-729f-408a-a355-ed560766f0c0",
+        "d02738b2-4208-48aa-b75b-08d05b160d66",
+        "9a3dd3c7-5e4d-4fec-b1a5-32ccf2e628e2",
+        "8c1c9ba7-6d7c-4833-b66c-e53946a96f67",
+        "dbb00b6c-2cf6-4b56-b7fb-457059f955d3",
+        "4c5cd7e6-3206-4066-b986-e244f5379c74",
+        "c36d608e-e45c-451c-a99f-940f20d91807",
+        "fde95950-de10-4364-ac3b-08a5aa1b9481",
+        "77ab1854-7f3d-4d7c-9f0b-0c9661df643b",
+        "cfb05912-0a90-4d0d-8b29-6e772f4dc7f2",
+        "5067ea13-c2a4-4585-89b4-25ee3c8b1154",
+        "c74622e8-80bd-4e4d-a996-be6a58dd4bfa",
+        "2a23ed49-e7f0-4fd6-9d23-576be3f42aab",
+        "933e60df-0caa-4475-9168-a16c4a25102e",
+        "3d4850a6-2839-424e-a14a-d948bba21c79",
+        "92bf33cc-9434-4ec2-8356-a4cb66d3b396",
+        "101c53ca-3c55-4718-972e-89ab07682801",
+        "1737552f-d620-4ec2-befb-1e75d47227f3",
+        "0c1e6dc5-70cd-4de2-9b11-327f09fd2f3d",
+        "52b55a11-522a-493e-b61a-36eeebd81dfe",
+        "337edba2-8acb-4d3c-a0f9-ddcc77ea261b",
+        "85153622-8020-4d0a-ac71-09aaeca29858",
+        "1bcd6cde-6f70-4853-a536-08bdca132336",
+        "f4558a90-69ae-424e-9807-be6eb249d62d",
+        "1ed0076e-0b68-499c-b128-f72f402e8660",
+        "fe4071c0-9982-4d65-ab89-89e333f05697",
+        "adb905c2-448b-4a93-959b-f75e4a745b46",
+        "da15f60e-d84c-4509-a26b-f9fe70df5db3",
+        "99076185-16c9-4c46-8b82-a97261e93359",
+        "450ea927-88c2-465b-9b15-d89dccec7ac2",
+        "0c49664d-a10c-4e7e-b246-286298bf2fbb",
+        "c8f28729-44ae-4cdd-855c-e350d6b96b73"
+      ],
+      "wallMsTotal": 6250,
+      "attempts": [
+        {
+          "runId": "ad28be39-f771-4944-9310-a27ca9356dd2",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 3978,
+          "wallMs": 4125,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 2,
+          "modelRetries": 0,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 3,
+            "TOOL_CALL": 2,
+            "RETRIEVAL": 2
+          },
+          "citations": [],
+          "delivery": {
+            "deliveryChannel": null,
+            "toolCallNames": [],
+            "statements": [],
+            "insufficient": null
+          },
+          "attempt": 1,
+          "backoffMs": 8000
+        },
+        {
+          "runId": "b1fda923-ac5e-4890-9d50-f21845bb6e51",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 819,
+          "wallMs": 2125,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelRetries": 0,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "delivery": {
+            "deliveryChannel": null,
+            "toolCallNames": [],
+            "statements": [],
+            "insufficient": null
+          },
+          "attempt": 2
+        }
+      ],
+      "answerChars": 0,
+      "withinBudget": true,
+      "citations": [],
+      "markers": [],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "",
+      "deliveryChannel": null,
+      "toolCallNames": [],
+      "statements": [],
+      "insufficient": null
+    }
+  ]
+}

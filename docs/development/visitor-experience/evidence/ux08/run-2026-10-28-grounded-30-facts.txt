@@ -1,0 +1,280 @@
+===== Q01 SUCCEEDED channel=groundedAnswer efforts=1
+  text         : ExoBrain 是一个可核验的 RAG 问答项目：它检索公开资料、给出带原文出处的回答，并把一次回答的执行过程记录下来供核对。
+  citationId   : 47db37c9-c73c-4886-bda4-b33bcc818a78:1
+  evidenceQuote: ExoBrain 是一个可核验的 RAG 问答项目：它检索公开资料、给出带原文出处的回答，并把一次回答的执行过程记录下来供核对。
+  -> [1] 01_product_guide.md L9-15（引用卡片）
+
+  text         : ExoBrain 的三个要点是回答带出处、过程可核对、失败可恢复。
+  citationId   : 47db37c9-c73c-4886-bda4-b33bcc818a78:1
+  evidenceQuote: 1. **回答带出处**：模型必须通过检索工具拿到资料片段才组织结论，回答里的每条来源都指向具体文档、行号范围与片段哈希。
+2. **过程可核对**：每轮问答都有运行记录，包含模型调用、工具调用、检索和消息落库的真实耗时与状态；失败、取消、中断都如实显示，不会伪装成成功。
+3. **失败可恢复**：重复点击发送不会重复执行，刷新页面不会丢问题，服务重启时结果未知的任务不会被悄悄重放。
+  -> [1] 01_product_guide.md L9-15（引用卡片）
+
+  text         : 你可以亲自体验的三条路径是直接提问、查看执行过程、核对边界。
+  citationId   : 59206f0d-ed97-46d0-8729-66bc19ddc247:1
+  evidenceQuote: | 直接提问 | 一句结论 + 几条要点，下面挂来源；点开来源可看到原文对应段落 | 公开知识库检索、引用投影、原文预览 |
+| 查看执行过程 | 展开「查看过程」可看到这一轮的模型、检索、工具与落库步骤及其耗时 | 运行摘要与事件表 |
+| 核对边界 | 问实现细节、工程取舍或「有什么做不到」，回答会明确说明边界而不是编造 | 本文档与《工程案例》《能力归属》 |
+  -> [2] 01_product_guide.md L19-23（引用卡片）
+
+===== Q02 SUCCEEDED channel=groundedAnswer efforts=1
+  text         : 点开来源可以看到文档名、行号范围与原文片段；正文里写不出的行号不会出现在来源里。
+  citationId   : d09e59e6-3e42-4829-aa22-2c2b1a6a1433:1
+  evidenceQuote: - 点开来源能看到文档名、行号范围与原文片段；正文里写不出的行号不会出现在来源里。
+  -> [1] 03_contribution_map.md L81-83（引用卡片）
+
+  text         : 本次公开体验使用的是新协议：模型逐条交付「一句陈述 + 一个真实 citationId + 这段命中片段里的一段连续原文短引」，模型完全不写编号，编号由服务端读完全部陈述后按真实检索顺序排出；服务端还会校验短引是否真的出现在该条命中自己的片段里，短引对不上就整轮判无效、不交付正文。
+  citationId   : fbd8aa60-1b2b-4ef3-abae-71a4f86ea0d6:2
+  evidenceQuote: - 模型调用 `groundedAnswer` 工具，**没有 `citationIds` 数组这个参数**；它逐条交付
+  `statements`，每条包含三样东西：一句陈述、一个真实的 `citationId`、以及这段命中片段里的一段连续原文短引。
+- 模型**完全不写编号**：正文里的 `[n]` 是服务端在读完全部陈述后按真实检索顺序排出来的，
+  所以「第 n 项」指的是「服务端排出的第 n 个已核验来源」，而不是模型参数数组的第 n 项。
+- 服务端除了校验 id 是否属于本轮真实检索、来源是否仍在授权范围，还要校验短引是否真的出现在
+  **该条命中自己的片段**里；短引对不上就整轮判无效，不交付正文。
+  -> [2] 03_contribution_map.md L70-77（引用卡片）
+
+  text         : 这条契约只保证「来源身份与位置有效」，不保证「结论一定正确」：短引能对上只说明这句话确实在原文里，结论是否被原文支持、是否被过度概括，仍需人工读原文判断。
+  citationId   : fbd8aa60-1b2b-4ef3-abae-71a4f86ea0d6:3
+  evidenceQuote: - 这条契约只保证「来源身份与位置有效」，不保证「结论一定正确」——短引能对上只说明这句话确实在原文里，
+  结论是否被原文支持、是否被过度概括，仍需人工读原文判断。
+  -> [1] None LNone-None（正文还原编号）
+
+===== Q03 FAILED channel=None efforts=2
+  （没有 grounded 陈述：EXECUTION_FAILED）
+
+===== Q04 SUCCEEDED channel=groundedAnswer efforts=2
+  text         : 可信的第一层依据是三个要点：回答带出处（每条来源指向具体文档、行号范围与片段哈希）；过程可核对（每轮有运行记录，含模型调用、工具调用、检索和消息落库的真实耗时与状态，失败、取消、中断如实显示、不伪装成成功）；失败可恢复（重复点击发送不会重复执行，刷新页面不丢问题，服务重启时结果未知的任务不会被悄悄重放）。
+  citationId   : e8c21677-48d6-4ca6-ac2e-4a60f34aecdb:1
+  evidenceQuote: ExoBrain 是一个可核验的 RAG 问答项目：它检索公开资料、给出带原文出处的回答，并把一次回答的执行过程记录下来供核对。
+
+三个要点：
+
+1. **回答带出处**：模型必须通过检索工具拿到资料片段才组织结论，回答里的每条来源都指向具体文档、行号范围与片段哈希。
+2. **过程可核对**：每轮问答都有运行记录，包含模型调用、工具调用、检索和消息落库的真实耗时与状态；失败、取消、中断都如实显示，不会伪装成成功。
+3. **失败可恢复**：重复点击发送不会重复执行，刷新页面不会丢问题，服务重启时结果未知的任务不会被悄悄重放。
+  -> [1] 01_product_guide.md L9-15（引用卡片）
+
+  text         : 资料对能力做了标注区分：标注「已实现」指仓库源码中存在对应逻辑，标注「已在线上验证」指本次核对时通过真实请求确认过，没有标注的内容不应被当作能力承诺。
+  citationId   : e8c21677-48d6-4ca6-ac2e-4a60f34aecdb:2
+  evidenceQuote: 凡是标注「已实现」的，指仓库源码中存在对应逻辑；标注「已在线上验证」的，指在本次核对时通过真实请求确认过。
+没有标注的内容不应被当作能力承诺。
+  -> [2] 01_product_guide.md L3-5（引用卡片）
+
+  text         : 工程案例给出的取舍是：优先保证「不骗人」，宁可把一个运行标成中断，也不写回无法证明归属的结果；所有结论都带可复核的证据；同时明确没有做的不要装作做了——真正的逐字流式输出、跨实例自动迁移、外部调用 exactly-once 都不在本版范围。
+  citationId   : e8c21677-48d6-4ca6-ac2e-4a60f34aecdb:3
+  evidenceQuote: - 优先保证「不骗人」：宁可把一个运行标成中断，也不写回一个无法证明归属的结果。
+- 所有结论都带可复核的证据：数据库断言、真实 HTTP 请求、真实模型调用。
+- 没有做的不要装作做了：真正的逐字流式输出、跨实例自动迁移、外部调用 exactly-once 都不在本版范围。
+  -> [3] 02_engineering_cases.md L75-77（引用卡片）
+
+===== Q05 SUCCEEDED channel=groundedAnswer efforts=2
+  text         : 它能解决的是：需要从一批文档里快速得到有出处答案的问题，以及需要证明「答案来自哪一段原文」的场景。
+  citationId   : cdcdf0e8-63b7-4578-8784-feb75aff9ba4:1
+  evidenceQuote: 能解决：需要从一批文档里快速得到有出处答案的问题，以及需要证明「答案来自哪一段原文」的场景。
+  -> [1] 01_product_guide.md L27-29（引用卡片）
+
+  text         : 它不能解决需要实时联网数据的问题（检索范围只是已发布的知识库）、需要精确数值计算与外部系统写入的问题，以及把引用等同于事实核验的问题。
+  citationId   : cdcdf0e8-63b7-4578-8784-feb75aff9ba4:1
+  evidenceQuote: 不能解决：需要实时联网数据的问题（检索范围只是已发布的知识库）、需要精确数值计算与外部系统写入的问题、以及把引用等同于事实核验的问题。
+  -> [1] 01_product_guide.md L27-29（引用卡片）
+
+  text         : 引用只说明这条来源被服务端校验过，不代表模型组织的结论一定正确，仍需人工判断。
+  citationId   : cdcdf0e8-63b7-4578-8784-feb75aff9ba4:1
+  evidenceQuote: 引用只说明「这条来源被服务端校验过」，不代表模型组织的结论一定正确，仍需人工判断。
+  -> [1] 01_product_guide.md L27-29（引用卡片）
+
+===== Q06 SUCCEEDED channel=groundedAnswer efforts=1
+  text         : 不会重复执行：把「一次提问」变成带唯一键的提交意图，服务端按 `(身份, 会话, 幂等键)` 去重。
+  citationId   : fb7cd801-2e94-4c61-908d-443074678fb2:1
+  evidenceQuote: **方案**：把「一次提问」变成带唯一键的提交意图，服务端按 `(身份, 会话, 幂等键)` 去重。
+  -> [1] 02_engineering_cases.md L8-22（引用卡片）
+
+  text         : 真实浏览器里丢弃首个响应后手动重试，数据库仍然只有一个运行、一条用户消息、一次模型调用。
+  citationId   : fb7cd801-2e94-4c61-908d-443074678fb2:1
+  evidenceQuote: 真实浏览器里丢弃首个响应后手动重试，数据库仍然只有一个运行、一条用户消息、一次模型调用。
+  -> [1] 02_engineering_cases.md L8-22（引用卡片）
+
+  text         : 边界是：这只保证「同一会话的同一提交意图最多执行一次」，不是对外部调用的 exactly-once 承诺；工具调用、模型请求本身仍然可能被重复发出，系统只保证结果写入与终态是唯一且受校验的。
+  citationId   : fb7cd801-2e94-4c61-908d-443074678fb2:1
+  evidenceQuote: **边界**：这只保证「同一会话的同一提交意图最多执行一次」，不是对外部调用的 exactly-once 承诺。
+工具调用、模型请求本身仍然可能被重复发出，系统只保证结果写入与终态是唯一且受校验的。
+  -> [1] 02_engineering_cases.md L8-22（引用卡片）
+
+===== Q07 FAILED channel=None efforts=2
+  （没有 grounded 陈述：EXECUTION_FAILED）
+
+===== Q08 FAILED channel=None efforts=2
+  （没有 grounded 陈述：EXECUTION_FAILED）
+
+===== Q09 SUCCEEDED channel=groundedAnswer efforts=1
+  text         : 方案是把「锁等待」变成有界、可放弃的动作，并且每个运行独立。
+  citationId   : 969bbe95-c56e-4e58-aa93-0cea3b98fe07:1
+  evidenceQuote: **方案**：把「锁等待」变成有界、可放弃的动作，并且每个运行独立。
+  -> [1] 02_engineering_cases.md L55-71（引用卡片）
+
+  text         : 每个租约使用自己的单线程调度器，心跳续期走独立连接 + 独立事务 + `SET LOCAL lock_timeout`，被锁挡住只会跳过这一拍，不会把运行判成租约丢失。
+  citationId   : 969bbe95-c56e-4e58-aa93-0cea3b98fe07:1
+  evidenceQuote: - 每个租约使用自己的单线程调度器，心跳续期走独立连接 + 独立事务 + `SET LOCAL lock_timeout`，
+  被锁挡住只会跳过这一拍，不会把运行判成租约丢失。
+  -> [1] 02_engineering_cases.md L55-71（引用卡片）
+
+  text         : 边界是：这些是正确性与成本保护，不是吞吐优化；行锁冲突频繁时，运行会更快失败或降级为「中断」，而不是排队等待更久。
+  citationId   : 969bbe95-c56e-4e58-aa93-0cea3b98fe07:1
+  evidenceQuote: **边界**：这些是正确性与成本保护，不是吞吐优化。行锁冲突频繁时，运行会更快失败或降级为「中断」，
+而不是排队等待更久。
+  -> [1] 02_engineering_cases.md L55-71（引用卡片）
+
+===== Q10 FAILED channel=None efforts=2
+  （没有 grounded 陈述：EXECUTION_FAILED）
+
+===== Q11 SUCCEEDED channel=groundedAnswer efforts=1
+  text         : 引用只说明这条来源被服务端校验过，不代表模型组织的结论一定正确，仍需人工判断。
+  citationId   : 33c4d08e-83b1-47f8-82aa-6a2562cbcb95:2
+  evidenceQuote: 引用只说明「这条来源被服务端校验过」，不代表模型组织的结论一定正确，仍需人工判断。
+  -> [2] 01_product_guide.md L27-29（引用卡片）
+
+  text         : 来源契约只保证来源身份与位置有效，不保证结论一定正确；短引能对上只说明这句话确实在原文里，结论是否被原文支持、是否被过度概括，仍需人工读原文判断。
+  citationId   : 33c4d08e-83b1-47f8-82aa-6a2562cbcb95:1
+  evidenceQuote: 这条契约只保证「来源身份与位置有效」，不保证「结论一定正确」——短引能对上只说明这句话确实在原文里，
+  结论是否被原文支持、是否被过度概括，仍需人工读原文判断。
+  -> [1] 03_contribution_map.md L81-83（引用卡片）
+
+===== Q12 SUCCEEDED channel=groundedAnswer efforts=2
+  text         : 账号模式下管理员也不能读取其他用户私有知识库、助手与会话的运行记录。
+  citationId   : 6576f716-922d-4e9c-b38e-7a3017415159:1
+  evidenceQuote: - 账号模式下管理员也不能读取其他用户私有知识库、助手与会话的运行记录。
+  -> [1] 01_product_guide.md L33-36（引用卡片）
+
+  text         : 资源隔离上，知识库、助手、会话按所有者隔离，管理员也不获得他人私有资源的读取权。
+  citationId   : 6576f716-922d-4e9c-b38e-7a3017415159:2
+  evidenceQuote: | 资源隔离 | 知识库、助手、会话按所有者隔离；管理员也不获得他人私有资源的读取权 | 访问控制与资源仓库 | 账号/管理员矩阵、游客矩阵 |
+  -> [2] 03_contribution_map.md L31-33（引用卡片）
+
+  text         : 游客模式不需要登录，只能看到公开资料与自己的会话；看不到任何其他访客或账号的数据。
+  citationId   : 6576f716-922d-4e9c-b38e-7a3017415159:1
+  evidenceQuote: - 游客模式不需要登录，只能看到公开资料与自己的会话；看不到任何其他访客或账号的数据。
+  -> [1] 01_product_guide.md L33-36（引用卡片）
+
+===== Q13 FAILED channel=None efforts=2
+  （没有 grounded 陈述：EXECUTION_FAILED）
+
+===== Q14 SUCCEEDED channel=groundedAnswer efforts=2
+insufficient: 资料里没有写作者的个人履历或曾任职公司，本次可用资料不足以确认其此前在哪家公司做后端。
+citations: 0（资料不足结果不挂引用）
+
+===== Q15 FAILED channel=None efforts=2
+  （没有 grounded 陈述：EXECUTION_FAILED）
+
+===== Q16 FAILED channel=None efforts=2
+  （没有 grounded 陈述：EXECUTION_FAILED）
+
+===== Q17 FAILED channel=None efforts=2
+  （没有 grounded 陈述：EXECUTION_FAILED）
+
+===== Q18 SUCCEEDED channel=groundedAnswer efforts=2
+  text         : 展开「查看过程」可以看到这一轮的模型、检索、工具与落库步骤及其耗时。
+  citationId   : 9b59ad94-a43a-4009-915b-08310d0be73f:1
+  evidenceQuote: | 查看执行过程 | 展开「查看过程」可看到这一轮的模型、检索、工具与落库步骤及其耗时 | 运行摘要与事件表 |
+  -> [1] 01_product_guide.md L19-23（引用卡片）
+
+===== Q19 FAILED channel=None efforts=2
+  （没有 grounded 陈述：EXECUTION_FAILED）
+
+===== Q20 SUCCEEDED channel=groundedAnswer efforts=2
+  text         : 检索评测的指标为 Hit@3 / Recall@3 / MRR@3。
+  citationId   : dfdf7a21-8a09-4579-8bd9-332835ae7a88:3
+  evidenceQuote: | 检索评测与冻结资产 | 题集、语料清单、冻结哈希与评测脚本，指标为 Hit@3 / Recall@3 / MRR@3 |
+  -> [1] 03_contribution_map.md L22-31（引用卡片）
+
+  text         : 检索评测的配套资产是题集、语料清单、冻结哈希与评测脚本，依据在 `evaluation/` 目录与评测说明，验证范围是离线脚本与 pytest、真实 Embedding 一次基线。
+  citationId   : dfdf7a21-8a09-4579-8bd9-332835ae7a88:3
+  evidenceQuote: | 检索评测与冻结资产 | 题集、语料清单、冻结哈希与评测脚本，指标为 Hit@3 / Recall@3 / MRR@3 | `evaluation/` 目录、评测说明 | 离线脚本与 pytest、真实 Embedding 一次基线 |
+  -> [1] 03_contribution_map.md L22-31（引用卡片）
+
+===== Q21 FAILED channel=None efforts=2
+  （没有 grounded 陈述：EXECUTION_FAILED）
+
+===== Q22 SUCCEEDED channel=groundedAnswer efforts=2
+  text         : 在这项工程里，每次领取任务都会让 `fencing_token` 前进。
+  citationId   : 3223cd28-272e-4193-bdd9-822b7ffa8cef:2
+  evidenceQuote: 每次领取任务都会让 `fencing_token` 前进。
+  -> [1] 02_engineering_cases.md L26-42（引用卡片）
+
+  text         : 写答案时必须同时满足「任务行仍是 RUNNING」和「fencing 未被接管」两个条件，答案消息与 `answer_message_id` 在同一个事务里写入，条件不满足就整笔回滚，迟到的内容一个字都不留。
+  citationId   : 3223cd28-272e-4193-bdd9-822b7ffa8cef:2
+  evidenceQuote: 写答案时必须同时满足「任务行仍是 RUNNING」「fencing 未被接管」
+  两个条件，答案消息与 `answer_message_id` 在同一个事务里写入；条件不满足就整笔回滚，迟到的内容一个字都不留。
+  -> [1] 02_engineering_cases.md L26-42（引用卡片）
+
+===== Q23 FAILED channel=None efforts=2
+  （没有 grounded 陈述：EXECUTION_FAILED）
+
+===== Q24 SUCCEEDED channel=groundedAnswer efforts=2
+  text         : 本项目基于开源项目 JChatMind 继续开发，保留了其 MIT 许可与项目来源说明。
+  citationId   : b163a090-a530-4c46-a4e2-837ac828c0c2:2
+  evidenceQuote: 本仓库基于开源项目 JChatMind 继续开发，保留了其 MIT 许可与项目来源说明。
+  -> [2] 03_contribution_map.md L3-5（引用卡片）
+
+  text         : 上游 JChatMind 是一个 Java + Spring Boot + Spring AI 的 AI Agent 示例项目，前端为 React，数据库为 PostgreSQL 加 pgvector 向量扩展。
+  citationId   : b163a090-a530-4c46-a4e2-837ac828c0c2:1
+  evidenceQuote: 上游是 JChatMind：一个 Java + Spring Boot + Spring AI 的 AI Agent 示例项目，前端为 React，数据库为
+PostgreSQL 加 pgvector 向量扩展。
+  -> [1] 03_contribution_map.md L9-18（引用卡片）
+
+  text         : 保留的核心能力包括 Agent 主循环、工具装配、会话与消息持久化这三项。
+  citationId   : b163a090-a530-4c46-a4e2-837ac828c0c2:1
+  evidenceQuote: - Agent 主循环：模型判断下一步 → 执行工具 → 读取工具结果 → 继续判断，直到交付答复或终止。
+- 工具装配：助手配置里声明可用工具与知识库范围，运行时按配置装载。
+- 会话与消息持久化：会话、消息、知识库、文档、片段都有独立数据表。
+  -> [1] 03_contribution_map.md L9-18（引用卡片）
+
+===== Q25 FAILED channel=None efforts=2
+  （没有 grounded 陈述：EXECUTION_FAILED）
+
+===== Q26 SUCCEEDED channel=groundedAnswer efforts=2
+  text         : 资料里没有写时，走独立的「资料不足」结果：只说明缺什么，不挂任何引用，也不会为了凑引用挂不相关的来源。
+  citationId   : 1a7742c7-c0af-4fcb-8a42-af38e16168a4:2
+  evidenceQuote: - 资料不足时走独立的「资料不足」结果：只说明缺什么，不挂任何引用，也不会为了凑引用挂不相关的来源。
+  -> [1] 03_contribution_map.md L70-77（引用卡片）
+
+===== Q27 SUCCEEDED channel=groundedAnswer efforts=1
+  text         : 回答里的每条来源都指向具体文档、行号范围与片段哈希。
+  citationId   : c6b2197c-0ef6-4483-b6b9-958333bab5f5:2
+  evidenceQuote: 回答里的每条来源都指向具体文档、行号范围与片段哈希。
+  -> [2] 01_product_guide.md L9-15（引用卡片）
+
+  text         : 这条引用契约只保证「来源身份与位置有效」，不保证「结论一定正确」，结论是否被原文支持、是否被过度概括仍需人工读原文判断。
+  citationId   : c6b2197c-0ef6-4483-b6b9-958333bab5f5:1
+  evidenceQuote: 这条契约只保证「来源身份与位置有效」，不保证「结论一定正确」——短引能对上只说明这句话确实在原文里，
+  结论是否被原文支持、是否被过度概括，仍需人工读原文判断。
+  -> [1] 03_contribution_map.md L81-83（引用卡片）
+
+  text         : 每轮问答都有运行记录，包含模型调用、工具调用、检索和消息落库的真实耗时与状态，失败、取消、中断都如实显示，不会伪装成成功。
+  citationId   : c6b2197c-0ef6-4483-b6b9-958333bab5f5:2
+  evidenceQuote: 每轮问答都有运行记录，包含模型调用、工具调用、检索和消息落库的真实耗时与状态；失败、取消、中断都如实显示，不会伪装成成功。
+  -> [2] 01_product_guide.md L9-15（引用卡片）
+
+===== Q28 SUCCEEDED channel=groundedAnswer efforts=1
+  text         : 同一个幂等键再次到达时不再新建运行，而是返回原来那次运行的 `runId` 与状态。
+  citationId   : 9f19e23d-217f-4705-aa40-9a46eacbc822:1
+  evidenceQuote: 提交在一个事务里完成：写用户消息、固定历史快照、创建运行记录、入队。同一个键再次到达时不再新建运行，
+  而是返回原来那次运行的 `runId` 与状态。
+  -> [1] 02_engineering_cases.md L8-22（引用卡片）
+
+  text         : 真实浏览器里丢弃首个响应后手动重试，数据库仍然只有一个运行、一条用户消息、一次模型调用。
+  citationId   : 9f19e23d-217f-4705-aa40-9a46eacbc822:1
+  evidenceQuote: 真实浏览器里丢弃首个响应后手动重试，数据库仍然只有一个运行、一条用户消息、一次模型调用。
+  -> [1] 02_engineering_cases.md L8-22（引用卡片）
+
+  text         : 边界是：这只保证「同一会话的同一提交意图最多执行一次」，不是对外部调用的 exactly-once 承诺。
+  citationId   : 9f19e23d-217f-4705-aa40-9a46eacbc822:1
+  evidenceQuote: 这只保证「同一会话的同一提交意图最多执行一次」，不是对外部调用的 exactly-once 承诺。
+  -> [1] 02_engineering_cases.md L8-22（引用卡片）
+
+===== Q29 FAILED channel=None efforts=2
+  （没有 grounded 陈述：EXECUTION_FAILED）
+
+===== Q30 FAILED channel=None efforts=2
+  （没有 grounded 陈述：EXECUTION_FAILED）
+
