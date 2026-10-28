@@ -324,7 +324,7 @@ public class JChatMind {
     //   - 答复轮：没有工具调用，或只调了控制类工具，此时的 content 才是给用户的答复
     // ⚠️ 实测过「最终答复 + terminate」出现在同一条消息里，所以判据必须是
     //    「有没有真正干活的工具」，而不能简单看成「有没有 tool_calls」。
-    private static final Set<String> CONTROL_TOOLS = Set.of("terminate", "directAnswer");
+    private static final Set<String> CONTROL_TOOLS = Set.of("terminate", "directAnswer", "groundedAnswer");
 
     // 交付最终答复的正式通道（见 DirectAnswerTool）
     private static final String DIRECT_ANSWER_TOOL = "directAnswer";
@@ -341,6 +341,49 @@ public class JChatMind {
     private record DirectAnswerRequest(String answer, List<String> citationIds) {
     }
 
+
+    // grounded-v1：模型交付「陈述 + citationId + 原文短引」，编号由服务端生成。
+    private record GroundedAnswerRequest(List<GroundedAnswerAssembler.Statement> statements, String insufficient) {
+    }
+
+    private static final String GROUNDED_ANSWER_TOOL = "groundedAnswer";
+
+    private GroundedAnswerRequest readGroundedAnswer(List<AssistantMessage.ToolCall> toolCalls) {
+        for (AssistantMessage.ToolCall call : toolCalls) {
+            if (!GROUNDED_ANSWER_TOOL.equals(call.name())) {
+                continue;
+            }
+            try {
+                JsonNode node = JSON.readTree(call.arguments());
+                if (node == null) {
+                    continue;
+                }
+                JsonNode insufficient = node.get("insufficient");
+                if (insufficient != null && insufficient.isTextual() && StringUtils.hasText(insufficient.asText())) {
+                    return new GroundedAnswerRequest(List.of(), insufficient.asText());
+                }
+                JsonNode statements = node.get("statements");
+                if (statements == null || !statements.isArray()) {
+                    continue;
+                }
+                List<GroundedAnswerAssembler.Statement> parsed = new ArrayList<>();
+                for (JsonNode statement : statements) {
+                    parsed.add(new GroundedAnswerAssembler.Statement(
+                            text(statement.get("text")),
+                            text(statement.get("citationId")),
+                            text(statement.get("evidenceQuote"))));
+                }
+                return new GroundedAnswerRequest(parsed, null);
+            } catch (Exception error) {
+                log.warn("解析 groundedAnswer 参数失败: {}", error.getClass().getSimpleName());
+            }
+        }
+        return null;
+    }
+
+    private static String text(JsonNode node) {
+        return node == null || node.isNull() ? null : node.asText();
+    }
     // 从 directAnswer 工具的 arguments 里取出模型交付的答复与它选择的来源 id。
     // 形如 {"answer": "……", "citationIds": ["…"]}；工具没被调用、answer 缺失或解析失败都返回 null。
     // citationIds 只是「模型的请求」：形状无效时整段忽略，其真实性由 CitationRegistry 校验。
@@ -361,6 +404,29 @@ public class JChatMind {
             }
         }
         return null;
+    }
+
+    /** 来源是否仍在本次运行的获准知识库范围内（与 directAnswer 通道同一套判据）。 */
+    private boolean isSourceAuthorized(String kbId) {
+        if (kbId == null || this.availableKbs == null || this.availableKbs.isEmpty()) {
+            return false;
+        }
+        for (KnowledgeBaseDTO knowledgeBase : this.availableKbs) {
+            if (knowledgeBase != null && kbId.equalsIgnoreCase(knowledgeBase.getId())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** 本次运行是否启用了 grounded 协议：看工具是否在本次运行的可用工具列表里。 */
+    private boolean groundedEnabled() {
+        for (ToolCallback tool : this.availableTools) {
+            if (tool != null && GROUNDED_ANSWER_TOOL.equals(tool.getToolDefinition().name())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // 只接受字符串数组；其它形状（对象、数字、null、超长列表）一律忽略，留给模型重试的空间由提示词负责。
@@ -605,6 +671,8 @@ public class JChatMind {
 
         boolean decisionRound = hasRealWorkToolCall(toolCalls);
 
+        // 两条交付通道：新的结构化协议 groundedAnswer（陈述+来源ID+原文短引），旧协议 directAnswer。
+        GroundedAnswerRequest grounded = readGroundedAnswer(toolCalls);
         // 最终答复的正式通道：模型调用 directAnswer，答复放在 answer 参数里，可选地带上它选择的来源 id。
         DirectAnswerRequest directAnswer = readDirectAnswer(toolCalls);
 
@@ -615,7 +683,23 @@ public class JChatMind {
             // 决策轮：content 是模型的内部独白（「先获取城市和日期」之类），不是给用户看的答复。
             // 落库时清空，避免它留在历史里；也不下发前端。
             toPersist = AssistantMessage.builder().content("").toolCalls(toolCalls).build();
+        } else if (grounded != null) {
+            // grounded-v1：编号、排序、去重、来源卡片全部由服务端生成，模型不写 [n]。
+            runtimeGuard.run();
+            GroundedAnswerAssembler.Assembled assembled = GroundedAnswerAssembler.assemble(
+                    grounded.statements(), grounded.insufficient(), citationRegistry, this::isSourceAuthorized);
+            for (CitationRegistry.Notice notice : assembled.notices()) {
+                log.warn("grounded 引用校验未通过: reason={} count={}", notice.reason(), notice.count());
+            }
+            answerText = assembled.body();
+            citations = assembled.citations();
+            toPersist = AssistantMessage.builder().content(answerText).toolCalls(toolCalls).build();
         } else if (directAnswer != null && StringUtils.hasText(directAnswer.answer())) {
+            // 旧协议：启用了 grounded 的运行里，带引用的知识回答不允许走这条通道绕过短引校验。
+            if (!directAnswer.citationIds().isEmpty() && groundedEnabled()) {
+                throw new InvalidAnswerFormatException(
+                        "Knowledge answers must use the grounded protocol with an evidence quote");
+            }
             // 答复轮（正式通道）：只认 directAnswer 的 answer。
             // content 里可能混着思维链，一律丢弃 —— 这就是通道分离的意义。
             answerText = directAnswer.answer();
@@ -710,12 +794,12 @@ public class JChatMind {
         saveMessage(toolResponseMessage);
         refreshPendingMessages();
 
-        // 模型通过 directAnswer 交付了答复 → 任务完成，不必再多跑一轮模型调用
-        if (toolResponseMessage.getResponses()
-                .stream()
-                .anyMatch(resp -> resp.name().equals(DIRECT_ANSWER_TOOL))) {
+        // 模型通过 directAnswer / groundedAnswer 交付了答复 → 任务完成，不必再多跑一轮模型调用
+        if (toolResponseMessage.getResponses().stream()
+                .anyMatch(resp -> resp.name().equals(DIRECT_ANSWER_TOOL)
+                        || resp.name().equals(GROUNDED_ANSWER_TOOL))) {
             this.agentState = AgentState.FINISHED;
-            log.info("任务结束（模型通过 directAnswer 交付答复）");
+            log.info("任务结束（模型通过交付通道给出答复）");
             return;
         }
 

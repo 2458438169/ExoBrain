@@ -3,6 +3,7 @@ package com.kama.jchatmind.agent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kama.jchatmind.agent.tools.DirectAnswerTool;
 import com.kama.jchatmind.citation.AnswerCitation;
+import com.kama.jchatmind.agent.tools.GroundedAnswerTool;
 import com.kama.jchatmind.citation.CitationRegistry;
 import com.kama.jchatmind.converter.ChatMessageConverter;
 import com.kama.jchatmind.execution.RunLifecycleService;
@@ -315,20 +316,112 @@ class JChatMindCitationTest {
         assertThrows(RuntimeException.class, () -> run(List.of(malformed), saved, List.of(), ""));
         assertTrue(saved.isEmpty());
     }
+    // ------------------------------------------------------------ grounded-v1 交付协议
+
+    @Test
+    @DisplayName("grounded：陈述绑定来源，编号与来源卡片由服务端生成")
+    void groundedStatementsGetServerGeneratedNumbers() throws Exception {
+        String envelope = envelope(RetrievalEnvelope.ok("ret-1", List.of(
+                hit("ret-1:1", "chunk-a", "第一篇片段的正文", 1, 3, 5),
+                hit("ret-1:2", "chunk-b", "第二篇片段的正文", 2, 8, 9))));
+        List<ChatMessageDTO> saved = new ArrayList<>();
+        run(List.of(
+                knowledgeRound("call-k1", envelope),
+                groundedRound("call-a1", "["
+                        + "{\"text\":\"第二篇的事实\",\"citationId\":\"ret-1:2\",\"evidenceQuote\":\"第二篇片段\"},"
+                        + "{\"text\":\"第一篇的事实\",\"citationId\":\"ret-1:1\",\"evidenceQuote\":\"第一篇片段\"}]")),
+                saved, List.of(kb(KB)), envelope, true);
+
+        ChatMessageDTO answer = answerIn(saved);
+        // 编号由服务端按 (检索序号, rank) 决定，与陈述的顺序无关。
+        assertEquals("第二篇的事实 [2]\n\n第一篇的事实 [1]", answer.getContent());
+        assertEquals(2, answer.getMetadata().getCitations().size());
+    }
+
+    @Test
+    @DisplayName("grounded：原文短引必须来自同一次命中的片段")
+    void groundedQuoteMustComeFromTheSameChunk() throws Exception {
+        String envelope = envelope(RetrievalEnvelope.ok("ret-1", List.of(
+                hit("ret-1:1", "chunk-a", "第一篇片段的正文", 1, 3, 5),
+                hit("ret-1:2", "chunk-b", "第二篇片段的正文", 2, 8, 9))));
+        List<ChatMessageDTO> saved = new ArrayList<>();
+        // 短引抄的是另一条命中的原文：整轮判无效，不落库。
+        RuntimeException error = assertThrows(RuntimeException.class, () -> run(List.of(
+                knowledgeRound("call-k1", envelope),
+                groundedRound("call-a1", "["
+                        + "{\"text\":\"拼接出来的事实\",\"citationId\":\"ret-1:1\",\"evidenceQuote\":\"第二篇片段\"}]")),
+                saved, List.of(kb(KB)), envelope, true));
+        assertEquals("INVALID_ANSWER_FORMAT", RunLifecycleService.classify(error));
+        assertTrue(saved.stream().noneMatch(message -> message.getRole() == ChatMessageDTO.RoleType.ASSISTANT
+                && message.getContent() != null && !message.getContent().isEmpty()));
+    }
+
+    @Test
+    @DisplayName("grounded：编造或跨运行的 citationId 一律拒绝")
+    void groundedUnknownIdIsRejected() throws Exception {
+        String envelope = envelope(RetrievalEnvelope.ok("ret-1", List.of(
+                hit("ret-1:1", "chunk-a", "第一篇片段的正文", 1, 3, 5))));
+        List<ChatMessageDTO> saved = new ArrayList<>();
+        RuntimeException error = assertThrows(RuntimeException.class, () -> run(List.of(
+                knowledgeRound("call-k1", envelope),
+                groundedRound("call-a1", "["
+                        + "{\"text\":\"编造的事实\",\"citationId\":\"other-run:1\",\"evidenceQuote\":\"第一篇片段\"}]")),
+                saved, List.of(kb(KB)), envelope, true));
+        assertEquals("INVALID_ANSWER_FORMAT", RunLifecycleService.classify(error));
+    }
+
+    @Test
+    @DisplayName("grounded：资料不足走独立结果，不挂引用")
+    void groundedInsufficientProducesNoCitations() throws Exception {
+        List<ChatMessageDTO> saved = new ArrayList<>();
+        run(List.of(insufficientRound("call-a1", "资料里没有写客户数量")), saved, List.of(kb(KB)), "",
+                true);
+
+        ChatMessageDTO answer = answerIn(saved);
+        assertTrue(answer.getContent().startsWith("本次可用资料不足以确认。"));
+        assertNull(answer.getMetadata().getCitations());
+    }
+
+    @Test
+    @DisplayName("启用 grounded 后，directAnswer 不能带引用绕过短引校验")
+    void directAnswerCannotCarryCitationsInGroundedMode() throws Exception {
+        String envelope = envelope(RetrievalEnvelope.ok("ret-1", List.of(
+                hit("ret-1:1", "chunk-a", "第一篇片段的正文", 1, 3, 5))));
+        List<ChatMessageDTO> saved = new ArrayList<>();
+        RuntimeException error = assertThrows(RuntimeException.class, () -> run(List.of(
+                knowledgeRound("call-k1", envelope),
+                answerRound("call-a1", "绕过短引的回答 [1]", "[\"ret-1:1\"]")),
+                saved, List.of(kb(KB)), envelope, true));
+        assertEquals("INVALID_ANSWER_FORMAT", RunLifecycleService.classify(error));
+    }
+
 
     // ------------------------------------------------------------------ fixtures
 
     /** 用脚本响应运行一次真实执行循环，返回本次运行的运行时对象以便检查内部登记表。 */
     private static ScriptedRuntime run(List<ChatResponse> script, List<ChatMessageDTO> saved,
                                        List<KnowledgeBaseDTO> knowledgeBases, String retrievalEnvelope) {
+        return run(script, saved, knowledgeBases, retrievalEnvelope, false);
+    }
+
+    /** grounded=true 时把结构化交付工具也装上，启用新协议运行。 */
+    private static ScriptedRuntime run(List<ChatResponse> script, List<ChatMessageDTO> saved,
+                                       List<KnowledgeBaseDTO> knowledgeBases, String retrievalEnvelope,
+                                       boolean grounded) {
         ChatMessageFacadeService messages = mock(ChatMessageFacadeService.class);
         when(messages.createChatMessage(any(ChatMessageDTO.class))).thenAnswer(invocation -> {
             ChatMessageDTO dto = invocation.getArgument(0);
             saved.add(dto);
             return CreateChatMessageResponse.builder().chatMessageId("message-" + saved.size()).build();
         });
+        List<Object> toolObjects = new ArrayList<>();
+        toolObjects.add(new SyntheticKnowledgeTool(retrievalEnvelope));
+        toolObjects.add(new DirectAnswerTool());
+        if (grounded) {
+            toolObjects.add(new GroundedAnswerTool());
+        }
         ToolCallback[] callbacks = MethodToolCallbackProvider.builder()
-                .toolObjects(new SyntheticKnowledgeTool(retrievalEnvelope), new DirectAnswerTool())
+                .toolObjects(toolObjects.toArray())
                 .build()
                 .getToolCallbacks();
         ScriptedRuntime runtime = new ScriptedRuntime(script, "agent", "Agent", "描述", "系统提示",
@@ -366,6 +459,27 @@ class JChatMindCitationTest {
         String arguments = JSON.writeValueAsString(parameters);
         AssistantMessage message = AssistantMessage.builder().content("")
                 .toolCalls(List.of(new AssistantMessage.ToolCall(toolCallId, "function", "directAnswer", arguments)))
+                .build();
+        return new ChatResponse(List.of(new Generation(message)));
+    }
+
+    /** grounded-v1 交付轮：statements 每项 {text, citationId, evidenceQuote}。 */
+    private static ChatResponse groundedRound(String toolCallId, String statementsJson) throws Exception {
+        var parameters = JSON.createObjectNode();
+        parameters.set("statements", JSON.readTree(statementsJson));
+        return groundedCall(toolCallId, parameters);
+    }
+
+    /** grounded-v1 资料不足轮。 */
+    private static ChatResponse insufficientRound(String toolCallId, String reason) throws Exception {
+        return groundedCall(toolCallId, JSON.createObjectNode().put("insufficient", reason));
+    }
+
+    private static ChatResponse groundedCall(String toolCallId, com.fasterxml.jackson.databind.node.ObjectNode parameters)
+            throws Exception {
+        AssistantMessage message = AssistantMessage.builder().content("")
+                .toolCalls(List.of(new AssistantMessage.ToolCall(toolCallId, "function", "groundedAnswer",
+                        JSON.writeValueAsString(parameters))))
                 .build();
         return new ChatResponse(List.of(new Generation(message)));
     }

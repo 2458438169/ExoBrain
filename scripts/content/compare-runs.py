@@ -17,11 +17,12 @@ def load(path):
 
 
 def describe(item):
-    return u"%s / %s / %d 字 / 引用 %d / 未知编号 %d / %.1f s / 历史 %d 条" % (
+    # 历史条数缺失时显示「未记录」，不能默认成 0——那会被误读成「旧版历史为空」。
+    history = item.get("dbHistoryUserMessageCount")
+    history_text = u"未记录" if history is None else str(history)
+    return u"%s / %s / %d 字 / 引用 %d / 未知编号 %d / %.1f s / 数据库历史 %s 条" % (
         item["status"], item.get("errorCode"), item["answerChars"], len(item["citations"]),
-        len(item["unknownMarkers"]), item["elapsedMsTotal"] / 1000.0,
-        item.get("historyUserMessageCount", 0))
-
+        len(item["unknownMarkers"]), item["elapsedMsTotal"] / 1000.0, history_text)
 
 def main():
     parser = argparse.ArgumentParser()

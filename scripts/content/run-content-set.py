@@ -70,14 +70,22 @@ def markers_of(text):
     return sorted({int(number) for number in MARKER.findall(text)})
 
 
-def ask(base, agent_id, session_id, question, key):
-    """提交一次问题，返回这一次尝试的完整记录（不覆盖、不合并）。"""
+def ask(base, agent_id, session_id, question, key, cancel=False, cancel_delay=1.5):
+    """提交一次问题，返回这一次尝试的完整记录（不覆盖、不合并）。
+
+    cancel=True 时在提交后 cancel_delay 秒主动取消，用来可控地制造「前题失败」，
+    从而验证输入投影在「未答上的旧轮」上的行为。
+    """
     started = time.monotonic()
     status, submitted = call(base, "POST", "/api/chat-messages", {
         "agentId": agent_id, "sessionId": session_id, "role": "user",
         "content": question, "idempotencyKey": key,
     })
     run_id = ((submitted or {}).get("data") or {}).get("runId")
+    cancel_status = None
+    if cancel and run_id:
+        time.sleep(cancel_delay)
+        cancel_status, _ = call(base, "POST", "/api/runs/%s/cancel" % run_id)
     detail, events = {}, []
     for _ in range(120):
         time.sleep(2)
@@ -100,6 +108,8 @@ def ask(base, agent_id, session_id, question, key):
         "submitStatus": status,
         "status": detail.get("status"),
         "errorCode": detail.get("errorCode"),
+        "cancelStatus": cancel_status,
+        "cancelledOnPurpose": bool(cancel),
         "durationMs": detail.get("durationMs"),
         "wallMs": int((time.monotonic() - started) * 1000),
         "traceIncomplete": detail.get("traceIncomplete"),
@@ -142,6 +152,10 @@ def main():
     parser.add_argument("--session-mode", choices=("shared", "per-question"), default="shared",
                         help="shared：全部题共用一个会话（历史可见）；per-question：每题新建会话")
     parser.add_argument("--label", default="", help="证据标签，写进会话标题与 runParams")
+    parser.add_argument("--cancel-after", default="", help="提交后立刻取消这些题号，制造「前题失败」")
+    parser.add_argument("--cancel-delay", type=float, default=1.5, help="提交后多少秒取消")
+    parser.add_argument("--follow-up", default="",
+                        help="在同一会话里追加一个自定义追问（题单之外的文本），用于「失败后重答」场景")
     args = parser.parse_args()
     base = args.base.rstrip("/")
 
@@ -169,13 +183,20 @@ def main():
         wanted = {item.strip().upper() for item in args.only.split(",") if item.strip()}
         spec["questions"] = [question for question in spec["questions"] if question["id"].upper() in wanted]
         print("running subset:", [question["id"] for question in spec["questions"]])
+    if args.follow_up:
+        spec["questions"] = list(spec["questions"]) + [{
+            "id": "FU1", "kind": "follow-up", "question": args.follow_up,
+            "expected": ["在同一会话里追问同一个问题"], "maxChars": 1200,
+        }]
 
+    cancel_ids = {item.strip().upper() for item in args.cancel_after.split(",") if item.strip()}
     results = []
     for item in spec["questions"]:
-        # per-question：每题新建会话，历史不再跨题累积（用于区分"独立问答"）。
+        # per-question：每题新建会话，历史不再跨题累积（用于区分「独立问答」）。
         if args.session_mode == "per-question":
             session_id = create_session()
-        # 记录本轮提交前模型能看到的历史：题间串题的对照证据。
+        # 数据库里的历史条数（本轮提交前）。模型真正看到的条数由服务端投影决定，
+        # 见应用日志的「model input projection: … projected=」一行，两者不能混用。
         _, history = call(base, "GET", "/api/chat-messages/session/%s" % session_id)
         history_messages = ((history or {}).get("data") or {}).get("chatMessages") or []
         history_users = [message.get("id") for message in history_messages
@@ -207,8 +228,9 @@ def main():
             # 端到端：题级单调时钟，含全部尝试与退避。
             "elapsedMsTotal": int((time.monotonic() - question_started) * 1000),
             "sessionId": session_id,
-            "historyUserMessageCount": len(history_users),
-            "historyUserMessageIds": history_users,
+            # 这是数据库里的用户消息条数，不是模型输入条数（后者见应用日志的投影行）。
+            "dbHistoryUserMessageCount": len(history_users),
+            "dbHistoryUserMessageIds": history_users,
             # 对照：只累加各次请求的观察时间，不含退避。
             "wallMsTotal": sum(record["wallMs"] for record in attempts),
             "attempts": [{key: value for key, value in record.items() if key != "answer"} for record in attempts],

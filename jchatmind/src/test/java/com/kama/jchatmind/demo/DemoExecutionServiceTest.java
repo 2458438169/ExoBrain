@@ -177,7 +177,7 @@ class DemoExecutionServiceTest {
         JdbcTemplate privateDatabase = mock(JdbcTemplate.class);
         JChatMindFactory managementFactory = new JChatMindFactory(clients, sse, agents, realConverter,
                 knowledgeBases, knowledgeConverter,
-                new ToolFacadeServiceImpl(List.of(new DataBaseTools(privateDatabase))), messages, messageConverter);
+                new ToolFacadeServiceImpl(List.of(new DataBaseTools(privateDatabase)), false), messages, messageConverter);
         JChatMind managementRuntime = managementFactory.create(AGENT, "session");
         List<ToolCallback> managementCallbacks = (List<ToolCallback>) ReflectionTestUtils.getField(managementRuntime, "availableTools");
         assertNotNull(managementCallbacks);

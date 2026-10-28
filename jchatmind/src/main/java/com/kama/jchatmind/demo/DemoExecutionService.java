@@ -52,7 +52,7 @@ public class DemoExecutionService {
                                 RunSubmissionService submissions, RunQueueRepository jobs) {
         this.factory = new JChatMindFactory(clients, sse, agents, agentConverter, knowledgeBases,
                 knowledgeConverter, new ToolFacadeServiceImpl(List.of(date, terminate, answer,
-                new DemoKnowledgeTool(retrieval, access))), messages, messageConverter);
+                new DemoKnowledgeTool(retrieval, access)), false), messages, messageConverter);
         this.access = access;
         this.submissions = submissions;
         this.jobs = jobs;
