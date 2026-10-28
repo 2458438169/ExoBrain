@@ -69,16 +69,21 @@ final class GroundedAnswerAssembler {
         }
 
         CitationRegistry.Resolution resolution = registry.resolve(orderedIds, isSourceAuthorized);
-        if (resolution.citations().size() < orderedIds.size()) {
-            // 有一个来源没通过授权校验：整轮判无效，避免只挂一部分来源造成错觉。
+        // 逐个位置检查映射是否成立：不同检索 id 可以指向同一来源，登记器会把它们合并成一个展示引用
+        // （{1→1, 2→1}），这是正常去重，不是来源无效。缺失位置才判无效。
+        Map<Integer, Integer> labelsByPosition = resolution.labelsByRequestIndex();
+        for (int position = 1; position <= orderedIds.size(); position++) {
+            if (!labelsByPosition.containsKey(position)) {
+                throw new InvalidAnswerFormatException("Model answer references a source that could not be verified");
+            }
+        }
+        if (orderedIds.isEmpty() || resolution.citations().isEmpty()) {
             throw new InvalidAnswerFormatException("Model answer references a source that could not be verified");
         }
         Map<String, Integer> numberByCitationId = new LinkedHashMap<>();
-        resolution.labelsByRequestIndex().forEach((requestIndex, label) -> {
-            if (requestIndex >= 1 && requestIndex <= orderedIds.size()) {
-                numberByCitationId.put(orderedIds.get(requestIndex - 1), label);
-            }
-        });
+        for (int position = 1; position <= orderedIds.size(); position++) {
+            numberByCitationId.put(orderedIds.get(position - 1), labelsByPosition.get(position));
+        }
 
         StringBuilder body = new StringBuilder();
         for (Statement statement : statements) {

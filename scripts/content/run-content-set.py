@@ -57,6 +57,74 @@ def call(base, method, path, payload=None):
             return error.code, raw
 
 
+def call_name(call):
+    """Spring AI 的 ToolCall 序列化是 {id,type,name,arguments}；兼容 OpenAI 风格的 function.name。"""
+    if not isinstance(call, dict):
+        return None
+    if call.get("name"):
+        return call.get("name")
+    function = call.get("function")
+    return function.get("name") if isinstance(function, dict) else None
+
+
+def call_arguments(call):
+    if not isinstance(call, dict):
+        return ""
+    if call.get("arguments"):
+        return call.get("arguments")
+    function = call.get("function")
+    if isinstance(function, dict) and function.get("arguments"):
+        return function.get("arguments")
+    return ""
+
+
+def delivery_of(answer, citations):
+    """逐条导出这一轮真实的交付通道与 grounded 证据。
+
+    模型不写编号，所以「陈述 → 最终编号 → 真实来源行」只能由服务端字段还原：
+    陈述里的 citationId 去 citations 里查同一轮生成的 label 与行范围。
+    """
+    label_by_citation_id = {citation["citationId"]: citation for citation in citations
+                            if citation.get("citationId")}
+    metadata = (answer or {}).get("metadata") or {}
+    calls = metadata.get("toolCalls") or []
+    names = [name for name in (call_name(call) for call in calls) if name]
+    if "groundedAnswer" in names:
+        channel = "groundedAnswer"
+    elif "directAnswer" in names:
+        channel = "directAnswer"
+    elif (answer or {}).get("content"):
+        channel = "content-fallback"
+    else:
+        channel = None
+
+    statements, insufficient = [], None
+    for call in calls:
+        if call_name(call) != "groundedAnswer":
+            continue
+        try:
+            parsed = json.loads(call_arguments(call) or "{}")
+        except ValueError:
+            continue
+        if parsed.get("insufficient"):
+            insufficient = parsed["insufficient"]
+            continue
+        for statement in parsed.get("statements") or []:
+            citation_id = statement.get("citationId")
+            citation = label_by_citation_id.get(citation_id) or {}
+            statements.append({
+                "text": statement.get("text"),
+                "citationId": citation_id,
+                "evidenceQuote": statement.get("evidenceQuote"),
+                "label": citation.get("label"),
+                "documentName": citation.get("documentName"),
+                "startLine": citation.get("startLine"),
+                "endLine": citation.get("endLine"),
+            })
+    return {"deliveryChannel": channel, "toolCallNames": names,
+            "statements": statements, "insufficient": insufficient}
+
+
 def sanitize(text):
     """脱敏：去掉密钥与主机名，只保留错误类别可判断的部分。"""
     if not text:
@@ -101,6 +169,14 @@ def ask(base, agent_id, session_id, question, key, cancel=False, cancel_delay=1.
     answer = next((message for message in all_messages if message.get("id") == answer_id), None) or {}
     text = answer.get("content") or ""
     citations = (answer.get("metadata") or {}).get("citations") or []
+    citation_payload = [{"label": citation.get("label"),
+                         "citationId": citation.get("citationId"),
+                         "chunkId": citation.get("chunkId"),
+                         "documentName": (citation.get("source") or {}).get("documentName"),
+                         "startLine": (citation.get("source") or {}).get("startLine"),
+                         "endLine": (citation.get("source") or {}).get("endLine"),
+                         "excerpt": (citation.get("excerpt") or "")[:160]} for citation in citations]
+    delivery = delivery_of(answer, citation_payload)
     model_calls = [event for event in events if event.get("type") in MODEL_CALL_TYPES]
     failures = [event for event in model_calls if (event.get("status") or "").upper() != "SUCCEEDED"]
     return {
@@ -122,11 +198,8 @@ def ask(base, agent_id, session_id, question, key, cancel=False, cancel_delay=1.
         "modelCallErrorCodes": sorted({event.get("errorCode") for event in failures if event.get("errorCode")}),
         "modelCallDetails": [sanitize(event.get("detail")) for event in failures][:3],
         "eventTypes": dict(collections.Counter(event.get("type") for event in events)),
-        "citations": [{"label": citation.get("label"),
-                       "documentName": (citation.get("source") or {}).get("documentName"),
-                       "startLine": (citation.get("source") or {}).get("startLine"),
-                       "endLine": (citation.get("source") or {}).get("endLine"),
-                       "excerpt": (citation.get("excerpt") or "")[:160]} for citation in citations],
+        "citations": citation_payload,
+        "delivery": delivery,
         "answer": text,
     }
 
@@ -156,8 +229,20 @@ def main():
     parser.add_argument("--cancel-delay", type=float, default=1.5, help="提交后多少秒取消")
     parser.add_argument("--follow-up", default="",
                         help="在同一会话里追加一个自定义追问（题单之外的文本），用于「失败后重答」场景")
+    parser.add_argument("--corpus", default="",
+                        help="语料版本目录（含 manifest.json）；版本与逐文档 sha256 写进证据，避免只靠口头说明")
+    parser.add_argument("--message-window", type=int, default=0,
+                        help="本轮助手配置的 chatOptions.messageLength（这是运行条件，不是默认值）")
     args = parser.parse_args()
     base = args.base.rstrip("/")
+    message_window = args.message_window or None
+    corpus = None
+    if args.corpus:
+        manifest = json.load(open(os.path.join(args.corpus, "manifest.json"), encoding="utf-8"))
+        corpus = {"version": manifest.get("version"),
+                  "dir": os.path.relpath(os.path.abspath(args.corpus), ROOT),
+                  "documents": {entry["file"]: entry.get("sha256")
+                                for entry in manifest.get("documents", [])}}
 
     status, login = call(base, "POST", "/api/auth/login", {"username": "admin", "password": "localdev123"})
     if status != 200:
@@ -239,6 +324,11 @@ def main():
             "citations": final["citations"],
             "markers": final["markers"], "unknownMarkers": unknown,
             "mustNotHits": must_not, "answer": text,
+            # 逐条事实证据：statement → citationId → 最终 label → 真实来源行。
+            "deliveryChannel": final["delivery"]["deliveryChannel"],
+            "toolCallNames": final["delivery"]["toolCallNames"],
+            "statements": final["delivery"]["statements"],
+            "insufficient": final["delivery"]["insufficient"],
         }
         results.append(entry)
         print("%s %s attempts=%d elapsed=%dms chars=%d citations=%d markers=%s unknown=%s%s" % (
@@ -278,6 +368,13 @@ def main():
         "withCitations": sum(1 for entry in ok if entry["citations"]),
         "unknownMarkers": sum(1 for entry in ok if entry["unknownMarkers"]),
         "mustNotHits": sum(1 for entry in ok if entry["mustNotHits"]),
+        # 交付通道与资料不足：成功题里按真实工具调用统计，不从正文关键词猜。
+        "deliveryChannels": dict(collections.Counter(
+            str(entry["deliveryChannel"]) for entry in results)),
+        "groundedStatements": sum(len(entry["statements"]) for entry in ok),
+        "insufficientAnswers": sum(1 for entry in ok if entry["insufficient"]),
+        "statementsWithoutLabel": sum(1 for entry in ok for statement in entry["statements"]
+                                      if statement["label"] is None),
         # 后端耗时：运行时自己的 durationMs。
         "p50DurationMs": percentile([entry["attempts"][-1]["durationMs"] or 0 for entry in ok], 0.50),
         "p95DurationMs": percentile([entry["attempts"][-1]["durationMs"] or 0 for entry in ok], 0.95),
@@ -294,10 +391,13 @@ def main():
     payload = {"version": spec["version"], "agentId": args.agent, "sessionId": session_id,
                "promptSha256": hashlib.sha256(prompt.encode("utf-8")).hexdigest(),
                "scriptSha256": hashlib.sha256(open(os.path.abspath(__file__), "rb").read()).hexdigest(),
+               "corpus": corpus,
                "runParams": {"pauseSeconds": args.pause, "backoffSeconds": args.backoff,
                              "maxAttempts": args.attempts, "only": args.only,
                              "sessionMode": args.session_mode, "label": args.label,
-                             "promptFile": os.path.relpath(args.prompt, ROOT)},
+                             "promptFile": os.path.relpath(args.prompt, ROOT),
+                             "messageWindow": message_window,
+                             "corpusVersion": (corpus or {}).get("version")},
                "ranAt": time.strftime("%Y-%m-%dT%H:%M:%S"), "summary": summary, "results": results}
     os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
     json.dump(payload, open(args.out, "w", encoding="utf-8"), ensure_ascii=False, indent=2)

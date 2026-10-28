@@ -1,0 +1,40 @@
+{
+  "corpusVersion": "v4-2026-10-28",
+  "corpusDir": "docs\\public-demo\\v4-2026-10-28",
+  "knowledgeBaseId": "ce187d79-4461-49b2-b3b8-a3cc07cd65ef",
+  "documents": [
+    {
+      "file": "01_product_guide.md",
+      "sha256": "85342e24022ba03eec4b80cf71302d8129b3c53ba66f8922b12c94f657bb7e23",
+      "documentId": "44ed6cde-4a57-4580-942f-8c936ca3a068",
+      "jobId": "c7a09d9b-004f-40a0-bee1-e555fea7ce8e",
+      "status": "SUCCEEDED",
+      "chunksDone": 7,
+      "chunksTotal": 7,
+      "indexRevisionId": "59be86a2-5837-45a9-bab8-dd3b88b285f5",
+      "errorCode": null
+    },
+    {
+      "file": "02_engineering_cases.md",
+      "sha256": "f888dcc55c989e9e810ce03d8461615819cd391a08d25b2cdfb2586fab6a5c1e",
+      "documentId": "aaeaf2cb-379f-4f18-b4da-8441e5372173",
+      "jobId": "4b38953e-9595-458d-acc2-3b42313b3649",
+      "status": "SUCCEEDED",
+      "chunksDone": 13,
+      "chunksTotal": 13,
+      "indexRevisionId": "5e05b1a2-a588-4c97-af25-d21bbe628d8e",
+      "errorCode": null
+    },
+    {
+      "file": "03_contribution_map.md",
+      "sha256": "ea4f9d44a704f5592c89d807f2907e45f3be304d58a9e29eb5e88c508a3ad40b",
+      "documentId": "706e9a82-8a1d-4bc3-ad54-32598ba42412",
+      "jobId": "d92a0dc1-c522-482e-97e5-2a5b595d8b60",
+      "status": "SUCCEEDED",
+      "chunksDone": 24,
+      "chunksTotal": 24,
+      "indexRevisionId": "aa521bf2-eea8-4a39-8ca0-e87e898f86f5",
+      "errorCode": null
+    }
+  ]
+}

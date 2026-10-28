@@ -419,6 +419,22 @@ public class JChatMind {
         return false;
     }
 
+    /**
+     * 本轮采用的答复交付协议。
+     *
+     * <ul>
+     *   <li>{@link #LEGACY}：旧模式。答复走 {@code directAnswer} 的 answer 参数（可选带 citationIds），
+     *       没有正式通道时才回退到 content。历史数据与普通非知识流程都走这条。</li>
+     *   <li>{@link #GROUNDED_REQUIRED}：启用 grounded-v1 的运行。只能经 {@code groundedAnswer} 的陈述
+     *       或 insufficient 分支交付；{@code directAnswer}（无论是否带 citationIds）与纯 content
+     *       都不能当答复，否则「有没有传 citationIds」「正文有没有数字编号」都会变成绕过短引校验的出口。</li>
+     * </ul>
+     */
+    enum DeliveryPolicy {
+        LEGACY,
+        GROUNDED_REQUIRED
+    }
+
     /** 本次运行是否启用了 grounded 协议：看工具是否在本次运行的可用工具列表里。 */
     private boolean groundedEnabled() {
         for (ToolCallback tool : this.availableTools) {
@@ -427,6 +443,11 @@ public class JChatMind {
             }
         }
         return false;
+    }
+
+    /** 交付策略只由本次运行实际装上的工具决定，不按正文关键词猜、也不看参数有没有 citationIds。 */
+    private DeliveryPolicy deliveryPolicy() {
+        return groundedEnabled() ? DeliveryPolicy.GROUNDED_REQUIRED : DeliveryPolicy.LEGACY;
     }
 
     // 只接受字符串数组；其它形状（对象、数字、null、超长列表）一律忽略，留给模型重试的空间由提示词负责。
@@ -694,12 +715,14 @@ public class JChatMind {
             answerText = assembled.body();
             citations = assembled.citations();
             toPersist = AssistantMessage.builder().content(answerText).toolCalls(toolCalls).build();
+        } else if (deliveryPolicy() == DeliveryPolicy.GROUNDED_REQUIRED) {
+            // 本轮采用 GROUNDED_REQUIRED：只能经 grounded 陈述分支或其 insufficient 分支交付。
+            // 不走 directAnswer、也不把 content 当答复——否则「有没有传 citationIds」「正文有没有
+            // 数字编号」都会变成绕过短引校验的出口。参数无效同样明确失败，不静默回退。
+            throw new InvalidAnswerFormatException(
+                    "Knowledge answers must use the grounded protocol with an evidence quote");
         } else if (directAnswer != null && StringUtils.hasText(directAnswer.answer())) {
-            // 旧协议：启用了 grounded 的运行里，带引用的知识回答不允许走这条通道绕过短引校验。
-            if (!directAnswer.citationIds().isEmpty() && groundedEnabled()) {
-                throw new InvalidAnswerFormatException(
-                        "Knowledge answers must use the grounded protocol with an evidence quote");
-            }
+            // 旧协议（LEGACY）：答复放在 answer 参数里，可选地带它选择的来源 id。
             // 答复轮（正式通道）：只认 directAnswer 的 answer。
             // content 里可能混着思维链，一律丢弃 —— 这就是通道分离的意义。
             answerText = directAnswer.answer();

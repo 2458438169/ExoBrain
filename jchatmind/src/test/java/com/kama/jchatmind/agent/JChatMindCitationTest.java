@@ -395,6 +395,73 @@ class JChatMindCitationTest {
         assertEquals("INVALID_ANSWER_FORMAT", RunLifecycleService.classify(error));
     }
 
+    @Test
+    @DisplayName("grounded 必选：不传 citationIds 的 directAnswer 也不能交付")
+    void groundedRequiredRejectsUncitedDirectAnswer() throws Exception {
+        String envelope = envelope(RetrievalEnvelope.ok("ret-1", List.of(
+                hit("ret-1:1", "chunk-a", "第一篇片段的正文", 1, 3, 5))));
+        List<ChatMessageDTO> saved = new ArrayList<>();
+        // 已真实检索，模型却改走 directAnswer 且省略 citationIds、正文没有编号。
+        RuntimeException error = assertThrows(RuntimeException.class, () -> run(List.of(
+                knowledgeRound("call-k1", envelope),
+                answerRound("call-a1", "依据资料，项目已有1000家客户。", null)),
+                saved, List.of(kb(KB)), envelope, true));
+        assertEquals("INVALID_ANSWER_FORMAT", RunLifecycleService.classify(error));
+        assertTrue(saved.stream().noneMatch(message -> message.getRole() == ChatMessageDTO.RoleType.ASSISTANT
+                && message.getContent() != null && !message.getContent().isEmpty()), "不得落库任何答复正文");
+    }
+
+    @Test
+    @DisplayName("grounded 必选：纯 assistant.content 也不能当答复")
+    void groundedRequiredRejectsPlainContent() throws Exception {
+        String envelope = envelope(RetrievalEnvelope.ok("ret-1", List.of(
+                hit("ret-1:1", "chunk-a", "第一篇片段的正文", 1, 3, 5))));
+        List<ChatMessageDTO> saved = new ArrayList<>();
+        RuntimeException error = assertThrows(RuntimeException.class, () -> run(List.of(
+                knowledgeRound("call-k1", envelope),
+                contentRound("依据资料，项目已有1000家客户。")),
+                saved, List.of(kb(KB)), envelope, true));
+        assertEquals("INVALID_ANSWER_FORMAT", RunLifecycleService.classify(error));
+        assertTrue(saved.stream().noneMatch(message -> message.getRole() == ChatMessageDTO.RoleType.ASSISTANT
+                && message.getContent() != null && !message.getContent().isEmpty()), "不得落库任何答复正文");
+    }
+
+    @Test
+    @DisplayName("旧模式：没有来源的 directAnswer 仍然可以交付（兼容保留）")
+    void legacyModeStillDeliversUncitedAnswer() throws Exception {
+        String envelope = envelope(RetrievalEnvelope.ok("ret-1", List.of(
+                hit("ret-1:1", "chunk-a", "第一篇片段的正文", 1, 3, 5))));
+        List<ChatMessageDTO> saved = new ArrayList<>();
+        run(List.of(
+                knowledgeRound("call-k1", envelope),
+                answerRound("call-a1", "依据资料，项目已有1000家客户。", null)),
+                saved, List.of(kb(KB)), envelope, false);
+
+        ChatMessageDTO answer = answerIn(saved);
+        assertEquals("依据资料，项目已有1000家客户。", answer.getContent());
+        assertNull(answer.getMetadata().getCitations(), "没有 citationIds 时不应生成引用");
+    }
+
+    @Test
+    @DisplayName("grounded：两个 id 指向同一来源时共用编号，不算来源无效")
+    void groundedAllowsLegitimateSourceDeduplication() throws Exception {
+        // 两次真实登记（同一片段被不同检索 id 返回）：登记器会合成一张来源卡片，两条陈述都该用 [1]。
+        String envelope = envelope(RetrievalEnvelope.ok("ret-1", List.of(
+                hit("ret-1:1", "chunk-a", "第一篇片段的正文", 1, 3, 5),
+                hit("ret-1:2", "chunk-a", "第一篇片段的正文", 2, 3, 5))));
+        List<ChatMessageDTO> saved = new ArrayList<>();
+        run(List.of(
+                knowledgeRound("call-k1", envelope),
+                groundedRound("call-a1", "["
+                        + "{\"text\":\"第一条事实\",\"citationId\":\"ret-1:1\",\"evidenceQuote\":\"第一篇片段\"},"
+                        + "{\"text\":\"第二条事实\",\"citationId\":\"ret-1:2\",\"evidenceQuote\":\"第一篇片段\"}]")),
+                saved, List.of(kb(KB)), envelope, true);
+
+        ChatMessageDTO answer = answerIn(saved);
+        assertEquals("第一条事实 [1]\n\n第二条事实 [1]", answer.getContent(), "同一来源必须共用同一个编号");
+        assertEquals(1, answer.getMetadata().getCitations().size(), "同一来源只生成一张来源卡片");
+    }
+
 
     // ------------------------------------------------------------------ fixtures
 
@@ -460,6 +527,12 @@ class JChatMindCitationTest {
         AssistantMessage message = AssistantMessage.builder().content("")
                 .toolCalls(List.of(new AssistantMessage.ToolCall(toolCallId, "function", "directAnswer", arguments)))
                 .build();
+        return new ChatResponse(List.of(new Generation(message)));
+    }
+
+    /** 不调任何交付工具、直接把答案放进 content 的一轮。 */
+    private static ChatResponse contentRound(String content) {
+        AssistantMessage message = AssistantMessage.builder().content(content).toolCalls(List.of()).build();
         return new ChatResponse(List.of(new Generation(message)));
     }
 
