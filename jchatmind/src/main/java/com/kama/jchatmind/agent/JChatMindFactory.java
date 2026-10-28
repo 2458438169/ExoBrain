@@ -143,6 +143,14 @@ public class JChatMindFactory {
             rounds.add(new int[]{roundStart, chatMessages.size()});
         }
         boolean hasPassiveContext = false;
+        // 窗口按条数裁剪时，第一条用户消息之前的助手/工具消息会落在窗口里却失去归属轮次。
+        // 它们不能进入投影（否则会出现「没有提问的回答」），但要留下理由，不能被静默丢弃。
+        int firstRoundStart = rounds.isEmpty() ? chatMessages.size() : rounds.get(0)[0];
+        for (int index = 0; index < firstRoundStart; index++) {
+            ChatMessageDTO orphan = chatMessages.get(index);
+            decisions.add(new Decision(orphan.getId(), orphan.getRole().getRole(), -1, false,
+                    "window-truncated:user-message-outside-window"));
+        }
         for (int roundIndex = 0; roundIndex < rounds.size(); roundIndex++) {
             int[] range = rounds.get(roundIndex);
             boolean current = roundIndex == rounds.size() - 1;

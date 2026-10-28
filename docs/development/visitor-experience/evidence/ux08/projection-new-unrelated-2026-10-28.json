@@ -1,0 +1,260 @@
+{
+  "version": "ux08-2026-10-20",
+  "agentId": "b22dfb07-b159-4402-8d44-9af467a3d4d8",
+  "sessionId": "132eb15d-84c4-4796-a929-30678d6238ac",
+  "promptSha256": "71c582eea648f40270a8298f9b726bc6dc75b7d6153570c30fbee5063b01e1b9",
+  "scriptSha256": "67c5f922542116463e2aa511901d21b625200e99b96c48df851cef568f464b02",
+  "runParams": {
+    "pauseSeconds": 3.0,
+    "backoffSeconds": 8.0,
+    "maxAttempts": 2,
+    "only": "Q13",
+    "sessionMode": "shared",
+    "label": "new-unrelated",
+    "promptFile": "docs\\public-demo\\v3-2026-10-28\\agent-system-prompt.md"
+  },
+  "ranAt": "2026-10-28T16:31:15",
+  "summary": {
+    "total": 2,
+    "succeeded": 1,
+    "failed": 1,
+    "byStatus": {
+      "CANCELLED": 1,
+      "SUCCEEDED": 1
+    },
+    "byErrorCode": {
+      "CANCELLED_BY_USER": 1
+    },
+    "finalGuardRejections": 0,
+    "attemptsTotal": 4,
+    "attemptsSucceeded": 1,
+    "attemptsFailed": 3,
+    "attemptErrorCodes": {
+      "CANCELLED_BY_USER": 2,
+      "EXECUTION_FAILED": 1
+    },
+    "attemptGuardRejections": 0,
+    "runsTotal": 4,
+    "modelCallsTotal": 6,
+    "modelRetriesTotal": 0,
+    "modelCallsFailed": 1,
+    "modelCallErrorCodes": {
+      "MODEL_CALL_FAILED": 1
+    },
+    "modelCallDetails": {},
+    "traceIncomplete": 0,
+    "withinBudget": 1,
+    "withCitations": 1,
+    "unknownMarkers": 0,
+    "mustNotHits": 0,
+    "p50DurationMs": 8032,
+    "p95DurationMs": 8032,
+    "p50WallMs": 8140,
+    "p95WallMs": 8140,
+    "p50ElapsedMsTotal": 20250,
+    "p95ElapsedMsTotal": 20250,
+    "p50WallMsTotal": 12232,
+    "p95WallMsTotal": 12232
+  },
+  "results": [
+    {
+      "id": "Q13",
+      "kind": "unsupported",
+      "question": "这个项目服务了多少客户、节省了多少成本？",
+      "expected": [
+        "无依据：应说明资料里没有，不给数字"
+      ],
+      "maxChars": 300,
+      "status": "CANCELLED",
+      "errorCode": "CANCELLED_BY_USER",
+      "attemptCount": 2,
+      "elapsedMsTotal": 13891,
+      "sessionId": "132eb15d-84c4-4796-a929-30678d6238ac",
+      "dbHistoryUserMessageCount": 0,
+      "dbHistoryUserMessageIds": [],
+      "wallMsTotal": 5875,
+      "attempts": [
+        {
+          "runId": "0d8ea6fb-84f7-4757-a999-791fd4d18bba",
+          "submitStatus": 200,
+          "status": "CANCELLED",
+          "errorCode": "CANCELLED_BY_USER",
+          "cancelStatus": 200,
+          "cancelledOnPurpose": true,
+          "durationMs": 1736,
+          "wallMs": 2922,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelRetries": 0,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "attempt": 1,
+          "backoffMs": 8000
+        },
+        {
+          "runId": "6b724426-5239-4d48-b678-b6e7182ddf9e",
+          "submitStatus": 200,
+          "status": "CANCELLED",
+          "errorCode": "CANCELLED_BY_USER",
+          "cancelStatus": 200,
+          "cancelledOnPurpose": true,
+          "durationMs": 1333,
+          "wallMs": 2953,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelRetries": 0,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "attempt": 2
+        }
+      ],
+      "answerChars": 0,
+      "withinBudget": true,
+      "citations": [],
+      "markers": [],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": ""
+    },
+    {
+      "id": "FU1",
+      "kind": "follow-up",
+      "question": "现在是不是已经逐字流式输出？",
+      "expected": [
+        "在同一会话里追问同一个问题"
+      ],
+      "maxChars": 1200,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 2,
+      "elapsedMsTotal": 20250,
+      "sessionId": "132eb15d-84c4-4796-a929-30678d6238ac",
+      "dbHistoryUserMessageCount": 2,
+      "dbHistoryUserMessageIds": [
+        "ffd126d4-154b-4e99-8b0d-1f3b2cebf8d9",
+        "02a4b462-7a75-4e5b-9b00-65c70c2bb08a"
+      ],
+      "wallMsTotal": 12232,
+      "attempts": [
+        {
+          "runId": "26832043-dbc3-42b7-ac23-9cf6c27a900d",
+          "submitStatus": 200,
+          "status": "FAILED",
+          "errorCode": "EXECUTION_FAILED",
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 2578,
+          "wallMs": 4092,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 2,
+          "modelRetries": 0,
+          "modelCallFailures": 1,
+          "modelCallErrorCodes": [
+            "MODEL_CALL_FAILED"
+          ],
+          "modelCallDetails": [
+            ""
+          ],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 3,
+            "TOOL_CALL": 2,
+            "RETRIEVAL": 2
+          },
+          "citations": [],
+          "attempt": 1,
+          "backoffMs": 8000
+        },
+        {
+          "runId": "715aa0ed-49d0-4879-b3b4-907e734fb1be",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 8032,
+          "wallMs": 8140,
+          "traceIncomplete": false,
+          "answerMessageId": "ef73638c-eeb4-49b9-bc47-c7c3d5520981",
+          "answerChars": 175,
+          "markers": [
+            1,
+            2
+          ],
+          "modelCalls": 2,
+          "modelRetries": 0,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 5,
+            "TOOL_CALL": 3,
+            "RETRIEVAL": 2
+          },
+          "citations": [
+            {
+              "label": 1,
+              "documentName": "03_contribution_map.md",
+              "startLine": 44,
+              "endLine": 48,
+              "excerpt": "- **逐字流式输出**：当前回答由一次同步模型调用产生并通过工具参数交付，界面只有执行状态流， 没有正文的增量推送。任何「打字机效果」都不是流式实现。 - **对外部调用的 exactly-once**：幂等只覆盖「同一会话的同一提交意图」，不覆盖模型或第三方服务。 - **管理员跨用户读取**：这是刻意不做的隔离，"
+            },
+            {
+              "label": 2,
+              "documentName": "01_product_guide.md",
+              "startLine": 3,
+              "endLine": 5,
+              "excerpt": "本文用于回答「这个项目能做什么、我在这里能亲自体验什么、哪些能力有边界」。核对日期：2026-10-28。 凡是标注「已实现」的，指仓库源码中存在对应逻辑；标注「已在线上验证」的，指在本次核对时通过真实请求确认过。 没有标注的内容不应被当作能力承诺。"
+            }
+          ],
+          "attempt": 2
+        }
+      ],
+      "answerChars": 175,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "documentName": "03_contribution_map.md",
+          "startLine": 44,
+          "endLine": 48,
+          "excerpt": "- **逐字流式输出**：当前回答由一次同步模型调用产生并通过工具参数交付，界面只有执行状态流， 没有正文的增量推送。任何「打字机效果」都不是流式实现。 - **对外部调用的 exactly-once**：幂等只覆盖「同一会话的同一提交意图」，不覆盖模型或第三方服务。 - **管理员跨用户读取**：这是刻意不做的隔离，"
+        },
+        {
+          "label": 2,
+          "documentName": "01_product_guide.md",
+          "startLine": 3,
+          "endLine": 5,
+          "excerpt": "本文用于回答「这个项目能做什么、我在这里能亲自体验什么、哪些能力有边界」。核对日期：2026-10-28。 凡是标注「已实现」的，指仓库源码中存在对应逻辑；标注「已在线上验证」的，指在本次核对时通过真实请求确认过。 没有标注的内容不应被当作能力承诺。"
+        }
+      ],
+      "markers": [
+        1,
+        2
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "不是。目前没有逐字（增量）流式输出。\n\n- 当前回答由一次同步模型调用产生，并通过工具参数一次性交付，界面上只有执行状态流，没有正文的增量推送；任何「打字机效果」都不等于流式实现 [1]。\n- 能看到的实时信息是执行过程本身：展开「查看过程」可以看到这一轮的模型、检索、工具与落库步骤及其耗时 [2]。\n\n所以：过程是逐步可见的，正文不是逐字吐出的。"
+    }
+  ]
+}

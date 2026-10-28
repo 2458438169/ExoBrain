@@ -1,0 +1,209 @@
+{
+  "version": "ux08-2026-10-20",
+  "agentId": "b22dfb07-b159-4402-8d44-9af467a3d4d8",
+  "sessionId": "97d0bda3-84d1-45d2-9e1c-0140a7a4748d",
+  "promptSha256": "71c582eea648f40270a8298f9b726bc6dc75b7d6153570c30fbee5063b01e1b9",
+  "scriptSha256": "67c5f922542116463e2aa511901d21b625200e99b96c48df851cef568f464b02",
+  "runParams": {
+    "pauseSeconds": 3.0,
+    "backoffSeconds": 8.0,
+    "maxAttempts": 2,
+    "only": "Q13",
+    "sessionMode": "shared",
+    "label": "old-unrelated",
+    "promptFile": "docs\\public-demo\\v3-2026-10-28\\agent-system-prompt.md"
+  },
+  "ranAt": "2026-10-28T16:32:55",
+  "summary": {
+    "total": 2,
+    "succeeded": 1,
+    "failed": 1,
+    "byStatus": {
+      "CANCELLED": 1,
+      "SUCCEEDED": 1
+    },
+    "byErrorCode": {
+      "CANCELLED_BY_USER": 1
+    },
+    "finalGuardRejections": 0,
+    "attemptsTotal": 3,
+    "attemptsSucceeded": 1,
+    "attemptsFailed": 2,
+    "attemptErrorCodes": {
+      "CANCELLED_BY_USER": 2
+    },
+    "attemptGuardRejections": 0,
+    "runsTotal": 3,
+    "modelCallsTotal": 4,
+    "modelRetriesTotal": 0,
+    "modelCallsFailed": 0,
+    "modelCallErrorCodes": {},
+    "modelCallDetails": {},
+    "traceIncomplete": 0,
+    "withinBudget": 1,
+    "withCitations": 1,
+    "unknownMarkers": 0,
+    "mustNotHits": 0,
+    "p50DurationMs": 6484,
+    "p95DurationMs": 6484,
+    "p50WallMs": 8202,
+    "p95WallMs": 8202,
+    "p50ElapsedMsTotal": 8218,
+    "p95ElapsedMsTotal": 8218,
+    "p50WallMsTotal": 8202,
+    "p95WallMsTotal": 8202
+  },
+  "results": [
+    {
+      "id": "Q13",
+      "kind": "unsupported",
+      "question": "这个项目服务了多少客户、节省了多少成本？",
+      "expected": [
+        "无依据：应说明资料里没有，不给数字"
+      ],
+      "maxChars": 300,
+      "status": "CANCELLED",
+      "errorCode": "CANCELLED_BY_USER",
+      "attemptCount": 2,
+      "elapsedMsTotal": 13920,
+      "sessionId": "97d0bda3-84d1-45d2-9e1c-0140a7a4748d",
+      "dbHistoryUserMessageCount": 0,
+      "dbHistoryUserMessageIds": [],
+      "wallMsTotal": 5903,
+      "attempts": [
+        {
+          "runId": "02b1052f-1259-40ad-9bc0-520df03b41dc",
+          "submitStatus": 200,
+          "status": "CANCELLED",
+          "errorCode": "CANCELLED_BY_USER",
+          "cancelStatus": 200,
+          "cancelledOnPurpose": true,
+          "durationMs": 1558,
+          "wallMs": 2889,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelRetries": 0,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "attempt": 1,
+          "backoffMs": 8000
+        },
+        {
+          "runId": "580554ce-4275-4732-9cda-04d02584227d",
+          "submitStatus": 200,
+          "status": "CANCELLED",
+          "errorCode": "CANCELLED_BY_USER",
+          "cancelStatus": 200,
+          "cancelledOnPurpose": true,
+          "durationMs": 1587,
+          "wallMs": 3014,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelRetries": 0,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "attempt": 2
+        }
+      ],
+      "answerChars": 0,
+      "withinBudget": true,
+      "citations": [],
+      "markers": [],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": ""
+    },
+    {
+      "id": "FU1",
+      "kind": "follow-up",
+      "question": "现在是不是已经逐字流式输出？",
+      "expected": [
+        "在同一会话里追问同一个问题"
+      ],
+      "maxChars": 1200,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 1,
+      "elapsedMsTotal": 8218,
+      "sessionId": "97d0bda3-84d1-45d2-9e1c-0140a7a4748d",
+      "dbHistoryUserMessageCount": 2,
+      "dbHistoryUserMessageIds": [
+        "1d3611e8-b1b4-4b72-8516-89e82554f953",
+        "508c2766-0532-47ea-8790-a3a7c6d0f291"
+      ],
+      "wallMsTotal": 8202,
+      "attempts": [
+        {
+          "runId": "26b0ea47-3a7e-40c8-a1cb-aa1ca0d2aa2b",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 6484,
+          "wallMs": 8202,
+          "traceIncomplete": false,
+          "answerMessageId": "0e4a99b8-10ec-442b-84a1-cf286324af45",
+          "answerChars": 253,
+          "markers": [
+            1
+          ],
+          "modelCalls": 2,
+          "modelRetries": 0,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 2,
+            "PERSIST_MESSAGE": 5,
+            "TOOL_CALL": 3,
+            "RETRIEVAL": 2
+          },
+          "citations": [
+            {
+              "label": 1,
+              "documentName": "03_contribution_map.md",
+              "startLine": 44,
+              "endLine": 48,
+              "excerpt": "- **逐字流式输出**：当前回答由一次同步模型调用产生并通过工具参数交付，界面只有执行状态流， 没有正文的增量推送。任何「打字机效果」都不是流式实现。 - **对外部调用的 exactly-once**：幂等只覆盖「同一会话的同一提交意图」，不覆盖模型或第三方服务。 - **管理员跨用户读取**：这是刻意不做的隔离，"
+            }
+          ],
+          "attempt": 1
+        }
+      ],
+      "answerChars": 253,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "documentName": "03_contribution_map.md",
+          "startLine": 44,
+          "endLine": 48,
+          "excerpt": "- **逐字流式输出**：当前回答由一次同步模型调用产生并通过工具参数交付，界面只有执行状态流， 没有正文的增量推送。任何「打字机效果」都不是流式实现。 - **对外部调用的 exactly-once**：幂等只覆盖「同一会话的同一提交意图」，不覆盖模型或第三方服务。 - **管理员跨用户读取**：这是刻意不做的隔离，"
+        }
+      ],
+      "markers": [
+        1
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "不是。当前回答不是逐字流式输出。\n\n- 这一轮回答由**一次同步模型调用**产生，并通过工具参数（也就是 directAnswer 的 answer 字段）整体交付，所以正文是以整段形式出现的。\n- 界面上你看到的只有**执行状态流**（哪一步在跑），并没有正文的增量推送；任何看起来像「打字机效果」的逐字出现，都不是流式实现。\n- 逐字流式输出被明确列在「还没有做」的清单里，本版范围不含它 [1]。\n\n需要的话，你可以在「查看过程」里核对这一轮的模型调用与工具步骤，看它确实是一次成型而不是边算边吐字。"
+    }
+  ]
+}

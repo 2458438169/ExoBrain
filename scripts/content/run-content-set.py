@@ -206,7 +206,8 @@ def main():
         attempts = []
         for attempt in range(1, max(1, args.attempts) + 1):
             key = "ux08-%s-%d-%d" % (item["id"], int(time.time() * 1000), attempt)
-            record = ask(base, args.agent, session_id, item["question"], key)
+            record = ask(base, args.agent, session_id, item["question"], key,
+                         cancel=item["id"].upper() in cancel_ids, cancel_delay=args.cancel_delay)
             record["attempt"] = attempt
             attempts.append(record)
             if record["status"] == "SUCCEEDED":

@@ -1,0 +1,188 @@
+{
+  "version": "ux08-2026-10-20",
+  "agentId": "b22dfb07-b159-4402-8d44-9af467a3d4d8",
+  "sessionId": "352d1c67-df67-4d1e-b60e-c215e230fd22",
+  "promptSha256": "71c582eea648f40270a8298f9b726bc6dc75b7d6153570c30fbee5063b01e1b9",
+  "scriptSha256": "67c5f922542116463e2aa511901d21b625200e99b96c48df851cef568f464b02",
+  "runParams": {
+    "pauseSeconds": 3.0,
+    "backoffSeconds": 8.0,
+    "maxAttempts": 2,
+    "only": "Q13",
+    "sessionMode": "shared",
+    "label": "old-retry",
+    "promptFile": "docs\\public-demo\\v3-2026-10-28\\agent-system-prompt.md"
+  },
+  "ranAt": "2026-10-28T16:32:13",
+  "summary": {
+    "total": 2,
+    "succeeded": 1,
+    "failed": 1,
+    "byStatus": {
+      "CANCELLED": 1,
+      "SUCCEEDED": 1
+    },
+    "byErrorCode": {
+      "CANCELLED_BY_USER": 1
+    },
+    "finalGuardRejections": 0,
+    "attemptsTotal": 3,
+    "attemptsSucceeded": 1,
+    "attemptsFailed": 2,
+    "attemptErrorCodes": {
+      "CANCELLED_BY_USER": 2
+    },
+    "attemptGuardRejections": 0,
+    "runsTotal": 3,
+    "modelCallsTotal": 3,
+    "modelRetriesTotal": 0,
+    "modelCallsFailed": 0,
+    "modelCallErrorCodes": {},
+    "modelCallDetails": {},
+    "traceIncomplete": 0,
+    "withinBudget": 1,
+    "withCitations": 0,
+    "unknownMarkers": 0,
+    "mustNotHits": 0,
+    "p50DurationMs": 3559,
+    "p95DurationMs": 3559,
+    "p50WallMs": 4093,
+    "p95WallMs": 4093,
+    "p50ElapsedMsTotal": 4093,
+    "p95ElapsedMsTotal": 4093,
+    "p50WallMsTotal": 4093,
+    "p95WallMsTotal": 4093
+  },
+  "results": [
+    {
+      "id": "Q13",
+      "kind": "unsupported",
+      "question": "这个项目服务了多少客户、节省了多少成本？",
+      "expected": [
+        "无依据：应说明资料里没有，不给数字"
+      ],
+      "maxChars": 300,
+      "status": "CANCELLED",
+      "errorCode": "CANCELLED_BY_USER",
+      "attemptCount": 2,
+      "elapsedMsTotal": 13905,
+      "sessionId": "352d1c67-df67-4d1e-b60e-c215e230fd22",
+      "dbHistoryUserMessageCount": 0,
+      "dbHistoryUserMessageIds": [],
+      "wallMsTotal": 5905,
+      "attempts": [
+        {
+          "runId": "fb6cbb67-a67f-42ac-b404-6ffc16b1d789",
+          "submitStatus": 200,
+          "status": "CANCELLED",
+          "errorCode": "CANCELLED_BY_USER",
+          "cancelStatus": 200,
+          "cancelledOnPurpose": true,
+          "durationMs": 2428,
+          "wallMs": 2983,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelRetries": 0,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "attempt": 1,
+          "backoffMs": 8000
+        },
+        {
+          "runId": "48ad9d85-03d1-4615-aa71-d85bf72f24bc",
+          "submitStatus": 200,
+          "status": "CANCELLED",
+          "errorCode": "CANCELLED_BY_USER",
+          "cancelStatus": 200,
+          "cancelledOnPurpose": true,
+          "durationMs": 1447,
+          "wallMs": 2922,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelRetries": 0,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "attempt": 2
+        }
+      ],
+      "answerChars": 0,
+      "withinBudget": true,
+      "citations": [],
+      "markers": [],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": ""
+    },
+    {
+      "id": "FU1",
+      "kind": "follow-up",
+      "question": "把刚才的问题再答一次。",
+      "expected": [
+        "在同一会话里追问同一个问题"
+      ],
+      "maxChars": 1200,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 1,
+      "elapsedMsTotal": 4093,
+      "sessionId": "352d1c67-df67-4d1e-b60e-c215e230fd22",
+      "dbHistoryUserMessageCount": 2,
+      "dbHistoryUserMessageIds": [
+        "900018ad-0768-4251-98d0-4abcf7012818",
+        "91320f55-f26c-4ff4-b734-b04d9b35d2ab"
+      ],
+      "wallMsTotal": 4093,
+      "attempts": [
+        {
+          "runId": "4f741284-32e6-4220-b35a-c1a29697e02a",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 3559,
+          "wallMs": 4093,
+          "traceIncomplete": false,
+          "answerMessageId": "12d4ca61-aa06-4aea-a22f-5125b9984554",
+          "answerChars": 106,
+          "markers": [],
+          "modelCalls": 1,
+          "modelRetries": 0,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 1,
+            "PERSIST_MESSAGE": 2,
+            "TOOL_CALL": 1
+          },
+          "citations": [],
+          "attempt": 1
+        }
+      ],
+      "answerChars": 106,
+      "withinBudget": true,
+      "citations": [],
+      "markers": [],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "我这边看不到「刚才的问题」——当前对话里没有留下上一轮提问的内容，所以无法原样再答一次。\n\n麻烦你把要重答的问题直接再发一次，比如：「产品导览里讲了什么？」「某个能力是继承的还是新增的？」我会按同样口径重新回答。"
+    }
+  ]
+}

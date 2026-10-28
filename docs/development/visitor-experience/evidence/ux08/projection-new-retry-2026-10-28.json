@@ -1,0 +1,225 @@
+{
+  "version": "ux08-2026-10-20",
+  "agentId": "b22dfb07-b159-4402-8d44-9af467a3d4d8",
+  "sessionId": "790cb87b-4736-4ada-9b28-64cfa32ab902",
+  "promptSha256": "71c582eea648f40270a8298f9b726bc6dc75b7d6153570c30fbee5063b01e1b9",
+  "scriptSha256": "67c5f922542116463e2aa511901d21b625200e99b96c48df851cef568f464b02",
+  "runParams": {
+    "pauseSeconds": 3.0,
+    "backoffSeconds": 8.0,
+    "maxAttempts": 2,
+    "only": "Q13",
+    "sessionMode": "shared",
+    "label": "new-retry2",
+    "promptFile": "docs\\public-demo\\v3-2026-10-28\\agent-system-prompt.md"
+  },
+  "ranAt": "2026-10-28T16:30:18",
+  "summary": {
+    "total": 2,
+    "succeeded": 1,
+    "failed": 1,
+    "byStatus": {
+      "CANCELLED": 1,
+      "SUCCEEDED": 1
+    },
+    "byErrorCode": {
+      "CANCELLED_BY_USER": 1
+    },
+    "finalGuardRejections": 0,
+    "attemptsTotal": 3,
+    "attemptsSucceeded": 1,
+    "attemptsFailed": 2,
+    "attemptErrorCodes": {
+      "CANCELLED_BY_USER": 2
+    },
+    "attemptGuardRejections": 0,
+    "runsTotal": 3,
+    "modelCallsTotal": 5,
+    "modelRetriesTotal": 0,
+    "modelCallsFailed": 0,
+    "modelCallErrorCodes": {},
+    "modelCallDetails": {},
+    "traceIncomplete": 0,
+    "withinBudget": 1,
+    "withCitations": 1,
+    "unknownMarkers": 0,
+    "mustNotHits": 0,
+    "p50DurationMs": 8375,
+    "p95DurationMs": 8375,
+    "p50WallMs": 10217,
+    "p95WallMs": 10217,
+    "p50ElapsedMsTotal": 10217,
+    "p95ElapsedMsTotal": 10217,
+    "p50WallMsTotal": 10217,
+    "p95WallMsTotal": 10217
+  },
+  "results": [
+    {
+      "id": "Q13",
+      "kind": "unsupported",
+      "question": "这个项目服务了多少客户、节省了多少成本？",
+      "expected": [
+        "无依据：应说明资料里没有，不给数字"
+      ],
+      "maxChars": 300,
+      "status": "CANCELLED",
+      "errorCode": "CANCELLED_BY_USER",
+      "attemptCount": 2,
+      "elapsedMsTotal": 15905,
+      "sessionId": "790cb87b-4736-4ada-9b28-64cfa32ab902",
+      "dbHistoryUserMessageCount": 0,
+      "dbHistoryUserMessageIds": [],
+      "wallMsTotal": 7905,
+      "attempts": [
+        {
+          "runId": "f09d4a51-a324-43a8-b84c-9d406a1caf6e",
+          "submitStatus": 200,
+          "status": "CANCELLED",
+          "errorCode": "CANCELLED_BY_USER",
+          "cancelStatus": 200,
+          "cancelledOnPurpose": true,
+          "durationMs": 3666,
+          "wallMs": 4969,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelRetries": 0,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "attempt": 1,
+          "backoffMs": 8000
+        },
+        {
+          "runId": "61b6b5fc-adce-426f-bc14-2ed2edb0f15b",
+          "submitStatus": 200,
+          "status": "CANCELLED",
+          "errorCode": "CANCELLED_BY_USER",
+          "cancelStatus": 200,
+          "cancelledOnPurpose": true,
+          "durationMs": 1735,
+          "wallMs": 2936,
+          "traceIncomplete": false,
+          "answerMessageId": null,
+          "answerChars": 0,
+          "markers": [],
+          "modelCalls": 1,
+          "modelRetries": 0,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 1
+          },
+          "citations": [],
+          "attempt": 2
+        }
+      ],
+      "answerChars": 0,
+      "withinBudget": true,
+      "citations": [],
+      "markers": [],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": ""
+    },
+    {
+      "id": "FU1",
+      "kind": "follow-up",
+      "question": "把刚才的问题再答一次。",
+      "expected": [
+        "在同一会话里追问同一个问题"
+      ],
+      "maxChars": 1200,
+      "status": "SUCCEEDED",
+      "errorCode": null,
+      "attemptCount": 1,
+      "elapsedMsTotal": 10217,
+      "sessionId": "790cb87b-4736-4ada-9b28-64cfa32ab902",
+      "dbHistoryUserMessageCount": 2,
+      "dbHistoryUserMessageIds": [
+        "e534244e-7a64-49e5-aafd-75630497e83b",
+        "b356f6d8-a758-4889-a934-d3a99bb68b67"
+      ],
+      "wallMsTotal": 10217,
+      "attempts": [
+        {
+          "runId": "31fdc48b-7cbe-4bc6-b287-56a55c77b145",
+          "submitStatus": 200,
+          "status": "SUCCEEDED",
+          "errorCode": null,
+          "cancelStatus": null,
+          "cancelledOnPurpose": false,
+          "durationMs": 8375,
+          "wallMs": 10217,
+          "traceIncomplete": false,
+          "answerMessageId": "559ca1b8-f3cd-49ee-b5e2-cfa468808d9c",
+          "answerChars": 272,
+          "markers": [
+            1,
+            2
+          ],
+          "modelCalls": 3,
+          "modelRetries": 0,
+          "modelCallFailures": 0,
+          "modelCallErrorCodes": [],
+          "modelCallDetails": [],
+          "eventTypes": {
+            "MODEL_CALL": 3,
+            "PERSIST_MESSAGE": 8,
+            "TOOL_CALL": 5,
+            "RETRIEVAL": 3
+          },
+          "citations": [
+            {
+              "label": 1,
+              "documentName": "02_engineering_cases.md",
+              "startLine": 3,
+              "endLine": 4,
+              "excerpt": "本文用「问题 → 方案 → 验证结果」的结构讲三个真实的工程案例，全部来自本仓库的实现与测试记录。 核对日期：2026-10-19。文中耗时与用例数量都是当次真实输出，不代表长期性能承诺。"
+            },
+            {
+              "label": 2,
+              "documentName": "01_product_guide.md",
+              "startLine": 9,
+              "endLine": 15,
+              "excerpt": "ExoBrain 是一个可核验的 RAG 问答项目：它检索公开资料、给出带原文出处的回答，并把一次回答的执行过程记录下来供核对。 三个要点： 1. **回答带出处**：模型必须通过检索工具拿到资料片段才组织结论，回答里的每条来源都指向具体文档、行号范围与片段哈希。 2. **过程可核对**：每轮问答都有运行记录，包含模"
+            }
+          ],
+          "attempt": 1
+        }
+      ],
+      "answerChars": 272,
+      "withinBudget": true,
+      "citations": [
+        {
+          "label": 1,
+          "documentName": "02_engineering_cases.md",
+          "startLine": 3,
+          "endLine": 4,
+          "excerpt": "本文用「问题 → 方案 → 验证结果」的结构讲三个真实的工程案例，全部来自本仓库的实现与测试记录。 核对日期：2026-10-19。文中耗时与用例数量都是当次真实输出，不代表长期性能承诺。"
+        },
+        {
+          "label": 2,
+          "documentName": "01_product_guide.md",
+          "startLine": 9,
+          "endLine": 15,
+          "excerpt": "ExoBrain 是一个可核验的 RAG 问答项目：它检索公开资料、给出带原文出处的回答，并把一次回答的执行过程记录下来供核对。 三个要点： 1. **回答带出处**：模型必须通过检索工具拿到资料片段才组织结论，回答里的每条来源都指向具体文档、行号范围与片段哈希。 2. **过程可核对**：每轮问答都有运行记录，包含模"
+        }
+      ],
+      "markers": [
+        1,
+        2
+      ],
+      "unknownMarkers": [],
+      "mustNotHits": [],
+      "answer": "结论：知识库里没有写服务了多少客户、节省了多少成本，这两项都无法给出数字。\n\n要点：\n- 三份资料是《产品导览》《工程案例》《能力归属》，性质是项目说明与实现记录，不含客户数量、合同规模或成本收益这类经营数据 [1]。\n- 唯一出现的量化数字是工程案例里的耗时与用例数量，且明确说明那是当次真实输出、不代表长期性能承诺，不能当作「节省成本」的证据 [1]。\n- 能确认的部分：项目对外可核验的指标是回答带出处、执行过程可核对、失败可恢复这类能力描述，而不是商业收益 [2]。\n\n如果你需要客户量或成本节省的具体数字，得由业务侧提供，我不便推测。"
+    }
+  ]
+}

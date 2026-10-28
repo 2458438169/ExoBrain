@@ -147,4 +147,19 @@ class JChatMindFactoryMemoryTest {
                 .findFirst()
                 .orElse("missing");
     }
+
+    @Test
+    @DisplayName("窗口裁掉了提问、只剩回答时，这些孤儿消息不进入投影并记录理由")
+    void orphanAnswerOutsideWindowIsRecordedNotProjected() {
+        JChatMindFactory.MemoryProjection projection = JChatMindFactory.project(List.of(
+                assistant("a0", "上一轮的回答（它的提问已落在窗口外）"),
+                tool("t0"),
+                user("m2", "把刚才的问题再答一次。")));
+
+        List<Message> memory = projection.messages();
+        assertEquals(1, memory.size(), "只有本轮问题进入投影");
+        assertEquals("把刚才的问题再答一次。", memory.get(0).getText());
+        assertEquals("window-truncated:user-message-outside-window", reason(projection, "a0"));
+        assertEquals("window-truncated:user-message-outside-window", reason(projection, "t0"));
+    }
 }
