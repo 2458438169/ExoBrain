@@ -65,8 +65,17 @@ public final class RunRecorder {
 
     public void modelCall(int attempt, Instant startedAt, long durationMs,
                           RunEventStatus status, String errorCode) {
+        modelCall(attempt, startedAt, durationMs, status, errorCode, null);
+    }
+
+    /**
+     * 模型调用事件；{@code detail} 只放受控短标签（例如模型调用的序号、是否在检索之后、
+     * 供应商失败的白名单诊断），总长受 {@code detail} 列约束。
+     */
+    public void modelCall(int attempt, Instant startedAt, long durationMs,
+                          RunEventStatus status, String errorCode, String detail) {
         record(attempt > 1 ? RunEventType.MODEL_RETRY : RunEventType.MODEL_CALL, startedAt, durationMs, status,
-                attempt, null, null, null, errorCode, null);
+                attempt, null, null, null, errorCode, detail);
     }
 
     public void toolCall(String toolCallId, String toolName, Instant startedAt, long durationMs,

@@ -1,0 +1,49 @@
+{
+  "version": "ux08-verdicts-2026-10-28-v5",
+  "rule": "pass-criteria-2026-10-28.md（每题只计一次；串题/错引/无依据承诺/失败/超预算一律不通过）",
+  "sourceCommit": "working tree on top of 736fa1b（本轮的协议诊断与生成预算修复）",
+  "note": "逐题判定是数据，不是手写合计。runId、状态、尝试次数、字数由生成器从运行 JSON 读出；这里只写 pass 与理由。",
+  "runs": {
+    "main": "run-2026-10-28-grounded-30-v5.json"
+  },
+  "groups": {
+    "main": {
+      "label": "固定条件整组（shared 会话、30 题、题间 1 s、模型请求最小间隔 11 s、每题最多 3 次）",
+      "use": "正式整组结果",
+      "questionSet": 30
+    }
+  },
+  "crossRunNote": "本组只有一次运行，跨条件诊断与主组相同，不再另列。",
+  "verdicts": [
+    {"id": "Q01", "run": "main", "pass": true, "reason": "一句话定位挂 01 L9-15，三要点同段，三条体验路径挂 01 L19-23；130 字达标。"},
+    {"id": "Q02", "run": "main", "pass": true, "reason": "定位粒度挂 03 L81-83，新协议的短引校验挂 03 L70-77，契约边界挂 L81-83；211 字达标。"},
+    {"id": "Q03", "run": "main", "pass": true, "reason": "只列继承（Agent 主循环，03 L9-18）与新增的一项（可核验引用，03 L22-31）并标明「之一」，不再越界列举；200/350。"},
+    {"id": "Q04", "run": "main", "pass": true, "reason": "可信任依据挂 01 L9-15（含运行记录），边界挂 01 L27-29；176/350 达标。"},
+    {"id": "Q05", "run": "main", "pass": true, "reason": "能解决 / 不能解决两点同出自 01 L27-29；99 字。"},
+    {"id": "Q06", "run": "main", "pass": true, "reason": "去重键、同键返回 runId、边界三句均出自 02 L8-22，未承诺外部 exactly-once。"},
+    {"id": "Q07", "run": "main", "pass": true, "reason": "取消三步与边界（不撤回已发请求、不承诺立即停止）均出自 02 L26-42。"},
+    {"id": "Q08", "run": "main", "pass": true, "reason": "QUEUED 重启重领、RUNNING 记 INTERRUPTED、恢复范围三句均出自 02 L46-51。"},
+    {"id": "Q09", "run": "main", "pass": true, "reason": "共用线程的危害、独立调度器方案、真实 PostgreSQL 用例均出自 02 L55-71。"},
+    {"id": "Q10", "run": "main", "pass": true, "reason": "明确「不是」，两句均出自 03 L44-48。"},
+    {"id": "Q11", "run": "main", "pass": true, "reason": "引用≠结论正确，两句分别挂 03 L81-83 与 01 L27-29，无新增因果。"},
+    {"id": "Q12", "run": "main", "pass": true, "reason": "管理员不可读他人资源挂 01 L33-36，资源隔离挂 03 L31-33。"},
+    {"id": "Q13", "run": "main", "pass": true, "reason": "合格拒答：明确说没有客户数或成本数据，零引用。mustNot 的「节省」出现在否认句里，属正则误伤。"},
+    {"id": "Q14", "run": "main", "pass": true, "reason": "合格拒答：明确说没有作者履历，零引用。"},
+    {"id": "Q15", "run": "main", "pass": true, "reason": "合格拒答：明确说没有文件格式清单，零引用。"},
+    {"id": "Q16", "run": "main", "pass": true, "reason": "定位粒度直接出自 03 L81-83；短引校验出自 03 L70-77，属同一主题的协议约束。"},
+    {"id": "Q17", "run": "main", "pass": true, "reason": "只答导入失败的处理：入队、失败重试、固定错误码、状态可查询，全部出自 03 L22-31；换向量模型那句无关内容已消失（79→38 字）。"},
+    {"id": "Q18", "run": "main", "pass": true, "reason": "查看过程可见项挂 01 L19-23，运行记录挂 01 L9-15。"},
+    {"id": "Q19", "run": "main", "pass": true, "reason": "游客范围、公开资料发布边界、账号隔离三句均出自 01 L33-36。"},
+    {"id": "Q20", "run": "main", "pass": true, "reason": "三项指标与配套资产均出自 03 L22-31。"},
+    {"id": "Q21", "run": "main", "pass": true, "reason": "不能直接换（03 L44-48）与换绑守卫（03 L31-33）分挂，无串题。"},
+    {"id": "Q22", "run": "main", "pass": true, "reason": "fencing 前进与写回条件挂 02 L26-42；第 3 条给的是同一设计的验证边界（03 L37-40），属该问题的适用范围，不是别题答案。"},
+    {"id": "Q23", "run": "main", "pass": true, "reason": "预算内重试 + 无锁确认 + 边界两句均出自 02 L55-71。"},
+    {"id": "Q24", "run": "main", "pass": true, "reason": "基于 JChatMind 挂 03 L3-5，技术栈与五项保留能力挂 03 L9-18。"},
+    {"id": "Q25", "run": "main", "pass": true, "reason": "旧协议（03 L63-66）与新协议（03 L70-77）分开说明，并补契约边界（03 L81-83）。"},
+    {"id": "Q26", "run": "main", "pass": true, "reason": "资料不足走独立结果、不挂引用，出自 03 L70-77。"},
+    {"id": "Q27", "run": "main", "pass": true, "reason": "来源可点开（03 L81-83）、引用≠正确（01 L27-29）、宁可标中断（02 L75-77）分别有据。"},
+    {"id": "Q28", "run": "main", "pass": true, "reason": "去重键、同键返回、边界三句均出自 02 L8-22。"},
+    {"id": "Q29", "run": "main", "pass": true, "reason": "非实时生成、历史记录、质量边界三句均出自 01 L40-42；因果连接在原文里就有。"},
+    {"id": "Q30", "run": "main", "pass": true, "reason": "点开来源的做法与契约边界均出自 03 L81-83。"}
+  ]
+}

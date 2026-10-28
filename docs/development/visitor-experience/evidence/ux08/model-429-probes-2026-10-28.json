@@ -1,0 +1,554 @@
+{
+  "version": "ux08-model-429-probes-2026-10-28",
+  "purpose": "用最小真实请求查明中转站 429 的触发条件与可得的诊断字段；每个请求 max_tokens=8，只记录状态码与白名单响应头。",
+  "keyNeverLogged": "请求里的 Authorization 头不写入任何证据文件。",
+  "probes": {
+    "burst": {
+      "base": "https://metapi.lilililwan.xyz/v1",
+      "model": "DeepSeek-V4.1-Flash",
+      "records": [
+        {
+          "tag": "b1",
+          "at": "19:18:42",
+          "status": 200,
+          "headers": {},
+          "usage": {
+            "completion_tokens": 8,
+            "completion_tokens_details": {
+              "reasoning_tokens": 8
+            },
+            "prompt_tokens": 31,
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "total_tokens": 39
+          },
+          "elapsedMs": 6083
+        },
+        {
+          "tag": "b2",
+          "at": "19:18:49",
+          "status": 200,
+          "headers": {},
+          "usage": {
+            "completion_tokens": 8,
+            "completion_tokens_details": {
+              "reasoning_tokens": 8
+            },
+            "prompt_tokens": 31,
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "total_tokens": 39
+          },
+          "elapsedMs": 5692
+        },
+        {
+          "tag": "b3",
+          "at": "19:18:55",
+          "status": 200,
+          "headers": {},
+          "usage": {
+            "completion_tokens": 8,
+            "completion_tokens_details": {
+              "reasoning_tokens": 8
+            },
+            "prompt_tokens": 31,
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "total_tokens": 39
+          },
+          "elapsedMs": 6246
+        },
+        {
+          "tag": "b4",
+          "at": "19:19:02",
+          "status": 200,
+          "headers": {},
+          "usage": {
+            "completion_tokens": 8,
+            "completion_tokens_details": {
+              "reasoning_tokens": 8
+            },
+            "prompt_tokens": 31,
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "total_tokens": 39
+          },
+          "elapsedMs": 5741
+        },
+        {
+          "tag": "b5",
+          "at": "19:19:08",
+          "status": 200,
+          "headers": {},
+          "usage": {
+            "completion_tokens": 8,
+            "completion_tokens_details": {
+              "reasoning_tokens": 8
+            },
+            "prompt_tokens": 31,
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "total_tokens": 39
+          },
+          "elapsedMs": 5572
+        },
+        {
+          "tag": "b6",
+          "at": "19:19:14",
+          "status": 200,
+          "headers": {},
+          "usage": {
+            "completion_tokens": 8,
+            "completion_tokens_details": {
+              "reasoning_tokens": 8
+            },
+            "prompt_tokens": 31,
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "total_tokens": 39
+          },
+          "elapsedMs": 5826
+        },
+        {
+          "tag": "b7",
+          "at": "19:19:20",
+          "status": 429,
+          "headers": {},
+          "errorCode": null,
+          "errorMessage": "",
+          "elapsedMs": 5096
+        },
+        {
+          "tag": "b8",
+          "at": "19:19:26",
+          "status": 200,
+          "headers": {},
+          "usage": {
+            "completion_tokens": 8,
+            "completion_tokens_details": {
+              "reasoning_tokens": 8
+            },
+            "prompt_tokens": 31,
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "total_tokens": 39
+          },
+          "elapsedMs": 5739
+        },
+        {
+          "tag": "b9",
+          "at": "19:19:32",
+          "status": 429,
+          "headers": {},
+          "errorCode": null,
+          "errorMessage": "",
+          "elapsedMs": 5015
+        },
+        {
+          "tag": "b10",
+          "at": "19:19:38",
+          "status": 429,
+          "headers": {},
+          "errorCode": null,
+          "errorMessage": "",
+          "elapsedMs": 4983
+        }
+      ]
+    },
+    "paced16s": {
+      "base": "https://metapi.lilililwan.xyz/v1",
+      "model": "DeepSeek-V4.1-Flash",
+      "records": [
+        {
+          "tag": "cool45",
+          "at": "19:20:45",
+          "status": 200,
+          "headers": {},
+          "usage": {
+            "completion_tokens": 8,
+            "completion_tokens_details": {
+              "reasoning_tokens": 8
+            },
+            "prompt_tokens": 31,
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "total_tokens": 39
+          },
+          "elapsedMs": 6252
+        },
+        {
+          "tag": "p1",
+          "at": "19:20:51",
+          "status": 200,
+          "headers": {},
+          "usage": {
+            "completion_tokens": 8,
+            "completion_tokens_details": {
+              "reasoning_tokens": 8
+            },
+            "prompt_tokens": 31,
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "total_tokens": 39
+          },
+          "elapsedMs": 5759
+        },
+        {
+          "tag": "p2",
+          "at": "19:21:07",
+          "status": 200,
+          "headers": {},
+          "usage": {
+            "completion_tokens": 8,
+            "completion_tokens_details": {
+              "reasoning_tokens": 8
+            },
+            "prompt_tokens": 31,
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "total_tokens": 39
+          },
+          "elapsedMs": 5660
+        },
+        {
+          "tag": "p3",
+          "at": "19:21:23",
+          "status": 200,
+          "headers": {},
+          "usage": {
+            "completion_tokens": 8,
+            "completion_tokens_details": {
+              "reasoning_tokens": 8
+            },
+            "prompt_tokens": 31,
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "total_tokens": 39
+          },
+          "elapsedMs": 5620
+        },
+        {
+          "tag": "p4",
+          "at": "19:21:38",
+          "status": 200,
+          "headers": {},
+          "usage": {
+            "completion_tokens": 8,
+            "completion_tokens_details": {
+              "reasoning_tokens": 8
+            },
+            "prompt_tokens": 31,
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "total_tokens": 39
+          },
+          "elapsedMs": 5614
+        },
+        {
+          "tag": "p5",
+          "at": "19:21:54",
+          "status": 200,
+          "headers": {},
+          "usage": {
+            "completion_tokens": 8,
+            "completion_tokens_details": {
+              "reasoning_tokens": 8
+            },
+            "prompt_tokens": 31,
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "total_tokens": 39
+          },
+          "elapsedMs": 6025
+        },
+        {
+          "tag": "p6",
+          "at": "19:22:10",
+          "status": 200,
+          "headers": {},
+          "usage": {
+            "completion_tokens": 8,
+            "completion_tokens_details": {
+              "reasoning_tokens": 8
+            },
+            "prompt_tokens": 31,
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "total_tokens": 39
+          },
+          "elapsedMs": 7012
+        },
+        {
+          "tag": "p7",
+          "at": "19:22:27",
+          "status": 200,
+          "headers": {},
+          "usage": {
+            "completion_tokens": 8,
+            "completion_tokens_details": {
+              "reasoning_tokens": 8
+            },
+            "prompt_tokens": 31,
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "total_tokens": 39
+          },
+          "elapsedMs": 5645
+        },
+        {
+          "tag": "p8",
+          "at": "19:22:42",
+          "status": 200,
+          "headers": {},
+          "usage": {
+            "completion_tokens": 8,
+            "completion_tokens_details": {
+              "reasoning_tokens": 8
+            },
+            "prompt_tokens": 31,
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "total_tokens": 39
+          },
+          "elapsedMs": 5809
+        }
+      ]
+    },
+    "spacing7s_11s": {
+      "base": "https://metapi.lilililwan.xyz/v1",
+      "model": "DeepSeek-V4.1-Flash",
+      "records": [
+        {
+          "tag": "c1",
+          "at": "19:23:33",
+          "status": 200,
+          "headers": {},
+          "usage": {
+            "completion_tokens": 8,
+            "completion_tokens_details": {
+              "reasoning_tokens": 8
+            },
+            "prompt_tokens": 31,
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "total_tokens": 39
+          },
+          "elapsedMs": 5821
+        },
+        {
+          "tag": "s7a",
+          "at": "19:23:39",
+          "status": 200,
+          "headers": {},
+          "usage": {
+            "completion_tokens": 8,
+            "completion_tokens_details": {
+              "reasoning_tokens": 8
+            },
+            "prompt_tokens": 31,
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "total_tokens": 39
+          },
+          "elapsedMs": 5581
+        },
+        {
+          "tag": "s7b",
+          "at": "19:23:46",
+          "status": 200,
+          "headers": {},
+          "usage": {
+            "completion_tokens": 8,
+            "completion_tokens_details": {
+              "reasoning_tokens": 8
+            },
+            "prompt_tokens": 31,
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "total_tokens": 39
+          },
+          "elapsedMs": 5773
+        },
+        {
+          "tag": "s7c",
+          "at": "19:23:53",
+          "status": 200,
+          "headers": {},
+          "usage": {
+            "completion_tokens": 8,
+            "completion_tokens_details": {
+              "reasoning_tokens": 8
+            },
+            "prompt_tokens": 31,
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "total_tokens": 39
+          },
+          "elapsedMs": 6066
+        },
+        {
+          "tag": "s7d",
+          "at": "19:24:00",
+          "status": 200,
+          "headers": {},
+          "usage": {
+            "completion_tokens": 8,
+            "completion_tokens_details": {
+              "reasoning_tokens": 8
+            },
+            "prompt_tokens": 31,
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "total_tokens": 39
+          },
+          "elapsedMs": 6051
+        },
+        {
+          "tag": "s7e",
+          "at": "19:24:07",
+          "status": 200,
+          "headers": {},
+          "usage": {
+            "completion_tokens": 8,
+            "completion_tokens_details": {
+              "reasoning_tokens": 8
+            },
+            "prompt_tokens": 31,
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "total_tokens": 39
+          },
+          "elapsedMs": 5730
+        },
+        {
+          "tag": "s7f",
+          "at": "19:24:13",
+          "status": 200,
+          "headers": {},
+          "usage": {
+            "completion_tokens": 8,
+            "completion_tokens_details": {
+              "reasoning_tokens": 8
+            },
+            "prompt_tokens": 31,
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "total_tokens": 39
+          },
+          "elapsedMs": 5901
+        },
+        {
+          "tag": "s7g",
+          "at": "19:24:20",
+          "status": 429,
+          "headers": {},
+          "errorCode": null,
+          "errorMessage": "",
+          "elapsedMs": 5168
+        },
+        {
+          "tag": "s11a",
+          "at": "19:24:31",
+          "status": "transport-error",
+          "errorMessage": "URLError: <urlopen error [Errno 2] No such file or directory>",
+          "elapsedMs": 7555
+        },
+        {
+          "tag": "s11b",
+          "at": "19:24:43",
+          "status": 200,
+          "headers": {},
+          "usage": {
+            "completion_tokens": 8,
+            "completion_tokens_details": {
+              "reasoning_tokens": 8
+            },
+            "prompt_tokens": 31,
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "total_tokens": 39
+          },
+          "elapsedMs": 7014
+        },
+        {
+          "tag": "s11c",
+          "at": "19:24:55",
+          "status": 200,
+          "headers": {},
+          "usage": {
+            "completion_tokens": 8,
+            "completion_tokens_details": {
+              "reasoning_tokens": 8
+            },
+            "prompt_tokens": 31,
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "total_tokens": 39
+          },
+          "elapsedMs": 5786
+        },
+        {
+          "tag": "s11d",
+          "at": "19:25:06",
+          "status": 200,
+          "headers": {},
+          "usage": {
+            "completion_tokens": 8,
+            "completion_tokens_details": {
+              "reasoning_tokens": 8
+            },
+            "prompt_tokens": 31,
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "total_tokens": 39
+          },
+          "elapsedMs": 5736
+        },
+        {
+          "tag": "s11e",
+          "at": "19:25:17",
+          "status": 200,
+          "headers": {},
+          "usage": {
+            "completion_tokens": 8,
+            "completion_tokens_details": {
+              "reasoning_tokens": 8
+            },
+            "prompt_tokens": 31,
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "total_tokens": 39
+          },
+          "elapsedMs": 5624
+        }
+      ]
+    }
+  }
+}

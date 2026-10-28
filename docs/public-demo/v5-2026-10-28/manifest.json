@@ -1,0 +1,106 @@
+{
+  "version": "v5-2026-10-28",
+  "verifiedAt": "2026-10-28",
+  "supersedes": "v4-2026-10-28（保留不修改）；v3 / v2 / v1 同样保留不动",
+  "purpose": "补 v4 grounded 提示词缺失的生成预算：答复长度上限、『最多三条是上限不是配额』、以及与当前问题无关的内容即使有来源也不写。三份资料与 v4 字节相同，因此不需要重新导入索引。",
+  "changes": [
+    "agent-system-prompt-grounded.md：新增长度预算段（装配后正文 ≤200 字、列举只给 3–5 个代表性条目、只写与当前问题直接相关的内容、答完即止不追加第二个总结段），并把『默认最多三条』改写为『最多三条是上限、不是配额，不必用完检索结果』。",
+    "01_product_guide.md / 02_engineering_cases.md / 03_contribution_map.md：与 v4 字节相同（sha256 一致），索引可继续复用 v4 已导入的知识库。",
+    "agent-system-prompt.md（旧协议提示词）：与 v4 字节相同，只在关闭 grounded 开关时使用。"
+  ],
+  "documents": [
+    {
+      "file": "01_product_guide.md",
+      "title": "ExoBrain 产品导览",
+      "sha256": "85342e24022ba03eec4b80cf71302d8129b3c53ba66f8922b12c94f657bb7e23",
+      "bytes": 3702,
+      "answers": [
+        "这个项目能做什么",
+        "我在这里能亲自体验什么",
+        "哪些能力有边界",
+        "首页精选示例是实时生成的吗"
+      ]
+    },
+    {
+      "file": "02_engineering_cases.md",
+      "title": "ExoBrain 工程案例",
+      "sha256": "f888dcc55c989e9e810ce03d8461615819cd391a08d25b2cdfb2586fab6a5c1e",
+      "bytes": 6221,
+      "answers": [
+        "重复点击发送会不会跑两次",
+        "取消后模型迟到返回会怎样",
+        "一个任务的行锁为什么影响别的任务"
+      ]
+    },
+    {
+      "file": "03_contribution_map.md",
+      "title": "ExoBrain 能力归属",
+      "sha256": "ea4f9d44a704f5592c89d807f2907e45f3be304d58a9e29eb5e88c508a3ad40b",
+      "bytes": 7591,
+      "answers": [
+        "基于什么项目、保留了哪些能力",
+        "本仓库新增了什么",
+        "哪些已实现但未验证、哪些还没做",
+        "引用编号是怎么和来源对应的（旧协议与新协议两条通道）",
+        "回答时的来源能定位到什么粒度"
+      ]
+    }
+  ],
+  "indexReuse": {
+    "reusedFromVersion": "v4-2026-10-28",
+    "knowledgeBaseId": "ce187d79-4461-49b2-b3b8-a3cc07cd65ef",
+    "reason": "三份资料的 sha256 与 v4 完全相同，因此 v4 已导入的索引仍对应该版本内容；没有重新导入，也没有改索引版本。",
+    "evidence": "corpus-v4-import-2026-10-28.json"
+  },
+  "prompt": {
+    "file": "agent-system-prompt.md",
+    "sha256": "71c582eea648f40270a8298f9b726bc6dc75b7d6153570c30fbee5063b01e1b9",
+    "bytes": 3083,
+    "note": "旧协议（directAnswer）的助手系统提示词，只在 grounded 开关关闭时使用；不上传到知识库。"
+  },
+  "groundedPrompt": {
+    "file": "agent-system-prompt-grounded.md",
+    "sha256": "7d0cbbbfb920e65296d970254a8561c21380a3b581a2de01c0c8f34555f75a8a",
+    "bytes": 3861,
+    "note": "新协议（groundedAnswer）的助手系统提示词，含长度预算与『答完即止』约束；不上传到知识库。"
+  },
+  "supersededHashes": {
+    "v4-2026-10-28": {
+      "01_product_guide.md": "85342e24022ba03eec4b80cf71302d8129b3c53ba66f8922b12c94f657bb7e23",
+      "02_engineering_cases.md": "f888dcc55c989e9e810ce03d8461615819cd391a08d25b2cdfb2586fab6a5c1e",
+      "03_contribution_map.md": "ea4f9d44a704f5592c89d807f2907e45f3be304d58a9e29eb5e88c508a3ad40b",
+      "agent-system-prompt.md": "71c582eea648f40270a8298f9b726bc6dc75b7d6153570c30fbee5063b01e1b9",
+      "agent-system-prompt-grounded.md": "e2c639e59640d29a8685f02948b59b25b6b52251f503c742a2151682e5b4562a"
+    },
+    "v3-2026-10-28": {
+      "03_contribution_map.md": "ff9b038f2cec96830cb3b759443a0515883882cf435ee74aa8985ec217618444",
+      "agent-system-prompt-grounded.md": "51d4627644c9a9fab49243cd9d7a4b01e43cdbe369f50466f7222128a311014d"
+    }
+  },
+  "excludedFromUpload": [
+    "agent-system-prompt.md",
+    "agent-system-prompt-grounded.md",
+    "manifest.json",
+    "docs/public-demo/99_test_questions.md",
+    "docs/development/**",
+    "evaluation/**"
+  ],
+  "recommendedQuestions": [
+    {
+      "label": "30 秒了解这个项目",
+      "question": "用一句话和三个要点说明 ExoBrain 能做什么，并指出我可以亲自体验的能力。"
+    },
+    {
+      "label": "看一条有原文出处的回答",
+      "question": "这个项目如何让我核对答案的依据？请说明引用和原文的关系。"
+    },
+    {
+      "label": "作者新增了哪些能力",
+      "question": "在上游 JChatMind 的基础上，这个仓库新增了哪些能力？请区分继承和新增。"
+    }
+  ],
+  "followUps": [
+    "重复点击发送会不会跑两次？",
+    "点了取消之后模型又返回了，会发生什么？"
+  ]
+}

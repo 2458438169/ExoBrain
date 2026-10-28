@@ -45,6 +45,12 @@ document:
 # 默认指向本机 Ollama（零外部依赖）；也可以指向任意 OpenAI 兼容端点（自建 / 第三方）
 # 具体地址与 Key 放 application-dev.yaml（已被 .gitignore 排除）
 app:
+  # 模型请求节流：两次真实模型请求之间的最小间隔（毫秒）。
+  # 为什么需要：中转站在「同一窗口内请求数超限」时只返回 429，没有 Retry-After、没有错误体，
+  # 客户端无法分诊；实测约第 7 次请求触发，而每题问答本身要 2–3 次模型调用，
+  # 只加题间 sleep 覆盖不到一题内的连续请求。默认 0 = 不节流（默认行为不变）。
+  models:
+    min-interval-ms: ${APP_MODELS_MIN_INTERVAL_MS:0}
   embedding:
     protocol: ollama                     # ollama | openai
     base-url: http://localhost:11434

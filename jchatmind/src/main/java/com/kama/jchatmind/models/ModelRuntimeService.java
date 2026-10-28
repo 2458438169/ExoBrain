@@ -39,11 +39,19 @@ public class ModelRuntimeService {
     private final ModelSecretCipher cipher;
     private final ModelSettings settings;
     private final WebClient.Builder webClientBuilder;
+    private final ModelRequestPacer pacer;
 
     public ModelRuntimeService(ModelSecretCipher cipher, ModelSettings settings, WebClient.Builder webClientBuilder) {
+        this(cipher, settings, webClientBuilder, new ModelRequestPacer(0));
+    }
+
+    @org.springframework.beans.factory.annotation.Autowired
+    public ModelRuntimeService(ModelSecretCipher cipher, ModelSettings settings, WebClient.Builder webClientBuilder,
+                               ModelRequestPacer pacer) {
         this.cipher = cipher;
         this.settings = settings;
         this.webClientBuilder = webClientBuilder;
+        this.pacer = pacer;
     }
 
     public ChatClient chatClient(ModelDefinition model) {
@@ -80,7 +88,7 @@ public class ModelRuntimeService {
         } else {
             throw new ModelException(400, "不支持的语言模型协议");
         }
-        return ChatClient.create(new SafeChatModel(provider, Duration.ofSeconds(timeoutSeconds)));
+        return ChatClient.create(new SafeChatModel(provider, Duration.ofSeconds(timeoutSeconds), pacer));
     }
 
     public float[] embed(ModelDefinition model, String text) {
@@ -164,17 +172,32 @@ public class ModelRuntimeService {
         public boolean hasError(ClientHttpResponse response) throws IOException { return response.getStatusCode().isError(); }
         @Override
         public void handleError(URI url, HttpMethod method, ClientHttpResponse response) throws IOException {
-            // Keep only the status: provider bodies, URLs and headers may contain credentials.
-            log.warn("Language model HTTP request failed: status={}", response.getStatusCode().value());
-            throw llmUnavailable();
+            // 只保留白名单诊断：状态码、Retry-After、供应商错误码、请求标识。
+            // 响应头原文、响应体全文、URL 与凭据一律不写日志、不外传。
+            ProviderFailure failure = ProviderFailure.of(response.getStatusCode().value(),
+                    response.getHeaders(), readBriefBody(response));
+            log.warn("Language model HTTP request failed: {}", failure.toDetail());
+            throw new ProviderUnavailableException(failure);
         }
     };
 
-    private record SafeChatModel(ChatModel delegate, Duration timeout) implements ChatModel {
+    /** 错误体只读到固定长度，且只用于抽取稳定错误码，不原样记录。 */
+    private static String readBriefBody(ClientHttpResponse response) {
+        try {
+            byte[] buffer = new byte[2048];
+            int read = response.getBody().read(buffer);
+            return read <= 0 ? "" : new String(buffer, 0, read, java.nio.charset.StandardCharsets.UTF_8);
+        } catch (IOException | RuntimeException unreadable) {
+            return "";
+        }
+    }
+
+    private record SafeChatModel(ChatModel delegate, Duration timeout, ModelRequestPacer pacer) implements ChatModel {
         @Override
         public ChatResponse call(Prompt prompt) {
+            pacer.await();
             try { return delegate.call(prompt); }
-            catch (Exception failure) { logFailure(failure); throw llmUnavailable(); }
+            catch (Exception failure) { throw rethrowWithDiagnostics(failure); }
         }
 
         @Override
@@ -182,10 +205,21 @@ public class ModelRuntimeService {
 
         @Override
         public Flux<ChatResponse> stream(Prompt prompt) {
+            pacer.await();
             return Flux.defer(() -> delegate.stream(prompt)).timeout(timeout)
-                    .onErrorMap(failure -> { logFailure(failure); return llmUnavailable(); });
+                    .onErrorMap(ModelRuntimeService.SafeChatModel::rethrowWithDiagnostics);
         }
 
+
+        /**
+         * 记录根因并把白名单诊断带出去：有诊断就用 {@link ProviderUnavailableException}，
+         * 没有（超时、解析错误等）才退化成固定的「暂不可用」。
+         */
+        private static RuntimeException rethrowWithDiagnostics(Throwable failure) {
+            logFailure(failure);
+            ProviderFailure diagnostics = ProviderFailure.find(failure);
+            return diagnostics != null ? new ProviderUnavailableException(diagnostics) : llmUnavailable();
+        }
         /**
          * 记录可分诊的失败根因：只留异常类名与去掉 URL／密钥后的短消息。
          *

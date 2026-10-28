@@ -16,6 +16,7 @@ import com.kama.jchatmind.model.dto.ChatMessageDTO;
 import com.kama.jchatmind.model.dto.KnowledgeBaseDTO;
 import com.kama.jchatmind.model.response.CreateChatMessageResponse;
 import com.kama.jchatmind.model.vo.ChatMessageVO;
+import com.kama.jchatmind.models.ProviderFailure;
 import com.kama.jchatmind.service.ChatMessageFacadeService;
 import com.kama.jchatmind.service.SseService;
 import lombok.extern.slf4j.Slf4j;
@@ -120,6 +121,10 @@ public class JChatMind {
     private ChatOptions executionOptions;
     // 最近一次落库的 assistant 消息 id，用于把最终答复关联到运行记录。
     private String lastAssistantMessageId;
+    // 本次运行内真实发生的模型请求序号（跨步累计），与「是否已发生检索」一起写进模型调用事件，
+    // 用来区分「首个调用」和「检索之后的后续调用」——两者在限流上的表现可能不同。
+    private int modelCallOrdinal;
+    private int retrievalRounds;
 
     public JChatMind() {
     }
@@ -523,7 +528,9 @@ public class JChatMind {
         return UPSTREAM_BUSY_MARKERS.stream().anyMatch(marker -> lower.contains(marker.toLowerCase()));
     }
 
-    // 调用模型，识别上游繁忙并重试。
+    // 调用模型，识别上游繁忙与限流并做**有界**重试。
+    // 限流的退避优先用供应商给的 Retry-After；没有就按次数指数退避，并且有上限，
+    // 不把「无限重试」当可用率修复 —— 超过次数就是真实失败，如实记进运行结果。
     private ChatResponse callModelWithRetry(Prompt prompt, String thinkPrompt) {
         RuntimeException lastError = null;
         for (int attempt = 1; attempt <= MODEL_MAX_ATTEMPTS; attempt++) {
@@ -531,16 +538,28 @@ public class JChatMind {
             RunRecorder recorder = this.runRecorder;
             long started = System.nanoTime();
             Instant startedAt = Instant.now();
+            modelCallOrdinal++;
 
             ChatResponse response;
             try {
                 response = requestModel(prompt, thinkPrompt);
             } catch (RuntimeException failure) {
+                ProviderFailure diagnostics = ProviderFailure.find(failure);
                 if (recorder != null) {
+                    // 失败也要留证：detail 里带白名单诊断（状态码/Retry-After/错误码/请求标识），
+                    // 缺失字段记 unknown，不猜原因。
                     recorder.modelCall(attempt, startedAt, recorder.elapsedMillis(started),
-                            RunEventStatus.FAILED, "MODEL_CALL_FAILED");
+                            RunEventStatus.FAILED, "MODEL_CALL_FAILED", modelCallDetail(diagnostics));
                 }
-                throw failure;
+                boolean throttled = diagnostics != null && diagnostics.throttled();
+                if (!throttled || attempt >= MODEL_MAX_ATTEMPTS) {
+                    throw failure;
+                }
+                long waitMs = throttleWaitMillis(diagnostics, attempt);
+                log.warn("模型限流，第 {}/{} 次尝试后等待 {} ms 再试", attempt, MODEL_MAX_ATTEMPTS, waitMs);
+                sleepQuietly(waitMs);
+                lastError = failure;
+                continue;
             }
             long modelDurationMs = recorder == null ? 0L : recorder.elapsedMillis(started);
 
@@ -550,7 +569,7 @@ public class JChatMind {
                 // 真实调用的结果分类：繁忙是“失败尝试”，正常返回是“成功调用”。
                 recorder.modelCall(attempt, startedAt, modelDurationMs,
                         busy ? RunEventStatus.FAILED : RunEventStatus.SUCCEEDED,
-                        busy ? "UPSTREAM_BUSY" : null);
+                        busy ? "UPSTREAM_BUSY" : null, modelCallDetail(null));
                 if (!busy) {
                     // 只有服务商真的返回用量时才累加；缺失保持 null。
                     recorder.addUsage(usageOf(response));
@@ -572,6 +591,37 @@ public class JChatMind {
             }
         }
         throw lastError;
+    }
+
+    /**
+     * 模型调用事件的 detail：本次调用序号 + 是否已经发生过检索 + 供应商白名单诊断。
+     *
+     * <p>「首个调用」和「检索之后的后续调用」在限流上的表现可能不同，所以这两项必须分开记，
+     * 否则同一题里多次请求会被混成一个数字。</p>
+     */
+    private String modelCallDetail(ProviderFailure failure) {
+        String head = "call=" + modelCallOrdinal + ";retrieval=" + (retrievalRounds > 0);
+        if (failure == null) {
+            return head;
+        }
+        String tail = failure.toDetail();
+        int room = 200 - head.length() - 1;
+        if (room <= 0) {
+            return head;
+        }
+        return head + ";" + (tail.length() > room ? tail.substring(0, room) : tail);
+    }
+
+    /** 有界退避：优先 Retry-After，其次按次数指数退避，最终不超过上限。 */
+    private static long throttleWaitMillis(ProviderFailure failure, int attempt) {
+        long cap = 30_000L;
+        if (failure != null && failure.retryAfter() != null && failure.retryAfter().matches("\\d{1,6}")) {
+            long seconds = Long.parseLong(failure.retryAfter());
+            if (seconds > 0) {
+                return Math.min(cap, seconds * 1000L);
+            }
+        }
+        return Math.min(cap, 2_000L * (1L << (attempt - 1)));
     }
 
     // 读取服务商提供的用量；没有提供时返回 UNKNOWN（绝不按字符数推算，也不把缺失当 0）。
@@ -852,6 +902,10 @@ public class JChatMind {
                 .map(AssistantMessage.ToolCall::id)
                 .collect(Collectors.toSet());
         int registered = citationRegistry.registerCompletedCalls(completed, requestedKnowledgeCalls);
+        if (!requestedKnowledgeCalls.isEmpty()) {
+            // 只统计「本轮确实向知识库发起过检索」的回合数；成功与否由 registry 另外记。
+            retrievalRounds++;
+        }
         if (registered > 0) {
             log.info("本次运行已登记检索来源：retrievals={}, citations={}", registered,
                     citationRegistry.registered().size());

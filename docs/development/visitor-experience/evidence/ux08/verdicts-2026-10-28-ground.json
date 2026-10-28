@@ -1,0 +1,71 @@
+{
+  "version": "ux08-verdicts-2026-10-28-ground",
+  "rule": "pass-criteria-2026-10-28.md（每题只计一次；串题/错引/无依据承诺/失败/超预算一律不通过）",
+  "sourceCommit": "736fa1b",
+  "note": "逐题判定是数据，不是手写合计。runId、状态、尝试次数由生成器从运行 JSON 读出，判定只写 pass 与理由；生成器另外校验「非 SUCCEEDED 不得判通过」。",
+  "runs": {
+    "main": "run-2026-10-28-grounded-30.json",
+    "recovery": "run-2026-10-28-grounded-recovery.json"
+  },
+  "groups": {
+    "main": {
+      "label": "主运行（shared，全部 30 题，每题最多 2 次）",
+      "use": "正式整组结果",
+      "questionSet": 30
+    },
+    "recovery": {
+      "label": "补跑（per-question，仅主运行失败的 14 题，每题最多 3 次）",
+      "use": "补跑结果，不能替换主运行",
+      "questionSet": 14
+    }
+  },
+  "crossRunNote": "跨条件诊断：每题取主运行或补跑里已通过的那一次，只用于内容诊断，不作为整组达标成绩。",
+  "verdicts": [
+    {"id": "Q01", "run": "main", "pass": true, "reason": "一句话定位挂 01 L9-15；三要点与三条体验路径分别挂 01 L9-15、01 L19-23，未越界。"},
+    {"id": "Q02", "run": "main", "pass": true, "reason": "定位粒度挂 03 L81-83，两条通道说明挂 03 L70-77；第 3 条与第 1 条同源，共用 [1]，属合法去重。"},
+    {"id": "Q04", "run": "main", "pass": false, "reason": "长度 364/350 超预算（冻结口径默认不通过）；事实与引用本身无错。"},
+    {"id": "Q05", "run": "main", "pass": true, "reason": "能解决 / 不能解决 / 引用≠正确 三点均出自 01 L27-29。"},
+    {"id": "Q06", "run": "main", "pass": true, "reason": "幂等键、浏览器实测、边界三句均出自 02 L8-22，未承诺外部 exactly-once。"},
+    {"id": "Q09", "run": "main", "pass": true, "reason": "有界锁等待、独立调度器 + SET LOCAL lock_timeout、边界三句均出自 02 L55-71。"},
+    {"id": "Q11", "run": "main", "pass": true, "reason": "两句分别挂 01 L27-29 与 03 L81-83，只陈述「引用不代表结论正确」，没有新增因果。"},
+    {"id": "Q12", "run": "main", "pass": true, "reason": "管理员不可读他人资源挂 01 L33-36 与 03 L31-33；游客范围挂 01 L33-36。"},
+    {"id": "Q14", "run": "main", "pass": true, "reason": "资料不足走独立结果：明确说没有作者履历，零引用，不编造。"},
+    {"id": "Q18", "run": "main", "pass": true, "reason": "模型/检索/工具/落库步骤及耗时出自 01 L19-23。"},
+    {"id": "Q20", "run": "main", "pass": true, "reason": "Hit@3 / Recall@3 / MRR@3 与配套资产均出自 03 L22-31。"},
+    {"id": "Q22", "run": "main", "pass": true, "reason": "fencing 前进、写回两条件与整笔回滚均出自 02 L26-42。"},
+    {"id": "Q24", "run": "main", "pass": true, "reason": "基于 JChatMind、技术栈、保留能力均对到 03 L3-5 与 03 L9-18；列举不完整但无错误断言。"},
+    {"id": "Q26", "run": "main", "pass": true, "reason": "资料不足走独立结果、不挂引用，出自 03 L70-77。"},
+    {"id": "Q27", "run": "main", "pass": true, "reason": "来源粒度挂 01 L9-15，契约边界挂 03 L81-83，运行记录挂 01 L9-15。"},
+    {"id": "Q28", "run": "main", "pass": true, "reason": "幂等键复用、浏览器实测、边界三句均出自 02 L8-22。"},
+
+    {"id": "Q03", "run": "recovery", "pass": false, "reason": "长度 353/350 超预算（冻结口径默认不通过）；列举已不再越界，事实与引用本身无错。"},
+    {"id": "Q07", "run": "recovery", "pass": true, "reason": "协作式取消、检查点停止、迟到写入回滚三句均出自 02 L26-42。"},
+    {"id": "Q08", "run": "recovery", "pass": true, "reason": "RUNNING 重启记 INTERRUPTED、不自动重放、恢复范围三句均出自 02 L46-51。"},
+    {"id": "Q10", "run": "recovery", "pass": true, "reason": "明确「不是流式」，两句均出自 03 L44-48。"},
+    {"id": "Q13", "run": "recovery", "pass": true, "reason": "合格拒答：明确说没有客户数与成本数据，零引用。mustNot 命中的「节省」出现在否认句里，属正则误伤，不算编造。"},
+
+    {"id": "Q03", "run": "main", "pass": false, "reason": "两次尝试都 EXECUTION_FAILED（上游 429），没有正文，按失败计。"},
+    {"id": "Q07", "run": "main", "pass": false, "reason": "两次尝试都 EXECUTION_FAILED（上游 429），没有正文，按失败计。"},
+    {"id": "Q08", "run": "main", "pass": false, "reason": "两次尝试都 EXECUTION_FAILED（上游 429），没有正文，按失败计。"},
+    {"id": "Q10", "run": "main", "pass": false, "reason": "两次尝试都 EXECUTION_FAILED（上游 429），没有正文，按失败计。"},
+    {"id": "Q13", "run": "main", "pass": false, "reason": "两次尝试都 EXECUTION_FAILED（上游 429），没有正文，按失败计。"},
+    {"id": "Q15", "run": "main", "pass": false, "reason": "两次尝试都 EXECUTION_FAILED（上游 429），没有正文，按失败计。"},
+    {"id": "Q16", "run": "main", "pass": false, "reason": "两次尝试都 EXECUTION_FAILED（上游 429），没有正文，按失败计。"},
+    {"id": "Q17", "run": "main", "pass": false, "reason": "两次尝试都 EXECUTION_FAILED（上游 429），没有正文，按失败计。"},
+    {"id": "Q19", "run": "main", "pass": false, "reason": "两次尝试都 EXECUTION_FAILED（上游 429），没有正文，按失败计。"},
+    {"id": "Q21", "run": "main", "pass": false, "reason": "两次尝试都 EXECUTION_FAILED（上游 429），没有正文，按失败计。"},
+    {"id": "Q23", "run": "main", "pass": false, "reason": "两次尝试都 EXECUTION_FAILED（上游 429），没有正文，按失败计。"},
+    {"id": "Q25", "run": "main", "pass": false, "reason": "两次尝试都 EXECUTION_FAILED（上游 429），没有正文，按失败计。"},
+    {"id": "Q29", "run": "main", "pass": false, "reason": "两次尝试都 EXECUTION_FAILED（上游 429），没有正文，按失败计。"},
+    {"id": "Q30", "run": "main", "pass": false, "reason": "两次尝试都 EXECUTION_FAILED（上游 429），没有正文，按失败计。"},
+    {"id": "Q15", "run": "recovery", "pass": true, "reason": "合格拒答：明确说资料没写支持的文件格式清单，零引用。"},
+    {"id": "Q16", "run": "recovery", "pass": true, "reason": "「文档名、行号范围与原文片段」直接出自 03 L81-83；协议说明挂 03 L70-77。"},
+    {"id": "Q17", "run": "recovery", "pass": false, "reason": "回答了本题之外的问题：第 3 条「不同供应商或不同模型的向量不能混在一个索引里，换模型必须重新导入」是换向量模型的答案，与「导入失败怎么处理」无关。该句有真实来源，但冻结口径要求只回答当前问题，不因事实无误豁免。"},
+    {"id": "Q19", "run": "recovery", "pass": true, "reason": "游客范围与管理员隔离分别挂 01 L33-36、03 L31-33。"},
+    {"id": "Q21", "run": "recovery", "pass": true, "reason": "「不能直接换，必须重新导入」出自 03 L44-48。"},
+    {"id": "Q23", "run": "recovery", "pass": true, "reason": "有界可放弃、预算内重试 + 无锁确认、边界三句均出自 02 L55-71。"},
+    {"id": "Q25", "run": "recovery", "pass": true, "reason": "区分两条通道：旧协议 [n] 对应 citationIds 第 n 项（03 L63-66）；新协议无该参数、编号由服务端排（03 L70-77）。"},
+    {"id": "Q29", "run": "recovery", "pass": true, "reason": "三句均出自 01 L40-42；因果连接在原句里就有（原文即「因此」）。"},
+    {"id": "Q30", "run": "recovery", "pass": true, "reason": "点开来源的三个可见项与契约边界出自 03 L81-83，直接提问路径出自 01 L19-23。"}
+  ]
+}

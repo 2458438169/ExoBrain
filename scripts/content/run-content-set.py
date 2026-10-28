@@ -234,7 +234,9 @@ def main():
     parser.add_argument("--base", default="http://127.0.0.1:18080")
     parser.add_argument("--agent", required=True)
     parser.add_argument("--out", required=True)
-    parser.add_argument("--pause", type=float, default=1.0)
+    parser.add_argument("--pause", type=float, default=1.0, help="题与题之间的等待秒数（不含一题内的模型调用）")
+    parser.add_argument("--model-pacing-ms", type=int, default=0,
+                        help="应用侧两次真实模型请求的最小间隔（APP_MODELS_MIN_INTERVAL_MS），只用于记录运行条件")
     parser.add_argument("--attempts", type=int, default=2, help="每题最多尝试几次")
     parser.add_argument("--backoff", type=float, default=8.0, help="重试前的退避秒数")
     parser.add_argument("--only", default="", help="逗号分隔的题号，例如 Q05,Q06；留空跑全部")
@@ -414,6 +416,7 @@ def main():
                              "sessionMode": args.session_mode, "label": args.label,
                              "promptFile": os.path.relpath(args.prompt, ROOT),
                              "messageWindow": message_window,
+                             "modelPacingMs": args.model_pacing_ms,
                              "corpusVersion": (corpus or {}).get("version")},
                "ranAt": time.strftime("%Y-%m-%dT%H:%M:%S"), "summary": summary, "results": results}
     os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)

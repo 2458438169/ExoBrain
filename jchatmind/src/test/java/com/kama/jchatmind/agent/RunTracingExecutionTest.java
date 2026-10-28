@@ -17,6 +17,8 @@ import com.kama.jchatmind.retrieval.RetrievalEnvelope;
 import com.kama.jchatmind.retrieval.RetrievalHit;
 import com.kama.jchatmind.retrieval.SourceLocation;
 import com.kama.jchatmind.service.ChatMessageFacadeService;
+import com.kama.jchatmind.models.ProviderFailure;
+import com.kama.jchatmind.models.ProviderUnavailableException;
 import com.kama.jchatmind.service.SseService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -180,6 +182,34 @@ class RunTracingExecutionTest {
         assertTrue(harness.recorder().durationMillis() >= 3000L, "the real backoff (1s + 2s) is inside the run duration");
     }
 
+
+    @Test
+    @DisplayName("限流失败：事件里留白名单诊断，并按 Retry-After 做有界重试")
+    void throttledFailureIsDiagnosedAndRetriedWithinBounds() {
+        Harness harness = harness(List.of(greetingRound("最终答复")));
+        harness.runtime().throttleOnce(new ProviderFailure(429, "1", "rate_limit_exceeded", "req-abc123"), 1);
+
+        harness.run();
+
+        List<RunEventRecord> modelEvents = events.stream()
+                .filter(e -> e.type() == RunEventType.MODEL_CALL || e.type() == RunEventType.MODEL_RETRY)
+                .toList();
+        assertEquals(2, modelEvents.size(), "一次限流 + 一次成功，只记两条真实调用");
+        RunEventRecord throttled = modelEvents.get(0);
+        assertEquals(RunEventStatus.FAILED, throttled.status());
+        assertEquals("MODEL_CALL_FAILED", throttled.errorCode());
+        // detail 只允许白名单字段，且带上「本次调用序号 + 是否已检索」，用于分开看首次与后续调用。
+        String detail = throttled.detail();
+        assertNotNull(detail);
+        assertTrue(detail.startsWith("call=1;retrieval=false"), "unexpected detail: " + detail);
+        assertTrue(detail.contains("http=429"), "unexpected detail: " + detail);
+        assertTrue(detail.contains("retry-after=1"), "unexpected detail: " + detail);
+        assertTrue(detail.contains("code=rate_limit_exceeded"), "unexpected detail: " + detail);
+        assertTrue(detail.length() <= 200, "detail must fit the run event column");
+        assertEquals(RunEventStatus.SUCCEEDED, modelEvents.get(1).status());
+        assertTrue(modelEvents.get(1).detail().startsWith("call=2;retrieval=false"));
+    }
+
     @Test
     @DisplayName("达到步数上限时记录 STEP_LIMIT，而不是把它当成一次成功工具")
     void stepLimitIsRecorded() {
@@ -297,6 +327,8 @@ class RunTracingExecutionTest {
     /** 脚本化模型调用；工具执行、落库前的 DTO、事件记录都走生产实现。 */
     private static final class Runtime extends JChatMind {
         private final Queue<ChatResponse> responses;
+        private ProviderFailure pendingFailure;
+        private int pendingFailureTimes;
 
         Runtime(List<ChatResponse> script, ToolCallback[] callbacks, SseService sse,
                 ChatMessageFacadeService messages, Runnable runtimeGuard) {
@@ -307,8 +339,18 @@ class RunTracingExecutionTest {
             this.responses = new ConcurrentLinkedQueue<>(script);
         }
 
+        /** 让接下来的 N 次真实调用直接抛供应商失败（用于限流路径，不联网）。 */
+        void throttleOnce(ProviderFailure failure, int times) {
+            this.pendingFailure = failure;
+            this.pendingFailureTimes = times;
+        }
+
         @Override
         ChatResponse requestModel(Prompt prompt, String thinkPrompt) {
+            if (pendingFailureTimes > 0) {
+                pendingFailureTimes--;
+                throw new ProviderUnavailableException(pendingFailure);
+            }
             ChatResponse response = responses.poll();
             assertNotNull(response, "the scripted run asked for more model calls than the script provides");
             return response;
